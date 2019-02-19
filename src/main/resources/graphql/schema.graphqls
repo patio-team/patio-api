@@ -1,0 +1,10 @@
+type Group {
+    uuid: ID
+    visibleMemberList: Boolean
+    anonymousVote: Boolean
+    name: String
+}
+
+type Query {
+    listGroups: [Group]
+}

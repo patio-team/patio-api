@@ -1,0 +1,19 @@
+micronaut:
+  application:
+    name: dwbh-api
+
+datasources:
+    default:
+        url: jdbc:postgresql://localhost:5432/dwbh
+        username: dwbh
+        password: dwbh
+        driverClassName: org.postgresql.Driver
+
+flyway:
+    datasources:
+        default:
+            locations: classpath:migrations
+
+graphql:
+  enabled: true
+  path: /graphql

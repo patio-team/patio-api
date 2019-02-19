@@ -1,0 +1,5 @@
+profile: service
+defaultPackage: dwbh.api
+---
+testFramework: junit
+sourceLanguage: java
