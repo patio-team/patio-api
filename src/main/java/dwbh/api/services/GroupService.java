@@ -4,7 +4,6 @@ import dwbh.api.domain.Group;
 import dwbh.api.repositories.GroupRepository;
 
 import javax.inject.Singleton;
-import java.util.Arrays;
 import java.util.List;
 
 /**

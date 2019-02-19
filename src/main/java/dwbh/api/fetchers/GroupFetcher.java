@@ -1,9 +1,9 @@
 package dwbh.api.fetchers;
 
 
-import graphql.schema.DataFetchingEnvironment;
 import dwbh.api.domain.Group;
 import dwbh.api.services.GroupService;
+import graphql.schema.DataFetchingEnvironment;
 
 import javax.inject.Singleton;
 import java.util.List;
