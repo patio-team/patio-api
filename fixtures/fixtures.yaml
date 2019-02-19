@@ -1,0 +1,5 @@
+dataSource:
+  url: jdbc:postgresql://localhost:5432/dwbh
+  user: dwbh
+  password: dwbh
+  driverClassName: org.postgresql.Driver
