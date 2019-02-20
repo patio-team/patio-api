@@ -1,6 +1,6 @@
 # dwbh-api
 
-This is the backend of the DWBH project
+This is the backend of the DWBH project. Cool!
 
 ## Getting Started
 
