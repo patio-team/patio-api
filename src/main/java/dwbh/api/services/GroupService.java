@@ -16,6 +16,12 @@ public class GroupService {
 
     private final GroupRepository repository;
 
+    /**
+     * Initializes service by using the database repository
+     *
+     * @param repository an instance of {@link GroupRepository}
+     * @since 0.1.0
+     */
     public GroupService(GroupRepository repository) {
         this.repository = repository;
     }

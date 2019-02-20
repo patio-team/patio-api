@@ -17,12 +17,12 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 
 /**
- * Maps the schema with the functions that are actually operating over the real data
+ * Maps the schema with the functions that are actually operating over
+ * the real data
  *
  * @since 0.1.0
  */
 @Factory
-@SuppressWarnings("PMD.AtLeastOneConstructor")
 public class GraphQLFactory {
 
     /**

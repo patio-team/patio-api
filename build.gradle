@@ -81,23 +81,6 @@ fixtures {
 
 pmd {
     ignoreFailures = false
-
-    ruleSets = [
-        'java-basic',
-        'java-braces',
-        'java-clone',
-        'java-codesize',
-        //'java-comments',
-        'java-controversial',
-        'java-design',
-        'java-empty',
-        'java-finalizers',
-        'java-imports',
-        //'java-optimizations',
-        'java-strictexception',
-        'java-strings',
-        'java-typeresolution',
-        'java-unnecessary',
-        'java-unusedcode'
-    ]
+    ruleSetFiles 'etc/pmd/rulesets-general.xml',
+            'etc/pmd/rulesets-comments.xml'
 }
