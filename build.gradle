@@ -10,6 +10,8 @@ plugins {
 
 apply plugin: "application"
 apply plugin: "java"
+apply plugin: "pmd"
+apply plugin: "jacoco"
 apply plugin: FixturesPlugin
 
 version "0.1"
@@ -73,6 +75,29 @@ test {
 }
 
 fixtures {
-    loadDir 'fixtures/load'
-    cleanDir 'fixtures/clean'
+    loadDir 'etc/fixtures/load'
+    cleanDir 'etc/fixtures/clean'
+}
+
+pmd {
+    ignoreFailures = false
+
+    ruleSets = [
+        'java-basic',
+        'java-braces',
+        'java-clone',
+        'java-codesize',
+        //'java-comments',
+        'java-controversial',
+        'java-design',
+        'java-empty',
+        'java-finalizers',
+        'java-imports',
+        //'java-optimizations',
+        'java-strictexception',
+        'java-strings',
+        'java-typeresolution',
+        'java-unnecessary',
+        'java-unusedcode'
+    ]
 }

@@ -9,6 +9,7 @@ import javax.inject.Singleton;
 import javax.sql.DataSource;
 
 @Factory
+@SuppressWarnings("PMD.AtLeastOneConstructor")
 public class JooqContextProvider {
 
     @Singleton

@@ -22,7 +22,7 @@ import java.io.InputStreamReader;
  * @since 0.1.0
  */
 @Factory
-@SuppressWarnings("Duplicates")
+@SuppressWarnings("PMD.AtLeastOneConstructor")
 public class GraphQLFactory {
 
     /**
