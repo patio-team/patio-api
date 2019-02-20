@@ -8,16 +8,33 @@ import javax.inject.Singleton;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * Repository regarding database operation over {@link Group}
+ *
+ * @since 0.1.0
+ */
 @Singleton
 public class GroupRepository {
 
-    public final DSLContext context;
+    private final DSLContext context;
     private static final String TABLE_NAME = "groups";
 
+    /**
+     * Initializes the repository by setting the JOOQ {@link DSLContext}
+     *
+     * @param context JOOQ DSL context ({@link DSLContext}
+     * @since 0.1.0
+     */
     public GroupRepository(DSLContext context) {
         this.context = context;
     }
 
+    /**
+     * Lists all available groups
+     *
+     * @return a list of available groups
+     * @since 0.1.0
+     */
     public List<Group> listGroups() {
         return context
                 .selectFrom(TABLE_NAME)

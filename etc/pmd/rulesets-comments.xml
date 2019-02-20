@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<ruleset name="Custom ruleset"
+         xmlns="http://pmd.sourceforge.net/ruleset/2.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://pmd.sourceforge.net/ruleset/2.0.0
+  http://pmd.sourceforge.net/ruleset_2_0_0.xsd">
+    <description>
+        DWBH PMD ruleset about comments
+    </description>
+    <exclude-pattern>.*Test.*</exclude-pattern>
+
+    <rule ref="rulesets/java/comments.xml/CommentContent" />
+    <rule ref="rulesets/java/comments.xml/CommentDefaultAccessModifier" />
+    <rule ref="rulesets/java/comments.xml/CommentRequired">
+        <properties>
+            <property name="fieldCommentRequirement" value="Ignored"/>
+        </properties>
+    </rule>
+    <rule ref="rulesets/java/comments.xml/CommentSize">
+        <properties>
+            <property name="maxLines" value="10"/>
+        </properties>
+    </rule>
+</ruleset>
