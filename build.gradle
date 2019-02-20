@@ -11,7 +11,9 @@ plugins {
 apply plugin: "application"
 apply plugin: "java"
 apply plugin: "pmd"
+apply plugin: "checkstyle"
 apply plugin: "jacoco"
+apply plugin: 'findbugs'
 apply plugin: FixturesPlugin
 
 version "0.1"
@@ -56,6 +58,9 @@ dependencies {
     testCompile "io.micronaut:micronaut-inject-java"
     testCompile "org.hamcrest:hamcrest-all:1.3"
 
+    findbugs 'com.google.code.findbugs:findbugs:3.0.1'
+    findbugs configurations.findbugsPlugins.dependencies
+    findbugsPlugins 'com.h3xstream.findsecbugs:findsecbugs-plugin:1.4.4'
 }
 
 shadowJar {
@@ -83,4 +88,16 @@ pmd {
     ignoreFailures = false
     ruleSetFiles 'etc/pmd/rulesets-general.xml',
             'etc/pmd/rulesets-comments.xml'
+}
+
+checkstyle {
+    configFile file('etc/checkstyle/checkstyle.xml')
+    toolVersion "8.17"
+}
+
+findbugsMain {
+    reports {
+        xml.enabled = false
+        html.enabled = true
+    }
 }

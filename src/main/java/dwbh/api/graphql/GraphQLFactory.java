@@ -1,5 +1,7 @@
 package dwbh.api.graphql;
 
+import dwbh.api.domain.Group;
+import dwbh.api.fetchers.GroupFetcher;
 import graphql.GraphQL;
 import graphql.schema.GraphQLSchema;
 import graphql.schema.idl.RuntimeWiring;
@@ -9,12 +11,13 @@ import graphql.schema.idl.TypeDefinitionRegistry;
 import io.micronaut.context.annotation.Bean;
 import io.micronaut.context.annotation.Factory;
 import io.micronaut.core.io.ResourceResolver;
-import dwbh.api.domain.Group;
-import dwbh.api.fetchers.GroupFetcher;
 
 import javax.inject.Singleton;
 import java.io.BufferedReader;
+import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
+import java.util.Optional;
 
 /**
  * Maps the schema with the functions that are actually operating over
@@ -42,8 +45,12 @@ public class GraphQLFactory {
         // Parse the schema.
         TypeDefinitionRegistry typeRegistry = new TypeDefinitionRegistry();
 
-        typeRegistry.merge(schemaParser.parse(new BufferedReader(new InputStreamReader(
-                resourceResolver.getResourceAsStream("classpath:graphql/schema.graphqls").get()))));
+        Optional<InputStream> resourceStream = resourceResolver
+                .getResourceAsStream("classpath:graphql/schema.graphqls");
+        InputStreamReader inputStreamReader = new InputStreamReader(
+                resourceStream.get(), StandardCharsets.UTF_8);
+        typeRegistry.merge(schemaParser
+                .parse(new BufferedReader(inputStreamReader)));
 
         // Create the runtime wiring.
         RuntimeWiring runtimeWiring = RuntimeWiring.newRuntimeWiring()
@@ -52,7 +59,8 @@ public class GraphQLFactory {
                 .build();
 
         // Create the executable schema.
-        GraphQLSchema graphQLSchema = schemaGenerator.makeExecutableSchema(typeRegistry, runtimeWiring);
+        GraphQLSchema graphQLSchema = schemaGenerator
+                .makeExecutableSchema(typeRegistry, runtimeWiring);
 
         // Return the GraphQL bean.
         return GraphQL.newGraphQL(graphQLSchema).build();

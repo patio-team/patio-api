@@ -24,7 +24,9 @@ public class GroupFetcherTest {
     public void testListGroups() {
         GroupService mockedService = Mockito.mock(GroupService.class);
         Mockito.when(mockedService.listGroups())
-                .thenReturn(Arrays.asList(new Group("G1", UUID.randomUUID(), false, false), new Group("G2", UUID.randomUUID(),false, false)));
+                .thenReturn(Arrays.asList(
+                        new Group("G1", UUID.randomUUID(), false, false),
+                        new Group("G2", UUID.randomUUID(),false, false)));
 
         GroupFetcher fetchers = new GroupFetcher(mockedService);
         List<Group> groupList = fetchers.listGroups(null);
