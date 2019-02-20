@@ -3,17 +3,23 @@ micronaut:
     name: dwbh-api
 
 datasources:
-    default:
-        url: jdbc:postgresql://localhost:5432/dwbh
-        username: dwbh
-        password: dwbh
-        driverClassName: org.postgresql.Driver
+  default:
+    url: jdbc:postgresql://localhost:5432/dwbh
+    username: dwbh
+    password: dwbh
+    driverClassName: org.postgresql.Driver
 
 flyway:
-    datasources:
-        default:
-            locations: classpath:migrations
+  datasources:
+    default:
+      locations: classpath:migrations
 
 graphql:
   enabled: true
   path: /graphql
+
+aws:
+  sourceemail: dwbh@kaleidos.net
+  region: eu-west-1
+  accessKey: XXX
+  secretKey: YYY
