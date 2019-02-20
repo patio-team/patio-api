@@ -2,7 +2,37 @@
 
 This is the backend of the DWBH project
 
-## Fixtures
+## Getting Started
+
+TODO
+
+### Requirements
+
+What things you need to run the software:
+
+* Docker
+* Docker Compose
+* JDK 10
+
+TODO
+
+### Building
+
+TODO
+
+### Running the tests
+
+TODO
+
+### And coding static analysis
+
+TODO
+
+### Run The App
+
+TODO
+
+### Fixtures
 
 There're a couple of Gradle tasks to load/clean project's data fixtures:
 
@@ -34,3 +64,34 @@ fixtures {
   loadDir '...'
   configFile '...'
 }
+
+## Built With
+
+TODO
+
+* [Micronaut]() -
+* [Gradle]() -
+
+## Contributing
+
+TODO
+
+## Versioning
+
+TODO
+
+## Authors
+
+TODO
+
+## License
+
+TODO
+
+## Acknowledgments
+
+TODO
+
+* Hat tip to anyone whose code was used
+* Inspiration
+* etc
