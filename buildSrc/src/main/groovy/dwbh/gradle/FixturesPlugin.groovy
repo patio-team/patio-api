@@ -27,20 +27,20 @@ class FixturesPlugin implements Plugin<Project> {
      *
      * @since 0.1.0
      */
-    static final String DEFAULT_LOAD_DIR = new File('fixtures/load')
+    static final String DEFAULT_LOAD_DIR = new File('etc/fixtures/load')
 
     /**
      * Default file to read database configuration from
      *
      * @since 0.1.0
      */
-    static final File DEFAULT_CONFIG_FILE = new File('fixtures/fixtures.yaml')
+    static final File DEFAULT_CONFIG_FILE = new File('etc/fixtures/fixtures.yaml')
 
     @Override
     void apply(Project project) {
         project.extensions.create('fixtures', FixturesExtension)
 
-        project.tasks.create('fixtures-load', FixturesTask){
+        project.tasks.create('fixtures-load', FixturesTask) {
             it.description = 'loads all fixtures'
         }
         project.tasks.create('fixtures-clean', FixturesTask) {
