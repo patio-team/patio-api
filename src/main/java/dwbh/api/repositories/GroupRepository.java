@@ -9,14 +9,14 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * Repository regarding database operation over {@link Group}
+ * Repository regarding database operations over {@link Group}
  *
  * @since 0.1.0
  */
 @Singleton
 public class GroupRepository {
 
-    private final DSLContext context;
+    private final transient DSLContext context;
     private static final String TABLE_NAME = "groups";
 
     /**

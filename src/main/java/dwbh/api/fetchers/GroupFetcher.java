@@ -21,11 +21,12 @@ public class GroupFetcher {
      *
      * @since 0.1.0
      */
-    private final GroupService service;
+    private final transient GroupService service;
 
     /**
      * Constructor initializing the access to the business logic
      *
+     * @param service class handling the logic over groups
      * @since 0.1.0
      */
     public GroupFetcher(GroupService service) {
