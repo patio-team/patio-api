@@ -49,6 +49,8 @@ dependencies {
     compile 'io.micronaut.configuration:micronaut-flyway:1.0.0.RC3'
     compile 'org.jooq:jooq:3.11.9'
     compile 'org.jooq:jooq-meta:3.11.9'
+    compile 'io.github.benas:random-beans:3.7.0'
+
 
     compile 'com.amazonaws:aws-java-sdk-ses:1.11.285'
 

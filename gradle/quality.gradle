@@ -26,9 +26,9 @@ pmd {
  */
 spotless {
     java {
-        licenseHeaderFile 'etc/spotless/apache.license.header.txt'
+        // licenseHeaderFile 'etc/spotless/apache.license.header.txt'
         importOrder 'spotless.importorder'
-        eclipse().configFile 'etc/spotless/eclipseformat.xml'
+        googleJavaFormat()
         removeUnusedImports()
     }
 }

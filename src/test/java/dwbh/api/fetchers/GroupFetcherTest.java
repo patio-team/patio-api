@@ -6,8 +6,8 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.util.List;
-import java.util.UUID;
 
+import static io.github.benas.randombeans.api.EnhancedRandom.randomListOf;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
@@ -26,9 +26,7 @@ class GroupFetcherTest {
 
         // and: mocking service's behavior
         Mockito.when(mockedService.listGroups())
-                .thenReturn(List.of(
-                        new Group("G1", UUID.randomUUID(), false, false),
-                        new Group("G2", UUID.randomUUID(),false, false)));
+                .thenReturn(randomListOf(2, Group.class));
 
         // when: fetching group list invoking the service
         GroupFetcher fetchers = new GroupFetcher(mockedService);
