@@ -1,5 +1,8 @@
 language: java
 
+services:
+  - docker
+
 dist: trusty
 sudo: false
 
@@ -9,9 +12,9 @@ before_install:
 
 matrix:
   include:
-# Java 10 "OpenJDK"
-    - env: JDK='OpenJDK 10'
-      install: . ./install-jdk.sh -F 10 -L GPL
+# Java 11 "OpenJDK"
+    - env: JDK='OpenJDK 11'
+      install: . ./install-jdk.sh -F 11 -L GPL
 
 script:
-  - ./gradlew build
+  - ./gradlew build -x spotlessJavaCheck
