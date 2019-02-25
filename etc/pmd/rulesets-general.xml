@@ -11,31 +11,32 @@
 
     <rule ref="category/java/bestpractices.xml"/>
     <rule ref="category/java/codestyle.xml">
-        <exclude name="MethodArgumentCouldBeFinal" />
-        <exclude name="LocalVariableCouldBeFinal" />
-        <exclude name="AtLeastOneConstructor" />
+        <exclude name="MethodArgumentCouldBeFinal"/>
+        <exclude name="LocalVariableCouldBeFinal"/>
+        <exclude name="AtLeastOneConstructor"/>
     </rule>
-    <rule ref="category/java/codestyle.xml/LongVariable" >
+    <rule ref="category/java/codestyle.xml/LongVariable">
         <properties>
             <property name="minimum" value="20"/>
         </properties>
     </rule>
 
     <rule ref="category/java/design.xml">
-        <exclude name="DataClass" />
-        <exclude name="LawOfDemeter" />
-        <exclude name="LoosePackageCoupling" />
+        <exclude name="DataClass"/>
+        <exclude name="LawOfDemeter"/>
+        <exclude name="LoosePackageCoupling"/>
     </rule>
 
     <rule ref="category/java/documentation.xml"/>
     <rule ref="category/java/documentation.xml/CommentRequired">
         <properties>
-            <property name="fieldCommentRequirement" value="Ignored" />
+            <property name="fieldCommentRequirement" value="Ignored"/>
         </properties>
     </rule>
     <rule ref="category/java/documentation.xml/CommentSize">
         <properties>
-            <property name="maxLines" value="16" />
+            <property name="maxLines" value="16"/>
+            <property name="maxLineLength" value="120"/>
         </properties>
     </rule>
 
