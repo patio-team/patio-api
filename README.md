@@ -1,3 +1,5 @@
+[![Travis](https://travis-ci.org/dont-worry-be-happy/dwbh-api.svg?branch=master)](https://travis-ci.org/dont-worry-be-happy/dwbh-api)
+
 # Don't Worry Be Happy
 
 ![dwbh](etc/site/imgs/dwbh.png)
@@ -177,7 +179,7 @@ TODO
 
 ## License
 
-This project uses [APACHE 2.0](https://www.apache.org/licenses/LICENSE-2.0)
+TODO
 
 ## Acknowledgments
 
