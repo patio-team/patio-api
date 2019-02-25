@@ -5,12 +5,11 @@ import dwbh.api.services.GroupService;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import java.util.UUID;
 
 
 /**
@@ -18,20 +17,25 @@ import java.util.UUID;
  *
  * @since 0.1.0
  */
-public class GroupFetcherTest {
+class GroupFetcherTest {
 
     @Test
-    public void testListGroups() {
-        GroupService mockedService = Mockito.mock(GroupService.class);
+    void testListGroups() {
+        // given: a mocking service
+        var mockedService = Mockito.mock(GroupService.class);
+
+        // and: mocking service's behavior
         Mockito.when(mockedService.listGroups())
-                .thenReturn(Arrays.asList(
+                .thenReturn(List.of(
                         new Group("G1", UUID.randomUUID(), false, false),
                         new Group("G2", UUID.randomUUID(),false, false)));
 
+        // when: fetching group list invoking the service
         GroupFetcher fetchers = new GroupFetcher(mockedService);
         List<Group> groupList = fetchers.listGroups(null);
 
-        assertThat(groupList.size(), is(2));
+        // then: check certain assertions should be met
+        assertThat("there're only a certain values of groups", groupList.size(), is(2));
     }
 }
 

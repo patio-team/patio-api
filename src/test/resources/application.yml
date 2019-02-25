@@ -1,0 +1,19 @@
+micronaut:
+  application:
+    name: dwbh-api
+
+datasources:
+  default:
+    url: jdbc:tc:postgresql:10-alpine://localhost/dwbh
+    username: dwbh
+    password: dwbh
+    driverClassName: org.testcontainers.jdbc.ContainerDatabaseDriver
+
+graphql:
+  enabled: true
+  path: /graphql
+
+flyway:
+  datasources:
+    default:
+      locations: classpath:migrations

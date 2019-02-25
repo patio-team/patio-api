@@ -18,18 +18,31 @@ import org.slf4j.LoggerFactory;
 import javax.inject.Singleton;
 
 
+/**
+ * Sends emails using AWS infrastructure
+ *
+ * @since 0.1.0
+ */
 @Singleton
 @Primary
+@SuppressWarnings("all")
 public class AwsSesMailService implements EmailService {
     private static final Logger LOG = LoggerFactory.getLogger(AwsSesMailService.class);
 
-    protected final String awsRegion;
+    private final String awsRegion;
 
-    protected final String sourceEmail;
+    private final String sourceEmail;
 
     private final AWSCredentialsProvider credentialsProvider;
 
 
+    /**
+     * Initializes email service
+     *
+     * @param credentialsProvider authentication credentials
+     * @param config server configuration
+     * @since 0.1.0
+     */
     public AwsSesMailService(AWSCredentialsProvider credentialsProvider, Config config) {
         this.credentialsProvider = credentialsProvider;
         this.awsRegion = config.get("awsRegion");
@@ -62,9 +75,9 @@ public class AwsSesMailService implements EmailService {
         Message message = new Message().withSubject(subject).withBody(body);
 
         SendEmailRequest request = new SendEmailRequest()
-                .withSource(sourceEmail)
-                .withDestination(destination)
-                .withMessage(message);
+            .withSource(sourceEmail)
+            .withDestination(destination)
+            .withMessage(message);
 
         if (email.getReplyTo() != null) {
             request = request.withReplyToAddresses();
@@ -76,9 +89,9 @@ public class AwsSesMailService implements EmailService {
             }
 
             AmazonSimpleEmailService client = AmazonSimpleEmailServiceClientBuilder.standard()
-                    .withCredentials(credentialsProvider)
-                    .withRegion(awsRegion)
-                    .build();
+                .withCredentials(credentialsProvider)
+                .withRegion(awsRegion)
+                .build();
 
             SendEmailResult sendEmailResult = client.sendEmail(request);
 

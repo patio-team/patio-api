@@ -14,7 +14,7 @@ import java.util.List;
 @Singleton
 public class GroupService {
 
-    private final GroupRepository repository;
+    private final transient GroupRepository repository;
 
     /**
      * Initializes service by using the database repository
