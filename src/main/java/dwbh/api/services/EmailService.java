@@ -9,11 +9,11 @@ import dwbh.api.util.Email;
  */
 public interface EmailService {
 
-    /**
-     * Sends the email passed as parameter
-     *
-     * @param email an instance of type {@link Email}
-     * @since 0.1.0
-     */
-    void send(Email email);
+  /**
+   * Sends the email passed as parameter
+   *
+   * @param email an instance of type {@link Email}
+   * @since 0.1.0
+   */
+  void send(Email email);
 }
