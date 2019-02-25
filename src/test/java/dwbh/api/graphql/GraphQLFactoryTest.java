@@ -1,5 +1,6 @@
 package dwbh.api.graphql;
 
+import dwbh.api.domain.Group;
 import dwbh.api.fetchers.FetcherProvider;
 import dwbh.api.fetchers.GroupFetcher;
 import io.micronaut.core.io.ResourceResolver;
@@ -8,6 +9,7 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 import java.util.Map;
 
+import static io.github.benas.randombeans.api.EnhancedRandom.randomListOf;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
@@ -21,7 +23,7 @@ class GraphQLFactoryTest {
         // and: mocking group fetcher behavior
         var groupFetcher = mock(GroupFetcher.class);
         when(groupFetcher.listGroups(any()))
-                .thenReturn(FixturesHelper.createGroupOf(2));
+                .thenReturn(randomListOf(2, Group.class));
 
         // and: adding fetcher to fetcher providers
         var fetchers = new FetcherProvider();
@@ -36,11 +38,9 @@ class GraphQLFactoryTest {
         Map<String, List<Map<String,?>>> data = result.getData();
 
         var groupList = data.get("listGroups");
-        var firstGroup = groupList.get(0);
 
         // then: we should get the expected result
         assertEquals(groupList.size(), 2);
-        assertEquals(firstGroup.get("name").toString(), "john");
     }
 
     @Test

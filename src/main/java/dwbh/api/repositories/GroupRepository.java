@@ -1,6 +1,7 @@
 package dwbh.api.repositories;
 
 import dwbh.api.domain.Group;
+import dwbh.api.domain.GroupBuilder;
 import org.jooq.DSLContext;
 import org.jooq.Record;
 
@@ -47,6 +48,12 @@ public class GroupRepository {
         boolean visibleMemberList = row.get("visible_member_list", boolean.class);
         boolean anonymousVote = row.get("anonymous_vote", boolean.class);
 
-        return new Group(name, uuid, visibleMemberList, anonymousVote);
+        return GroupBuilder
+            .builder()
+            .withName(name)
+            .withUUID(uuid)
+            .withVisibleMemberList(visibleMemberList)
+            .withAnonymousVote(anonymousVote)
+            .build();
     }
 }

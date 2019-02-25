@@ -14,22 +14,6 @@ public class Group {
     private boolean anonymousVote;
 
     /**
-     * Constructor creating a new Group
-     *
-     * @param name name of the group
-     * @param uuid unique identifier
-     * @param visibleMemberList whether the member list is visible to all or not
-     * @param anonymousVote whether the vote in this group could be anonymous not
-     * @since 0.1.0
-     */
-    public Group(String name, UUID uuid, boolean visibleMemberList, boolean anonymousVote) {
-        this.name = name;
-        this.uuid = uuid;
-        this.visibleMemberList = visibleMemberList;
-        this.anonymousVote = anonymousVote;
-    }
-
-    /**
      * Returns the name of the group
      *
      * @return the name of the group
