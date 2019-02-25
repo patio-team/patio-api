@@ -3,8 +3,19 @@ type Group {
     visibleMemberList: Boolean
     anonymousVote: Boolean
     name: String
+    members: [User]
+}
+
+type User {
+    uuid: ID
+    name: String
+    email: String
+    groups: [Group]
 }
 
 type Query {
     listGroups: [Group]
+    listUsers: [User]
+    getGroup(group_uuid: ID!): Group
+    getUser(user_uuid: ID!): User
 }

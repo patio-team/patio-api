@@ -53,6 +53,18 @@ class GroupRepositoryTests {
     List<Group> groupList = repository.listGroups();
 
     // then: check there're the expected number of groups
-    assertEquals(groupList.size(), 5);
+    assertEquals(groupList.size(), 3);
+  }
+
+  @Test
+  void testGetGroup() {
+    // given: a pre-loaded fixtures
+    fixtures.load(GroupRepositoryTests.class, "testListGroups.sql");
+
+    // when: asking for a group
+    Group group = repository.getGroup("dedc6675-ab79-495e-9245-1fc20545eb83");
+
+    // then: check the group is retrieved
+    assertEquals(group.getName(), "Avengers");
   }
 }

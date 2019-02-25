@@ -34,4 +34,24 @@ public class GroupService {
   public List<Group> listGroups() {
     return repository.listGroups();
   }
+
+  /**
+   * Get a specific group
+   *
+   * @return The requested {@link Group}
+   * @since 0.1.0
+   */
+  public Group getGroup(String groupUuid) {
+    return repository.getGroup(groupUuid);
+  }
+
+  /**
+   * Fetches the list of groups in which an user is a member
+   *
+   * @return a list of {@link Group} instances
+   * @since 0.1.0
+   */
+  public List<Group> listGroupsUser(String userUuid) {
+    return repository.listGroupsUser(userUuid);
+  }
 }

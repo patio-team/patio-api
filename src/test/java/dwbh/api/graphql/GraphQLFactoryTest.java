@@ -10,6 +10,7 @@ import static org.mockito.Mockito.when;
 import dwbh.api.domain.Group;
 import dwbh.api.fetchers.FetcherProvider;
 import dwbh.api.fetchers.GroupFetcher;
+import dwbh.api.fetchers.UserFetcher;
 import io.micronaut.core.io.ResourceResolver;
 import java.util.List;
 import java.util.Map;
@@ -19,13 +20,19 @@ class GraphQLFactoryTest {
 
   @Test
   void testCreateSchema() {
-    // and: mocking group fetcher behavior
+    // given: mocking group fetcher behavior
     var groupFetcher = mock(GroupFetcher.class);
     when(groupFetcher.listGroups(any())).thenReturn(randomListOf(2, Group.class));
 
     // and: adding fetcher to fetcher providers
     var fetchers = new FetcherProvider();
     fetchers.setGroupFetcher(groupFetcher);
+
+    // and: mocking user fetcher behavior
+    var userFetcher = mock(UserFetcher.class);
+
+    // and: adding fetcher to fetcher providers
+    fetchers.setUserFetcher(userFetcher);
 
     // when: creating a valid GraphQL engine
     var resolver = new ResourceResolver();

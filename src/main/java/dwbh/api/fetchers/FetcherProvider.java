@@ -13,6 +13,7 @@ import javax.inject.Singleton;
 public class FetcherProvider {
 
   private GroupFetcher groupFetcher;
+  private UserFetcher userFetcher;
 
   /**
    * Returns an instance of {@link GroupFetcher}
@@ -33,5 +34,26 @@ public class FetcherProvider {
   @Inject
   public void setGroupFetcher(GroupFetcher groupFetcher) {
     this.groupFetcher = groupFetcher;
+  }
+
+  /**
+   * Returns an instance of {@link UserFetcher}
+   *
+   * @return an instance of {@link UserFetcher}
+   * @since 0.1.0
+   */
+  public UserFetcher getUserFetcher() {
+    return userFetcher;
+  }
+
+  /**
+   * Sets the instance responsible to handle request over {@link User}
+   *
+   * @param userFetcher instance of {@link UserFetcher}
+   * @since 0.1.0
+   */
+  @Inject
+  public void setUserFetcher(UserFetcher userFetcher) {
+    this.userFetcher = userFetcher;
   }
 }

@@ -59,12 +59,20 @@ public class GraphQLFactory {
   private static GraphQLSchema configureQueryType(
       TypeDefinitionRegistry registry, FetcherProvider fetcherProvider) {
     var groupFetcher = fetcherProvider.getGroupFetcher();
+    var userFetcher = fetcherProvider.getUserFetcher();
 
     var wiring =
         RuntimeWiring.newRuntimeWiring()
             .type(
                 SCHEMA_TYPE_QUERY,
-                builder -> builder.dataFetcher("listGroups", groupFetcher::listGroups))
+                builder ->
+                    builder
+                        .dataFetcher("listGroups", groupFetcher::listGroups)
+                        .dataFetcher("getGroup", groupFetcher::getGroup)
+                        .dataFetcher("listUsers", userFetcher::listUsers)
+                        .dataFetcher("getUser", userFetcher::getUser))
+            .type("Group", builder -> builder.dataFetcher("members", userFetcher::listUsersGroup))
+            .type("User", builder -> builder.dataFetcher("groups", groupFetcher::listGroupsUser))
             .build();
 
     return new SchemaGenerator().makeExecutableSchema(registry, wiring);
