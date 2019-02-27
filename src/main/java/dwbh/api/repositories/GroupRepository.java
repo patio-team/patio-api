@@ -6,9 +6,7 @@ import java.util.List;
 import java.util.UUID;
 import javax.inject.Singleton;
 import org.jooq.DSLContext;
-import org.jooq.Field;
 import org.jooq.Record;
-import org.jooq.impl.DSL;
 
 /**
  * Repository regarding database operations over {@link Group}
@@ -19,20 +17,6 @@ import org.jooq.impl.DSL;
 public class GroupRepository {
 
   private final transient DSLContext context;
-  private static final String TABLE_NAME = "groups";
-
-  /**
-   * Inner class for model fields for Group Table
-   *
-   * @since 0.1.0
-   */
-  private static class GroupsTableHelper {
-    private static final Field<UUID> UUID = DSL.field("uuid", UUID.class);
-    private static final Field<String> NAME = DSL.field("name", String.class);
-    private static final Field<Boolean> VISIBLE_MEMBER_LIST =
-        DSL.field("visible_member_list", Boolean.class);
-    private static final Field<Boolean> ANONYMOUS_VOTE = DSL.field("anonymous_vote", Boolean.class);
-  }
 
   /**
    * Initializes the repository by setting the JOOQ {@link DSLContext}
@@ -51,7 +35,7 @@ public class GroupRepository {
    * @since 0.1.0
    */
   public List<Group> listGroups() {
-    return context.selectFrom(TABLE_NAME).fetch(this::toGroup);
+    return context.selectFrom(TablesHelper.GROUPS_TABLE).fetch(this::toGroup);
   }
 
   /**
@@ -62,7 +46,11 @@ public class GroupRepository {
    */
   public Group getGroup(String groupUuid) {
     UUID uuid = UUID.fromString(groupUuid);
-    return context.selectFrom(TABLE_NAME).where(DSL.field("uuid").eq(uuid)).fetchOne(this::toGroup);
+    return (Group)
+        context
+            .selectFrom(TablesHelper.GROUPS_TABLE)
+            .where(TablesHelper.GroupsTableHelper.UUID.eq(uuid))
+            .fetchOne(this::toGroup);
   }
 
   /**
@@ -75,15 +63,17 @@ public class GroupRepository {
     UUID uuid = UUID.fromString(userUuid);
     return context
         .select(
-            GroupsTableHelper.UUID,
-            GroupsTableHelper.NAME,
-            GroupsTableHelper.VISIBLE_MEMBER_LIST,
-            GroupsTableHelper.ANONYMOUS_VOTE)
+            TablesHelper.GroupsTableHelper.UUID,
+            TablesHelper.GroupsTableHelper.NAME,
+            TablesHelper.GroupsTableHelper.VISIBLE_MEMBER_LIST,
+            TablesHelper.GroupsTableHelper.ANONYMOUS_VOTE)
         .from(
-            DSL.table("users_groups")
-                .join(DSL.table("groups"))
-                .on(DSL.field("users_groups.group_uuid").eq(DSL.field("groups.uuid"))))
-        .where(DSL.field("user_uuid").eq(uuid))
+            TablesHelper.USERS_GROUPS_TABLE
+                .join(TablesHelper.GROUPS_TABLE)
+                .on(
+                    TablesHelper.UsersGroupsTableHelper.GROUP_UUID.eq(
+                        TablesHelper.GroupsTableHelper.UUID)))
+        .where(TablesHelper.UsersGroupsTableHelper.USER_UUID.eq(uuid))
         .fetch(this::toGroup);
   }
 
