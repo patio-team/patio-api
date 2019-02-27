@@ -9,9 +9,9 @@ import com.amazonaws.services.simpleemail.model.Destination;
 import com.amazonaws.services.simpleemail.model.Message;
 import com.amazonaws.services.simpleemail.model.SendEmailRequest;
 import com.amazonaws.services.simpleemail.model.SendEmailResult;
-import dwbh.api.util.Config;
 import dwbh.api.util.Email;
 import io.micronaut.context.annotation.Primary;
+import io.micronaut.context.annotation.Value;
 import javax.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,10 +40,13 @@ public class AwsSesMailService implements EmailService {
    * @param config server configuration
    * @since 0.1.0
    */
-  public AwsSesMailService(AWSCredentialsProvider credentialsProvider, Config config) {
+  public AwsSesMailService(
+      AWSCredentialsProvider credentialsProvider,
+      @Value("${aws.region:none}") String awsRegion,
+      @Value("${aws.sourceEmail:none}") String sourceEmail) {
     this.credentialsProvider = credentialsProvider;
-    this.awsRegion = config.get("awsRegion");
-    this.sourceEmail = config.get("awsSourceEmail");
+    this.awsRegion = awsRegion;
+    this.sourceEmail = sourceEmail;
   }
 
   private Body bodyOfEmail(Email email) {

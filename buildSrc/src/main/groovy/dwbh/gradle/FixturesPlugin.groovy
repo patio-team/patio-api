@@ -49,31 +49,33 @@ class FixturesPlugin implements Plugin<Project> {
 
         project.afterEvaluate {
             FixturesExtension extension = project
-                    .extensions
-                    .getByType(FixturesExtension)
+                .extensions
+                .getByType(FixturesExtension)
 
             File configFile = Optional
-                    .ofNullable(extension.configFile)
-                    .map { project.file(it) }
-                    .orElse(DEFAULT_CONFIG_FILE)
+                .ofNullable(extension.configFile)
+                .map { project.file(it) }
+                .orElse(DEFAULT_CONFIG_FILE)
 
             File loadDir = Optional
-                    .ofNullable(extension.loadDir)
-                    .map { project.file(it) }
-                    .orElse(DEFAULT_LOAD_DIR)
+                .ofNullable(extension.loadDir)
+                .map { project.file(it) }
+                .orElse(DEFAULT_LOAD_DIR)
 
             File cleanDir = Optional.ofNullable(extension.cleanDir)
-                    .map { project.file(it) }
-                    .orElse(DEFAULT_CLEAN_DIR)
+                .map { project.file(it) }
+                .orElse(DEFAULT_CLEAN_DIR)
 
             project.tasks.getByName('fixtures-load').configure { FixturesTask t ->
                 t.inputDir = loadDir
                 t.configFile = configFile
+                t.isClean = false
             }
 
             project.tasks.getByName('fixtures-clean').configure { FixturesTask t ->
                 t.inputDir = cleanDir
                 t.configFile = configFile
+                t.isClean = true
             }
         }
     }

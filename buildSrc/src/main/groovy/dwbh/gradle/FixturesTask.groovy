@@ -38,6 +38,14 @@ class FixturesTask extends DefaultTask {
     File configFile
 
     /**
+     * Indicates if it is a clean operation
+     *
+     * @since 0.1.0
+     */
+    boolean isClean = false
+
+
+    /**
      * Task entry point
      *
      * @since 0.1.0
@@ -45,12 +53,16 @@ class FixturesTask extends DefaultTask {
     @TaskAction
     void createFixtures() {
         logger.lifecycle "------------------${this.name.toUpperCase()}-----------------"
-        
-        File[] sqlFiles = inputDir
-                .listFiles(FixturesUtils.onlySqlFiles)
-                .sort()
 
-        Map<String,?> dbConfig = FixturesUtils.loadYaml(configFile)
+        File[] sqlFiles = inputDir
+            .listFiles(FixturesUtils.onlySqlFiles)
+            .sort()
+
+        if (isClean) {
+            sqlFiles = sqlFiles.reverse()
+        }
+
+        Map<String, ?> dbConfig = FixturesUtils.loadYaml(configFile)
         SqlProcessor processor = new SqlProcessor(dbConfig, sqlFiles, logger)
 
         processor.process()

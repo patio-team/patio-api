@@ -1,0 +1,26 @@
+micronaut:
+  application:
+    name: dwbh-api
+
+datasources:
+  default:
+    url: ${DWBH_JDBC_URL}
+    username: ${DWBH_JDBC_USER}
+    password: ${DWBH_JDBC_PASSWORD}
+    driverClassName: ${DWBH_JDBC_DRIVER}
+
+
+flyway:
+  datasources:
+    default:
+      locations: classpath:migrations
+
+graphql:
+  enabled: true
+  path: /graphql
+
+aws:
+  sourceemail: ${DWBH_AWS_SOURCE_EMAIL}
+  region: ${DWBH_AWS_REGION}
+  accessKey: ${DWBH_ACCESS_KEY}
+  secretKey: ${DWBH_SECRET_KEY}

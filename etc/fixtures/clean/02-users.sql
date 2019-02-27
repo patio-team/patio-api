@@ -1,2 +1,2 @@
-TRUNCATE users_groups;
-TRUNCATE users;
+delete from users;
+
