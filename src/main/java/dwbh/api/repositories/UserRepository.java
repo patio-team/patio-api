@@ -6,9 +6,7 @@ import java.util.List;
 import java.util.UUID;
 import javax.inject.Singleton;
 import org.jooq.DSLContext;
-import org.jooq.Field;
 import org.jooq.Record;
-import org.jooq.impl.DSL;
 
 /**
  * Repository regarding database operations over {@link User}
@@ -19,20 +17,6 @@ import org.jooq.impl.DSL;
 public class UserRepository {
 
   private final transient DSLContext context;
-  private static final String TABLE_NAME = "users";
-
-  /**
-   * Inner class for model fields for User Table
-   *
-   * @since 0.1.0
-   */
-  private static class UsersTableHelper {
-    private static final Field<UUID> UUID = DSL.field("uuid", UUID.class);
-    private static final Field<String> NAME = DSL.field("name", String.class);
-    private static final Field<String> EMAIL = DSL.field("email", String.class);
-    private static final Field<String> PASSWORD = DSL.field("password", String.class);
-    private static final Field<String> OTP = DSL.field("otp", String.class);
-  }
 
   /**
    * Initializes the repository by setting the JOOQ {@link DSLContext}
@@ -51,7 +35,7 @@ public class UserRepository {
    * @since 0.1.0
    */
   public List<User> listUsers() {
-    return context.selectFrom(TABLE_NAME).fetch(this::toUser);
+    return context.selectFrom(TablesHelper.USERS_TABLE).fetch(this::toUser);
   }
 
   /**
@@ -62,7 +46,11 @@ public class UserRepository {
    */
   public User getUser(String userUuid) {
     UUID uuid = UUID.fromString(userUuid);
-    return context.selectFrom(TABLE_NAME).where(DSL.field("uuid").eq(uuid)).fetchOne(this::toUser);
+    return (User)
+        context
+            .selectFrom(TablesHelper.USERS_TABLE)
+            .where(TablesHelper.UsersTableHelper.UUID.eq(uuid))
+            .fetchOne(this::toUser);
   }
 
   /**
@@ -74,25 +62,27 @@ public class UserRepository {
   public List<User> listUsersGroup(UUID groupUuid) {
     return context
         .select(
-            UsersTableHelper.UUID,
-            UsersTableHelper.NAME,
-            UsersTableHelper.EMAIL,
-            UsersTableHelper.PASSWORD,
-            UsersTableHelper.OTP)
+            TablesHelper.UsersTableHelper.UUID,
+            TablesHelper.UsersTableHelper.NAME,
+            TablesHelper.UsersTableHelper.EMAIL,
+            TablesHelper.UsersTableHelper.PASSWORD,
+            TablesHelper.UsersTableHelper.OTP)
         .from(
-            DSL.table("users_groups")
-                .join(DSL.table("users"))
-                .on(DSL.field("users_groups.user_uuid").eq(DSL.field("users.uuid"))))
-        .where(DSL.field("group_uuid").eq(groupUuid))
+            TablesHelper.USERS_GROUPS_TABLE
+                .join(TablesHelper.USERS_TABLE)
+                .on(
+                    TablesHelper.UsersGroupsTableHelper.USER_UUID.eq(
+                        TablesHelper.UsersTableHelper.UUID)))
+        .where(TablesHelper.UsersGroupsTableHelper.GROUP_UUID.eq(groupUuid))
         .fetch(this::toUser);
   }
 
   private User toUser(Record row) {
-    String name = row.get(UsersTableHelper.NAME);
-    String email = row.get(UsersTableHelper.EMAIL);
-    String password = row.get(UsersTableHelper.PASSWORD);
-    String otp = row.get(UsersTableHelper.OTP);
-    UUID uuid = row.get(UsersTableHelper.UUID);
+    String name = row.get(TablesHelper.UsersTableHelper.NAME);
+    String email = row.get(TablesHelper.UsersTableHelper.EMAIL);
+    String password = row.get(TablesHelper.UsersTableHelper.PASSWORD);
+    String otp = row.get(TablesHelper.UsersTableHelper.OTP);
+    UUID uuid = row.get(TablesHelper.UsersTableHelper.UUID);
 
     return UserBuilder.builder()
         .withName(name)
