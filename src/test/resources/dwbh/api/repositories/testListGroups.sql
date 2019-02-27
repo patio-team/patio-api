@@ -1,5 +1,3 @@
-INSERT INTO groups (uuid, name) VALUES ('929cf3e2-3868-11e9-b210-d663bd873d93', 'Management');
-INSERT INTO groups (uuid, name) VALUES ('929cf680-3868-11e9-b210-d663bd873d93', 'Engineering');
-INSERT INTO groups (uuid, name) VALUES ('929cf7d4-3868-11e9-b210-d663bd873d93', 'QA');
-INSERT INTO groups (uuid, name) VALUES ('929cf91e-3868-11e9-b210-d663bd873d93', 'Services');
-INSERT INTO groups (uuid, name) VALUES ('929cfd06-3868-11e9-b210-d663bd873d93', 'Accountancy');
+INSERT INTO groups (uuid, name) VALUES ('d64db962-3455-11e9-b210-d663bd873d93','Fantastic Four');
+INSERT INTO groups (uuid, name) VALUES ('dedc6675-ab79-495e-9245-1fc20545eb83', 'Avengers');
+INSERT INTO groups (uuid, name) VALUES ('d5847624-4b50-4d4a-abd3-ed9209a5448b', 'Illuminati');

@@ -8,7 +8,9 @@
         </encoder>
     </appender>
 
+    <logger name="org.jooq.tools.LoggerListener" level="DEBUG"/>
+
     <root level="info">
-        <appender-ref ref="STDOUT" />
+        <appender-ref ref="STDOUT"/>
     </root>
 </configuration>
