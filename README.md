@@ -107,7 +107,27 @@ This project uses [Spotbugs](https://github.com/spotbugs) as tool for spotting p
 
 ### Running dev environment
 
-TODO
+When working on development we'll need a PostgreSQL database and sometimes the front end. There's a
+`docker-compose` file to bootstrap both systems and make them work with the current back development.
+
+Go  to **your project's** `etc/docker` (dwbh-api/etc/docker) folder and execute:
+
+`docker-compose up -d`
+
+Both the database and the front end will be installed and bootstrapped. Now you can execute:
+
+```shell
+./gradlew run
+```
+
+And the api will use the database register in the docker-compose.yml.
+
+**IMPORTANT**: Remember that the database is using a docker volume, if you would like to get rid of database data
+you can do it by executing:
+
+```shell
+docker volume rm NAME-OF-THE-VOLUME
+```
 
 ### Loading Fixtures
 
@@ -144,10 +164,6 @@ fixtures {
   configFile '...'
 }
 ```
-
-### Running The App
-
-TODO
 
 ## Technologies
 

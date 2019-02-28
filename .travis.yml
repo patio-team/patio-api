@@ -17,4 +17,10 @@ matrix:
       install: . ./install-jdk.sh -F 11 -L GPL
 
 script:
-  - ./gradlew build -x spotlessJavaCheck
+  - ./gradlew build
+
+deploy:
+  - provider: script
+    script: ./gradlew dockerPush -PregistryUser=$REGISTRY_USER -PregistryKey=$REGISTRY_KEY
+    on:
+      branch: release
