@@ -1,0 +1,12 @@
+docker {
+    registryCredentials {
+        url = 'kaleidos-docker-registry.bintray.io'
+        username = project.properties.registryUser
+        password = project.properties.registryKey
+    }
+
+    javaApplication {
+        baseImage = 'openjdk:11-slim'
+        tag = "kaleidos-docker-registry.bintray.io/dwbh/dwbh-api:$version"
+    }
+}

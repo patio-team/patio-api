@@ -1,0 +1,20 @@
+version: '3'
+services:
+  dwbh-db:
+    image: postgres:10-alpine
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_USER=dwbh
+      - POSTGRES_PASSWORD=dwbh
+      - POSTGRES_DB=dwbh
+
+  front:
+    image: kaleidos-docker-registry.bintray.io/dwbh/dwbh-front:0.1.0
+    network_mode: host
+
+volumes:
+  db-data:
+    driver: local

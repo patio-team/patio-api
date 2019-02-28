@@ -7,6 +7,7 @@ plugins {
     id "net.ltgt.apt-idea" version "0.18"
     id "com.diffplug.gradle.spotless" version "3.18.0"
     id "com.github.spotbugs" version "1.6.10"
+    id 'com.bmuschko.docker-java-application' version '4.5.0'
 }
 
 apply plugin: "application"
@@ -16,8 +17,8 @@ apply plugin: "jacoco"
 apply plugin: FixturesPlugin
 apply from: 'gradle/quality.gradle'
 apply from: 'gradle/fixtures.gradle'
+apply from: 'gradle/docker.gradle'
 
-version "0.1"
 group "kaleidos.net"
 
 repositories {
