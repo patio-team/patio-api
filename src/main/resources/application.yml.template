@@ -9,6 +9,7 @@ datasources:
     password: dwbh
     driverClassName: org.postgresql.Driver
 
+
 flyway:
   datasources:
     default:
@@ -19,7 +20,7 @@ graphql:
   path: /graphql
 
 aws:
-  sourceemail: dwbh@kaleidos.net
+  sourceemail: noreply@dwbh.com
   region: eu-west-1
   accessKey: XXX
   secretKey: YYY

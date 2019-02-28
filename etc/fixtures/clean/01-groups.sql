@@ -1,1 +1,1 @@
-TRUNCATE groups;
+delete from groups;
