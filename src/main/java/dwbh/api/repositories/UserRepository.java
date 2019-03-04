@@ -5,6 +5,7 @@ import dwbh.api.domain.UserBuilder;
 import java.util.List;
 import java.util.UUID;
 import javax.inject.Singleton;
+import org.jooq.Condition;
 import org.jooq.DSLContext;
 import org.jooq.Record;
 
@@ -41,6 +42,7 @@ public class UserRepository {
   /**
    * Get a specific user
    *
+   * @param userUuid user identifier
    * @return The requested {@link User}
    * @since 0.1.0
    */
@@ -56,6 +58,7 @@ public class UserRepository {
   /**
    * Lists users on a group
    *
+   * @param groupUuid group identifier
    * @return a list of users that belongs to a group
    * @since 0.1.0
    */
@@ -75,6 +78,40 @@ public class UserRepository {
                         TablesHelper.UsersTableHelper.UUID)))
         .where(TablesHelper.UsersGroupsTableHelper.GROUP_UUID.eq(groupUuid))
         .fetch(this::toUser);
+  }
+
+  /**
+   * Finds a user by its email
+   *
+   * @param email user's email
+   * @return a {@link User} or null if email doesn't match any user
+   * @since 0.1.0
+   */
+  public User findByEmail(String email) {
+    return (User)
+        context
+            .selectFrom(TablesHelper.USERS_TABLE)
+            .where(TablesHelper.UsersTableHelper.EMAIL.eq(email))
+            .fetchOne(this::toUser);
+  }
+
+  /**
+   * Finds a user by its email and hashed password. The password should be hashed with the same
+   * mechanism it was stored in the first place.
+   *
+   * @param email user's email
+   * @param hashedPassword the hashed password
+   * @return an instance of {@link User} or null if no user has been found
+   * @since 0.1.0
+   */
+  public User findByEmailAndPassword(String email, String hashedPassword) {
+    Condition condition =
+        TablesHelper.UsersTableHelper.EMAIL
+            .eq(email)
+            .and(TablesHelper.UsersTableHelper.PASSWORD.eq(hashedPassword));
+
+    return (User)
+        context.selectFrom(TablesHelper.USERS_TABLE).where(condition).fetchOne(this::toUser);
   }
 
   private User toUser(Record row) {

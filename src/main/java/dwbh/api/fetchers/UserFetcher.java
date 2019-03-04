@@ -25,6 +25,7 @@ public class UserFetcher {
   /**
    * Constructor initializing the access to the business logic
    *
+   * @param service instance of {@link UserService}
    * @since 0.1.0
    */
   public UserFetcher(UserService service) {

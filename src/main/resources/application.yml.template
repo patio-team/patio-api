@@ -27,3 +27,9 @@ aws:
   region: eu-west-1
   accessKey: XXX
   secretKey: YYY
+
+crypto:
+  password: SHA-256
+  jwt:
+    secret: mysupersecret
+    daysToExpire: 7

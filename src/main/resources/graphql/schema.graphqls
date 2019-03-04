@@ -1,3 +1,5 @@
+directive @anonymousAllowed on FIELD_DEFINITION | OBJECT
+
 type Group {
     uuid: ID
     visibleMemberList: Boolean
@@ -13,9 +15,26 @@ type User {
     groups: [Group]
 }
 
+# Contains token and user information
+type Login @anonymousAllowed {
+    user: User
+    token: String
+}
+
+# registered queries
 type Query {
+    # get full group list
     listGroups: [Group]
+
+    # get full user list
     listUsers: [User]
+
+    # get group by its id
     getGroup(group_uuid: ID!): Group
+
+    # get user by its id
     getUser(user_uuid: ID!): User
+
+    # log in
+    login(email: String!, password: String!): Login @anonymousAllowed
 }

@@ -1,0 +1,124 @@
+package dwbh.api.services.internal;
+
+import static io.github.benas.randombeans.api.EnhancedRandom.random;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+
+import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.interfaces.DecodedJWT;
+import dwbh.api.domain.ErrorConstants;
+import dwbh.api.domain.LoginInput;
+import dwbh.api.domain.User;
+import dwbh.api.repositories.UserRepository;
+import dwbh.api.services.CryptoService;
+import java.util.Optional;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
+
+/**
+ * Tests {@link DefaultSecurityService}
+ *
+ * @since 0.1.0
+ */
+public class DefaultSecurityServiceTests {
+
+  @Test
+  void findUserByTokenWithGoodToken() {
+    // given: mocked calls
+    var decodedJWT = Mockito.mock(DecodedJWT.class);
+    var userEmail = "user@email.com";
+    Mockito.when(decodedJWT.getSubject()).thenReturn(userEmail);
+
+    var cryptoService = Mockito.mock(CryptoService.class);
+    Mockito.when(cryptoService.verifyToken(any())).thenReturn(Optional.of(decodedJWT));
+
+    var userRepository = Mockito.mock(UserRepository.class);
+    var providedUser = random(User.class);
+    Mockito.when(userRepository.findByEmail(eq(userEmail))).thenReturn(providedUser);
+
+    // when: executing security service with a good token
+    var securityService = new DefaultSecurityService(cryptoService, userRepository);
+    var user = securityService.findUserByToken("good_token");
+
+    // then: we should get the information of the matching user
+    assertEquals(providedUser.getName(), user.getName());
+  }
+
+  @Test
+  void findUserByTokenWithWrongToken() {
+    // given: mocked calls
+    var decodedJWT = Mockito.mock(DecodedJWT.class);
+    var userEmail = "user@email.com";
+    Mockito.when(decodedJWT.getSubject()).thenReturn(userEmail);
+
+    var cryptoService = Mockito.mock(CryptoService.class);
+    Mockito.when(cryptoService.verifyToken(any())).thenReturn(Optional.of(decodedJWT));
+
+    var userRepository = Mockito.mock(UserRepository.class);
+
+    // when: executing security service with a wrong token
+    var securityService = new DefaultSecurityService(cryptoService, userRepository);
+    var user = securityService.findUserByToken("good_token");
+
+    // then: we should get NO user
+    assertNull(user);
+  }
+
+  @Test
+  void testLoginWithGoodCredentials() {
+    // given: a security configuration
+    var configuration =
+        new SecurityConfiguration("issuer", "SHA-256", 1, Algorithm.HMAC256("secret"));
+    var cryptoService = new Auth0CryptoService(configuration);
+
+    // and: a repository returning a specific user
+    var userRepository = Mockito.mock(UserRepository.class);
+    var storedUser = random(User.class);
+    Mockito.when(userRepository.findByEmailAndPassword(any(), any())).thenReturn(storedUser);
+
+    // when: executing the security service with good credentials
+    var securityService = new DefaultSecurityService(cryptoService, userRepository);
+
+    var loginInput = random(LoginInput.class);
+    var result = securityService.login(loginInput);
+
+    // then: we should get a token that matches the user stored in database
+    var resultUser = result.getSuccess().getUser();
+    var resultToken = result.getSuccess().getToken();
+    var resultEmail = cryptoService.verifyToken(resultToken).get().getSubject();
+
+    assertNotNull(resultUser);
+    assertNotNull(result);
+    assertEquals(resultEmail, storedUser.getEmail());
+  }
+
+  @Test
+  void testLoginWithBadCredentials() {
+    // given: a security configuration
+    var configuration =
+        new SecurityConfiguration("issuer", "SHA-256", 1, Algorithm.HMAC256("secret"));
+    var cryptoService = new Auth0CryptoService(configuration);
+
+    // and: a repository returning a specific user
+    var userRepository = Mockito.mock(UserRepository.class);
+    Mockito.when(userRepository.findByEmailAndPassword(any(), any())).thenReturn(null);
+
+    // when: executing the security service with good credentials
+    var securityService = new DefaultSecurityService(cryptoService, userRepository);
+
+    var loginInput = random(LoginInput.class);
+    var result = securityService.login(loginInput);
+
+    // then: we should get an error because of bad credentials
+    var errors = result.getErrorList();
+    var badCredentialsError = errors.get(0);
+
+    assertNotNull(errors);
+    assertEquals(errors.size(), 1);
+    assertEquals(badCredentialsError.getCode(), ErrorConstants.BAD_CREDENTIALS.getCode());
+    assertEquals(badCredentialsError.getMessage(), ErrorConstants.BAD_CREDENTIALS.getMessage());
+  }
+}

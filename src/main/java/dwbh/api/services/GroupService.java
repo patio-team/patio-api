@@ -38,6 +38,7 @@ public class GroupService {
   /**
    * Get a specific group
    *
+   * @param groupUuid group identifier
    * @return The requested {@link Group}
    * @since 0.1.0
    */
@@ -48,6 +49,7 @@ public class GroupService {
   /**
    * Fetches the list of groups in which an user is a member
    *
+   * @param userUuid user identifier
    * @return a list of {@link Group} instances
    * @since 0.1.0
    */

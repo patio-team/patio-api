@@ -19,7 +19,8 @@ public class DwbhAwsCredentialsProvider implements AWSCredentialsProvider {
   /**
    * Initializes the provider with configuration
    *
-   * @param config configuration providing access key and secret key
+   * @param awsAccessKey credentials access key
+   * @param awsSecretKey credentials secret key
    * @since 0.1.0
    */
   public DwbhAwsCredentialsProvider(
