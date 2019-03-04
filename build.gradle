@@ -1,4 +1,5 @@
 import dwbh.gradle.FixturesPlugin
+import com.github.jk1.license.render.InventoryHtmlReportRenderer
 
 plugins {
     id "io.spring.dependency-management" version "1.0.6.RELEASE"
@@ -8,6 +9,7 @@ plugins {
     id "com.diffplug.gradle.spotless" version "3.18.0"
     id "com.github.spotbugs" version "1.6.10"
     id 'com.bmuschko.docker-java-application' version '4.5.0'
+    id 'com.github.jk1.dependency-license-report' version '1.5'
 }
 
 apply plugin: "application"
@@ -18,6 +20,7 @@ apply plugin: FixturesPlugin
 apply from: 'gradle/quality.gradle'
 apply from: 'gradle/fixtures.gradle'
 apply from: 'gradle/docker.gradle'
+apply from: 'gradle/docs.gradle'
 
 group "kaleidos.net"
 
@@ -74,11 +77,53 @@ shadowJar {
     mergeServiceFiles()
 }
 
+/**
+ * Arguments when executing :run task
+ *
+ * @since 0.1.0
+ */
 run.jvmArgs('-noverify', '-XX:TieredStopAtLevel=1')
 
+/**
+ * Main class to execute when executing :run task
+ *
+ * @since 0.1.0
+ */
 mainClassName = "dwbh.api.Application"
 
+/**
+ * Java compilation configuration
+ *
+ * @since 0.1.0
+ */
 tasks.withType(JavaCompile) {
     options.encoding = "UTF-8"
     options.compilerArgs.add('-parameters')
 }
+
+/**
+ * Configuration for generating license reports from all
+ * the project dependencies
+ *
+ * @since 0.1.0
+ */
+licenseReport {
+    renderers = [new InventoryHtmlReportRenderer()]
+    configurations = ['compile']
+}
+
+/**
+ * Improving code quality and documentation making sure
+ * certain extra tasks are executed at the end of the
+ * :build task
+ *
+ * @since 0.1.0
+ */
+build.finalizedBy(javadoc, jacocoTestReport)
+
+/**
+ * Enforcing code coverage restrictions
+ *
+ * @since 0.1.0
+ */
+check.dependsOn jacocoTestCoverageVerification

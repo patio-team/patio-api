@@ -79,15 +79,26 @@ jacoco {
 jacocoTestReport {
     afterEvaluate {
         classDirectories.setFrom(classDirectories.files.collect {
-            fileTree(dir: it, exclude: '**/*$*Definition*/**')
+            fileTree(dir: it, exclude: [
+                '**/Application*',
+                '**/*$*Definition*/**'
+            ])
         })
     }
 }
 
 /**
- * Making sure Jacoco is executed at the end of
- * the build task
+ * Overall coverage can't be less than X%
  *
  * @since 0.1.0
  */
-build.finalizedBy(jacocoTestReport)
+jacocoTestCoverageVerification {
+    violationRules {
+        rule {
+            limit {
+                counter = 'LINE'
+                minimum = 0.7
+            }
+        }
+    }
+}
