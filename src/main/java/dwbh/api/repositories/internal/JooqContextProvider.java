@@ -1,4 +1,4 @@
-package dwbh.api.domain;
+package dwbh.api.repositories.internal;
 
 import io.micronaut.context.annotation.Factory;
 import javax.inject.Singleton;

@@ -1,6 +1,6 @@
 package dwbh.api.services;
 
-import dwbh.api.util.Email;
+import dwbh.api.domain.Email;
 
 /**
  * Represents the actions available in an email service
