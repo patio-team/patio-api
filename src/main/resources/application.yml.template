@@ -32,4 +32,4 @@ crypto:
   password: SHA-256
   jwt:
     secret: mysupersecret
-    daysToExpire: 7
+    days: 7
