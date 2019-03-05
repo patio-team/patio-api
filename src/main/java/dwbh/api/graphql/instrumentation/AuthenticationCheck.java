@@ -27,16 +27,16 @@ import java.util.Optional;
  * @since 0.1.0
  * @see ErrorConstants#BAD_CREDENTIALS
  */
-public class Anonymous extends SimpleInstrumentation {
+public class AuthenticationCheck extends SimpleInstrumentation {
 
   @Override
   public InstrumentationState createState(InstrumentationCreateStateParameters params) {
-    return new AnonymousState(false);
+    return new AuthenticationCheckState(false);
   }
 
   @Override
   public InstrumentationContext<ExecutionResult> beginField(InstrumentationFieldParameters params) {
-    AnonymousState state = params.getInstrumentationState();
+    AuthenticationCheckState state = params.getInstrumentationState();
     state.setAllowed(isAllowed(params));
 
     return super.beginField(params);
@@ -51,7 +51,7 @@ public class Anonymous extends SimpleInstrumentation {
   }
 
   private boolean isAllowed(InstrumentationFieldParameters params) {
-    AnonymousState state = params.getInstrumentationState();
+    AuthenticationCheckState state = params.getInstrumentationState();
     Context context = (Context) params.getExecutionContext().getContext();
     GraphQLFieldDefinition fieldDefinition = params.getField();
 
@@ -59,16 +59,17 @@ public class Anonymous extends SimpleInstrumentation {
   }
 
   private boolean isAllowed(InstrumentationFieldFetchParameters parameters) {
-    AnonymousState state = parameters.getInstrumentationState();
+    AuthenticationCheckState state = parameters.getInstrumentationState();
     Context context = parameters.getEnvironment().getContext();
     GraphQLFieldDefinition fieldDefinition = parameters.getField();
 
     return isAllowed(state, fieldDefinition, context);
   }
 
-  private boolean isAllowed(AnonymousState state, GraphQLFieldDefinition definition, Context ctx) {
+  private boolean isAllowed(
+      AuthenticationCheckState state, GraphQLFieldDefinition definition, Context ctx) {
     boolean hierarchyAllowed =
-        Optional.ofNullable(state).map(AnonymousState::isAllowed).orElse(false);
+        Optional.ofNullable(state).map(AuthenticationCheckState::isAllowed).orElse(false);
 
     boolean userPresent =
         Optional.ofNullable(ctx).flatMap(Context::getAuthenticatedUser).isPresent();

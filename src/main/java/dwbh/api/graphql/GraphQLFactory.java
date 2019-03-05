@@ -3,7 +3,7 @@ package dwbh.api.graphql;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 import dwbh.api.fetchers.FetcherProvider;
-import dwbh.api.graphql.instrumentation.Anonymous;
+import dwbh.api.graphql.instrumentation.AuthenticationCheck;
 import graphql.GraphQL;
 import graphql.schema.GraphQLSchema;
 import graphql.schema.idl.RuntimeWiring;
@@ -43,7 +43,7 @@ public class GraphQLFactory {
     return loadSchema(resourceResolver, SCHEMA_PATH)
         .map(registry -> configureQueryType(registry, fetcherProvider))
         .map(GraphQL::newGraphQL)
-        .map(builder -> builder.instrumentation(new Anonymous()))
+        .map(builder -> builder.instrumentation(new AuthenticationCheck()))
         .map(GraphQL.Builder::build)
         .orElseThrow();
   }

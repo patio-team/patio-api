@@ -8,7 +8,7 @@ import graphql.execution.instrumentation.InstrumentationState;
  *
  * @since 0.1.0
  */
-class AnonymousState implements InstrumentationState {
+class AuthenticationCheckState implements InstrumentationState {
   private boolean allowed;
 
   /**
@@ -17,7 +17,7 @@ class AnonymousState implements InstrumentationState {
    * @param allowed if the hierarchy parent has been already allowed
    * @since 0.1.0
    */
-  /* default */ AnonymousState(boolean allowed) {
+  /* default */ AuthenticationCheckState(boolean allowed) {
     this.allowed = allowed;
   }
 

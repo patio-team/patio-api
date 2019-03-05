@@ -4,7 +4,7 @@ import static dwbh.api.domain.ErrorConstants.BAD_CREDENTIALS;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import dwbh.api.domain.User;
-import dwbh.api.graphql.instrumentation.Anonymous;
+import dwbh.api.graphql.instrumentation.AuthenticationCheck;
 import graphql.ExecutionInput;
 import graphql.GraphQL;
 import graphql.schema.idl.RuntimeWiring;
@@ -14,11 +14,11 @@ import java.util.Map;
 import org.junit.jupiter.api.Test;
 
 /**
- * Tests {@link Anonymous}
+ * Tests {@link AuthenticationCheck}
  *
  * @since 0.1.0
  */
-public class AnonymousTests {
+public class AuthenticationCheckTests {
 
   @Test
   void testQueryAllowedBecauseDirective() {
@@ -78,6 +78,6 @@ public class AnonymousTests {
     var schema = new SchemaGenerator().makeExecutableSchema(registry.get(), wiring);
 
     // when: executing the query against the GraphQL engine
-    return GraphQL.newGraphQL(schema).instrumentation(new Anonymous()).build();
+    return GraphQL.newGraphQL(schema).instrumentation(new AuthenticationCheck()).build();
   }
 }
