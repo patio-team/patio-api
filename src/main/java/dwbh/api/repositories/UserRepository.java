@@ -5,7 +5,6 @@ import dwbh.api.domain.UserBuilder;
 import java.util.List;
 import java.util.UUID;
 import javax.inject.Singleton;
-import org.jooq.Condition;
 import org.jooq.DSLContext;
 import org.jooq.Record;
 
@@ -93,25 +92,6 @@ public class UserRepository {
             .selectFrom(TablesHelper.USERS_TABLE)
             .where(TablesHelper.UsersTableHelper.EMAIL.eq(email))
             .fetchOne(this::toUser);
-  }
-
-  /**
-   * Finds a user by its email and hashed password. The password should be hashed with the same
-   * mechanism it was stored in the first place.
-   *
-   * @param email user's email
-   * @param hashedPassword the hashed password
-   * @return an instance of {@link User} or null if no user has been found
-   * @since 0.1.0
-   */
-  public User findByEmailAndPassword(String email, String hashedPassword) {
-    Condition condition =
-        TablesHelper.UsersTableHelper.EMAIL
-            .eq(email)
-            .and(TablesHelper.UsersTableHelper.PASSWORD.eq(hashedPassword));
-
-    return (User)
-        context.selectFrom(TablesHelper.USERS_TABLE).where(condition).fetchOne(this::toUser);
   }
 
   private User toUser(Record row) {

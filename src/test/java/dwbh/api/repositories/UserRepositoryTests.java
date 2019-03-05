@@ -105,20 +105,4 @@ class UserRepositoryTests {
     assertEquals(refUser.getName(), userByEmail.getName());
     assertEquals(refUser.getEmail(), userByEmail.getEmail());
   }
-
-  @Test
-  void testFindByEmailAndPassword() {
-    // given: a pre-loaded fixtures
-    fixtures.load(UserRepositoryTests.class, "testFindByEmailAndPassword.sql");
-
-    // and: taking a reference user
-    User refUser = repository.listUsers().get(0);
-
-    // when: searching the user by email
-    User userByEmailAndPassword =
-        repository.findByEmailAndPassword(refUser.getEmail(), refUser.getPassword());
-
-    // then:
-    assertEquals(refUser.getUuid(), userByEmailAndPassword.getUuid());
-  }
 }

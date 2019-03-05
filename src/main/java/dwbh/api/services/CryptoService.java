@@ -30,11 +30,21 @@ public interface CryptoService {
   Optional<DecodedJWT> verifyToken(String token);
 
   /**
-   * Hashes a given text using SHA-256 as hashing algorithm
+   * Hashes a given text
    *
    * @param text the text to hash
    * @return the hashed text
    * @since 0.1.0
    */
   String hash(String text);
+
+  /**
+   * Verifies that the plain text provided matches the hashed version
+   *
+   * @param plain plain text
+   * @param hashed hashed version of the plain text
+   * @return true if plain text and hashed password are considered equal
+   * @since 0.1.0
+   */
+  boolean verifyWithHash(String plain, String hashed);
 }

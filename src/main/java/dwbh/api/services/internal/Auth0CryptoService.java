@@ -5,14 +5,11 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import dwbh.api.domain.User;
 import dwbh.api.services.CryptoService;
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.time.OffsetDateTime;
 import java.util.Date;
 import java.util.Optional;
 import javax.inject.Singleton;
-import org.apache.commons.codec.binary.Hex;
+import org.springframework.security.crypto.bcrypt.BCrypt;
 
 /**
  * Default implementation of the {@link CryptoService}
@@ -61,22 +58,11 @@ public class Auth0CryptoService implements CryptoService {
 
   @Override
   public String hash(String text) {
-    var hashType = configuration.getPasswordHash();
-    return getMessageDigest(hashType)
-        .map(encoder -> encoder.digest(text.getBytes(StandardCharsets.UTF_8)))
-        .map(Hex::encodeHexString)
-        .orElse(null);
+    return BCrypt.hashpw(text, BCrypt.gensalt());
   }
 
-  private Optional<MessageDigest> getMessageDigest(String type) {
-    return Optional.ofNullable(type)
-        .flatMap(
-            algorithmType -> {
-              try {
-                return Optional.of(MessageDigest.getInstance(algorithmType));
-              } catch (NoSuchAlgorithmException ex) {
-                return Optional.empty();
-              }
-            });
+  @Override
+  public boolean verifyWithHash(String plain, String hashed) {
+    return BCrypt.checkpw(plain, hashed);
   }
 }

@@ -1,9 +1,7 @@
 package dwbh.api.services.internal;
 
 import static io.github.benas.randombeans.api.EnhancedRandom.random;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.*;
 
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
@@ -20,7 +18,6 @@ import org.junit.jupiter.api.Test;
 public class Auth0CryptoServiceTests {
 
   private static final Algorithm CONF_ALGORITHM = Algorithm.HMAC256("secret");
-  private static final String CONF_HASH_TYPE = "SHA-256";
   private static final String CONF_ISSUER = "issuer";
   private static final Integer CONF_DAYS = 1;
 
@@ -28,8 +25,7 @@ public class Auth0CryptoServiceTests {
 
   @BeforeEach
   void setConfiguration() {
-    configuration =
-        new SecurityConfiguration(CONF_ISSUER, CONF_HASH_TYPE, CONF_DAYS, CONF_ALGORITHM);
+    configuration = new SecurityConfiguration(CONF_ISSUER, CONF_DAYS, CONF_ALGORITHM);
   }
 
   @Test
@@ -60,19 +56,9 @@ public class Auth0CryptoServiceTests {
     String hashedPassword = cryptoService.hash(plainTextPassword);
 
     // then: we should expect to be always the same
-    assertEquals(hashedPassword, cryptoService.hash(plainTextPassword));
+    assertTrue(cryptoService.verifyWithHash(plainTextPassword, hashedPassword));
 
     // and: get different hash for different inputs
-    assertNotEquals(hashedPassword, cryptoService.hash("adminadmin2"));
-  }
-
-  @Test
-  void testHashingPasswordWithWrongHashType() {
-    // given: a configuration with wrong hash type
-    var conf = new SecurityConfiguration(CONF_ISSUER, "WRONG_HASH_TYPE", CONF_DAYS, CONF_ALGORITHM);
-    var cryptoService = new Auth0CryptoService(conf);
-
-    // expect: to return a null value when trying to hash any string
-    assertNull(cryptoService.hash("anything"));
+    assertFalse(cryptoService.verifyWithHash("adminadmin2", hashedPassword));
   }
 }

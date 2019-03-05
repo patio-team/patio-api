@@ -70,20 +70,20 @@ public class DefaultSecurityServiceTests {
   @Test
   void testLoginWithGoodCredentials() {
     // given: a security configuration
-    var configuration =
-        new SecurityConfiguration("issuer", "SHA-256", 1, Algorithm.HMAC256("secret"));
+    var configuration = new SecurityConfiguration("issuer", 1, Algorithm.HMAC256("secret"));
     var cryptoService = new Auth0CryptoService(configuration);
+    var plainPassword = "password";
 
     // and: a repository returning a specific user
     var userRepository = Mockito.mock(UserRepository.class);
     var storedUser = random(User.class);
-    Mockito.when(userRepository.findByEmailAndPassword(any(), any())).thenReturn(storedUser);
+    storedUser.setPassword(cryptoService.hash(plainPassword));
+
+    Mockito.when(userRepository.findByEmail(any())).thenReturn(storedUser);
 
     // when: executing the security service with good credentials
     var securityService = new DefaultSecurityService(cryptoService, userRepository);
-
-    var loginInput = random(LoginInput.class);
-    var result = securityService.login(loginInput);
+    var result = securityService.login(new LoginInput(storedUser.getEmail(), plainPassword));
 
     // then: we should get a token that matches the user stored in database
     var resultUser = result.getSuccess().getUser();
@@ -98,13 +98,12 @@ public class DefaultSecurityServiceTests {
   @Test
   void testLoginWithBadCredentials() {
     // given: a security configuration
-    var configuration =
-        new SecurityConfiguration("issuer", "SHA-256", 1, Algorithm.HMAC256("secret"));
+    var configuration = new SecurityConfiguration("issuer", 1, Algorithm.HMAC256("secret"));
     var cryptoService = new Auth0CryptoService(configuration);
 
     // and: a repository returning a specific user
     var userRepository = Mockito.mock(UserRepository.class);
-    Mockito.when(userRepository.findByEmailAndPassword(any(), any())).thenReturn(null);
+    Mockito.when(userRepository.findByEmail(any())).thenReturn(null);
 
     // when: executing the security service with good credentials
     var securityService = new DefaultSecurityService(cryptoService, userRepository);

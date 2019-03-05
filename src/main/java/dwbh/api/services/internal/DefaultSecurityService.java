@@ -10,6 +10,7 @@ import dwbh.api.repositories.UserRepository;
 import dwbh.api.services.CryptoService;
 import dwbh.api.services.SecurityService;
 import java.util.Optional;
+import java.util.function.Predicate;
 import javax.inject.Singleton;
 
 /**
@@ -46,13 +47,18 @@ public class DefaultSecurityService implements SecurityService {
 
   @Override
   public Result<Login> login(LoginInput loginInput) {
-    String hashedPassword = cryptoService.hash(loginInput.getPassword());
-    User user = userRepository.findByEmailAndPassword(loginInput.getEmail(), hashedPassword);
+    User user = userRepository.findByEmail(loginInput.getEmail());
+    Predicate<User> byCheckingPassword = checkPassword(loginInput.getPassword());
 
     return Optional.ofNullable(user)
+        .filter(byCheckingPassword)
         .map(cryptoService::createToken)
         .map(token -> new Login(token, user))
         .map(Result::result)
         .orElse(Result.error(ErrorConstants.BAD_CREDENTIALS));
+  }
+
+  private Predicate<User> checkPassword(String loginPassword) {
+    return (User user) -> cryptoService.verifyWithHash(loginPassword, user.getPassword());
   }
 }
