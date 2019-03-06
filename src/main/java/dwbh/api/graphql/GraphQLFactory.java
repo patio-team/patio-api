@@ -3,6 +3,7 @@ package dwbh.api.graphql;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 import dwbh.api.fetchers.FetcherProvider;
+import dwbh.api.graphql.instrumentation.AuthenticationCheck;
 import graphql.GraphQL;
 import graphql.schema.GraphQLSchema;
 import graphql.schema.idl.RuntimeWiring;
@@ -14,6 +15,7 @@ import io.micronaut.context.annotation.Factory;
 import io.micronaut.core.io.ResourceResolver;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.util.Optional;
 import javax.inject.Singleton;
 
 /**
@@ -38,21 +40,34 @@ public class GraphQLFactory {
   @Bean
   @Singleton
   public GraphQL graphQL(ResourceResolver resourceResolver, FetcherProvider fetcherProvider) {
+    return loadSchema(resourceResolver, SCHEMA_PATH)
+        .map(registry -> configureQueryType(registry, fetcherProvider))
+        .map(GraphQL::newGraphQL)
+        .map(builder -> builder.instrumentation(new AuthenticationCheck()))
+        .map(GraphQL.Builder::build)
+        .orElseThrow();
+  }
+
+  /**
+   * Loads a schema definition {@link TypeDefinitionRegistry} with a given resolver and the path of
+   * the schema
+   *
+   * @param resolver an instance of {@link ResourceResolver}
+   * @param schemaPath the path of the schema (e.g. 'classpath:org/bla/schema.graphql')
+   * @return an instance of {@link TypeDefinitionRegistry}
+   * @since 0.1.0
+   */
+  public static Optional<TypeDefinitionRegistry> loadSchema(
+      ResourceResolver resolver, String schemaPath) {
     var typeRegistry = new TypeDefinitionRegistry();
     var schemaParser = new SchemaParser();
     var schemaReader =
-        resourceResolver
-            .getResourceAsStream(SCHEMA_PATH)
+        resolver
+            .getResourceAsStream(schemaPath)
             .map(inputStream -> new InputStreamReader(inputStream, UTF_8))
             .map(BufferedReader::new);
 
-    return schemaReader
-        .map(schemaParser::parse)
-        .map(typeRegistry::merge)
-        .map(registry -> configureQueryType(registry, fetcherProvider))
-        .map(GraphQL::newGraphQL)
-        .map(GraphQL.Builder::build)
-        .orElseThrow();
+    return schemaReader.map(schemaParser::parse).map(typeRegistry::merge);
   }
 
   @SuppressWarnings("PMD.DataflowAnomalyAnalysis")
@@ -60,6 +75,7 @@ public class GraphQLFactory {
       TypeDefinitionRegistry registry, FetcherProvider fetcherProvider) {
     var groupFetcher = fetcherProvider.getGroupFetcher();
     var userFetcher = fetcherProvider.getUserFetcher();
+    var securityFetcher = fetcherProvider.getSecurityFetcher();
 
     var wiring =
         RuntimeWiring.newRuntimeWiring()
@@ -70,7 +86,8 @@ public class GraphQLFactory {
                         .dataFetcher("listGroups", groupFetcher::listGroups)
                         .dataFetcher("getGroup", groupFetcher::getGroup)
                         .dataFetcher("listUsers", userFetcher::listUsers)
-                        .dataFetcher("getUser", userFetcher::getUser))
+                        .dataFetcher("getUser", userFetcher::getUser)
+                        .dataFetcher("login", securityFetcher::login))
             .type("Group", builder -> builder.dataFetcher("members", userFetcher::listUsersGroup))
             .type("User", builder -> builder.dataFetcher("groups", groupFetcher::listGroupsUser))
             .build();

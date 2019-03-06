@@ -1,4 +1,4 @@
-package dwbh.api.util;
+package dwbh.api.services.internal;
 
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.AWSCredentialsProvider;
@@ -12,17 +12,18 @@ import javax.inject.Singleton;
  * @since 0.1.0
  */
 @Singleton
-public class DwbhAwsCredentialsProvider implements AWSCredentialsProvider {
+public class DefaultAwsCredentialsProvider implements AWSCredentialsProvider {
   private final transient String accessKey;
   private final transient String secretKey;
 
   /**
    * Initializes the provider with configuration
    *
-   * @param config configuration providing access key and secret key
+   * @param awsAccessKey credentials access key
+   * @param awsSecretKey credentials secret key
    * @since 0.1.0
    */
-  public DwbhAwsCredentialsProvider(
+  public DefaultAwsCredentialsProvider(
       @Value("${aws.accessKey:none}") String awsAccessKey,
       @Value("${aws.secretKey:none}") String awsSecretKey) {
     this.accessKey = awsAccessKey;

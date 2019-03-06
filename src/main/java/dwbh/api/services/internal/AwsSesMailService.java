@@ -1,4 +1,4 @@
-package dwbh.api.services;
+package dwbh.api.services.internal;
 
 import com.amazonaws.auth.AWSCredentialsProvider;
 import com.amazonaws.services.simpleemail.AmazonSimpleEmailService;
@@ -9,7 +9,8 @@ import com.amazonaws.services.simpleemail.model.Destination;
 import com.amazonaws.services.simpleemail.model.Message;
 import com.amazonaws.services.simpleemail.model.SendEmailRequest;
 import com.amazonaws.services.simpleemail.model.SendEmailResult;
-import dwbh.api.util.Email;
+import dwbh.api.domain.Email;
+import dwbh.api.services.EmailService;
 import io.micronaut.context.annotation.Primary;
 import io.micronaut.context.annotation.Value;
 import javax.inject.Singleton;
@@ -37,7 +38,8 @@ public class AwsSesMailService implements EmailService {
    * Initializes email service
    *
    * @param credentialsProvider authentication credentials
-   * @param config server configuration
+   * @param awsRegion aws region
+   * @param sourceEmail source email
    * @since 0.1.0
    */
   public AwsSesMailService(

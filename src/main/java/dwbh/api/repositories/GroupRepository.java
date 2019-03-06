@@ -41,6 +41,7 @@ public class GroupRepository {
   /**
    * Get a specific group
    *
+   * @param groupUuid group identifier
    * @return The requested {@link Group}
    * @since 0.1.0
    */
@@ -56,6 +57,7 @@ public class GroupRepository {
   /**
    * Lists groups in which an user is a member
    *
+   * @param userUuid user identifier
    * @return a list of groups in which an user is a member
    * @since 0.1.0
    */

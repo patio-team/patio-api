@@ -1,0 +1,6 @@
+directive @anonymousAllowed on FIELD_DEFINITION
+
+type Query {
+  sayHi: String @anonymousAllowed
+  sayHiAuthenticated: String
+}

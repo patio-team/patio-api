@@ -8,9 +8,12 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import dwbh.api.domain.Group;
+import dwbh.api.domain.User;
 import dwbh.api.fetchers.FetcherProvider;
 import dwbh.api.fetchers.GroupFetcher;
+import dwbh.api.fetchers.SecurityFetcher;
 import dwbh.api.fetchers.UserFetcher;
+import graphql.ExecutionInput;
 import io.micronaut.core.io.ResourceResolver;
 import java.util.List;
 import java.util.Map;
@@ -20,26 +23,35 @@ class GraphQLFactoryTest {
 
   @Test
   void testCreateSchema() {
-    // given: mocking group fetcher behavior
+    // given: the fetcher provider
+    var fetchers = new FetcherProvider();
+
+    // and: mocking group fetcher behavior
     var groupFetcher = mock(GroupFetcher.class);
     when(groupFetcher.listGroups(any())).thenReturn(randomListOf(2, Group.class));
 
-    // and: adding fetcher to fetcher providers
-    var fetchers = new FetcherProvider();
+    // and: adding group fetcher to fetcher providers
     fetchers.setGroupFetcher(groupFetcher);
 
-    // and: mocking user fetcher behavior
-    var userFetcher = mock(UserFetcher.class);
+    // and: adding user fetcher to fetcher providers
+    fetchers.setUserFetcher(mock(UserFetcher.class));
 
-    // and: adding fetcher to fetcher providers
-    fetchers.setUserFetcher(userFetcher);
+    // and: adding security fetcher to fetcher providers
+    fetchers.setSecurityFetcher(mock(SecurityFetcher.class));
 
     // when: creating a valid GraphQL engine
     var resolver = new ResourceResolver();
     var graphQLEngine = new GraphQLFactory().graphQL(resolver, fetchers);
 
-    // and: querying the schema
-    var result = graphQLEngine.execute("{ listGroups { name } }");
+    // and: querying the schema with an authenticated user
+    var context = new Context();
+    context.setAuthenticatedUser(new User());
+    var executionInput =
+        ExecutionInput.newExecutionInput()
+            .query("{ listGroups { name } }")
+            .context(context)
+            .build();
+    var result = graphQLEngine.execute(executionInput);
     Map<String, List<Map<String, ?>>> data = result.getData();
 
     var groupList = data.get("listGroups");

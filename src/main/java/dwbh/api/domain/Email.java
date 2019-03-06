@@ -1,4 +1,4 @@
-package dwbh.api.util;
+package dwbh.api.domain;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -89,4 +89,20 @@ class UserRepositoryTests {
     // then: check there're the expected number of users
     assertEquals(userList.size(), 2);
   }
+
+  @Test
+  void testFindByEmail() {
+    // given: a pre-loaded fixtures
+    fixtures.load(UserRepositoryTests.class, "testFindByEmail.sql");
+
+    // and: taking a reference user
+    User refUser = repository.listUsers().get(0);
+
+    // when: searching the user by email
+    User userByEmail = repository.findByEmail(refUser.getEmail());
+
+    // then: we should get the same values
+    assertEquals(refUser.getName(), userByEmail.getName());
+    assertEquals(refUser.getEmail(), userByEmail.getEmail());
+  }
 }

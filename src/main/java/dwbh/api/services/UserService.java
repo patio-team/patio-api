@@ -39,7 +39,7 @@ public class UserService {
   /**
    * Get the specified user
    *
-   * @param env GraphQL execution environment
+   * @param userUuid user identifier
    * @return The requested {@link User}
    * @since 0.1.0
    */
@@ -50,6 +50,7 @@ public class UserService {
   /**
    * Fetches the list of users in a Group
    *
+   * @param groupUuid group identifier
    * @return a list of {@link User} instances
    * @since 0.1.0
    */

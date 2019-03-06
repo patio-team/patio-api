@@ -41,6 +41,7 @@ public class UserRepository {
   /**
    * Get a specific user
    *
+   * @param userUuid user identifier
    * @return The requested {@link User}
    * @since 0.1.0
    */
@@ -56,6 +57,7 @@ public class UserRepository {
   /**
    * Lists users on a group
    *
+   * @param groupUuid group identifier
    * @return a list of users that belongs to a group
    * @since 0.1.0
    */
@@ -75,6 +77,21 @@ public class UserRepository {
                         TablesHelper.UsersTableHelper.UUID)))
         .where(TablesHelper.UsersGroupsTableHelper.GROUP_UUID.eq(groupUuid))
         .fetch(this::toUser);
+  }
+
+  /**
+   * Finds a user by its email
+   *
+   * @param email user's email
+   * @return a {@link User} or null if email doesn't match any user
+   * @since 0.1.0
+   */
+  public User findByEmail(String email) {
+    return (User)
+        context
+            .selectFrom(TablesHelper.USERS_TABLE)
+            .where(TablesHelper.UsersTableHelper.EMAIL.eq(email))
+            .fetchOne(this::toUser);
   }
 
   private User toUser(Record row) {
