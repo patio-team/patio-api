@@ -8,7 +8,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 
 import com.auth0.jwt.algorithms.Algorithm;
-import com.auth0.jwt.interfaces.DecodedJWT;
 import dwbh.api.domain.ErrorConstants;
 import dwbh.api.domain.LoginInput;
 import dwbh.api.domain.User;
@@ -28,12 +27,9 @@ public class DefaultSecurityServiceTests {
   @Test
   void findUserByTokenWithGoodToken() {
     // given: mocked calls
-    var decodedJWT = Mockito.mock(DecodedJWT.class);
     var userEmail = "user@email.com";
-    Mockito.when(decodedJWT.getSubject()).thenReturn(userEmail);
-
     var cryptoService = Mockito.mock(CryptoService.class);
-    Mockito.when(cryptoService.verifyToken(any())).thenReturn(Optional.of(decodedJWT));
+    Mockito.when(cryptoService.verifyToken(any())).thenReturn(Optional.of(userEmail));
 
     var userRepository = Mockito.mock(UserRepository.class);
     var providedUser = random(User.class);
@@ -50,12 +46,9 @@ public class DefaultSecurityServiceTests {
   @Test
   void findUserByTokenWithWrongToken() {
     // given: mocked calls
-    var decodedJWT = Mockito.mock(DecodedJWT.class);
     var userEmail = "user@email.com";
-    Mockito.when(decodedJWT.getSubject()).thenReturn(userEmail);
-
     var cryptoService = Mockito.mock(CryptoService.class);
-    Mockito.when(cryptoService.verifyToken(any())).thenReturn(Optional.of(decodedJWT));
+    Mockito.when(cryptoService.verifyToken(any())).thenReturn(Optional.of(userEmail));
 
     var userRepository = Mockito.mock(UserRepository.class);
 
@@ -88,7 +81,7 @@ public class DefaultSecurityServiceTests {
     // then: we should get a token that matches the user stored in database
     var resultUser = result.getSuccess().getUser();
     var resultToken = result.getSuccess().getToken();
-    var resultEmail = cryptoService.verifyToken(resultToken).get().getSubject();
+    var resultEmail = cryptoService.verifyToken(resultToken).get();
 
     assertNotNull(resultUser);
     assertNotNull(result);

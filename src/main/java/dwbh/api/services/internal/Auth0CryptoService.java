@@ -1,5 +1,7 @@
 package dwbh.api.services.internal;
 
+import static dwbh.api.services.internal.FunctionsUtils.safely;
+
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
@@ -9,6 +11,8 @@ import java.time.OffsetDateTime;
 import java.util.Date;
 import java.util.Optional;
 import javax.inject.Singleton;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 
 /**
@@ -20,6 +24,7 @@ import org.springframework.security.crypto.bcrypt.BCrypt;
 public class Auth0CryptoService implements CryptoService {
 
   private final transient SecurityConfiguration configuration;
+  private static final Logger LOGGER = LoggerFactory.getLogger(Auth0CryptoService.class);
 
   /**
    * Initializes the service with a specific {@link Algorithm} instance
@@ -33,10 +38,13 @@ public class Auth0CryptoService implements CryptoService {
 
   @Override
   public String createToken(User user) {
-    OffsetDateTime now = OffsetDateTime.now();
-    String issuer = configuration.getIssuer();
-    Date currentDate = Date.from(now.toInstant());
-    Date expirationDate = Date.from(now.plusDays(configuration.getDaysToExpire()).toInstant());
+    var issuer = configuration.getIssuer();
+    var algorithm = configuration.getAlgorithm();
+    var daysToExpire = configuration.getDaysToExpire();
+
+    var now = OffsetDateTime.now();
+    var currentDate = Date.from(now.toInstant());
+    var expirationDate = Date.from(now.plusDays(daysToExpire).toInstant());
 
     return JWT.create()
         .withIssuer(issuer)
@@ -44,16 +52,18 @@ public class Auth0CryptoService implements CryptoService {
         .withNotBefore(currentDate)
         .withIssuedAt(currentDate)
         .withExpiresAt(expirationDate)
-        .sign(configuration.getAlgorithm());
+        .sign(algorithm);
   }
 
   @Override
-  public Optional<DecodedJWT> verifyToken(String token) {
-    String issuer = configuration.getIssuer();
-    DecodedJWT decodedJWT =
-        JWT.require(configuration.getAlgorithm()).withIssuer(issuer).build().verify(token);
+  public Optional<String> verifyToken(String token) {
+    var algorithm = configuration.getAlgorithm();
+    var issuer = configuration.getIssuer();
+    var verifier = JWT.require(algorithm).withIssuer(issuer).build();
 
-    return Optional.ofNullable(decodedJWT);
+    return Optional.ofNullable(token)
+        .flatMap(safely(verifier::verify, (th) -> LOGGER.error(th.getMessage())))
+        .map(DecodedJWT::getSubject);
   }
 
   @Override

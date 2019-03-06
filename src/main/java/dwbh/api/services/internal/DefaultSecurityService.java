@@ -1,6 +1,5 @@
 package dwbh.api.services.internal;
 
-import com.auth0.jwt.interfaces.DecodedJWT;
 import dwbh.api.domain.ErrorConstants;
 import dwbh.api.domain.Login;
 import dwbh.api.domain.LoginInput;
@@ -10,7 +9,6 @@ import dwbh.api.repositories.UserRepository;
 import dwbh.api.services.CryptoService;
 import dwbh.api.services.SecurityService;
 import java.util.Optional;
-import java.util.function.Predicate;
 import javax.inject.Singleton;
 
 /**
@@ -38,27 +36,18 @@ public class DefaultSecurityService implements SecurityService {
 
   @Override
   public User findUserByToken(String token) {
-    return cryptoService
-        .verifyToken(token)
-        .map(DecodedJWT::getSubject)
-        .map(userRepository::findByEmail)
-        .orElse(null);
+    return cryptoService.verifyToken(token).map(userRepository::findByEmail).orElse(null);
   }
 
   @Override
-  public Result<Login> login(LoginInput loginInput) {
-    User user = userRepository.findByEmail(loginInput.getEmail());
-    Predicate<User> byCheckingPassword = checkPassword(loginInput.getPassword());
+  public Result<Login> login(LoginInput input) {
+    User user = userRepository.findByEmail(input.getEmail());
 
     return Optional.ofNullable(user)
-        .filter(byCheckingPassword)
+        .filter(user1 -> cryptoService.verifyWithHash(input.getPassword(), user1.getPassword()))
         .map(cryptoService::createToken)
         .map(token -> new Login(token, user))
         .map(Result::result)
         .orElse(Result.error(ErrorConstants.BAD_CREDENTIALS));
-  }
-
-  private Predicate<User> checkPassword(String loginPassword) {
-    return (User user) -> cryptoService.verifyWithHash(loginPassword, user.getPassword());
   }
 }

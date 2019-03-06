@@ -1,6 +1,5 @@
 package dwbh.api.services;
 
-import com.auth0.jwt.interfaces.DecodedJWT;
 import dwbh.api.domain.User;
 import java.util.Optional;
 
@@ -24,10 +23,10 @@ public interface CryptoService {
    * Verifies that the provided token is valid
    *
    * @param token the token to validate
-   * @return the {@link DecodedJWT} is present if the token is valid, is empty otherwise
+   * @return the token subject if the token is valid, is empty otherwise
    * @since 0.1.0
    */
-  Optional<DecodedJWT> verifyToken(String token);
+  Optional<String> verifyToken(String token);
 
   /**
    * Hashes a given text
