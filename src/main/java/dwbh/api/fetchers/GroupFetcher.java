@@ -6,9 +6,10 @@ import dwbh.api.domain.User;
 import dwbh.api.graphql.Context;
 import dwbh.api.services.GroupService;
 import graphql.schema.DataFetchingEnvironment;
+
+import javax.inject.Singleton;
 import java.util.List;
 import java.util.UUID;
-import javax.inject.Singleton;
 
 /**
  * All related GraphQL operations over the {@link Group} domain

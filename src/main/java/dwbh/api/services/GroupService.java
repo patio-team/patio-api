@@ -5,9 +5,10 @@ import dwbh.api.domain.GroupInput;
 import dwbh.api.domain.User;
 import dwbh.api.repositories.GroupRepository;
 import dwbh.api.repositories.UserGroupRepository;
+
+import javax.inject.Singleton;
 import java.util.List;
 import java.util.UUID;
-import javax.inject.Singleton;
 
 /**
  * Business logic regarding {@link Group} domain
