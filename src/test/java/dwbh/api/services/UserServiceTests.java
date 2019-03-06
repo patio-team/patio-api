@@ -41,7 +41,7 @@ public class UserServiceTests {
 
     // when: getting a user by id
     var userService = new UserService(userRepository);
-    var user = userService.getUser(UUID.randomUUID().toString());
+    var user = userService.getUser(UUID.randomUUID());
 
     // then: we should get it
     assertNotNull(user);

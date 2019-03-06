@@ -8,7 +8,7 @@ import java.util.UUID;
  * @since 0.1.0
  */
 public class User {
-  private UUID uuid;
+  private UUID id;
   private String name;
   private String email;
   private String password;
@@ -87,20 +87,20 @@ public class User {
   }
 
   /**
-   * Gets uuid.
+   * Gets id.
    *
-   * @return Value of uuid.
+   * @return Value of id.
    */
-  public UUID getUuid() {
-    return uuid;
+  public UUID getId() {
+    return id;
   }
 
   /**
-   * Sets new uuid.
+   * Sets new id.
    *
-   * @param uuid New value of uuid.
+   * @param id New value of id.
    */
-  public void setUuid(UUID uuid) {
-    this.uuid = uuid;
+  public void setId(UUID id) {
+    this.id = id;
   }
 }

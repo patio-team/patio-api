@@ -11,7 +11,7 @@ import java.util.UUID;
  */
 public class UserBuilder {
 
-  private transient UUID uuid;
+  private transient UUID id;
   private transient String name;
   private transient String email;
   private transient String password;
@@ -40,11 +40,11 @@ public class UserBuilder {
   /**
    * Sets the identifier of the {@link User}
    *
-   * @param uuid the identifier
+   * @param id the identifier
    * @return the current builder instance
    */
-  public UserBuilder withUUID(UUID uuid) {
-    ofNullable(uuid).ifPresent(id -> this.uuid = id);
+  public UserBuilder withId(UUID id) {
+    ofNullable(id).ifPresent(pid -> this.id = pid);
     return this;
   }
 
@@ -90,7 +90,7 @@ public class UserBuilder {
   public User build() {
     User user = new User();
 
-    user.setUuid(uuid);
+    user.setId(id);
     user.setName(name);
     user.setEmail(email);
     user.setPassword(password);

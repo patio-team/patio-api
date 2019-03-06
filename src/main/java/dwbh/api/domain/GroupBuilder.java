@@ -12,7 +12,7 @@ import java.util.UUID;
 public class GroupBuilder {
 
   private transient String name;
-  private transient UUID uuid;
+  private transient UUID id;
   private transient boolean visibleMemberList;
   private transient boolean anonymousVote;
 
@@ -39,11 +39,11 @@ public class GroupBuilder {
   /**
    * Sets the identifier of the {@link Group}
    *
-   * @param uuid the identifier
+   * @param id the identifier
    * @return the current builder instance
    */
-  public GroupBuilder withUUID(UUID uuid) {
-    ofNullable(uuid).ifPresent(id -> this.uuid = id);
+  public GroupBuilder withId(UUID id) {
+    ofNullable(id).ifPresent(pid -> this.id = pid);
     return this;
   }
 
@@ -65,7 +65,7 @@ public class GroupBuilder {
    * @return the current builder instance
    */
   public GroupBuilder withAnonymousVote(boolean anonymousVote) {
-    ofNullable(anonymousVote).ifPresent(anonymous -> this.anonymousVote = anonymous);
+    this.anonymousVote = anonymousVote;
     return this;
   }
 
@@ -80,7 +80,7 @@ public class GroupBuilder {
 
     group.setAnonymousVote(anonymousVote);
     group.setName(name);
-    group.setUuid(uuid);
+    group.setId(id);
     group.setVisibleMemberList(visibleMemberList);
 
     return group;

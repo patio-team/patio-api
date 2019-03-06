@@ -26,6 +26,25 @@
             <property name="utilityClassPattern" value="[A-Z][a-zA-Z0-9]+(Utils?|Helper|Constants)" />
         </properties>
     </rule>
+    <rule ref="category/java/codestyle.xml/ShortVariable" >
+        <properties>
+            <property name="xpath">
+                <value>
+                    //VariableDeclaratorId[(string-length(@Image) &lt; $minimum) and (not (@Image='id' or @Image='ID'))]
+                    (: ForStatement :)
+                    [not(../../..[self::ForInit])]
+                    (: Foreach statement :)
+                    [not(../../..[self::ForStatement])]
+                    (: Catch statement parameter :)
+                    [not(../..[self::CatchStatement])]
+                    (: Lambda expression parameter :)
+                    [not(parent::LambdaExpression or ../../..[self::LambdaExpression])]
+                </value>
+            </property>
+        </properties>
+    </rule>
+
+
 
     <rule ref="category/java/design.xml">
         <exclude name="DataClass"/>

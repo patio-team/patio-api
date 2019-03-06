@@ -63,7 +63,7 @@ class UserRepositoryTests {
     fixtures.load(UserRepositoryTests.class, "testListUsers.sql");
 
     // when: asking for a user
-    User user = repository.getUser("1998c588-d93b-4db6-92e2-a9dbb4cf03b5");
+    User user = repository.getUser(UUID.fromString("1998c588-d93b-4db6-92e2-a9dbb4cf03b5"));
 
     // then: check the user is retrieved
     assertEquals(user.getName(), "Steve Rogers");

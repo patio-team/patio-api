@@ -45,12 +45,11 @@ public class UserRepository {
    * @return The requested {@link User}
    * @since 0.1.0
    */
-  public User getUser(String userUuid) {
-    UUID uuid = UUID.fromString(userUuid);
+  public User getUser(UUID userUuid) {
     return (User)
         context
             .selectFrom(TablesHelper.USERS_TABLE)
-            .where(TablesHelper.UsersTableHelper.UUID.eq(uuid))
+            .where(TablesHelper.UsersTableHelper.ID.eq(userUuid))
             .fetchOne(this::toUser);
   }
 
@@ -64,7 +63,7 @@ public class UserRepository {
   public List<User> listUsersGroup(UUID groupUuid) {
     return context
         .select(
-            TablesHelper.UsersTableHelper.UUID,
+            TablesHelper.UsersTableHelper.ID,
             TablesHelper.UsersTableHelper.NAME,
             TablesHelper.UsersTableHelper.EMAIL,
             TablesHelper.UsersTableHelper.PASSWORD,
@@ -73,9 +72,9 @@ public class UserRepository {
             TablesHelper.USERS_GROUPS_TABLE
                 .join(TablesHelper.USERS_TABLE)
                 .on(
-                    TablesHelper.UsersGroupsTableHelper.USER_UUID.eq(
-                        TablesHelper.UsersTableHelper.UUID)))
-        .where(TablesHelper.UsersGroupsTableHelper.GROUP_UUID.eq(groupUuid))
+                    TablesHelper.UsersGroupsTableHelper.USER_ID.eq(
+                        TablesHelper.UsersTableHelper.ID)))
+        .where(TablesHelper.UsersGroupsTableHelper.GROUP_ID.eq(groupUuid))
         .fetch(this::toUser);
   }
 
@@ -99,11 +98,11 @@ public class UserRepository {
     String email = row.get(TablesHelper.UsersTableHelper.EMAIL);
     String password = row.get(TablesHelper.UsersTableHelper.PASSWORD);
     String otp = row.get(TablesHelper.UsersTableHelper.OTP);
-    UUID uuid = row.get(TablesHelper.UsersTableHelper.UUID);
+    UUID id = row.get(TablesHelper.UsersTableHelper.ID);
 
     return UserBuilder.builder()
         .withName(name)
-        .withUUID(uuid)
+        .withId(id)
         .withEmail(email)
         .withPassword(password)
         .withOtp(otp)

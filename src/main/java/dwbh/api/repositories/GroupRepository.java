@@ -41,31 +41,30 @@ public class GroupRepository {
   /**
    * Get a specific group
    *
-   * @param groupUuid group identifier
+   * @param groupId group identifier
    * @return The requested {@link Group}
    * @since 0.1.0
    */
-  public Group getGroup(String groupUuid) {
-    UUID uuid = UUID.fromString(groupUuid);
+  public Group getGroup(UUID groupId) {
     return (Group)
         context
             .selectFrom(TablesHelper.GROUPS_TABLE)
-            .where(TablesHelper.GroupsTableHelper.UUID.eq(uuid))
+            .where(TablesHelper.GroupsTableHelper.ID.eq(groupId))
             .fetchOne(this::toGroup);
   }
 
   /**
    * Lists groups in which an user is a member
    *
-   * @param userUuid user identifier
+   * @param userId user identifier
    * @return a list of groups in which an user is a member
    * @since 0.1.0
    */
-  public List<Group> listGroupsUser(String userUuid) {
-    UUID uuid = UUID.fromString(userUuid);
+  public List<Group> listGroupsUser(String userId) {
+    UUID id = UUID.fromString(userId);
     return context
         .select(
-            TablesHelper.GroupsTableHelper.UUID,
+            TablesHelper.GroupsTableHelper.ID,
             TablesHelper.GroupsTableHelper.NAME,
             TablesHelper.GroupsTableHelper.VISIBLE_MEMBER_LIST,
             TablesHelper.GroupsTableHelper.ANONYMOUS_VOTE)
@@ -73,21 +72,21 @@ public class GroupRepository {
             TablesHelper.USERS_GROUPS_TABLE
                 .join(TablesHelper.GROUPS_TABLE)
                 .on(
-                    TablesHelper.UsersGroupsTableHelper.GROUP_UUID.eq(
-                        TablesHelper.GroupsTableHelper.UUID)))
-        .where(TablesHelper.UsersGroupsTableHelper.USER_UUID.eq(uuid))
+                    TablesHelper.UsersGroupsTableHelper.GROUP_ID.eq(
+                        TablesHelper.GroupsTableHelper.ID)))
+        .where(TablesHelper.UsersGroupsTableHelper.USER_ID.eq(id))
         .fetch(this::toGroup);
   }
 
   private Group toGroup(Record row) {
-    String name = row.get("name", String.class);
-    UUID uuid = row.get("uuid", UUID.class);
-    boolean visibleMemberList = row.get("visible_member_list", boolean.class);
-    boolean anonymousVote = row.get("anonymous_vote", boolean.class);
+    String name = row.get(TablesHelper.GroupsTableHelper.NAME);
+    UUID id = row.get(TablesHelper.GroupsTableHelper.ID);
+    boolean visibleMemberList = row.get(TablesHelper.GroupsTableHelper.VISIBLE_MEMBER_LIST);
+    boolean anonymousVote = row.get(TablesHelper.GroupsTableHelper.ANONYMOUS_VOTE);
 
     return GroupBuilder.builder()
         .withName(name)
-        .withUUID(uuid)
+        .withId(id)
         .withVisibleMemberList(visibleMemberList)
         .withAnonymousVote(anonymousVote)
         .build();
