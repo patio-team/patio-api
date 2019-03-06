@@ -35,47 +35,22 @@ public class UserRepository {
    * @since 0.1.0
    */
   public List<User> listUsers() {
-    return context.selectFrom(TablesHelper.USERS_TABLE).fetch(this::toUser);
+    return context.selectFrom(TablesHelper.USERS_TABLE).fetch(UserRepository::toUser);
   }
 
   /**
    * Get a specific user
    *
-   * @param userUuid user identifier
+   * @param userId user identifier
    * @return The requested {@link User}
    * @since 0.1.0
    */
-  public User getUser(UUID userUuid) {
+  public User getUser(UUID userId) {
     return (User)
         context
             .selectFrom(TablesHelper.USERS_TABLE)
-            .where(TablesHelper.UsersTableHelper.ID.eq(userUuid))
-            .fetchOne(this::toUser);
-  }
-
-  /**
-   * Lists users on a group
-   *
-   * @param groupUuid group identifier
-   * @return a list of users that belongs to a group
-   * @since 0.1.0
-   */
-  public List<User> listUsersGroup(UUID groupUuid) {
-    return context
-        .select(
-            TablesHelper.UsersTableHelper.ID,
-            TablesHelper.UsersTableHelper.NAME,
-            TablesHelper.UsersTableHelper.EMAIL,
-            TablesHelper.UsersTableHelper.PASSWORD,
-            TablesHelper.UsersTableHelper.OTP)
-        .from(
-            TablesHelper.USERS_GROUPS_TABLE
-                .join(TablesHelper.USERS_TABLE)
-                .on(
-                    TablesHelper.UsersGroupsTableHelper.USER_ID.eq(
-                        TablesHelper.UsersTableHelper.ID)))
-        .where(TablesHelper.UsersGroupsTableHelper.GROUP_ID.eq(groupUuid))
-        .fetch(this::toUser);
+            .where(TablesHelper.UsersTableHelper.ID.eq(userId))
+            .fetchOne(UserRepository::toUser);
   }
 
   /**
@@ -90,15 +65,22 @@ public class UserRepository {
         context
             .selectFrom(TablesHelper.USERS_TABLE)
             .where(TablesHelper.UsersTableHelper.EMAIL.eq(email))
-            .fetchOne(this::toUser);
+            .fetchOne(UserRepository::toUser);
   }
 
-  private User toUser(Record row) {
-    String name = row.get(TablesHelper.UsersTableHelper.NAME);
-    String email = row.get(TablesHelper.UsersTableHelper.EMAIL);
-    String password = row.get(TablesHelper.UsersTableHelper.PASSWORD);
-    String otp = row.get(TablesHelper.UsersTableHelper.OTP);
-    UUID id = row.get(TablesHelper.UsersTableHelper.ID);
+  /**
+   * Extract the fields from a {@link Record} to create a new {@link User} instance
+   *
+   * @param record The Record
+   * @return The new instance of {@link User}
+   * @since 0.1.0
+   */
+  public static User toUser(Record record) {
+    String name = record.get(TablesHelper.UsersTableHelper.NAME);
+    String email = record.get(TablesHelper.UsersTableHelper.EMAIL);
+    String password = record.get(TablesHelper.UsersTableHelper.PASSWORD);
+    String otp = record.get(TablesHelper.UsersTableHelper.OTP);
+    UUID id = record.get(TablesHelper.UsersTableHelper.ID);
 
     return UserBuilder.builder()
         .withName(name)

@@ -68,4 +68,17 @@ class GroupRepositoryTests {
     // then: check the group is retrieved
     assertEquals(group.getName(), "Avengers");
   }
+
+  @Test
+  void testCreateGroup() {
+    // when: creating a group
+    Group group = repository.createGroup("Avengers", true, true);
+
+    // then: check the group is retrieved
+    assertEquals(group.getName(), "Avengers");
+
+    // and: the group exist on the database
+    Group group2 = repository.getGroup(group.getId());
+    assertEquals(group.getName(), group2.getName());
+  }
 }

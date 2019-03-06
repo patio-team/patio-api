@@ -48,5 +48,6 @@ public class TablesHelper {
   public static class UsersGroupsTableHelper {
     public static final Field<UUID> GROUP_ID = DSL.field("group_id", UUID.class);
     public static final Field<UUID> USER_ID = DSL.field("user_id", UUID.class);
+    public static final Field<Boolean> IS_ADMIN = DSL.field("is_admin", Boolean.class);
   }
 }

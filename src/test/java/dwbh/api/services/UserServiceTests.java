@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 
 import dwbh.api.domain.User;
+import dwbh.api.repositories.UserGroupRepository;
 import dwbh.api.repositories.UserRepository;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
@@ -26,7 +27,7 @@ public class UserServiceTests {
     Mockito.when(userRepository.listUsers()).thenReturn(randomListOf(4, User.class));
 
     // when: invoking service listUsers()
-    var userService = new UserService(userRepository);
+    var userService = new UserService(userRepository, null);
     var userList = userService.listUsers();
 
     // then: we should get the expected number of users
@@ -40,7 +41,7 @@ public class UserServiceTests {
     Mockito.when(userRepository.getUser(any())).thenReturn(random(User.class));
 
     // when: getting a user by id
-    var userService = new UserService(userRepository);
+    var userService = new UserService(userRepository, null);
     var user = userService.getUser(UUID.randomUUID());
 
     // then: we should get it
@@ -50,11 +51,11 @@ public class UserServiceTests {
   @Test
   void testListUsersGroup() {
     // given: a mocked user repository
-    var userRepository = Mockito.mock(UserRepository.class);
-    Mockito.when(userRepository.listUsersGroup(any())).thenReturn(randomListOf(5, User.class));
+    var userGroupRepository = Mockito.mock(UserGroupRepository.class);
+    Mockito.when(userGroupRepository.listUsersGroup(any())).thenReturn(randomListOf(5, User.class));
 
     // when: getting a list of users by group
-    var userService = new UserService(userRepository);
+    var userService = new UserService(null, userGroupRepository);
     var usersByGroup = userService.listUsersGroup(UUID.randomUUID());
 
     // then: we should get the expected number of users
