@@ -77,6 +77,7 @@ public class GraphQLFactory {
       TypeDefinitionRegistry registry, FetcherProvider fetcherProvider) {
     var groupFetcher = fetcherProvider.getGroupFetcher();
     var userFetcher = fetcherProvider.getUserFetcher();
+    var userGroupFetcher = fetcherProvider.getUserGroupFetcher();
     var securityFetcher = fetcherProvider.getSecurityFetcher();
 
     var wiring =
@@ -93,7 +94,10 @@ public class GraphQLFactory {
                         .dataFetcher("login", securityFetcher::login))
             .type(
                 SCHEMA_TYPE_MUTATION,
-                builder -> builder.dataFetcher("createGroup", groupFetcher::createGroup))
+                builder ->
+                    builder
+                        .dataFetcher("createGroup", groupFetcher::createGroup)
+                        .dataFetcher("addUserToGroup", userGroupFetcher::addUserToGroup))
             .type("Group", builder -> builder.dataFetcher("members", userFetcher::listUsersGroup))
             .type("User", builder -> builder.dataFetcher("groups", groupFetcher::listGroupsUser))
             .build();

@@ -8,11 +8,10 @@ import static org.mockito.ArgumentMatchers.any;
 
 import dwbh.api.domain.Group;
 import dwbh.api.domain.User;
-import dwbh.api.graphql.Context;
+import dwbh.api.fetchers.utils.FetcherTestUtils;
 import dwbh.api.services.GroupService;
-import graphql.schema.DataFetchingEnvironment;
 import java.util.List;
-import java.util.Optional;
+import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -50,10 +49,8 @@ class GroupFetcherTest {
     Mockito.when(mockedService.getGroup(group.getId())).thenReturn(group);
 
     // and: a mocked environment
-    var mockedEnvironment = Mockito.mock(DataFetchingEnvironment.class);
-
-    // and: mocking environment behavior
-    Mockito.when(mockedEnvironment.getArgument("id")).thenReturn(group.getId());
+    var mockedEnvironment =
+        FetcherTestUtils.generateMockedEnvironment(null, Map.of("id", group.getId()));
 
     // when: fetching get group invoking the service
     GroupFetcher fetchers = new GroupFetcher(mockedService);
@@ -78,21 +75,16 @@ class GroupFetcherTest {
     Mockito.when(mockedService.createGroup(any(), any())).thenReturn(group);
 
     // and: a mocked environment
-    var mockedEnvironment = Mockito.mock(DataFetchingEnvironment.class);
-
-    // and: a mocked context
-    var mockedContext = Mockito.mock(Context.class);
-
-    // and: mocking context behavior
-    Mockito.when(mockedContext.getAuthenticatedUser()).thenReturn(Optional.ofNullable(user));
-
-    // and: mocking environment behavior
-    Mockito.when(mockedEnvironment.getContext()).thenReturn(mockedContext);
-    Mockito.when(mockedEnvironment.getArgument("name")).thenReturn(group.getName());
-    Mockito.when(mockedEnvironment.getArgument("visibleMemberList"))
-        .thenReturn(group.isVisibleMemberList());
-    Mockito.when(mockedEnvironment.getArgument("anonymousVote"))
-        .thenReturn(group.isAnonymousVote());
+    var mockedEnvironment =
+        FetcherTestUtils.generateMockedEnvironment(
+            user,
+            Map.of(
+                "name",
+                group.getName(),
+                "visibleMemberList",
+                group.isVisibleMemberList(),
+                "anonymousVote",
+                group.isAnonymousVote()));
 
     // when: creating a group invoking the service
     GroupFetcher fetchers = new GroupFetcher(mockedService);

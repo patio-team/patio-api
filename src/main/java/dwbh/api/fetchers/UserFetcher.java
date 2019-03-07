@@ -53,7 +53,6 @@ public class UserFetcher {
    */
   public User getUser(DataFetchingEnvironment env) {
     UUID userId = env.getArgument("id");
-
     return service.getUser(userId);
   }
 

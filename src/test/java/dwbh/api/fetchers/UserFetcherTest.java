@@ -7,9 +7,11 @@ import static org.hamcrest.Matchers.is;
 
 import dwbh.api.domain.Group;
 import dwbh.api.domain.User;
+import dwbh.api.fetchers.utils.FetcherTestUtils;
 import dwbh.api.services.UserService;
 import graphql.schema.DataFetchingEnvironment;
 import java.util.List;
+import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -47,10 +49,8 @@ class UserFetcherTest {
     Mockito.when(mockedService.getUser(user.getId())).thenReturn(user);
 
     // and: a mocked environment
-    var mockedEnvironment = Mockito.mock(DataFetchingEnvironment.class);
-
-    // and: mocking environment behavior
-    Mockito.when(mockedEnvironment.getArgument("id")).thenReturn(user.getId());
+    var mockedEnvironment =
+        FetcherTestUtils.generateMockedEnvironment(null, Map.of("id", user.getId()));
 
     // when: fetching get user invoking the service
     UserFetcher fetchers = new UserFetcher(mockedService);
