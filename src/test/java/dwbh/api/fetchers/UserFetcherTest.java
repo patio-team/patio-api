@@ -44,13 +44,13 @@ class UserFetcherTest {
     var mockedService = Mockito.mock(UserService.class);
 
     // and: mocking service's behavior
-    Mockito.when(mockedService.getUser(user.getUuid().toString())).thenReturn(user);
+    Mockito.when(mockedService.getUser(user.getId())).thenReturn(user);
 
     // and: a mocked environment
     var mockedEnvironment = Mockito.mock(DataFetchingEnvironment.class);
 
     // and: mocking environment behavior
-    Mockito.when(mockedEnvironment.getArgument("user_uuid")).thenReturn(user.getUuid().toString());
+    Mockito.when(mockedEnvironment.getArgument("id")).thenReturn(user.getId());
 
     // when: fetching get user invoking the service
     UserFetcher fetchers = new UserFetcher(mockedService);
@@ -72,7 +72,7 @@ class UserFetcherTest {
     var mockedEnvironment = Mockito.mock(DataFetchingEnvironment.class);
 
     // and: mocking service's behavior
-    Mockito.when(mockedService.listUsersGroup(group.getUuid()))
+    Mockito.when(mockedService.listUsersGroup(group.getId()))
         .thenReturn(randomListOf(2, User.class));
 
     // and: mocking environment behavior

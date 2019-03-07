@@ -3,6 +3,7 @@ package dwbh.api.services;
 import dwbh.api.domain.Group;
 import dwbh.api.repositories.GroupRepository;
 import java.util.List;
+import java.util.UUID;
 import javax.inject.Singleton;
 
 /**
@@ -38,22 +39,22 @@ public class GroupService {
   /**
    * Get a specific group
    *
-   * @param groupUuid group identifier
+   * @param groupId group identifier
    * @return The requested {@link Group}
    * @since 0.1.0
    */
-  public Group getGroup(String groupUuid) {
-    return repository.getGroup(groupUuid);
+  public Group getGroup(UUID groupId) {
+    return repository.getGroup(groupId);
   }
 
   /**
    * Fetches the list of groups in which an user is a member
    *
-   * @param userUuid user identifier
+   * @param userId user identifier
    * @return a list of {@link Group} instances
    * @since 0.1.0
    */
-  public List<Group> listGroupsUser(String userUuid) {
-    return repository.listGroupsUser(userUuid);
+  public List<Group> listGroupsUser(String userId) {
+    return repository.listGroupsUser(userId);
   }
 }

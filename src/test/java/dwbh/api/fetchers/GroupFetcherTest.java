@@ -43,14 +43,13 @@ class GroupFetcherTest {
     var mockedService = Mockito.mock(GroupService.class);
 
     // and: mocking service's behavior
-    Mockito.when(mockedService.getGroup(group.getUuid().toString())).thenReturn(group);
+    Mockito.when(mockedService.getGroup(group.getId())).thenReturn(group);
 
     // and: a mocked environment
     var mockedEnvironment = Mockito.mock(DataFetchingEnvironment.class);
 
     // and: mocking environment behavior
-    Mockito.when(mockedEnvironment.getArgument("group_uuid"))
-        .thenReturn(group.getUuid().toString());
+    Mockito.when(mockedEnvironment.getArgument("id")).thenReturn(group.getId());
 
     // when: fetching get group invoking the service
     GroupFetcher fetchers = new GroupFetcher(mockedService);

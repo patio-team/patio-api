@@ -8,44 +8,44 @@ import java.util.UUID;
  * @since 0.1.0
  */
 public class UserGroup {
-  private UUID userUuid;
-  private UUID groupUuid;
+  private UUID userId;
+  private UUID groupId;
   private boolean isAdmin;
 
   /**
-   * Gets groupUuid.
+   * Gets groupId.
    *
-   * @return Value of groupUuid.
+   * @return Value of groupId.
    */
-  public UUID getGroupUuid() {
-    return groupUuid;
+  public UUID getGroupId() {
+    return groupId;
   }
 
   /**
-   * Gets userUuid.
+   * Gets userId.
    *
-   * @return Value of userUuid.
+   * @return Value of userId.
    */
-  public UUID getUserUuid() {
-    return userUuid;
+  public UUID getUserId() {
+    return userId;
   }
 
   /**
-   * Sets new groupUuid.
+   * Sets new groupId.
    *
-   * @param groupUuid New value of groupUuid.
+   * @param groupId New value of groupId.
    */
-  public void setGroupUuid(UUID groupUuid) {
-    this.groupUuid = groupUuid;
+  public void setGroupId(UUID groupId) {
+    this.groupId = groupId;
   }
 
   /**
-   * Sets new userUuid.
+   * Sets new userId.
    *
-   * @param userUuid New value of userUuid.
+   * @param userId New value of userId.
    */
-  public void setUserUuid(UUID userUuid) {
-    this.userUuid = userUuid;
+  public void setUserId(UUID userId) {
+    this.userId = userId;
   }
 
   /**

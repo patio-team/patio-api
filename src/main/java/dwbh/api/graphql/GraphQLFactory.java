@@ -4,6 +4,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 
 import dwbh.api.fetchers.FetcherProvider;
 import dwbh.api.graphql.instrumentation.AuthenticationCheck;
+import dwbh.api.graphql.scalars.ID;
 import graphql.GraphQL;
 import graphql.schema.GraphQLSchema;
 import graphql.schema.idl.RuntimeWiring;
@@ -79,6 +80,7 @@ public class GraphQLFactory {
 
     var wiring =
         RuntimeWiring.newRuntimeWiring()
+            .scalar(new ID())
             .type(
                 SCHEMA_TYPE_QUERY,
                 builder ->

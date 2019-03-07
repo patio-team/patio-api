@@ -1,7 +1,7 @@
 directive @anonymousAllowed on FIELD_DEFINITION | OBJECT
 
 type Group {
-    uuid: ID
+    id: ID
     visibleMemberList: Boolean
     anonymousVote: Boolean
     name: String
@@ -9,14 +9,14 @@ type Group {
 }
 
 type User {
-    uuid: ID
+    id: ID
     name: String
     email: String
     groups: [Group]
 }
 
 # Contains token and user information
-type Login @anonymousAllowed {
+type Login {
     user: User
     token: String
 }
@@ -30,10 +30,10 @@ type Query {
     listUsers: [User]
 
     # get group by its id
-    getGroup(group_uuid: ID!): Group
+    getGroup(id: ID!): Group
 
     # get user by its id
-    getUser(user_uuid: ID!): User
+    getUser(id: ID!): User
 
     # log in
     login(email: String!, password: String!): Login @anonymousAllowed

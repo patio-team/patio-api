@@ -9,7 +9,7 @@ import java.util.UUID;
  */
 public class Group {
   private String name;
-  private UUID uuid;
+  private UUID id;
   private boolean visibleMemberList;
   private boolean anonymousVote;
 
@@ -39,18 +39,18 @@ public class Group {
    * @return an instance of {@link UUID}
    * @since 0.1.0
    */
-  public UUID getUuid() {
-    return uuid;
+  public UUID getId() {
+    return id;
   }
 
   /**
    * Sets the unique identifier of a group
    *
-   * @param uuid an instance of {@link UUID}
+   * @param id an instance of {@link UUID}
    * @since 0.1.0
    */
-  public void setUuid(UUID uuid) {
-    this.uuid = uuid;
+  public void setId(UUID id) {
+    this.id = id;
   }
 
   /**

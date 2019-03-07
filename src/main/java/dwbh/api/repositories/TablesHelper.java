@@ -20,7 +20,7 @@ public class TablesHelper {
    * @since 0.1.0
    */
   public static class UsersTableHelper {
-    public static final Field<UUID> UUID = DSL.field("uuid", UUID.class);
+    public static final Field<UUID> ID = DSL.field("id", UUID.class);
     public static final Field<String> NAME = DSL.field("name", String.class);
     public static final Field<String> EMAIL = DSL.field("email", String.class);
     public static final Field<String> PASSWORD = DSL.field("password", String.class);
@@ -33,7 +33,7 @@ public class TablesHelper {
    * @since 0.1.0
    */
   public static class GroupsTableHelper {
-    public static final Field<UUID> UUID = DSL.field("uuid", UUID.class);
+    public static final Field<UUID> ID = DSL.field("id", UUID.class);
     public static final Field<String> NAME = DSL.field("name", String.class);
     public static final Field<Boolean> VISIBLE_MEMBER_LIST =
         DSL.field("visible_member_list", Boolean.class);
@@ -46,7 +46,7 @@ public class TablesHelper {
    * @since 0.1.0
    */
   public static class UsersGroupsTableHelper {
-    public static final Field<UUID> GROUP_UUID = DSL.field("group_uuid", UUID.class);
-    public static final Field<UUID> USER_UUID = DSL.field("user_uuid", UUID.class);
+    public static final Field<UUID> GROUP_ID = DSL.field("group_id", UUID.class);
+    public static final Field<UUID> USER_ID = DSL.field("user_id", UUID.class);
   }
 }

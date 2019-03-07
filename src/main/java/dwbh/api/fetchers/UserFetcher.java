@@ -5,6 +5,7 @@ import dwbh.api.domain.User;
 import dwbh.api.services.UserService;
 import graphql.schema.DataFetchingEnvironment;
 import java.util.List;
+import java.util.UUID;
 import javax.inject.Singleton;
 
 /**
@@ -51,8 +52,8 @@ public class UserFetcher {
    * @since 0.1.0
    */
   public User getUser(DataFetchingEnvironment env) {
-    String userUuid = env.getArgument("user_uuid");
-    return service.getUser(userUuid);
+    UUID userId = env.getArgument("id");
+    return service.getUser(userId);
   }
 
   /**
@@ -64,6 +65,6 @@ public class UserFetcher {
    */
   public List<User> listUsersGroup(DataFetchingEnvironment env) {
     Group group = env.getSource();
-    return service.listUsersGroup(group.getUuid());
+    return service.listUsersGroup(group.getId());
   }
 }

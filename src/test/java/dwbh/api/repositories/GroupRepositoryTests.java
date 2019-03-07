@@ -6,6 +6,7 @@ import dwbh.api.domain.Group;
 import dwbh.api.fixtures.Fixtures;
 import io.micronaut.test.annotation.MicronautTest;
 import java.util.List;
+import java.util.UUID;
 import javax.inject.Inject;
 import org.flywaydb.core.Flyway;
 import org.junit.jupiter.api.AfterEach;
@@ -62,7 +63,7 @@ class GroupRepositoryTests {
     fixtures.load(GroupRepositoryTests.class, "testListGroups.sql");
 
     // when: asking for a group
-    Group group = repository.getGroup("dedc6675-ab79-495e-9245-1fc20545eb83");
+    Group group = repository.getGroup(UUID.fromString("dedc6675-ab79-495e-9245-1fc20545eb83"));
 
     // then: check the group is retrieved
     assertEquals(group.getName(), "Avengers");

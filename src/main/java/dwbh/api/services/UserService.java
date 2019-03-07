@@ -39,22 +39,22 @@ public class UserService {
   /**
    * Get the specified user
    *
-   * @param userUuid user identifier
+   * @param id user identifier
    * @return The requested {@link User}
    * @since 0.1.0
    */
-  public User getUser(String userUuid) {
-    return repository.getUser(userUuid);
+  public User getUser(UUID id) {
+    return repository.getUser(id);
   }
 
   /**
    * Fetches the list of users in a Group
    *
-   * @param groupUuid group identifier
+   * @param groupId group identifier
    * @return a list of {@link User} instances
    * @since 0.1.0
    */
-  public List<User> listUsersGroup(UUID groupUuid) {
-    return repository.listUsersGroup(groupUuid);
+  public List<User> listUsersGroup(UUID groupId) {
+    return repository.listUsersGroup(groupId);
   }
 }
