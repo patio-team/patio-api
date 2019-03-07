@@ -1,5 +1,8 @@
 package dwbh.api.graphql.scalars;
 
+import static dwbh.api.graphql.scalars.ScalarsUtils.*;
+import static dwbh.api.services.internal.FunctionsUtils.safely;
+
 import graphql.language.StringValue;
 import graphql.schema.*;
 import java.util.Optional;
@@ -29,9 +32,9 @@ public class ID extends GraphQLScalarType {
         new Coercing() {
           @Override
           public Object serialize(Object dataFetcherResult) throws CoercingSerializeException {
-            UUID uuid = (UUID) dataFetcherResult;
+            UUID id = (UUID) dataFetcherResult;
 
-            return uuid.toString();
+            return id.toString();
           }
 
           @Override
@@ -39,7 +42,7 @@ public class ID extends GraphQLScalarType {
             return Optional.ofNullable(input)
                 .map(Object::toString)
                 .map(REMOVE_SIMPLE_QUOTES)
-                .map(UUID::fromString)
+                .flatMap(safely(UUID::fromString, (th) -> throwValueException("ID", th)))
                 .orElse(null);
           }
 
@@ -50,7 +53,7 @@ public class ID extends GraphQLScalarType {
                 .map(StringValue.class::cast)
                 .map(StringValue::getValue)
                 .map(REMOVE_SIMPLE_QUOTES)
-                .map(UUID::fromString)
+                .flatMap(safely(UUID::fromString, (th) -> throwLiteralException("ID", th)))
                 .orElse(null);
           }
         });
