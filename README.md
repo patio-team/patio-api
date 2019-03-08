@@ -82,6 +82,23 @@ executing:
 ./gradlew spotlessJavaApply
 ```
 
+### Running missing license headers
+
+To make sure any new file added to `src` or `etc` have the license header, run:
+
+```shell
+./gradlew license --rerun-tasks
+```
+
+If any error arises you can apply the license header just executing:
+
+```shell
+./gradlew licenseFormat --rerun-tasks
+```
+
+Applying the `--rerun-tasks` is because sometimes the task result is cached and may lead to
+unwanted situations.
+
 ### Running static analysis
 
 The project uses [PMD](https://pmd.github.io/) as static analysis checker. To execute **PMD** for main classes do:
