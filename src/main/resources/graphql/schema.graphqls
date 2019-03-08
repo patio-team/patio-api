@@ -41,6 +41,8 @@ type Query {
 
 # registered mutations
 type Mutation {
-    # get full group list
+    # create a group
     createGroup(name: String!, visibleMemberList: Boolean!, anonymousVote: Boolean!): Group
+    # add an user to a group
+    addUserToGroup(userId: ID!, groupId: ID!): Boolean
 }

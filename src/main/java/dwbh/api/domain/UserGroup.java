@@ -10,7 +10,7 @@ import java.util.UUID;
 public class UserGroup {
   private UUID userId;
   private UUID groupId;
-  private boolean isAdmin;
+  private boolean admin;
 
   /**
    * Gets groupId.
@@ -49,20 +49,34 @@ public class UserGroup {
   }
 
   /**
-   * Gets isAdmin.
+   * Gets admin value.
    *
-   * @return Value of isAdmin.
+   * @return Value of admin.
    */
-  public boolean isIsAdmin() {
-    return isAdmin;
+  public boolean isAdmin() {
+    return admin;
   }
 
   /**
-   * Sets new isAdmin.
+   * Sets admin value.
    *
-   * @param isAdmin New value of isAdmin.
+   * @param admin New value of admin.
    */
-  public void setIsAdmin(boolean isAdmin) {
-    this.isAdmin = isAdmin;
+  public void setAdmin(boolean admin) {
+    this.admin = admin;
+  }
+
+  /**
+   * Initializes the UserGroup
+   *
+   * @param userId The id of the user
+   * @param groupId The id of the group
+   * @param admin Indicates if the user is getIsAdmin on the group
+   * @since 0.1.0
+   */
+  public UserGroup(UUID userId, UUID groupId, boolean admin) {
+    this.userId = userId;
+    this.groupId = groupId;
+    this.admin = admin;
   }
 }

@@ -2,6 +2,7 @@ package dwbh.api.fetchers;
 
 import dwbh.api.domain.Group;
 import dwbh.api.domain.User;
+import dwbh.api.domain.UserGroup;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
@@ -15,6 +16,7 @@ public class FetcherProvider {
 
   private GroupFetcher groupFetcher;
   private UserFetcher userFetcher;
+  private UserGroupFetcher userGroupFetcher;
   private SecurityFetcher securityFetcher;
 
   /**
@@ -49,6 +51,16 @@ public class FetcherProvider {
   }
 
   /**
+   * Returns an instance of {@link UserGroupFetcher}
+   *
+   * @return an instance of {@link UserGroupFetcher}
+   * @since 0.1.0
+   */
+  public UserGroupFetcher getUserGroupFetcher() {
+    return userGroupFetcher;
+  }
+
+  /**
    * Sets the instance responsible to handle request over {@link User}
    *
    * @param userFetcher instance of {@link UserFetcher}
@@ -57,6 +69,17 @@ public class FetcherProvider {
   @Inject
   public void setUserFetcher(UserFetcher userFetcher) {
     this.userFetcher = userFetcher;
+  }
+
+  /**
+   * Sets the instance responsible to handle request over {@link UserGroup}
+   *
+   * @param userGroupFetcher instance of {@link UserGroupFetcher}
+   * @since 0.1.0
+   */
+  @Inject
+  public void setUserGroupFetcher(UserGroupFetcher userGroupFetcher) {
+    this.userGroupFetcher = userGroupFetcher;
   }
 
   /**
