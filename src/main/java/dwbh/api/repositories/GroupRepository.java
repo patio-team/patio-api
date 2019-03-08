@@ -2,6 +2,7 @@ package dwbh.api.repositories;
 
 import dwbh.api.domain.Group;
 import dwbh.api.domain.GroupBuilder;
+import dwbh.api.repositories.TablesHelper.GroupsTableHelper;
 import java.util.List;
 import java.util.UUID;
 import javax.inject.Singleton;
@@ -35,7 +36,7 @@ public class GroupRepository {
    * @since 0.1.0
    */
   public List<Group> listGroups() {
-    return context.selectFrom(TablesHelper.GROUPS_TABLE).fetch(this::toGroup);
+    return context.selectFrom(TablesHelper.GROUPS_TABLE).fetch(GroupRepository::toGroup);
   }
 
   /**
@@ -50,39 +51,50 @@ public class GroupRepository {
         context
             .selectFrom(TablesHelper.GROUPS_TABLE)
             .where(TablesHelper.GroupsTableHelper.ID.eq(groupId))
-            .fetchOne(this::toGroup);
+            .fetchOne(GroupRepository::toGroup);
   }
 
   /**
-   * Lists groups in which an user is a member
+   * Creates a group
    *
-   * @param userId user identifier
-   * @return a list of groups in which an user is a member
+   * @param name group's name
+   * @param visibleMemberList indicates if the group allows the members to see the member list
+   * @param anonymousVote indicates if the group allows anonymous votes
+   * @return The created {@link Group}
    * @since 0.1.0
    */
-  public List<Group> listGroupsUser(String userId) {
-    UUID id = UUID.fromString(userId);
-    return context
-        .select(
-            TablesHelper.GroupsTableHelper.ID,
-            TablesHelper.GroupsTableHelper.NAME,
-            TablesHelper.GroupsTableHelper.VISIBLE_MEMBER_LIST,
-            TablesHelper.GroupsTableHelper.ANONYMOUS_VOTE)
-        .from(
-            TablesHelper.USERS_GROUPS_TABLE
-                .join(TablesHelper.GROUPS_TABLE)
-                .on(
-                    TablesHelper.UsersGroupsTableHelper.GROUP_ID.eq(
-                        TablesHelper.GroupsTableHelper.ID)))
-        .where(TablesHelper.UsersGroupsTableHelper.USER_ID.eq(id))
-        .fetch(this::toGroup);
+  public Group createGroup(String name, boolean visibleMemberList, boolean anonymousVote) {
+
+    UUID id = UUID.randomUUID();
+
+    context
+        .insertInto(TablesHelper.GROUPS_TABLE)
+        .set(GroupsTableHelper.ID, id)
+        .set(GroupsTableHelper.NAME, name)
+        .set(GroupsTableHelper.VISIBLE_MEMBER_LIST, visibleMemberList)
+        .set(GroupsTableHelper.ANONYMOUS_VOTE, anonymousVote)
+        .execute();
+
+    return GroupBuilder.builder()
+        .withName(name)
+        .withId(id)
+        .withVisibleMemberList(visibleMemberList)
+        .withAnonymousVote(anonymousVote)
+        .build();
   }
 
-  private Group toGroup(Record row) {
-    String name = row.get(TablesHelper.GroupsTableHelper.NAME);
-    UUID id = row.get(TablesHelper.GroupsTableHelper.ID);
-    boolean visibleMemberList = row.get(TablesHelper.GroupsTableHelper.VISIBLE_MEMBER_LIST);
-    boolean anonymousVote = row.get(TablesHelper.GroupsTableHelper.ANONYMOUS_VOTE);
+  /**
+   * Extract the fields from a {@link Record} to create a new {@link Group} instance
+   *
+   * @param record The Record
+   * @return The new instance of {@link Group}
+   * @since 0.1.0
+   */
+  public static Group toGroup(Record record) {
+    String name = record.get(GroupsTableHelper.NAME, String.class);
+    UUID id = record.get(GroupsTableHelper.ID, UUID.class);
+    boolean visibleMemberList = record.get(GroupsTableHelper.VISIBLE_MEMBER_LIST, boolean.class);
+    boolean anonymousVote = record.get(GroupsTableHelper.ANONYMOUS_VOTE, boolean.class);
 
     return GroupBuilder.builder()
         .withName(name)

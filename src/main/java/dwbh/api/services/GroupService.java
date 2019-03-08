@@ -1,7 +1,10 @@
 package dwbh.api.services;
 
 import dwbh.api.domain.Group;
+import dwbh.api.domain.GroupInput;
+import dwbh.api.domain.User;
 import dwbh.api.repositories.GroupRepository;
+import dwbh.api.repositories.UserGroupRepository;
 import java.util.List;
 import java.util.UUID;
 import javax.inject.Singleton;
@@ -14,16 +17,19 @@ import javax.inject.Singleton;
 @Singleton
 public class GroupService {
 
-  private final transient GroupRepository repository;
+  private final transient GroupRepository groupRepository;
+  private final transient UserGroupRepository userGroupRepository;
 
   /**
    * Initializes service by using the database repository
    *
-   * @param repository an instance of {@link GroupRepository}
+   * @param groupRepository an instance of {@link GroupRepository}
+   * @param userGroupRepository an instance of {@link UserGroupRepository}
    * @since 0.1.0
    */
-  public GroupService(GroupRepository repository) {
-    this.repository = repository;
+  public GroupService(GroupRepository groupRepository, UserGroupRepository userGroupRepository) {
+    this.groupRepository = groupRepository;
+    this.userGroupRepository = userGroupRepository;
   }
 
   /**
@@ -33,7 +39,7 @@ public class GroupService {
    * @since 0.1.0
    */
   public List<Group> listGroups() {
-    return repository.listGroups();
+    return groupRepository.listGroups();
   }
 
   /**
@@ -44,7 +50,7 @@ public class GroupService {
    * @since 0.1.0
    */
   public Group getGroup(UUID groupId) {
-    return repository.getGroup(groupId);
+    return groupRepository.getGroup(groupId);
   }
 
   /**
@@ -54,7 +60,23 @@ public class GroupService {
    * @return a list of {@link Group} instances
    * @since 0.1.0
    */
-  public List<Group> listGroupsUser(String userId) {
-    return repository.listGroupsUser(userId);
+  public List<Group> listGroupsUser(UUID userId) {
+    return userGroupRepository.listGroupsUser(userId);
+  }
+
+  /**
+   * Creates a new Group
+   *
+   * @param admin User that creates the group, and will be the first member and admin
+   * @param groupInput group information
+   * @return The created {@link Group}
+   * @since 0.1.0
+   */
+  public Group createGroup(User admin, GroupInput groupInput) {
+    Group group =
+        groupRepository.createGroup(
+            groupInput.getName(), groupInput.isAnonymousVote(), groupInput.isVisibleMemberList());
+    userGroupRepository.addUserToGroup(admin, group, true);
+    return group;
   }
 }

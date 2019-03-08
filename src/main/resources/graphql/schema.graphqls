@@ -38,3 +38,9 @@ type Query {
     # log in
     login(email: String!, password: String!): Login @anonymousAllowed
 }
+
+# registered mutations
+type Mutation {
+    # get full group list
+    createGroup(name: String!, visibleMemberList: Boolean!, anonymousVote: Boolean!): Group
+}

@@ -1,6 +1,7 @@
 package dwbh.api.services;
 
 import dwbh.api.domain.User;
+import dwbh.api.repositories.UserGroupRepository;
 import dwbh.api.repositories.UserRepository;
 import java.util.List;
 import java.util.UUID;
@@ -14,16 +15,19 @@ import javax.inject.Singleton;
 @Singleton
 public class UserService {
 
-  private final transient UserRepository repository;
+  private final transient UserRepository userRepository;
+  private final transient UserGroupRepository userGroupRepository;
 
   /**
    * Initializes service by using the database repository
    *
-   * @param repository an instance of {@link UserRepository}
+   * @param userRepository an instance of {@link UserRepository}
+   * @param userGroupRepository an instance of {@link UserGroupRepository}
    * @since 0.1.0
    */
-  public UserService(UserRepository repository) {
-    this.repository = repository;
+  public UserService(UserRepository userRepository, UserGroupRepository userGroupRepository) {
+    this.userRepository = userRepository;
+    this.userGroupRepository = userGroupRepository;
   }
 
   /**
@@ -33,7 +37,7 @@ public class UserService {
    * @since 0.1.0
    */
   public List<User> listUsers() {
-    return repository.listUsers();
+    return userRepository.listUsers();
   }
 
   /**
@@ -44,7 +48,7 @@ public class UserService {
    * @since 0.1.0
    */
   public User getUser(UUID id) {
-    return repository.getUser(id);
+    return userRepository.getUser(id);
   }
 
   /**
@@ -55,6 +59,6 @@ public class UserService {
    * @since 0.1.0
    */
   public List<User> listUsersGroup(UUID groupId) {
-    return repository.listUsersGroup(groupId);
+    return userGroupRepository.listUsersGroup(groupId);
   }
 }

@@ -74,7 +74,7 @@ public class Group {
   }
 
   /**
-   * Returns whether the vote is anonymous in this group or not
+   * Returns whether the vote is allowed to be anonymous in this group or not
    *
    * @return true if it's allowed false otherwise
    * @since 0.1.0
@@ -84,7 +84,7 @@ public class Group {
   }
 
   /**
-   * Sets whether the vote is anonymous in this group or not
+   * Sets whether the vote is allowed to be anonymous in this group or not
    *
    * @param anonymousVote true if it's allowed, false otherwise
    * @since 0.1.0

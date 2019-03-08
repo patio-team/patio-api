@@ -28,6 +28,7 @@ import javax.inject.Singleton;
 public class GraphQLFactory {
 
   private static final String SCHEMA_TYPE_QUERY = "Query";
+  private static final String SCHEMA_TYPE_MUTATION = "Mutation";
   private static final String SCHEMA_PATH = "classpath:graphql/schema.graphqls";
 
   /**
@@ -90,6 +91,9 @@ public class GraphQLFactory {
                         .dataFetcher("listUsers", userFetcher::listUsers)
                         .dataFetcher("getUser", userFetcher::getUser)
                         .dataFetcher("login", securityFetcher::login))
+            .type(
+                SCHEMA_TYPE_MUTATION,
+                builder -> builder.dataFetcher("createGroup", groupFetcher::createGroup))
             .type("Group", builder -> builder.dataFetcher("members", userFetcher::listUsersGroup))
             .type("User", builder -> builder.dataFetcher("groups", groupFetcher::listGroupsUser))
             .build();

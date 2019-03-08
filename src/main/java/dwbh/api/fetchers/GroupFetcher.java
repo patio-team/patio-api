@@ -1,7 +1,9 @@
 package dwbh.api.fetchers;
 
 import dwbh.api.domain.Group;
+import dwbh.api.domain.GroupInput;
 import dwbh.api.domain.User;
+import dwbh.api.graphql.Context;
 import dwbh.api.services.GroupService;
 import graphql.schema.DataFetchingEnvironment;
 import java.util.List;
@@ -66,6 +68,19 @@ public class GroupFetcher {
    */
   public List<Group> listGroupsUser(DataFetchingEnvironment env) {
     User user = env.getSource();
-    return service.listGroupsUser(user.getId().toString());
+    return service.listGroupsUser(user.getId());
+  }
+
+  /**
+   * Creates a new group
+   *
+   * @param env GraphQL execution environment
+   * @return a list of available {@link User}
+   * @since 0.1.0
+   */
+  public Group createGroup(DataFetchingEnvironment env) {
+    Context ctx = env.getContext();
+    GroupInput input = GroupFetcherUtils.group(env);
+    return service.createGroup(ctx.getAuthenticatedUser().get(), input);
   }
 }
