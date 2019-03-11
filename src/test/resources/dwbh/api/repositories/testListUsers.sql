@@ -1,3 +1,21 @@
+--
+-- Copyright (C) 2019 Kaleidos Open Source SL
+--
+-- This file is part of Don't Worry Be Happy (DWBH).
+-- DWBH is free software: you can redistribute it and/or modify
+-- it under the terms of the GNU General Public License as published by
+-- the Free Software Foundation, either version 3 of the License, or
+-- (at your option) any later version.
+--
+-- DWBH is distributed in the hope that it will be useful,
+-- but WITHOUT ANY WARRANTY; without even the implied warranty of
+-- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+-- GNU General Public License for more details.
+--
+-- You should have received a copy of the GNU General Public License
+-- along with DWBH.  If not, see <https://www.gnu.org/licenses/>
+--
+
 INSERT INTO users (id, name, email, password, otp) VALUES ('486590a3-fcc1-4657-a9ed-5f0f95dadea6','Sue Storm', 'sstorm@email.com', 'password', '');
 INSERT INTO users (id, name, email, password, otp) VALUES ('c2a771bc-f8c5-4112-a440-c80fa4c8e382','Ben Grim', 'bgrim@email.com', 'password', '');
 INSERT INTO users (id, name, email, password, otp) VALUES ('84d48a35-7659-4710-ad13-4c47785a0e9d','Johnny Storm', 'jstorm@email.com', 'password', '');
