@@ -1,4 +1,4 @@
-[![Travis](https://travis-ci.org/dont-worry-be-happy/dwbh-api.svg?branch=master)](https://travis-ci.org/dont-worry-be-happy/dwbh-api)
+[![Travis](https://travis-ci.org/dont-worry-be-happy/dwbh-api.svg?branch=master)](https://travis-ci.org/dont-worry-be-happy/dwbh-api) [![License](https://img.shields.io/github/license/dont-worry-be-happy/dwbh-api.svg)](https://www.gnu.org/licenses/gpl-3.0.en.html)
 
 # Don't Worry Be Happy
 
