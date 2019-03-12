@@ -1,4 +1,4 @@
-[![Travis](https://travis-ci.org/dont-worry-be-happy/dwbh-api.svg?branch=master)](https://travis-ci.org/dont-worry-be-happy/dwbh-api)
+[![Travis](https://travis-ci.org/dont-worry-be-happy/dwbh-api.svg?branch=master)](https://travis-ci.org/dont-worry-be-happy/dwbh-api) [![License](https://img.shields.io/github/license/dont-worry-be-happy/dwbh-api.svg)](https://www.gnu.org/licenses/gpl-3.0.en.html)
 
 # Don't Worry Be Happy
 
@@ -81,6 +81,23 @@ executing:
 ```shell
 ./gradlew spotlessJavaApply
 ```
+
+### Running missing license headers
+
+To make sure any new file added to `src` or `etc` have the license header, run:
+
+```shell
+./gradlew license --rerun-tasks
+```
+
+If any error arises you can apply the license header just executing:
+
+```shell
+./gradlew licenseFormat --rerun-tasks
+```
+
+Applying the `--rerun-tasks` is because sometimes the task result is cached and may lead to
+unwanted situations.
 
 ### Running static analysis
 

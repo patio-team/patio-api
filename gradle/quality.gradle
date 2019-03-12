@@ -1,7 +1,4 @@
-
 /**
- * Configuration to use JUnit 5
- *
  * @since 0.1.0
  */
 test {
@@ -26,10 +23,43 @@ pmd {
  */
 spotless {
     java {
-        // licenseHeaderFile 'etc/spotless/apache.license.header.txt'
         importOrder 'spotless.importorder'
         googleJavaFormat()
         removeUnusedImports()
+    }
+    groovyGradle {
+        target '**/*.gradle'
+    }
+}
+
+/**
+ * Configuration to check license properly
+ *
+ * @since 0.1.0
+ */
+license {
+    header = file('etc/license/gpl3.license')
+
+    mapping(
+        java: 'SLASHSTAR_STYLE',
+        graphql: 'SCRIPT_STYLE',
+        graphqls: 'SCRIPT_STYLE',
+        template: 'SCRIPT_STYLE',
+    )
+}
+
+/**
+ * In order to be able to process license checking
+ * in etc dir, we need to register it as a Gradle
+ * source set.
+ *
+ * @since 0.1.0
+ */
+sourceSets {
+    etc {
+        resources {
+            srcDir('etc')
+        }
     }
 }
 

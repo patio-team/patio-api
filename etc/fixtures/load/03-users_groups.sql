@@ -1,3 +1,21 @@
+--
+-- Copyright (C) 2019 Kaleidos Open Source SL
+--
+-- This file is part of Don't Worry Be Happy (DWBH).
+-- DWBH is free software: you can redistribute it and/or modify
+-- it under the terms of the GNU General Public License as published by
+-- the Free Software Foundation, either version 3 of the License, or
+-- (at your option) any later version.
+--
+-- DWBH is distributed in the hope that it will be useful,
+-- but WITHOUT ANY WARRANTY; without even the implied warranty of
+-- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+-- GNU General Public License for more details.
+--
+-- You should have received a copy of the GNU General Public License
+-- along with DWBH.  If not, see <https://www.gnu.org/licenses/>
+--
+
 INSERT INTO users_groups (group_id, user_id, is_admin) VALUES ('d64db962-3455-11e9-b210-d663bd873d93','d0183ab5-58d9-4e5e-873a-840d6b18f38c', 't');
 INSERT INTO users_groups (group_id, user_id, is_admin) VALUES ('d64db962-3455-11e9-b210-d663bd873d93','486590a3-fcc1-4657-a9ed-5f0f95dadea6', 'f');
 INSERT INTO users_groups (group_id, user_id, is_admin) VALUES ('d64db962-3455-11e9-b210-d663bd873d93','c2a771bc-f8c5-4112-a440-c80fa4c8e382', 'f');

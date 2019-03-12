@@ -10,6 +10,7 @@ plugins {
     id "com.github.spotbugs" version "1.6.10"
     id 'com.bmuschko.docker-java-application' version '4.5.0'
     id 'com.github.jk1.dependency-license-report' version '1.5'
+    id "com.github.hierynomus.license" version "0.15.0"
 }
 
 apply plugin: "application"
