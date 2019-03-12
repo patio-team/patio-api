@@ -17,6 +17,7 @@
  */
 package dwbh.api.repositories;
 
+import java.time.OffsetTime;
 import java.util.UUID;
 import org.jooq.Field;
 import org.jooq.Table;
@@ -27,21 +28,30 @@ import org.jooq.impl.DSL;
  *
  * @since 0.1.0
  */
-public class TablesHelper {
+public final class TablesHelper {
   public static final Table USERS_TABLE = DSL.table("users");
   public static final Table GROUPS_TABLE = DSL.table("groups");
   public static final Table USERS_GROUPS_TABLE = DSL.table("users_groups");
+
+  private TablesHelper() {
+    /* empty */
+  }
+
   /**
    * Inner class for model fields for User Table
    *
    * @since 0.1.0
    */
-  public static class UsersTableHelper {
+  public static final class UsersTableHelper {
     public static final Field<UUID> ID = DSL.field("id", UUID.class);
     public static final Field<String> NAME = DSL.field("name", String.class);
     public static final Field<String> EMAIL = DSL.field("email", String.class);
     public static final Field<String> PASSWORD = DSL.field("password", String.class);
     public static final Field<String> OTP = DSL.field("otp", String.class);
+
+    private UsersTableHelper() {
+      /* empty */
+    }
   }
 
   /**
@@ -49,12 +59,18 @@ public class TablesHelper {
    *
    * @since 0.1.0
    */
-  public static class GroupsTableHelper {
+  public static final class GroupsTableHelper {
     public static final Field<UUID> ID = DSL.field("id", UUID.class);
     public static final Field<String> NAME = DSL.field("name", String.class);
     public static final Field<Boolean> VISIBLE_MEMBER_LIST =
         DSL.field("visible_member_list", Boolean.class);
     public static final Field<Boolean> ANONYMOUS_VOTE = DSL.field("anonymous_vote", Boolean.class);
+    public static final Field<OffsetTime> TIME = DSL.field("voting_time", OffsetTime.class);
+    public static final Field<String[]> DAYS_OF_WEEK = DSL.field("voting_days", String[].class);
+
+    private GroupsTableHelper() {
+      /* empty */
+    }
   }
 
   /**
@@ -62,9 +78,13 @@ public class TablesHelper {
    *
    * @since 0.1.0
    */
-  public static class UsersGroupsTableHelper {
+  public static final class UsersGroupsTableHelper {
     public static final Field<UUID> GROUP_ID = DSL.field("group_id", UUID.class);
     public static final Field<UUID> USER_ID = DSL.field("user_id", UUID.class);
     public static final Field<Boolean> IS_ADMIN = DSL.field("is_admin", Boolean.class);
+
+    private UsersGroupsTableHelper() {
+      /* empty */
+    }
   }
 }

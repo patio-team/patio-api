@@ -18,6 +18,7 @@
 package dwbh.api.services;
 
 import dwbh.api.domain.*;
+import dwbh.api.domain.input.UserGroupInput;
 import dwbh.api.repositories.GroupRepository;
 import dwbh.api.repositories.UserGroupRepository;
 import dwbh.api.repositories.UserRepository;

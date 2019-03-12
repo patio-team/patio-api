@@ -17,9 +17,11 @@
  */
 package dwbh.api.fetchers;
 
-import dwbh.api.domain.GroupInput;
-import dwbh.api.domain.UserGroupInput;
+import dwbh.api.domain.input.GroupInput;
+import dwbh.api.domain.input.UserGroupInput;
 import graphql.schema.DataFetchingEnvironment;
+import java.time.DayOfWeek;
+import java.time.OffsetTime;
 import java.util.UUID;
 
 /**
@@ -46,8 +48,10 @@ final class GroupFetcherUtils {
     String name = environment.getArgument("name");
     boolean visibleMemberList = environment.getArgument("visibleMemberList");
     boolean anonymousVote = environment.getArgument("anonymousVote");
+    DayOfWeek[] votingDays = environment.getArgument("votingDays");
+    OffsetTime votingTime = environment.getArgument("votingTime");
 
-    return new GroupInput(name, visibleMemberList, anonymousVote);
+    return new GroupInput(name, visibleMemberList, anonymousVote, votingDays, votingTime);
   }
 
   /**

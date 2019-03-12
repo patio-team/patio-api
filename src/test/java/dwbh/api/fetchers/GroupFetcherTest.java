@@ -20,7 +20,9 @@ package dwbh.api.fetchers;
 import static io.github.benas.randombeans.api.EnhancedRandom.random;
 import static io.github.benas.randombeans.api.EnhancedRandom.randomListOf;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.arrayWithSize;
 import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 
 import dwbh.api.domain.Group;
@@ -101,7 +103,11 @@ class GroupFetcherTest {
                 "visibleMemberList",
                 group.isVisibleMemberList(),
                 "anonymousVote",
-                group.isAnonymousVote()));
+                group.isAnonymousVote(),
+                "votingDays",
+                group.getVotingDays(),
+                "votingTime",
+                group.getVotingTime()));
 
     // when: creating a group invoking the service
     GroupFetcher fetchers = new GroupFetcher(mockedService);
@@ -109,5 +115,10 @@ class GroupFetcherTest {
 
     // then: check certain assertions should be met
     assertThat("the group is created", result, is(group));
+    assertThat(
+        "days of week are the expected",
+        result.getVotingDays(),
+        is(arrayWithSize(group.getVotingDays().length)));
+    assertNotNull("time is present", result.getVotingTime());
   }
 }

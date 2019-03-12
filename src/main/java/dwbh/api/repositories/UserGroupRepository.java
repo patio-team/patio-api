@@ -60,7 +60,9 @@ public class UserGroupRepository {
             TablesHelper.GroupsTableHelper.ID,
             TablesHelper.GroupsTableHelper.NAME,
             TablesHelper.GroupsTableHelper.VISIBLE_MEMBER_LIST,
-            TablesHelper.GroupsTableHelper.ANONYMOUS_VOTE)
+            TablesHelper.GroupsTableHelper.ANONYMOUS_VOTE,
+            TablesHelper.GroupsTableHelper.DAYS_OF_WEEK,
+            TablesHelper.GroupsTableHelper.TIME)
         .from(
             TablesHelper.USERS_GROUPS_TABLE
                 .join(TablesHelper.GROUPS_TABLE)

@@ -17,6 +17,10 @@
  */
 package dwbh.api.domain;
 
+import static java.util.Optional.ofNullable;
+
+import java.time.DayOfWeek;
+import java.time.OffsetTime;
 import java.util.UUID;
 
 /**
@@ -29,6 +33,8 @@ public class Group {
   private UUID id;
   private boolean visibleMemberList;
   private boolean anonymousVote;
+  private DayOfWeek[] votingDays;
+  private OffsetTime votingTime;
 
   /**
    * Returns the name of the group
@@ -108,5 +114,45 @@ public class Group {
    */
   public void setAnonymousVote(boolean anonymousVote) {
     this.anonymousVote = anonymousVote;
+  }
+
+  /**
+   * Returns the days of the week when reminders are sent
+   *
+   * @return an array of {@link DayOfWeek}
+   * @since 0.1.0
+   */
+  public DayOfWeek[] getVotingDays() {
+    return ofNullable(votingDays).map(DayOfWeek[]::clone).orElse(null);
+  }
+
+  /**
+   * Sets the days of the week when reminders are sent
+   *
+   * @param votingDays days of the week when reminders are sent
+   * @since 0.1.0
+   */
+  public void setVotingDays(DayOfWeek... votingDays) {
+    this.votingDays = ofNullable(votingDays).map(arr -> arr.clone()).orElse(null);
+  }
+
+  /**
+   * Returns when the reminders are sent during the day
+   *
+   * @return the moment when reminders are sent
+   * @since 0.1.0
+   */
+  public OffsetTime getVotingTime() {
+    return votingTime;
+  }
+
+  /**
+   * Sets the moment when reminders are sent
+   *
+   * @param votingTime an instance of type {@link OffsetTime}
+   * @since 0.1.0
+   */
+  public void setVotingTime(OffsetTime votingTime) {
+    this.votingTime = votingTime;
   }
 }

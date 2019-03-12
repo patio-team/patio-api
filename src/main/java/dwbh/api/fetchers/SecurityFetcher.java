@@ -18,8 +18,8 @@
 package dwbh.api.fetchers;
 
 import dwbh.api.domain.Login;
-import dwbh.api.domain.LoginInput;
 import dwbh.api.domain.Result;
+import dwbh.api.domain.input.LoginInput;
 import dwbh.api.graphql.ResultUtils;
 import dwbh.api.services.SecurityService;
 import graphql.execution.DataFetcherResult;

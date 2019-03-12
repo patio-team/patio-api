@@ -16,7 +16,23 @@
 # along with DWBH.  If not, see <https://www.gnu.org/licenses/>
 #
 
+scalar Time
+scalar Date
+scalar DateTime
+scalar DayOfWeek
+
 directive @anonymousAllowed on FIELD_DEFINITION | OBJECT
+
+# Represents a day of the week: MON -> Monday, TUE -> Tuesday
+enum DayOfWeek {
+  MONDAY,
+  TUESDAY,
+  WEDNESDAY,
+  THURSDAY,
+  FRIDAY,
+  SATURDAY,
+  SUNDAY
+}
 
 type Group {
     id: ID
@@ -24,6 +40,8 @@ type Group {
     anonymousVote: Boolean
     name: String
     members: [User]
+    votingDays: [DayOfWeek]
+    votingTime: Time
 }
 
 type User {
