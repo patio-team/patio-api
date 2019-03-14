@@ -17,10 +17,10 @@
  */
 package dwbh.api.domain.input;
 
-import static java.util.Optional.ofNullable;
-
 import java.time.DayOfWeek;
 import java.time.OffsetTime;
+import java.util.List;
+import java.util.Optional;
 
 /**
  * Group input. It contains the fields for a Group
@@ -31,7 +31,7 @@ public class GroupInput {
   private final String name;
   private final boolean visibleMemberList;
   private final boolean anonymousVote;
-  private final DayOfWeek[] votingDays;
+  private final List<DayOfWeek> votingDays;
   private final OffsetTime votingTime;
 
   /**
@@ -48,12 +48,12 @@ public class GroupInput {
       String name,
       boolean visibleMemberList,
       boolean anonymousVote,
-      DayOfWeek[] votingDays,
+      List<DayOfWeek> votingDays,
       OffsetTime votingTime) {
     this.name = name;
     this.visibleMemberList = visibleMemberList;
     this.anonymousVote = anonymousVote;
-    this.votingDays = ofNullable(votingDays).map(DayOfWeek[]::clone).orElse(null);
+    this.votingDays = Optional.ofNullable(votingDays).orElse(List.of());
     this.votingTime = votingTime;
   }
 
@@ -93,8 +93,8 @@ public class GroupInput {
    * @return the days of the week
    * @since 0.1.0
    */
-  public DayOfWeek[] getVotingDays() {
-    return ofNullable(votingDays).map(DayOfWeek[]::clone).orElse(null);
+  public List<DayOfWeek> getVotingDays() {
+    return this.votingDays;
   }
 
   /**

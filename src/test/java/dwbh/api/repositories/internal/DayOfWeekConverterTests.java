@@ -20,6 +20,7 @@ package dwbh.api.repositories.internal;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.time.DayOfWeek;
+import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -36,11 +37,7 @@ public class DayOfWeekConverterTests {
     // expect: to fail when trying to convert it to an array of strings
     assertThrows(
         IllegalStateException.class,
-        () -> {
-          DayOfWeek[] days = new DayOfWeek[] {DayOfWeek.MONDAY, DayOfWeek.TUESDAY};
-
-          new DayOfWeekConverter().to(days);
-        });
+        () -> new DayOfWeekConverter().to(List.of(DayOfWeek.MONDAY, DayOfWeek.TUESDAY)));
   }
 
   @Test

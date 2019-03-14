@@ -21,6 +21,7 @@ import static java.util.Optional.ofNullable;
 
 import java.time.DayOfWeek;
 import java.time.OffsetTime;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -34,7 +35,7 @@ public class GroupBuilder {
   private transient UUID id;
   private transient boolean visibleMemberList;
   private transient boolean anonymousVote;
-  private transient DayOfWeek[] daysOfWeek;
+  private transient List<DayOfWeek> daysOfWeek;
   private transient OffsetTime time;
 
   /**
@@ -97,8 +98,8 @@ public class GroupBuilder {
    * @return the current builder instance
    * @since 0.1.0
    */
-  public GroupBuilder withDaysOfWeek(DayOfWeek... daysOfWeek) {
-    this.daysOfWeek = ofNullable(daysOfWeek).map(DayOfWeek[]::clone).orElse(null);
+  public GroupBuilder withDaysOfWeek(List<DayOfWeek> daysOfWeek) {
+    this.daysOfWeek = daysOfWeek;
     return this;
   }
 
