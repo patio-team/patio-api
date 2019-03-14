@@ -93,11 +93,7 @@ class GroupRepositoryTests {
     // when: creating a group
     Group group =
         repository.createGroup(
-            "Avengers",
-            true,
-            true,
-            new DayOfWeek[] {DayOfWeek.MONDAY, DayOfWeek.SUNDAY},
-            OffsetTime.now());
+            "Avengers", true, true, List.of(DayOfWeek.MONDAY, DayOfWeek.SUNDAY), OffsetTime.now());
 
     // then: check the group is retrieved
     assertEquals(group.getName(), "Avengers");

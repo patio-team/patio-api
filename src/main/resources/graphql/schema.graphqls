@@ -23,17 +23,6 @@ scalar DayOfWeek
 
 directive @anonymousAllowed on FIELD_DEFINITION | OBJECT
 
-# Represents a day of the week: MON -> Monday, TUE -> Tuesday
-enum DayOfWeek {
-  MONDAY,
-  TUESDAY,
-  WEDNESDAY,
-  THURSDAY,
-  FRIDAY,
-  SATURDAY,
-  SUNDAY
-}
-
 type Group {
     id: ID
     visibleMemberList: Boolean
@@ -78,7 +67,7 @@ type Query {
 # registered mutations
 type Mutation {
     # create a group
-    createGroup(name: String!, visibleMemberList: Boolean!, anonymousVote: Boolean!): Group
+    createGroup(name: String!, visibleMemberList: Boolean!, anonymousVote: Boolean!, votingTime: Time!, votingDays: [DayOfWeek]!): Group
     # add an user to a group
     addUserToGroup(userId: ID!, groupId: ID!): Boolean
 }

@@ -89,7 +89,7 @@ public class GroupRepository {
       String name,
       boolean visibleMemberList,
       boolean anonymousVote,
-      DayOfWeek[] daysOfWeek,
+      List<DayOfWeek> daysOfWeek,
       OffsetTime time) {
 
     UUID id = UUID.randomUUID();
@@ -126,7 +126,8 @@ public class GroupRepository {
     UUID id = record.get(GroupsTableHelper.ID);
     boolean visibleMemberList = record.get(GroupsTableHelper.VISIBLE_MEMBER_LIST);
     boolean anonymousVote = record.get(GroupsTableHelper.ANONYMOUS_VOTE);
-    DayOfWeek[] dayOfWeeks = record.get(GroupsTableHelper.DAYS_OF_WEEK, new DayOfWeekConverter());
+    List<DayOfWeek> dayOfWeeks =
+        record.get(GroupsTableHelper.DAYS_OF_WEEK, new DayOfWeekConverter());
     OffsetTime offsetTime = record.get(GroupsTableHelper.TIME);
 
     return GroupBuilder.builder()

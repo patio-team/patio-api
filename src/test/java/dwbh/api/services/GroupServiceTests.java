@@ -32,6 +32,7 @@ import dwbh.api.domain.input.GroupInput;
 import dwbh.api.repositories.GroupRepository;
 import dwbh.api.repositories.UserGroupRepository;
 import java.time.DayOfWeek;
+import java.util.List;
 import java.util.UUID;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
@@ -92,7 +93,7 @@ public class GroupServiceTests {
 
   @ParameterizedTest(name = "Test create group [{index}]")
   @MethodSource("testCreateGroupDataProvider")
-  void testCreateGroup(DayOfWeek[] days) {
+  void testCreateGroup(List<DayOfWeek> days) {
     // given: a mocked group repository
     var groupRepository = Mockito.mock(GroupRepository.class);
     Mockito.when(groupRepository.createGroup(any(), anyBoolean(), anyBoolean(), any(), any()))
@@ -116,7 +117,6 @@ public class GroupServiceTests {
   }
 
   private static Stream<Arguments> testCreateGroupDataProvider() {
-    return Stream.of(
-        Arguments.of((Object) new DayOfWeek[] {DayOfWeek.MONDAY}), Arguments.of((Object) null));
+    return Stream.of(Arguments.of(List.of(DayOfWeek.MONDAY), null));
   }
 }

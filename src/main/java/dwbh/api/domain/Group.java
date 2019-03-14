@@ -17,10 +17,9 @@
  */
 package dwbh.api.domain;
 
-import static java.util.Optional.ofNullable;
-
 import java.time.DayOfWeek;
 import java.time.OffsetTime;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -33,7 +32,7 @@ public class Group {
   private UUID id;
   private boolean visibleMemberList;
   private boolean anonymousVote;
-  private DayOfWeek[] votingDays;
+  private List<DayOfWeek> votingDays;
   private OffsetTime votingTime;
 
   /**
@@ -122,8 +121,8 @@ public class Group {
    * @return an array of {@link DayOfWeek}
    * @since 0.1.0
    */
-  public DayOfWeek[] getVotingDays() {
-    return ofNullable(votingDays).map(DayOfWeek[]::clone).orElse(null);
+  public List<DayOfWeek> getVotingDays() {
+    return this.votingDays;
   }
 
   /**
@@ -132,8 +131,8 @@ public class Group {
    * @param votingDays days of the week when reminders are sent
    * @since 0.1.0
    */
-  public void setVotingDays(DayOfWeek... votingDays) {
-    this.votingDays = ofNullable(votingDays).map(arr -> arr.clone()).orElse(null);
+  public void setVotingDays(List<DayOfWeek> votingDays) {
+    this.votingDays = votingDays;
   }
 
   /**

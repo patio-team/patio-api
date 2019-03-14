@@ -19,7 +19,9 @@ package dwbh.api.repositories.internal;
 
 import java.time.DayOfWeek;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import org.jooq.Converter;
 
 /**
@@ -28,7 +30,7 @@ import org.jooq.Converter;
  * @since 0.1.0
  */
 @SuppressWarnings("PMD.ShortMethodName")
-public class DayOfWeekConverter implements Converter<String[], DayOfWeek[]> {
+public class DayOfWeekConverter implements Converter<String[], List<DayOfWeek>> {
 
   /**
    * Current version id
@@ -38,16 +40,16 @@ public class DayOfWeekConverter implements Converter<String[], DayOfWeek[]> {
   public static final long serialVersionUID = 1L;
 
   @Override
-  public DayOfWeek[] from(String[] databaseObject) {
-    return Optional.ofNullable(databaseObject).map(this::convertFromString).orElse(null);
+  public List<DayOfWeek> from(String[] databaseObject) {
+    return Optional.ofNullable(databaseObject).map(this::convertFromString).orElse(List.of());
   }
 
-  private DayOfWeek[] convertFromString(String... databaseObject) {
-    return Arrays.stream(databaseObject).map(DayOfWeek::valueOf).toArray(DayOfWeek[]::new);
+  private List<DayOfWeek> convertFromString(String... databaseObject) {
+    return Arrays.stream(databaseObject).map(DayOfWeek::valueOf).collect(Collectors.toList());
   }
 
   @Override
-  public String[] to(DayOfWeek[] userObject) {
+  public String[] to(List<DayOfWeek> userObject) {
     throw new IllegalStateException("This method is not supposed to be called");
   }
 
@@ -57,7 +59,7 @@ public class DayOfWeekConverter implements Converter<String[], DayOfWeek[]> {
   }
 
   @Override
-  public Class<DayOfWeek[]> toType() {
+  public Class<List<DayOfWeek>> toType() {
     throw new IllegalStateException("This method is not supposed to be called");
   }
 }

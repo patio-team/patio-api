@@ -20,7 +20,6 @@ package dwbh.api.fetchers;
 import static io.github.benas.randombeans.api.EnhancedRandom.random;
 import static io.github.benas.randombeans.api.EnhancedRandom.randomListOf;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.arrayWithSize;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
@@ -117,8 +116,8 @@ class GroupFetcherTest {
     assertThat("the group is created", result, is(group));
     assertThat(
         "days of week are the expected",
-        result.getVotingDays(),
-        is(arrayWithSize(group.getVotingDays().length)));
+        result.getVotingDays().size(),
+        is(group.getVotingDays().size()));
     assertNotNull("time is present", result.getVotingTime());
   }
 }
