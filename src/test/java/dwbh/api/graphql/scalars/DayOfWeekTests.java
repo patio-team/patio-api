@@ -17,7 +17,9 @@
  */
 package dwbh.api.graphql.scalars;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import dwbh.api.graphql.GraphQLFactory;
 import graphql.ExecutionInput;
@@ -26,34 +28,29 @@ import graphql.GraphQLError;
 import graphql.schema.idl.RuntimeWiring;
 import graphql.schema.idl.SchemaGenerator;
 import io.micronaut.core.io.ResourceResolver;
+import java.time.DayOfWeek;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-/**
- * Tests the functionality of the type {@link ScalarsConstants#ID}
- *
- * @since 0.1.0
- */
 @SuppressWarnings("PMD.AvoidDuplicateLiterals")
-public class IDTests {
+public class DayOfWeekTests {
 
   @Test
-  @DisplayName("ID: Tests conversion from GraphQL query variables to UUID")
+  @DisplayName("DayOfWeek: Tests conversion from GraphQL query variables to DayOfWeek")
   void testFromValue() {
-    // given: a group id we would like to use
-    var id = UUID.randomUUID();
+    // given:
+    var dayOfWeek = DayOfWeek.MONDAY;
 
     // and: a query with variable references
-    var query = "query FindById($id: ID!) { findById(id: $id) }";
+    var query = "query FindDay($day: DayOfWeek!) { findDayOfWeek(day: $day) }";
 
     // and: the execution input with query/variables
     var input =
         ExecutionInput.newExecutionInput()
             .query(query)
-            .variables(Map.of("id", id.toString()))
+            .variables(Map.of("day", dayOfWeek.toString()))
             .build();
 
     // when: executing the query passing the related variables
@@ -61,14 +58,14 @@ public class IDTests {
     Map<String, ?> data = executionResult.getData();
 
     // we should get the same id because the conversion went ok
-    assertEquals(data.get("findById"), id.toString());
+    assertEquals(data.get("findDayOfWeek"), dayOfWeek.toString());
   }
 
   @Test
-  @DisplayName("ID: Tests conversion from GraphQL query empty variables")
+  @DisplayName("DayOfWeek: Tests conversion from GraphQL query empty variables")
   void testFromValueEmpty() {
     // and: a query with variable references
-    var query = "query FindById($id: ID) { findById(id: $id) }";
+    var query = "query FindDayOfWeek($day: DayOfWeek) { findDayOfWeek(day: $day) }";
 
     // and: the execution input with query/variables
     var input = ExecutionInput.newExecutionInput().query(query).build();
@@ -78,20 +75,21 @@ public class IDTests {
     Map<String, ?> data = executionResult.getData();
 
     // we should get the same id because the conversion went ok
-    assertNull(data.get("findById"));
+    assertNull(data.get("findDayOfWeek"));
   }
 
   @Test
-  @DisplayName("ID: Tests failure when a query variable is wrong")
+  @DisplayName("DayOfWeek: Tests failure when a query variable is wrong")
   void testFromValueFailure() {
-    // given: a group id we would like to use
-    var id = "WRONG_ID";
+    // given: a wrong day name we would like to use
+    var dayOfWeek = "MANDY";
 
     // and: a query with variable references
-    var query = "query FindById($id: ID!) { findById(id: $id) }";
+    var query = "query FindDayOfWeek($day: DayOfWeek!) { findDayOfWeek(day: $day) }";
 
     // and: the execution input with query/variables
-    var input = ExecutionInput.newExecutionInput().query(query).variables(Map.of("id", id)).build();
+    var input =
+        ExecutionInput.newExecutionInput().query(query).variables(Map.of("day", dayOfWeek)).build();
 
     // when: executing the query passing the related variables
     var executionResult = createGraphQL().execute(input);
@@ -103,13 +101,13 @@ public class IDTests {
   }
 
   @Test
-  @DisplayName("ID: Tests conversion from GraphQL query embedded value to UUID")
+  @DisplayName("DayOfWeek: Tests conversion from GraphQL query embedded value to DayOfWeek")
   void testFromLiteral() {
-    // given: a group id we would like to use
-    var id = UUID.randomUUID();
+    // given: a day of week we would like to use
+    var dayOfWeek = DayOfWeek.MONDAY;
 
     // and: a query with harcoded literal
-    var query = "query { findById(id: \"" + id + "\") }";
+    var query = "query { findDayOfWeek(day: \"" + dayOfWeek + "\") }";
 
     // and: the execution input with query/variables
     var input = ExecutionInput.newExecutionInput().query(query).build();
@@ -119,14 +117,14 @@ public class IDTests {
     Map<String, ?> data = executionResult.getData();
 
     // we should get the same id because the conversion went ok
-    assertEquals(data.get("findById"), id.toString());
+    assertEquals(data.get("findDayOfWeek"), dayOfWeek.toString());
   }
 
   @Test
-  @DisplayName("ID: Tests conversion from GraphQL empty embedded value")
+  @DisplayName("DayOfWeek: Tests conversion from GraphQL empty embedded value")
   void testFromLiteralEmpty() {
     // and: a query with harcoded literal
-    var query = "query { findById }";
+    var query = "query { findDayOfWeek }";
 
     // and: the execution input with query/variables
     var input = ExecutionInput.newExecutionInput().query(query).build();
@@ -136,17 +134,17 @@ public class IDTests {
     Map<String, ?> data = executionResult.getData();
 
     // we should not get anything
-    assertNull(data.get("findById"));
+    assertNull(data.get("findDayOfWeek"));
   }
 
   @Test
-  @DisplayName("ID: Tests failure from GraphQL query with wrong embedded id")
+  @DisplayName("DayOfWeek: Tests failure from GraphQL query with wrong embedded id")
   void testFailureFromLiteral() {
     // given: a wrong id
-    var id = "WRONG ID";
+    var dayOfWeek = "FROGDAY";
 
     // and: a query with harcoded literal
-    var query = "query { findById(id: \"" + id + "\") }";
+    var query = "query { findDayOfWeek(day: \"" + dayOfWeek + "\") }";
 
     // and: the execution input with query/variables
     var input = ExecutionInput.newExecutionInput().query(query).build();
@@ -163,13 +161,14 @@ public class IDTests {
   private GraphQL createGraphQL() {
     var wiring =
         RuntimeWiring.newRuntimeWiring()
-            .scalar(ScalarsConstants.ID)
+            .scalar(ScalarsConstants.DAY_OF_WEEK)
             .type(
-                "Query", builder -> builder.dataFetcher("findById", (env) -> env.getArgument("id")))
+                "Query",
+                builder -> builder.dataFetcher("findDayOfWeek", (env) -> env.getArgument("day")))
             .build();
     var registry =
         GraphQLFactory.loadSchema(
-            new ResourceResolver(), "classpath:dwbh/api/graphql/scalars/id_schema.graphql");
+            new ResourceResolver(), "classpath:dwbh/api/graphql/scalars/dayofweek_schema.graphql");
     var schema = new SchemaGenerator().makeExecutableSchema(registry.get(), wiring);
 
     // when: executing the query against the GraphQL engine

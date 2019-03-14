@@ -19,7 +19,7 @@ package dwbh.api.fetchers;
 
 import dwbh.api.domain.Result;
 import dwbh.api.domain.UserGroup;
-import dwbh.api.domain.UserGroupInput;
+import dwbh.api.domain.input.UserGroupInput;
 import dwbh.api.graphql.Context;
 import dwbh.api.graphql.ResultUtils;
 import dwbh.api.services.UserGroupService;

@@ -22,6 +22,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import dwbh.api.domain.Group;
 import dwbh.api.fixtures.Fixtures;
 import io.micronaut.test.annotation.MicronautTest;
+import java.time.DayOfWeek;
+import java.time.OffsetTime;
 import java.util.List;
 import java.util.UUID;
 import javax.inject.Inject;
@@ -71,7 +73,7 @@ class GroupRepositoryTests {
     List<Group> groupList = repository.listGroups();
 
     // then: check there're the expected number of groups
-    assertEquals(groupList.size(), 3);
+    assertEquals(groupList.size(), 4);
   }
 
   @Test
@@ -89,7 +91,13 @@ class GroupRepositoryTests {
   @Test
   void testCreateGroup() {
     // when: creating a group
-    Group group = repository.createGroup("Avengers", true, true);
+    Group group =
+        repository.createGroup(
+            "Avengers",
+            true,
+            true,
+            new DayOfWeek[] {DayOfWeek.MONDAY, DayOfWeek.SUNDAY},
+            OffsetTime.now());
 
     // then: check the group is retrieved
     assertEquals(group.getName(), "Avengers");

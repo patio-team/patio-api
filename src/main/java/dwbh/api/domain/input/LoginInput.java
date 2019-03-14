@@ -15,48 +15,47 @@
  * You should have received a copy of the GNU General Public License
  * along with DWBH.  If not, see <https://www.gnu.org/licenses/>
  */
-package dwbh.api.domain;
-
-import java.util.UUID;
+package dwbh.api.domain.input;
 
 /**
- * UserGroup input. It contains the ids for a user and a group
+ * Authentication input. It contains credentials to authenticate a given user.
  *
  * @since 0.1.0
  */
-public class UserGroupInput {
-  private final UUID userId;
-  private final UUID groupId;
+public class LoginInput {
+
+  private final String email;
+  private final String password;
 
   /**
-   * Returns the id of the user
+   * Initializes the input with the user's email and password
    *
-   * @return the id of the user
+   * @param email user's email
+   * @param password user's password
    * @since 0.1.0
    */
-  public UUID getUserId() {
-    return userId;
+  public LoginInput(String email, String password) {
+    this.email = email;
+    this.password = password;
   }
 
   /**
-   * Returns the id of the group
+   * Returns input's email
    *
-   * @return the id of the group
+   * @return input's email
    * @since 0.1.0
    */
-  public UUID getGroupId() {
-    return groupId;
+  public String getEmail() {
+    return email;
   }
 
   /**
-   * Initializes the input with the group's name, visibleMemberList and anonymousVote
+   * Returns the input's password
    *
-   * @param userId the id of the user
-   * @param groupId the id of the group
+   * @return input password
    * @since 0.1.0
    */
-  public UserGroupInput(UUID userId, UUID groupId) {
-    this.userId = userId;
-    this.groupId = groupId;
+  public String getPassword() {
+    return password;
   }
 }

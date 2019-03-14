@@ -20,6 +20,9 @@ package dwbh.api.repositories;
 import dwbh.api.domain.Group;
 import dwbh.api.domain.GroupBuilder;
 import dwbh.api.repositories.TablesHelper.GroupsTableHelper;
+import dwbh.api.repositories.internal.DayOfWeekConverter;
+import java.time.DayOfWeek;
+import java.time.OffsetTime;
 import java.util.List;
 import java.util.UUID;
 import javax.inject.Singleton;
@@ -77,10 +80,17 @@ public class GroupRepository {
    * @param name group's name
    * @param visibleMemberList indicates if the group allows the members to see the member list
    * @param anonymousVote indicates if the group allows anonymous votes
+   * @param daysOfWeek days of the week when reminders are sent
+   * @param time moment of the day when reminders are sent
    * @return The created {@link Group}
    * @since 0.1.0
    */
-  public Group createGroup(String name, boolean visibleMemberList, boolean anonymousVote) {
+  public Group createGroup(
+      String name,
+      boolean visibleMemberList,
+      boolean anonymousVote,
+      DayOfWeek[] daysOfWeek,
+      OffsetTime time) {
 
     UUID id = UUID.randomUUID();
 
@@ -90,6 +100,8 @@ public class GroupRepository {
         .set(GroupsTableHelper.NAME, name)
         .set(GroupsTableHelper.VISIBLE_MEMBER_LIST, visibleMemberList)
         .set(GroupsTableHelper.ANONYMOUS_VOTE, anonymousVote)
+        .set(GroupsTableHelper.TIME, time)
+        .set(GroupsTableHelper.DAYS_OF_WEEK, daysOfWeek)
         .execute();
 
     return GroupBuilder.builder()
@@ -97,6 +109,8 @@ public class GroupRepository {
         .withId(id)
         .withVisibleMemberList(visibleMemberList)
         .withAnonymousVote(anonymousVote)
+        .withDaysOfWeek(daysOfWeek)
+        .withTime(time)
         .build();
   }
 
@@ -108,16 +122,20 @@ public class GroupRepository {
    * @since 0.1.0
    */
   public static Group toGroup(Record record) {
-    String name = record.get(GroupsTableHelper.NAME, String.class);
-    UUID id = record.get(GroupsTableHelper.ID, UUID.class);
-    boolean visibleMemberList = record.get(GroupsTableHelper.VISIBLE_MEMBER_LIST, boolean.class);
-    boolean anonymousVote = record.get(GroupsTableHelper.ANONYMOUS_VOTE, boolean.class);
+    String name = record.get(GroupsTableHelper.NAME);
+    UUID id = record.get(GroupsTableHelper.ID);
+    boolean visibleMemberList = record.get(GroupsTableHelper.VISIBLE_MEMBER_LIST);
+    boolean anonymousVote = record.get(GroupsTableHelper.ANONYMOUS_VOTE);
+    DayOfWeek[] dayOfWeeks = record.get(GroupsTableHelper.DAYS_OF_WEEK, new DayOfWeekConverter());
+    OffsetTime offsetTime = record.get(GroupsTableHelper.TIME);
 
     return GroupBuilder.builder()
         .withName(name)
         .withId(id)
         .withVisibleMemberList(visibleMemberList)
         .withAnonymousVote(anonymousVote)
+        .withDaysOfWeek(dayOfWeeks)
+        .withTime(offsetTime)
         .build();
   }
 }

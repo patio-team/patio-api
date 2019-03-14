@@ -27,12 +27,17 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import dwbh.api.domain.Group;
-import dwbh.api.domain.GroupInput;
 import dwbh.api.domain.User;
+import dwbh.api.domain.input.GroupInput;
 import dwbh.api.repositories.GroupRepository;
 import dwbh.api.repositories.UserGroupRepository;
+import java.time.DayOfWeek;
 import java.util.UUID;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mockito;
 
 /**
@@ -85,18 +90,19 @@ public class GroupServiceTests {
     assertEquals(5, groupsByGroup.size());
   }
 
-  @Test
-  void testCreateGroup() {
+  @ParameterizedTest(name = "Test create group [{index}]")
+  @MethodSource("testCreateGroupDataProvider")
+  void testCreateGroup(DayOfWeek[] days) {
     // given: a mocked group repository
     var groupRepository = Mockito.mock(GroupRepository.class);
-    Mockito.when(groupRepository.createGroup(any(), anyBoolean(), anyBoolean()))
+    Mockito.when(groupRepository.createGroup(any(), anyBoolean(), anyBoolean(), any(), any()))
         .thenReturn(random(Group.class));
 
     // and: a mocked usergroup repository
     var userGroupRepository = Mockito.mock(UserGroupRepository.class);
 
     // and: a GroupInput
-    GroupInput groupInput = new GroupInput("avengers", true, true);
+    GroupInput groupInput = new GroupInput("avengers", true, true, days, null);
 
     // when: getting a group by id
     var groupService = new GroupService(groupRepository, userGroupRepository);
@@ -107,5 +113,10 @@ public class GroupServiceTests {
 
     // and: The method to add an user to a group has been called
     verify(userGroupRepository, times(1)).addUserToGroup(any(), any(), anyBoolean());
+  }
+
+  private static Stream<Arguments> testCreateGroupDataProvider() {
+    return Stream.of(
+        Arguments.of((Object) new DayOfWeek[] {DayOfWeek.MONDAY}), Arguments.of((Object) null));
   }
 }

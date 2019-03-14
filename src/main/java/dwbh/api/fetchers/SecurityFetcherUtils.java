@@ -17,7 +17,7 @@
  */
 package dwbh.api.fetchers;
 
-import dwbh.api.domain.LoginInput;
+import dwbh.api.domain.input.LoginInput;
 import graphql.schema.DataFetchingEnvironment;
 
 /**

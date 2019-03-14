@@ -21,7 +21,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 
 import dwbh.api.fetchers.FetcherProvider;
 import dwbh.api.graphql.instrumentation.AuthenticationCheck;
-import dwbh.api.graphql.scalars.ID;
+import dwbh.api.graphql.scalars.ScalarsConstants;
 import graphql.GraphQL;
 import graphql.schema.GraphQLSchema;
 import graphql.schema.idl.RuntimeWiring;
@@ -99,7 +99,11 @@ public class GraphQLFactory {
 
     var wiring =
         RuntimeWiring.newRuntimeWiring()
-            .scalar(new ID())
+            .scalar(ScalarsConstants.ID)
+            .scalar(ScalarsConstants.DATE)
+            .scalar(ScalarsConstants.TIME)
+            .scalar(ScalarsConstants.DATE_TIME)
+            .scalar(ScalarsConstants.DAY_OF_WEEK)
             .type(
                 SCHEMA_TYPE_QUERY,
                 builder ->

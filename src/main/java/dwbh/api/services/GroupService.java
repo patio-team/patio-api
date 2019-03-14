@@ -18,8 +18,8 @@
 package dwbh.api.services;
 
 import dwbh.api.domain.Group;
-import dwbh.api.domain.GroupInput;
 import dwbh.api.domain.User;
+import dwbh.api.domain.input.GroupInput;
 import dwbh.api.repositories.GroupRepository;
 import dwbh.api.repositories.UserGroupRepository;
 import java.util.List;
@@ -92,7 +92,12 @@ public class GroupService {
   public Group createGroup(User admin, GroupInput groupInput) {
     Group group =
         groupRepository.createGroup(
-            groupInput.getName(), groupInput.isAnonymousVote(), groupInput.isVisibleMemberList());
+            groupInput.getName(),
+            groupInput.isAnonymousVote(),
+            groupInput.isVisibleMemberList(),
+            groupInput.getVotingDays(),
+            groupInput.getVotingTime());
+
     userGroupRepository.addUserToGroup(admin, group, true);
     return group;
   }

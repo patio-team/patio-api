@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with DWBH.  If not, see <https://www.gnu.org/licenses/>
  */
-package dwbh.api.graphql.scalars;
+package dwbh.api.graphql.scalars.internal;
 
 import graphql.schema.CoercingParseLiteralException;
 import graphql.schema.CoercingParseValueException;

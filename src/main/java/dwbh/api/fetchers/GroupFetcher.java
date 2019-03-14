@@ -18,8 +18,8 @@
 package dwbh.api.fetchers;
 
 import dwbh.api.domain.Group;
-import dwbh.api.domain.GroupInput;
 import dwbh.api.domain.User;
+import dwbh.api.domain.input.GroupInput;
 import dwbh.api.graphql.Context;
 import dwbh.api.services.GroupService;
 import graphql.schema.DataFetchingEnvironment;

@@ -19,6 +19,8 @@ package dwbh.api.domain;
 
 import static java.util.Optional.ofNullable;
 
+import java.time.DayOfWeek;
+import java.time.OffsetTime;
 import java.util.UUID;
 
 /**
@@ -32,6 +34,8 @@ public class GroupBuilder {
   private transient UUID id;
   private transient boolean visibleMemberList;
   private transient boolean anonymousVote;
+  private transient DayOfWeek[] daysOfWeek;
+  private transient OffsetTime time;
 
   /**
    * Creates an instance of {@link GroupBuilder}
@@ -87,6 +91,30 @@ public class GroupBuilder {
   }
 
   /**
+   * Sets the days of the week when reminders will be sent
+   *
+   * @param daysOfWeek instances of {@link DayOfWeek}
+   * @return the current builder instance
+   * @since 0.1.0
+   */
+  public GroupBuilder withDaysOfWeek(DayOfWeek... daysOfWeek) {
+    this.daysOfWeek = ofNullable(daysOfWeek).map(DayOfWeek[]::clone).orElse(null);
+    return this;
+  }
+
+  /**
+   * Sets the moment during the day where reminders will be sent
+   *
+   * @param offsetTime an instance of {@link OffsetTime}
+   * @return the current builder instance
+   * @since 0.1.0
+   */
+  public GroupBuilder withTime(OffsetTime offsetTime) {
+    this.time = offsetTime;
+    return this;
+  }
+
+  /**
    * Once the properties of the {@link Group} have been set you can call this method to return the
    * resulting {@link Group} instance
    *
@@ -99,6 +127,8 @@ public class GroupBuilder {
     group.setName(name);
     group.setId(id);
     group.setVisibleMemberList(visibleMemberList);
+    group.setVotingDays(daysOfWeek);
+    group.setVotingTime(time);
 
     return group;
   }

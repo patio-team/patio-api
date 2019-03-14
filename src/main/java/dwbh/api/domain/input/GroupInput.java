@@ -15,7 +15,12 @@
  * You should have received a copy of the GNU General Public License
  * along with DWBH.  If not, see <https://www.gnu.org/licenses/>
  */
-package dwbh.api.domain;
+package dwbh.api.domain.input;
+
+import static java.util.Optional.ofNullable;
+
+import java.time.DayOfWeek;
+import java.time.OffsetTime;
 
 /**
  * Group input. It contains the fields for a Group
@@ -26,6 +31,31 @@ public class GroupInput {
   private final String name;
   private final boolean visibleMemberList;
   private final boolean anonymousVote;
+  private final DayOfWeek[] votingDays;
+  private final OffsetTime votingTime;
+
+  /**
+   * Initializes the input with the group's name, visibleMemberList and anonymousVote
+   *
+   * @param name groups's name
+   * @param visibleMemberList indicates if the group allows the members to see the member list
+   * @param anonymousVote indicates if the group allows anonymous votes
+   * @param votingDays represents the day of the week
+   * @param votingTime votingTime of the day where the reminder is going to be sent
+   * @since 0.1.0
+   */
+  public GroupInput(
+      String name,
+      boolean visibleMemberList,
+      boolean anonymousVote,
+      DayOfWeek[] votingDays,
+      OffsetTime votingTime) {
+    this.name = name;
+    this.visibleMemberList = visibleMemberList;
+    this.anonymousVote = anonymousVote;
+    this.votingDays = ofNullable(votingDays).map(DayOfWeek[]::clone).orElse(null);
+    this.votingTime = votingTime;
+  }
 
   /**
    * Returns the name of the group
@@ -58,16 +88,22 @@ public class GroupInput {
   }
 
   /**
-   * Initializes the input with the group's name, visibleMemberList and anonymousVote
+   * Returns the days of the week as an array of type {@link DayOfWeek}
    *
-   * @param name groups's name
-   * @param visibleMemberList indicates if the group allows the members to see the member list
-   * @param anonymousVote indicates if the group allows anonymous votes
+   * @return the days of the week
    * @since 0.1.0
    */
-  public GroupInput(String name, boolean visibleMemberList, boolean anonymousVote) {
-    this.name = name;
-    this.visibleMemberList = visibleMemberList;
-    this.anonymousVote = anonymousVote;
+  public DayOfWeek[] getVotingDays() {
+    return ofNullable(votingDays).map(DayOfWeek[]::clone).orElse(null);
+  }
+
+  /**
+   * Returns the votingTime of the day when the reminder is sent
+   *
+   * @return an instance of type {@link OffsetTime}
+   * @since 0.1.0
+   */
+  public OffsetTime getVotingTime() {
+    return votingTime;
   }
 }
