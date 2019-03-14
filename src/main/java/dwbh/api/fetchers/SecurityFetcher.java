@@ -18,10 +18,10 @@
 package dwbh.api.fetchers;
 
 import dwbh.api.domain.Login;
-import dwbh.api.domain.Result;
 import dwbh.api.domain.input.LoginInput;
 import dwbh.api.graphql.ResultUtils;
 import dwbh.api.services.SecurityService;
+import dwbh.api.util.Result;
 import graphql.execution.DataFetcherResult;
 import graphql.schema.DataFetchingEnvironment;
 import javax.inject.Singleton;

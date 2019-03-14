@@ -17,14 +17,14 @@
  */
 package dwbh.api.services.internal;
 
-import dwbh.api.domain.ErrorConstants;
 import dwbh.api.domain.Login;
-import dwbh.api.domain.Result;
 import dwbh.api.domain.User;
 import dwbh.api.domain.input.LoginInput;
 import dwbh.api.repositories.UserRepository;
 import dwbh.api.services.CryptoService;
 import dwbh.api.services.SecurityService;
+import dwbh.api.util.ErrorConstants;
+import dwbh.api.util.Result;
 import java.util.Optional;
 import javax.inject.Singleton;
 

@@ -18,7 +18,6 @@
 package dwbh.api.graphql;
 
 import dwbh.api.domain.User;
-import java.util.Optional;
 
 /**
  * Represents the GraphQL context of the application
@@ -35,8 +34,8 @@ public class Context {
    * @return the authenticated user
    * @since 0.1.0
    */
-  public Optional<User> getAuthenticatedUser() {
-    return Optional.ofNullable(authenticatedUser);
+  public User getAuthenticatedUser() {
+    return authenticatedUser;
   }
 
   /**

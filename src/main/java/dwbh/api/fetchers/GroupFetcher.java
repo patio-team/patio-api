@@ -72,7 +72,7 @@ public class GroupFetcher {
    */
   public List<Group> listMyGroups(DataFetchingEnvironment env) {
     Context ctx = env.getContext();
-    User currentUser = ctx.getAuthenticatedUser().get();
+    User currentUser = ctx.getAuthenticatedUser();
     return service.listGroupsUser(currentUser.getId());
   }
 
@@ -110,7 +110,9 @@ public class GroupFetcher {
    */
   public Group createGroup(DataFetchingEnvironment env) {
     Context ctx = env.getContext();
+    User user = ctx.getAuthenticatedUser();
     GroupInput input = GroupFetcherUtils.group(env);
-    return service.createGroup(ctx.getAuthenticatedUser().get(), input);
+
+    return service.createGroup(user, input);
   }
 }

@@ -21,7 +21,6 @@ import dwbh.api.domain.User;
 import dwbh.api.graphql.Context;
 import graphql.schema.DataFetchingEnvironment;
 import java.util.Map;
-import java.util.Optional;
 import org.mockito.Mockito;
 
 public abstract class FetcherTestUtils {
@@ -44,8 +43,7 @@ public abstract class FetcherTestUtils {
     var mockedContext = Mockito.mock(Context.class);
 
     // mocking context behavior to return the authenticatedUser
-    Mockito.when(mockedContext.getAuthenticatedUser())
-        .thenReturn(Optional.ofNullable(authenticatedUser));
+    Mockito.when(mockedContext.getAuthenticatedUser()).thenReturn(authenticatedUser);
 
     // mocking environment behavior to return the context
     Mockito.when(mockedEnvironment.getContext()).thenReturn(mockedContext);

@@ -17,10 +17,10 @@
  */
 package dwbh.api.graphql.instrumentation;
 
-import dwbh.api.domain.ErrorConstants;
 import dwbh.api.graphql.Context;
 import dwbh.api.graphql.ResultUtils;
 import dwbh.api.services.internal.FunctionsUtils;
+import dwbh.api.util.ErrorConstants;
 import graphql.execution.instrumentation.InstrumentationState;
 import graphql.execution.instrumentation.SimpleInstrumentation;
 import graphql.execution.instrumentation.parameters.InstrumentationCreateStateParameters;
@@ -107,7 +107,9 @@ public class AuthenticationCheck extends SimpleInstrumentation {
   }
 
   private static boolean isUserPresent(CheckerParams cond) {
-    return Optional.ofNullable(cond.context).flatMap(Context::getAuthenticatedUser).isPresent();
+    return Optional.ofNullable(cond.context)
+        .flatMap(ctx -> Optional.ofNullable(ctx.getAuthenticatedUser()))
+        .isPresent();
   }
 
   private static boolean isDirectivePresent(CheckerParams cond) {

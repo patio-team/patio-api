@@ -19,8 +19,9 @@ package dwbh.api.repositories;
 
 import dwbh.api.domain.Group;
 import dwbh.api.domain.GroupBuilder;
-import dwbh.api.repositories.TablesHelper.GroupsTableHelper;
 import dwbh.api.repositories.internal.DayOfWeekConverter;
+import dwbh.api.repositories.internal.TablesHelper;
+import dwbh.api.repositories.internal.TablesHelper.GroupsTableHelper;
 import java.time.DayOfWeek;
 import java.time.OffsetTime;
 import java.util.List;

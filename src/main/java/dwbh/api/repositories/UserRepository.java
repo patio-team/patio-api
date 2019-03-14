@@ -19,6 +19,7 @@ package dwbh.api.repositories;
 
 import dwbh.api.domain.User;
 import dwbh.api.domain.UserBuilder;
+import dwbh.api.repositories.internal.TablesHelper;
 import java.util.List;
 import java.util.UUID;
 import javax.inject.Singleton;

@@ -18,9 +18,9 @@
 package dwbh.api.services;
 
 import dwbh.api.domain.Login;
-import dwbh.api.domain.Result;
 import dwbh.api.domain.User;
 import dwbh.api.domain.input.LoginInput;
+import dwbh.api.util.Result;
 
 /**
  * Service responsible to check the security constraints

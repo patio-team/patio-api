@@ -26,9 +26,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 
 import dwbh.api.domain.Login;
-import dwbh.api.domain.Result;
 import dwbh.api.graphql.I18nGraphQLError;
 import dwbh.api.services.SecurityService;
+import dwbh.api.util.Result;
 import graphql.schema.DataFetchingEnvironment;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;

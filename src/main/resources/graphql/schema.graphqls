@@ -40,6 +40,22 @@ type User {
     groups: [Group]
 }
 
+type Voting {
+    id: ID,
+    group: Group,
+    createdAt: DateTime
+    createdBy: User
+}
+
+type Vote {
+    id: ID
+    score: Int
+    comment: String
+    voting: Voting
+    createdAt: DateTime
+    createdBy: User
+}
+
 # Contains token and user information
 type Login {
     user: User
@@ -69,8 +85,15 @@ type Query {
 
 # registered mutations
 type Mutation {
-    # create a group
+    # creates a new voting slot
+    createVoting(groupId: ID): Voting
+
+    # creates a user vote
+    createVote(votingId: ID!, score: Int!, comment: String): Vote
+
+    # creates a group
     createGroup(name: String!, visibleMemberList: Boolean!, anonymousVote: Boolean!, votingTime: Time!, votingDays: [DayOfWeek]!): Group
+
     # add an user to a group
     addUserToGroup(userId: ID!, groupId: ID!): Boolean
 }
