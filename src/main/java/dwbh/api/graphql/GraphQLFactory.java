@@ -109,6 +109,7 @@ public class GraphQLFactory {
                 builder ->
                     builder
                         .dataFetcher("listGroups", groupFetcher::listGroups)
+                        .dataFetcher("listMyGroups", groupFetcher::listMyGroups)
                         .dataFetcher("getGroup", groupFetcher::getGroup)
                         .dataFetcher("listUsers", userFetcher::listUsers)
                         .dataFetcher("getUser", userFetcher::getUser)
