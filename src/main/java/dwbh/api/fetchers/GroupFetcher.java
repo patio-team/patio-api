@@ -64,6 +64,19 @@ public class GroupFetcher {
   }
 
   /**
+   * Fetches the groups of the current user
+   *
+   * @param env GraphQL execution environment
+   * @return a list of available {@link Group}
+   * @since 0.1.0
+   */
+  public List<Group> listMyGroups(DataFetchingEnvironment env) {
+    Context ctx = env.getContext();
+    User currentUser = ctx.getAuthenticatedUser().get();
+    return service.listGroupsUser(currentUser.getId());
+  }
+
+  /**
    * Get the specified group
    *
    * @param env GraphQL execution environment

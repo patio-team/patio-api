@@ -57,6 +57,28 @@ class GroupFetcherTest {
   }
 
   @Test
+  void testListMyGroups() {
+    // given: an user
+    User user = random(User.class);
+
+    // and: a mocked environment
+    var mockedEnvironment = FetcherTestUtils.generateMockedEnvironment(user, Map.of());
+
+    // and: a mockedservice
+    var mockedService = Mockito.mock(GroupService.class);
+
+    // and: mocked service's behavior
+    Mockito.when(mockedService.listGroupsUser(any())).thenReturn(randomListOf(2, Group.class));
+
+    // when: fetching group list invoking the service
+    GroupFetcher fetchers = new GroupFetcher(mockedService);
+    List<Group> groupList = fetchers.listMyGroups(mockedEnvironment);
+
+    // then: check certain assertions should be met
+    assertThat("there're only a certain values of groups", groupList.size(), is(2));
+  }
+
+  @Test
   void testGetGroup() {
     // given: an group
     Group group = random(Group.class);
