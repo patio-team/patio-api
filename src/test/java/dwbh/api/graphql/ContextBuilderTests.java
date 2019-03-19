@@ -17,8 +17,8 @@
  */
 package dwbh.api.graphql;
 
-import static junit.framework.TestCase.assertTrue;
-import static org.junit.Assert.assertFalse;
+import static junit.framework.TestCase.assertNotNull;
+import static junit.framework.TestCase.assertNull;
 
 import dwbh.api.domain.User;
 import dwbh.api.services.SecurityService;
@@ -53,7 +53,7 @@ class ContextBuilderTests {
     var context = (Context) builder.build(httpRequest);
 
     // then: it should be able to build a context with a user
-    assertTrue("context should contain a user", context.getAuthenticatedUser().isPresent());
+    assertNotNull("context should contain a user", context.getAuthenticatedUser());
   }
 
   @Test
@@ -70,6 +70,6 @@ class ContextBuilderTests {
     var context = (Context) builder.build(httpRequest);
 
     // then: it should be able to build a context with a user
-    assertFalse("context should contain a user", context.getAuthenticatedUser().isPresent());
+    assertNull("context should contain a user", context.getAuthenticatedUser());
   }
 }

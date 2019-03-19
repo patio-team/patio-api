@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with DWBH.  If not, see <https://www.gnu.org/licenses/>
  */
-package dwbh.api.domain;
+package dwbh.api.util;
 
 /**
  * Class holding general error values
@@ -55,6 +55,40 @@ public final class ErrorConstants {
    */
   public static final Error USER_ALREADY_ON_GROUP = // NOPMD
       new Error("API_ERRORS.USER_ALREADY_ON_GROUP", "The user is already on the group");
+
+  /**
+   * Code used when somebody not belonging to a group tries to execute some operation over that
+   * group
+   *
+   * @since 0.1.0
+   */
+  public static final Error USER_NOT_IN_GROUP =
+      new Error("API_ERRORS.USER_NOT_IN_GROUP", "The user doesn't belong to group");
+
+  /**
+   * Code used when somebody not belonging to a group tries to execute some operation over that
+   * group
+   *
+   * @since 0.1.0
+   */
+  public static final Error USER_ALREADY_VOTE =
+      new Error("API_ERRORS.USER_ALREADY_VOTE", "The user has already voted");
+
+  /**
+   * Code used when somebody tries to create a vote in a voting slot already expired
+   *
+   * @since 0.1.0
+   */
+  public static final Error VOTING_HAS_EXPIRED =
+      new Error("API_ERRORS.VOTING_HAS_EXPIRED", "The voting has expired");
+
+  /**
+   * Code used when somebody tries to create a vote without a score between 1 and 5
+   *
+   * @since 0.1.0
+   */
+  public static final Error SCORE_IS_INVALID =
+      new Error("API_ERRORS.SCORE_IS_INVALID", "The score must be an integer between 1 and 5");
 
   private ErrorConstants() {
     /* empty */

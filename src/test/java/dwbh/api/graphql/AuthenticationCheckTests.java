@@ -17,7 +17,7 @@
  */
 package dwbh.api.graphql;
 
-import static dwbh.api.domain.ErrorConstants.BAD_CREDENTIALS;
+import static dwbh.api.util.ErrorConstants.BAD_CREDENTIALS;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import dwbh.api.domain.User;

@@ -23,6 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
@@ -51,7 +52,7 @@ public class GroupServiceTests {
   @Test
   void testListGroups() {
     // given: a mocked group repository
-    var groupRepository = Mockito.mock(GroupRepository.class);
+    var groupRepository = mock(GroupRepository.class);
     Mockito.when(groupRepository.listGroups()).thenReturn(randomListOf(4, Group.class));
 
     // when: invoking service listGroups()
@@ -65,7 +66,7 @@ public class GroupServiceTests {
   @Test
   void testGetGroup() {
     // given: a mocked group repository
-    var groupRepository = Mockito.mock(GroupRepository.class);
+    var groupRepository = mock(GroupRepository.class);
     Mockito.when(groupRepository.getGroup(any())).thenReturn(random(Group.class));
 
     // when: getting a group by id
@@ -79,7 +80,7 @@ public class GroupServiceTests {
   @Test
   void testListGroupsUser() {
     // given: a mocked usergroup repository
-    var userGroupRepository = Mockito.mock(UserGroupRepository.class);
+    var userGroupRepository = mock(UserGroupRepository.class);
     Mockito.when(userGroupRepository.listGroupsUser(any()))
         .thenReturn(randomListOf(5, Group.class));
 
@@ -95,12 +96,12 @@ public class GroupServiceTests {
   @MethodSource("testCreateGroupDataProvider")
   void testCreateGroup(List<DayOfWeek> days) {
     // given: a mocked group repository
-    var groupRepository = Mockito.mock(GroupRepository.class);
+    var groupRepository = mock(GroupRepository.class);
     Mockito.when(groupRepository.createGroup(any(), anyBoolean(), anyBoolean(), any(), any()))
         .thenReturn(random(Group.class));
 
     // and: a mocked usergroup repository
-    var userGroupRepository = Mockito.mock(UserGroupRepository.class);
+    var userGroupRepository = mock(UserGroupRepository.class);
 
     // and: a GroupInput
     GroupInput groupInput = new GroupInput("avengers", true, true, days, null);

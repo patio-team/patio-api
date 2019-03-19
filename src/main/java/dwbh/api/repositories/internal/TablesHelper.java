@@ -15,8 +15,9 @@
  * You should have received a copy of the GNU General Public License
  * along with DWBH.  If not, see <https://www.gnu.org/licenses/>
  */
-package dwbh.api.repositories;
+package dwbh.api.repositories.internal;
 
+import java.time.OffsetDateTime;
 import java.time.OffsetTime;
 import java.util.UUID;
 import org.jooq.Field;
@@ -32,6 +33,8 @@ public final class TablesHelper {
   public static final Table USERS_TABLE = DSL.table("users");
   public static final Table GROUPS_TABLE = DSL.table("groups");
   public static final Table USERS_GROUPS_TABLE = DSL.table("users_groups");
+  public static final Table VOTING_TABLE = DSL.table("voting");
+  public static final Table VOTE_TABLE = DSL.table("vote");
 
   private TablesHelper() {
     /* empty */
@@ -84,6 +87,42 @@ public final class TablesHelper {
     public static final Field<Boolean> IS_ADMIN = DSL.field("is_admin", Boolean.class);
 
     private UsersGroupsTableHelper() {
+      /* empty */
+    }
+  }
+
+  /**
+   * Inner class for modeling fields for voting
+   *
+   * @since 0.1.0
+   */
+  public static final class VotingTableHelper {
+    public static final Field<UUID> VOTING_ID = DSL.field("id", UUID.class);
+    public static final Field<UUID> GROUP_ID = DSL.field("group_id", UUID.class);
+    public static final Field<UUID> CREATED_BY_ID = DSL.field("created_by", UUID.class);
+    public static final Field<OffsetDateTime> CREATED_AT =
+        DSL.field("created_at", OffsetDateTime.class);
+
+    private VotingTableHelper() {
+      /* empty */
+    }
+  }
+
+  /**
+   * Inner class for modeling fields of a user's vote for a given voting slot
+   *
+   * @since 0.1.0
+   */
+  public static final class VoteTableHelper {
+    public static final Field<UUID> VOTE_ID = DSL.field("id", UUID.class);
+    public static final Field<UUID> VOTING_ID = DSL.field("voting_id", UUID.class);
+    public static final Field<UUID> CREATED_BY_ID = DSL.field("created_by", UUID.class);
+    public static final Field<OffsetDateTime> CREATED_AT =
+        DSL.field("created_at", OffsetDateTime.class);
+    public static final Field<String> COMMENT = DSL.field("comment", String.class);
+    public static final Field<Integer> SCORE = DSL.field("score", Integer.class);
+
+    private VoteTableHelper() {
       /* empty */
     }
   }

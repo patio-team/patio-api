@@ -25,11 +25,11 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 
 import com.auth0.jwt.algorithms.Algorithm;
-import dwbh.api.domain.ErrorConstants;
 import dwbh.api.domain.User;
 import dwbh.api.domain.input.LoginInput;
 import dwbh.api.repositories.UserRepository;
 import dwbh.api.services.CryptoService;
+import dwbh.api.util.ErrorConstants;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;

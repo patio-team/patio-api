@@ -96,6 +96,7 @@ public class GraphQLFactory {
     var userFetcher = fetcherProvider.getUserFetcher();
     var userGroupFetcher = fetcherProvider.getUserGroupFetcher();
     var securityFetcher = fetcherProvider.getSecurityFetcher();
+    var votingFetcher = fetcherProvider.getVotingFetcher();
 
     var wiring =
         RuntimeWiring.newRuntimeWiring()
@@ -112,14 +113,16 @@ public class GraphQLFactory {
                         .dataFetcher("listMyGroups", groupFetcher::listMyGroups)
                         .dataFetcher("getGroup", groupFetcher::getGroup)
                         .dataFetcher("listUsers", userFetcher::listUsers)
-                        .dataFetcher("getUser", userFetcher::getUser)
+                        .dataFetcher("getCreatedBy", userFetcher::getUser)
                         .dataFetcher("login", securityFetcher::login))
             .type(
                 SCHEMA_TYPE_MUTATION,
                 builder ->
                     builder
                         .dataFetcher("createGroup", groupFetcher::createGroup)
-                        .dataFetcher("addUserToGroup", userGroupFetcher::addUserToGroup))
+                        .dataFetcher("addUserToGroup", userGroupFetcher::addUserToGroup)
+                        .dataFetcher("createVoting", votingFetcher::createVoting)
+                        .dataFetcher("createVote", votingFetcher::createVote))
             .type("Group", builder -> builder.dataFetcher("members", userFetcher::listUsersGroup))
             .type("User", builder -> builder.dataFetcher("groups", groupFetcher::listGroupsUser))
             .build();

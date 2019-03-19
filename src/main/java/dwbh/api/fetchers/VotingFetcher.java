@@ -17,31 +17,31 @@
  */
 package dwbh.api.fetchers;
 
-import dwbh.api.domain.User;
-import dwbh.api.domain.UserGroup;
-import dwbh.api.domain.input.UserGroupInput;
-import dwbh.api.graphql.Context;
+import dwbh.api.domain.Group;
+import dwbh.api.domain.Vote;
+import dwbh.api.domain.Voting;
+import dwbh.api.domain.input.CreateVoteInput;
+import dwbh.api.domain.input.CreateVotingInput;
 import dwbh.api.graphql.ResultUtils;
-import dwbh.api.services.UserGroupService;
-import dwbh.api.util.Result;
+import dwbh.api.services.VotingService;
 import graphql.execution.DataFetcherResult;
 import graphql.schema.DataFetchingEnvironment;
 import javax.inject.Singleton;
 
 /**
- * All related GraphQL operations over the {@link UserGroup} domain
+ * All related GraphQL operations over the {@link Group} domain
  *
  * @since 0.1.0
  */
 @Singleton
-public class UserGroupFetcher {
+public class VotingFetcher {
 
   /**
    * Instance handling the business logic
    *
    * @since 0.1.0
    */
-  private final transient UserGroupService service;
+  private final transient VotingService service;
 
   /**
    * Constructor initializing the access to the business logic
@@ -49,23 +49,33 @@ public class UserGroupFetcher {
    * @param service class handling the logic over groups
    * @since 0.1.0
    */
-  public UserGroupFetcher(UserGroupService service) {
+  public VotingFetcher(VotingService service) {
     this.service = service;
   }
 
   /**
-   * Adds an user to a group
+   * Creates a new {@link Vote}
    *
    * @param env GraphQL execution environment
-   * @return an instance of {@link DataFetcherResult} because it could return errors
+   * @return the info of the {@link Vote} or an error
    * @since 0.1.0
    */
-  public DataFetcherResult<Boolean> addUserToGroup(DataFetchingEnvironment env) {
-    Context ctx = env.getContext();
-    UserGroupInput input = GroupFetcherUtils.userGroup(env);
-    User user = ctx.getAuthenticatedUser();
+  public DataFetcherResult<Vote> createVote(DataFetchingEnvironment env) {
+    CreateVoteInput input = VotingFetcherUtils.createVote(env);
 
-    Result<Boolean> result = service.addUserToGroup(user, input);
-    return ResultUtils.render(result);
+    return ResultUtils.render(service.createVote(input));
+  }
+
+  /**
+   * Creates a new group {@link Voting} slot
+   *
+   * @param env GraphQL execution environment
+   * @return the info of the {@link Voting} created or an error
+   * @since 0.1.0
+   */
+  public DataFetcherResult<Voting> createVoting(DataFetchingEnvironment env) {
+    CreateVotingInput input = VotingFetcherUtils.createVoting(env);
+
+    return ResultUtils.render(service.createVoting(input));
   }
 }

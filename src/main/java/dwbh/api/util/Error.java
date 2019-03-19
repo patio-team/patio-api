@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with DWBH.  If not, see <https://www.gnu.org/licenses/>
  */
-package dwbh.api.domain;
+package dwbh.api.util;
 
 /**
  * Represents a business logic error. It should be used and passed as a value.

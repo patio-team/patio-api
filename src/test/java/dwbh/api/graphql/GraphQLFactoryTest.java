@@ -26,7 +26,12 @@ import static org.mockito.Mockito.when;
 
 import dwbh.api.domain.Group;
 import dwbh.api.domain.User;
-import dwbh.api.fetchers.*;
+import dwbh.api.fetchers.FetcherProvider;
+import dwbh.api.fetchers.GroupFetcher;
+import dwbh.api.fetchers.SecurityFetcher;
+import dwbh.api.fetchers.UserFetcher;
+import dwbh.api.fetchers.UserGroupFetcher;
+import dwbh.api.fetchers.VotingFetcher;
 import graphql.ExecutionInput;
 import io.micronaut.core.io.ResourceResolver;
 import java.util.List;
@@ -46,6 +51,9 @@ class GraphQLFactoryTest {
 
     // and: adding group fetcher to fetcher providers
     fetchers.setGroupFetcher(groupFetcher);
+
+    // and: adding voting fetcher to fetcher providers
+    fetchers.setVotingFetcher(mock(VotingFetcher.class));
 
     // and: adding user fetcher to fetcher providers
     fetchers.setUserFetcher(mock(UserFetcher.class));

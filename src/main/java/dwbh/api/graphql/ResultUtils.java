@@ -17,8 +17,8 @@
  */
 package dwbh.api.graphql;
 
-import dwbh.api.domain.Error;
-import dwbh.api.domain.Result;
+import dwbh.api.util.Error;
+import dwbh.api.util.Result;
 import graphql.GraphQLError;
 import graphql.execution.DataFetcherResult;
 import java.util.List;

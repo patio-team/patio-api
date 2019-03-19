@@ -20,6 +20,7 @@ package dwbh.api.fetchers;
 import dwbh.api.domain.Group;
 import dwbh.api.domain.User;
 import dwbh.api.domain.UserGroup;
+import dwbh.api.domain.Voting;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
@@ -32,6 +33,7 @@ import javax.inject.Singleton;
 public class FetcherProvider {
 
   private GroupFetcher groupFetcher;
+  private VotingFetcher votingFetcher;
   private UserFetcher userFetcher;
   private UserGroupFetcher userGroupFetcher;
   private SecurityFetcher securityFetcher;
@@ -55,6 +57,27 @@ public class FetcherProvider {
   @Inject
   public void setGroupFetcher(GroupFetcher groupFetcher) {
     this.groupFetcher = groupFetcher;
+  }
+
+  /**
+   * Returns an instance of {@link VotingFetcher}
+   *
+   * @return an instance of {@link VotingFetcher}
+   * @since 0.1.0
+   */
+  public VotingFetcher getVotingFetcher() {
+    return votingFetcher;
+  }
+
+  /**
+   * Sets the instance responsible to handle request over {@link Voting}
+   *
+   * @param votingFetcher instance of {@link VotingFetcher}
+   * @since 0.1.0
+   */
+  @Inject
+  public void setVotingFetcher(VotingFetcher votingFetcher) {
+    this.votingFetcher = votingFetcher;
   }
 
   /**
