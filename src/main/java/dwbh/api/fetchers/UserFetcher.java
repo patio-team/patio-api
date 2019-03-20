@@ -17,7 +17,6 @@
  */
 package dwbh.api.fetchers;
 
-import dwbh.api.domain.Group;
 import dwbh.api.domain.User;
 import dwbh.api.services.UserService;
 import graphql.schema.DataFetchingEnvironment;
@@ -71,17 +70,5 @@ public class UserFetcher {
   public User getUser(DataFetchingEnvironment env) {
     UUID userId = env.getArgument("id");
     return service.getUser(userId);
-  }
-
-  /**
-   * Fetches the users that belongs to a group
-   *
-   * @param env GraphQL execution environment
-   * @return a list of available {@link User}
-   * @since 0.1.0
-   */
-  public List<User> listUsersGroup(DataFetchingEnvironment env) {
-    Group group = env.getSource();
-    return service.listUsersGroup(group.getId());
   }
 }

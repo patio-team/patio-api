@@ -34,11 +34,16 @@ type Group {
     isCurrentUserAdmin: Boolean
 }
 
-type User {
+type UserProfile {
     id: ID
     name: String
     email: String
     groups: [Group]
+}
+
+type User {
+    id: ID
+    name: String
 }
 
 type Voting {
@@ -65,14 +70,8 @@ type Login {
 
 # registered queries
 type Query {
-    # get full group list
-    listGroups: [Group]
-
     # get groups of the current user
     listMyGroups: [Group]
-
-    # get full user list
-    listUsers: [User]
 
     # get group by its id
     getGroup(id: ID!): Group

@@ -18,12 +18,10 @@
 package dwbh.api.fetchers;
 
 import dwbh.api.domain.input.GroupInput;
-import dwbh.api.domain.input.UserGroupInput;
 import graphql.schema.DataFetchingEnvironment;
 import java.time.DayOfWeek;
 import java.time.OffsetTime;
 import java.util.List;
-import java.util.UUID;
 
 /**
  * Contains functions to build domain inputs from the underlying {@link DataFetchingEnvironment}
@@ -53,19 +51,5 @@ final class GroupFetcherUtils {
     OffsetTime votingTime = environment.getArgument("votingTime");
 
     return new GroupInput(name, visibleMemberList, anonymousVote, votingDays, votingTime);
-  }
-
-  /**
-   * Creates a {@link UserGroupInput} from the data coming from the {@link DataFetchingEnvironment}
-   *
-   * @param environment the GraphQL {@link DataFetchingEnvironment}
-   * @return an instance of {@link UserGroupInput}
-   * @since 0.1.0
-   */
-  /* default */ static UserGroupInput userGroup(DataFetchingEnvironment environment) {
-    UUID userId = environment.getArgument("userId");
-    UUID groupId = environment.getArgument("groupId");
-
-    return new UserGroupInput(userId, groupId);
   }
 }

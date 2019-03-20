@@ -27,6 +27,7 @@ import java.util.UUID;
 public class UserGroupInput {
   private final UUID userId;
   private final UUID groupId;
+  private final boolean visibleMemberList;
 
   /**
    * Returns the id of the user
@@ -49,7 +50,17 @@ public class UserGroupInput {
   }
 
   /**
-   * Initializes the input with the group's name, visibleMemberList and anonymousVote
+   * Returns if the group has a visible member list
+   *
+   * @return if the group has a visible member list
+   * @since 0.1.0
+   */
+  public boolean isVisibleMemberList() {
+    return visibleMemberList;
+  }
+
+  /**
+   * Initializes the input with the user id and the group id
    *
    * @param userId the id of the user
    * @param groupId the id of the group
@@ -58,5 +69,20 @@ public class UserGroupInput {
   public UserGroupInput(UUID userId, UUID groupId) {
     this.userId = userId;
     this.groupId = groupId;
+    this.visibleMemberList = false;
+  }
+
+  /**
+   * Initializes the input with the user id, the group id, and visibleMemberList
+   *
+   * @param userId the id of the user
+   * @param groupId the id of the group
+   * @param visibleMemberList if the group has visible member list
+   * @since 0.1.0
+   */
+  public UserGroupInput(UUID userId, UUID groupId, boolean visibleMemberList) {
+    this.userId = userId;
+    this.groupId = groupId;
+    this.visibleMemberList = visibleMemberList;
   }
 }

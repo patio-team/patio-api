@@ -18,6 +18,9 @@
 package dwbh.api.fetchers;
 
 import static io.github.benas.randombeans.api.EnhancedRandom.random;
+import static io.github.benas.randombeans.api.EnhancedRandom.randomListOf;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -30,6 +33,7 @@ import dwbh.api.fetchers.utils.FetcherTestUtils;
 import dwbh.api.graphql.I18nGraphQLError;
 import dwbh.api.services.UserGroupService;
 import dwbh.api.util.Result;
+import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -130,5 +134,33 @@ class UserGroupFetcherTest {
 
     // then: there result is true
     assertTrue(result);
+  }
+
+  @Test
+  void testListUsersGroup() {
+    // given: a group
+    Group group = random(Group.class);
+
+    // and: an user
+    User user = random(User.class);
+
+    // and: a mocked service
+    var mockedService = Mockito.mock(UserGroupService.class);
+
+    // and: a mocked environment
+    var mockedEnvironment = FetcherTestUtils.generateMockedEnvironment(user, Map.of());
+
+    // and: mocking service's behavior
+    Mockito.when(mockedService.listUsersGroup(any())).thenReturn(randomListOf(2, User.class));
+
+    // and: mocking environment behavior
+    Mockito.when(mockedEnvironment.getSource()).thenReturn(group);
+
+    // when: fetching user list invoking the service
+    UserGroupFetcher fetchers = new UserGroupFetcher(mockedService);
+    List<User> userList = fetchers.listUsersGroup(mockedEnvironment);
+
+    // then: check certain assertions should be met
+    assertThat("there're only a certain number of users", userList.size(), is(2));
   }
 }
