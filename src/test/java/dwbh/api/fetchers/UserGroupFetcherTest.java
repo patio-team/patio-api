@@ -18,7 +18,10 @@
 package dwbh.api.fetchers;
 
 import static io.github.benas.randombeans.api.EnhancedRandom.random;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 
 import dwbh.api.domain.Group;
@@ -105,5 +108,27 @@ class UserGroupFetcherTest {
 
     // and: a login payload should be missing
     assertNull(result.getData());
+  }
+
+  @Test
+  void testIsCurrentUserAdminSuccess() {
+    // given: an user
+    User user = random(User.class);
+
+    // and: a mocking service
+    var mockedService = Mockito.mock(UserGroupService.class);
+
+    // and: mocking service's behavior
+    Mockito.when(mockedService.isAdmin(any(), any())).thenReturn(true);
+
+    // and: a mocked environment
+    var mockedEnvironment = FetcherTestUtils.generateMockedEnvironment(user, Map.of());
+
+    // when: adding an user to a group invoking the service
+    UserGroupFetcher fetchers = new UserGroupFetcher(mockedService);
+    var result = fetchers.isCurrentUserAdmin(mockedEnvironment);
+
+    // then: there result is true
+    assertTrue(result);
   }
 }

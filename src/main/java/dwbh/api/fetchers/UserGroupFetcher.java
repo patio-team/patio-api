@@ -17,6 +17,7 @@
  */
 package dwbh.api.fetchers;
 
+import dwbh.api.domain.Group;
 import dwbh.api.domain.User;
 import dwbh.api.domain.UserGroup;
 import dwbh.api.domain.input.UserGroupInput;
@@ -67,5 +68,19 @@ public class UserGroupFetcher {
 
     Result<Boolean> result = service.addUserToGroup(user, input);
     return ResultUtils.render(result);
+  }
+
+  /**
+   * Get if the current user an admin of the group
+   *
+   * @param env GraphQL execution environment
+   * @return a boolean
+   * @since 0.1.0
+   */
+  public boolean isCurrentUserAdmin(DataFetchingEnvironment env) {
+    Context ctx = env.getContext();
+    User user = ctx.getAuthenticatedUser();
+    Group group = env.getSource();
+    return service.isAdmin(user, group);
   }
 }
