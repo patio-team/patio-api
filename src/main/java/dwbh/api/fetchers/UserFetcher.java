@@ -18,6 +18,7 @@
 package dwbh.api.fetchers;
 
 import dwbh.api.domain.User;
+import dwbh.api.graphql.Context;
 import dwbh.api.services.UserService;
 import graphql.schema.DataFetchingEnvironment;
 import java.util.List;
@@ -70,5 +71,17 @@ public class UserFetcher {
   public User getUser(DataFetchingEnvironment env) {
     UUID userId = env.getArgument("id");
     return service.getUser(userId);
+  }
+
+  /**
+   * Get the current user
+   *
+   * @param env GraphQL execution environment
+   * @return The requested {@link User}
+   * @since 0.1.0
+   */
+  public User getCurrentUser(DataFetchingEnvironment env) {
+    Context ctx = env.getContext();
+    return ctx.getAuthenticatedUser();
   }
 }
