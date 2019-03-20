@@ -17,7 +17,9 @@
  */
 package dwbh.api.services;
 
-import dwbh.api.domain.*;
+import dwbh.api.domain.Group;
+import dwbh.api.domain.User;
+import dwbh.api.domain.UserGroup;
 import dwbh.api.domain.input.UserGroupInput;
 import dwbh.api.repositories.GroupRepository;
 import dwbh.api.repositories.UserGroupRepository;
@@ -84,12 +86,28 @@ public class UserGroupService {
     return Result.result(true);
   }
 
-  private boolean isAdmin(User user, Group group) {
+  /**
+   * Returns if the user is admin of the group
+   *
+   * @param user The user
+   * @param group The group
+   * @return a boolean indicating if the user is admin of the group
+   * @since 0.1.0
+   */
+  public boolean isAdmin(User user, Group group) {
     UserGroup currentUserGroup = userGroupRepository.getUserGroup(user.getId(), group.getId());
     return currentUserGroup != null && currentUserGroup.isAdmin();
   }
 
-  private boolean isUserInGroup(User user, Group group) {
+  /**
+   * Returns if the user is a member of the group
+   *
+   * @param user The user
+   * @param group The group
+   * @return a boolean indicating if the user is admin of the group
+   * @since 0.1.0
+   */
+  public boolean isUserInGroup(User user, Group group) {
     UserGroup currentUserGroup = userGroupRepository.getUserGroup(user.getId(), group.getId());
     return currentUserGroup != null;
   }
