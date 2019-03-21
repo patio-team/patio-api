@@ -81,6 +81,9 @@ type Query {
 
     # log in
     login(email: String!, password: String!): Login @anonymousAllowed
+
+    # get the current user's profile
+    myProfile: UserProfile
 }
 
 # registered mutations

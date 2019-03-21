@@ -113,7 +113,8 @@ public class GraphQLFactory {
                         .dataFetcher("listMyGroups", groupFetcher::listMyGroups)
                         .dataFetcher("getGroup", groupFetcher::getGroup)
                         .dataFetcher("listUsers", userFetcher::listUsers)
-                        .dataFetcher("getCreatedBy", userFetcher::getUser)
+                        .dataFetcher("getUser", userFetcher::getUser)
+                        .dataFetcher("myProfile", userFetcher::getCurrentUser)
                         .dataFetcher("login", securityFetcher::login))
             .type(
                 SCHEMA_TYPE_MUTATION,

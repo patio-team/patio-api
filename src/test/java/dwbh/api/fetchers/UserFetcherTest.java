@@ -74,4 +74,20 @@ class UserFetcherTest {
     // then: check certain assertions should be met
     assertThat("the user is found", result, is(user));
   }
+
+  @Test
+  void testGetCurrentUser() {
+    // given: an user
+    User user = random(User.class);
+
+    // and: a mocked environment
+    var mockedEnvironment = FetcherTestUtils.generateMockedEnvironment(user, Map.of());
+
+    // when: fetching get user invoking the service
+    UserFetcher fetchers = new UserFetcher(null);
+    User result = fetchers.getCurrentUser(mockedEnvironment);
+
+    // then: check certain assertions should be met
+    assertThat("the user is found", result, is(user));
+  }
 }
