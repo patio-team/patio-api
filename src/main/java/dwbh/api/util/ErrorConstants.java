@@ -22,6 +22,7 @@ package dwbh.api.util;
  *
  * @since 0.1.0
  */
+@SuppressWarnings("PMD.LongVariable")
 public final class ErrorConstants {
 
   /**
@@ -96,6 +97,14 @@ public final class ErrorConstants {
    */
   public static final Error SCORE_IS_INVALID =
       new Error("API_ERRORS.SCORE_IS_INVALID", "The score must be an integer between 1 and 5");
+
+  /**
+   * Code used when try to vote anonymously on a group that doesn't admit it group
+   *
+   * @since 0.1.0
+   */
+  public static final Error VOTE_CANT_BE_ANONYMOUS =
+      new Error("API_ERRORS.VOTE_CANT_BE_ANONYMOUS", "The group doesn't allow anonymous votes");
 
   private ErrorConstants() {
     /* empty */

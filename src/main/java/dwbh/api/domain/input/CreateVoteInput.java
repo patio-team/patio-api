@@ -29,12 +29,15 @@ public class CreateVoteInput {
   private final transient UUID votingId;
   private final transient String comment;
   private final transient Integer score;
+  private final transient boolean anonymous;
 
-  private CreateVoteInput(UUID userId, UUID votingId, String comment, Integer score) {
+  private CreateVoteInput(
+      UUID userId, UUID votingId, String comment, Integer score, boolean anonymous) {
     this.userId = userId;
     this.votingId = votingId;
     this.comment = comment;
     this.score = score;
+    this.anonymous = anonymous;
   }
 
   /**
@@ -78,6 +81,16 @@ public class CreateVoteInput {
   }
 
   /**
+   * Returns if the vote is anonymous
+   *
+   * @return a {@link boolean} indcating if the vote is anonymous
+   * @since 0.1.0
+   */
+  public boolean isAnonymous() {
+    return anonymous;
+  }
+
+  /**
    * Returns the score that the user wanted to vote
    *
    * @return a simple {@link Integer} with the score
@@ -94,7 +107,7 @@ public class CreateVoteInput {
    */
   public static class Builder {
 
-    private transient CreateVoteInput input = new CreateVoteInput(null, null, null, null);
+    private transient CreateVoteInput input = new CreateVoteInput(null, null, null, null, false);
 
     private Builder() {
       /* empty */
@@ -109,7 +122,12 @@ public class CreateVoteInput {
      */
     public Builder withUserId(UUID userId) {
       this.input =
-          new CreateVoteInput(userId, input.getVotingId(), input.getComment(), input.getScore());
+          new CreateVoteInput(
+              userId,
+              input.getVotingId(),
+              input.getComment(),
+              input.getScore(),
+              input.isAnonymous());
       return this;
     }
 
@@ -122,7 +140,12 @@ public class CreateVoteInput {
      */
     public Builder withVotingId(UUID votingId) {
       this.input =
-          new CreateVoteInput(input.getUserId(), votingId, input.getComment(), input.getScore());
+          new CreateVoteInput(
+              input.getUserId(),
+              votingId,
+              input.getComment(),
+              input.getScore(),
+              input.isAnonymous());
       return this;
     }
 
@@ -135,7 +158,12 @@ public class CreateVoteInput {
      */
     public Builder withComment(String comment) {
       this.input =
-          new CreateVoteInput(input.getUserId(), input.getVotingId(), comment, input.getScore());
+          new CreateVoteInput(
+              input.getUserId(),
+              input.getVotingId(),
+              comment,
+              input.getScore(),
+              input.isAnonymous());
       return this;
     }
 
@@ -148,7 +176,30 @@ public class CreateVoteInput {
      */
     public Builder withScore(Integer score) {
       this.input =
-          new CreateVoteInput(input.getUserId(), input.getVotingId(), input.getComment(), score);
+          new CreateVoteInput(
+              input.getUserId(),
+              input.getVotingId(),
+              input.getComment(),
+              score,
+              input.isAnonymous());
+      return this;
+    }
+
+    /**
+     * Adds anonymous to the vote
+     *
+     * @param anonymous indicates if the vote is anonymous
+     * @return current builder instance
+     * @since 0.1.0
+     */
+    public Builder withAnonymous(boolean anonymous) {
+      this.input =
+          new CreateVoteInput(
+              input.getUserId(),
+              input.getVotingId(),
+              input.getComment(),
+              input.getScore(),
+              anonymous);
       return this;
     }
 

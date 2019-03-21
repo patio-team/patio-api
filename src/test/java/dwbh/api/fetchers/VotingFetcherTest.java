@@ -46,7 +46,7 @@ import org.mockito.Mockito;
 class VotingFetcherTest {
 
   @Test
-  void testCreateVotingVoting() {
+  void testCreateVoting() {
     // given: some random data
     var authenticatedUser = random(User.class);
     var votingId = UUID.randomUUID();

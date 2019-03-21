@@ -17,11 +17,6 @@
  */
 package dwbh.api.services;
 
-import static dwbh.api.util.ErrorConstants.SCORE_IS_INVALID;
-import static dwbh.api.util.ErrorConstants.USER_ALREADY_VOTE;
-import static dwbh.api.util.ErrorConstants.USER_NOT_IN_GROUP;
-import static dwbh.api.util.ErrorConstants.VOTING_HAS_EXPIRED;
-
 import dwbh.api.domain.Group;
 import dwbh.api.domain.UserGroup;
 import dwbh.api.domain.Vote;
@@ -31,10 +26,13 @@ import dwbh.api.domain.input.CreateVotingInput;
 import dwbh.api.repositories.UserGroupRepository;
 import dwbh.api.repositories.VotingRepository;
 import dwbh.api.util.Check;
+import dwbh.api.util.ErrorConstants;
 import dwbh.api.util.Result;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
+import java.util.function.Function;
 import javax.inject.Singleton;
 
 /**
@@ -75,7 +73,7 @@ public class VotingService {
   private Check checkUserIsInGroup(CreateVotingInput input) {
     UserGroup userGroup = userGroupRepository.getUserGroup(input.getUserId(), input.getGroupId());
 
-    return Check.checkIsTrue(userGroup != null, USER_NOT_IN_GROUP);
+    return Check.checkIsTrue(userGroup != null, ErrorConstants.USER_NOT_IN_GROUP);
   }
 
   private Result<Voting> createVotingIfSuccess(CreateVotingInput input) {
@@ -94,6 +92,10 @@ public class VotingService {
    * @since 0.1.0
    */
   public Result<Vote> createVote(CreateVoteInput input) {
+    Optional<Group> group =
+        Optional.ofNullable(
+            votingRepository.findGroupByUserAndVoting(input.getUserId(), input.getVotingId()));
+
     Optional<Result<Vote>> possibleErrors =
         Check.checkWith(
             input,
@@ -101,42 +103,48 @@ public class VotingService {
                 this::checkScoreIsValid,
                 this::checkUserHasntAlreadyVoted,
                 this::checkVotingHasNotExpired,
-                this::checkUserIsInGroup));
+                this.createCheckUserIsInGroup(group),
+                this.createCheckAnonymousOk(group)));
 
     return possibleErrors.orElseGet(() -> createVoteIfSuccess(input));
   }
 
   private Check checkVotingHasNotExpired(CreateVoteInput payload) {
     return Check.checkIsFalse(
-        votingRepository.hasExpired(payload.getVotingId()), VOTING_HAS_EXPIRED);
+        votingRepository.hasExpired(payload.getVotingId()), ErrorConstants.VOTING_HAS_EXPIRED);
   }
 
-  private Check checkUserIsInGroup(CreateVoteInput input) {
-    Optional<Group> group =
-        Optional.ofNullable(
-            votingRepository.findGroupByUserAndVoting(input.getUserId(), input.getVotingId()));
+  private Function<CreateVoteInput, Check> createCheckUserIsInGroup(Optional<Group> group) {
+    return (CreateVoteInput input) ->
+        Check.checkIsTrue(group.isPresent(), ErrorConstants.USER_NOT_IN_GROUP);
+  }
 
-    return Check.checkIsTrue(group.isPresent(), USER_NOT_IN_GROUP);
+  private Function<CreateVoteInput, Check> createCheckAnonymousOk(Optional<Group> group) {
+    return (CreateVoteInput input) ->
+        Check.checkIsTrue(
+            group.isPresent() && (!input.isAnonymous() || group.get().isAnonymousVote()),
+            ErrorConstants.VOTE_CANT_BE_ANONYMOUS);
   }
 
   private Check checkUserHasntAlreadyVoted(CreateVoteInput input) {
-    Optional<Vote> group =
+    Optional<Vote> vote =
         Optional.ofNullable(
             votingRepository.findVoteByUserAndVoting(input.getUserId(), input.getVotingId()));
 
-    return Check.checkIsTrue(group.isEmpty(), USER_ALREADY_VOTE);
+    return Check.checkIsTrue(vote.isEmpty(), ErrorConstants.USER_ALREADY_VOTE);
   }
 
   private Check checkScoreIsValid(CreateVoteInput input) {
     return Check.checkIsTrue(
         input.getScore() != null && input.getScore() >= 1 && input.getScore() <= 5,
-        SCORE_IS_INVALID);
+        ErrorConstants.SCORE_IS_INVALID);
   }
 
   private Result<Vote> createVoteIfSuccess(CreateVoteInput input) {
+    UUID userId = input.isAnonymous() ? null : input.getUserId();
     Vote createdVote =
         votingRepository.createVote(
-            input.getUserId(),
+            userId,
             input.getVotingId(),
             OffsetDateTime.now(),
             input.getComment(),
