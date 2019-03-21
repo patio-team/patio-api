@@ -17,6 +17,8 @@
  */
 package dwbh.api.services;
 
+import static dwbh.api.util.ErrorConstants.NOT_ALLOWED;
+
 import dwbh.api.domain.Group;
 import dwbh.api.domain.User;
 import dwbh.api.domain.UserGroup;
@@ -24,8 +26,12 @@ import dwbh.api.domain.input.UserGroupInput;
 import dwbh.api.repositories.GroupRepository;
 import dwbh.api.repositories.UserGroupRepository;
 import dwbh.api.repositories.UserRepository;
+import dwbh.api.util.Check;
 import dwbh.api.util.ErrorConstants;
 import dwbh.api.util.Result;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 import javax.inject.Singleton;
 
 /**
@@ -110,5 +116,33 @@ public class UserGroupService {
   public boolean isUserInGroup(User user, Group group) {
     UserGroup currentUserGroup = userGroupRepository.getUserGroup(user.getId(), group.getId());
     return currentUserGroup != null;
+  }
+
+  /**
+   * Fetches the list of users in a Group. If the user is not allowed to get them, returns an empty
+   * list
+   *
+   * @param input a {@link UserGroupInput} with the user and the group
+   * @return a list of {@link User} instances
+   * @since 0.1.0
+   */
+  public List<User> listUsersGroup(UserGroupInput input) {
+
+    Optional<Result<List<User>>> possibleErrors =
+        Check.checkWith(input, List.of(this::checkUserCanSeeMembers));
+
+    return possibleErrors
+        .map(o -> List.<User>of())
+        .orElseGet(() -> listUsersGroupIfSuccess(input.getGroupId()));
+  }
+
+  private Check checkUserCanSeeMembers(UserGroupInput input) {
+    UserGroup userGroup = userGroupRepository.getUserGroup(input.getUserId(), input.getGroupId());
+    return Check.checkIsTrue(
+        userGroup != null && (userGroup.isAdmin() || input.isVisibleMemberList()), NOT_ALLOWED);
+  }
+
+  private List<User> listUsersGroupIfSuccess(UUID groupId) {
+    return userGroupRepository.listUsersGroup(groupId);
   }
 }

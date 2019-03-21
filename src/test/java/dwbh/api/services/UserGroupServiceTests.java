@@ -18,6 +18,7 @@
 package dwbh.api.services;
 
 import static io.github.benas.randombeans.api.EnhancedRandom.random;
+import static io.github.benas.randombeans.api.EnhancedRandom.randomListOf;
 import static org.junit.Assert.assertNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -25,7 +26,10 @@ import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-import dwbh.api.domain.*;
+import dwbh.api.domain.Group;
+import dwbh.api.domain.GroupBuilder;
+import dwbh.api.domain.User;
+import dwbh.api.domain.UserGroup;
 import dwbh.api.domain.input.UserGroupInput;
 import dwbh.api.repositories.GroupRepository;
 import dwbh.api.repositories.UserGroupRepository;
@@ -272,5 +276,106 @@ public class UserGroupServiceTests {
 
     // and: The method to add an user to a group has not been called
     verify(userGroupRepository, times(0)).addUserToGroup(any(), any(), anyBoolean());
+  }
+
+  @Test
+  void testListUsersGroupNoAdminSuccess() {
+    // given: an user
+    var user = random(User.class);
+
+    // and: a group
+    var group = GroupBuilder.builder().withVisibleMemberList(true).build();
+
+    // given: a mocked user repository
+    var userGroupRepository = Mockito.mock(UserGroupRepository.class);
+    Mockito.when(userGroupRepository.listUsersGroup(any())).thenReturn(randomListOf(5, User.class));
+    Mockito.when(userGroupRepository.getUserGroup(any(), any()))
+        .thenReturn(new UserGroup(user.getId(), group.getId(), false));
+
+    // when: getting a list of users by group
+    var userGroupService = new UserGroupService(null, null, userGroupRepository);
+    var input = new UserGroupInput(user.getId(), group.getId(), group.isVisibleMemberList());
+    var usersByGroup = userGroupService.listUsersGroup(input);
+
+    // then: we should get the expected number of users
+    assertEquals(5, usersByGroup.size());
+
+    // and: The method to get the list of users has been called
+    verify(userGroupRepository, times(1)).listUsersGroup(any());
+  }
+
+  @Test
+  void testListUsersGroupAdminSuccess() {
+    // given: an user
+    var user = random(User.class);
+
+    // and: a group
+    var group = GroupBuilder.builder().withVisibleMemberList(false).build();
+
+    // given: a mocked user repository
+    var userGroupRepository = Mockito.mock(UserGroupRepository.class);
+    Mockito.when(userGroupRepository.listUsersGroup(any())).thenReturn(randomListOf(5, User.class));
+    Mockito.when(userGroupRepository.getUserGroup(any(), any()))
+        .thenReturn(new UserGroup(user.getId(), group.getId(), true));
+
+    // when: getting a list of users by group
+    var userGroupService = new UserGroupService(null, null, userGroupRepository);
+    var input = new UserGroupInput(user.getId(), group.getId(), group.isVisibleMemberList());
+    var usersByGroup = userGroupService.listUsersGroup(input);
+
+    // then: we should get the expected number of users
+    assertEquals(5, usersByGroup.size());
+
+    // and: The method to get the list of users has been called
+    verify(userGroupRepository, times(1)).listUsersGroup(any());
+  }
+
+  @Test
+  void testListUsersGroupNoAdminFailure() {
+    // given: an user
+    var user = random(User.class);
+
+    // and: a group
+    var group = GroupBuilder.builder().withVisibleMemberList(false).build();
+
+    // given: a mocked user repository
+    var userGroupRepository = Mockito.mock(UserGroupRepository.class);
+    Mockito.when(userGroupRepository.getUserGroup(any(), any()))
+        .thenReturn(new UserGroup(user.getId(), group.getId(), false));
+
+    // when: getting a list of users by group
+    var userGroupService = new UserGroupService(null, null, userGroupRepository);
+    var input = new UserGroupInput(user.getId(), group.getId(), group.isVisibleMemberList());
+    var usersByGroup = userGroupService.listUsersGroup(input);
+
+    // then: we should get the expected number of users
+    assertEquals(0, usersByGroup.size());
+
+    // and: The method to get the list of users has been called
+    verify(userGroupRepository, times(0)).listUsersGroup(any());
+  }
+
+  @Test
+  void testListUsersGroupNoMemberFailure() {
+    // given: an user
+    var user = random(User.class);
+
+    // and: a group
+    var group = GroupBuilder.builder().withVisibleMemberList(true).build();
+
+    // given: a mocked user repository
+    var userGroupRepository = Mockito.mock(UserGroupRepository.class);
+    Mockito.when(userGroupRepository.getUserGroup(any(), any())).thenReturn(null);
+
+    // when: getting a list of users by group
+    var userGroupService = new UserGroupService(null, null, userGroupRepository);
+    var input = new UserGroupInput(user.getId(), group.getId(), group.isVisibleMemberList());
+    var usersByGroup = userGroupService.listUsersGroup(input);
+
+    // then: we should get the expected number of users
+    assertEquals(0, usersByGroup.size());
+
+    // and: The method to get the list of users has been called
+    verify(userGroupRepository, times(0)).listUsersGroup(any());
   }
 }

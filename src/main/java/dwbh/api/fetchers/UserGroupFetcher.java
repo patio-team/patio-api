@@ -27,6 +27,7 @@ import dwbh.api.services.UserGroupService;
 import dwbh.api.util.Result;
 import graphql.execution.DataFetcherResult;
 import graphql.schema.DataFetchingEnvironment;
+import java.util.List;
 import javax.inject.Singleton;
 
 /**
@@ -63,7 +64,7 @@ public class UserGroupFetcher {
    */
   public DataFetcherResult<Boolean> addUserToGroup(DataFetchingEnvironment env) {
     Context ctx = env.getContext();
-    UserGroupInput input = GroupFetcherUtils.userGroup(env);
+    UserGroupInput input = UserGroupFetcherUtils.userGroupInput(env);
     User user = ctx.getAuthenticatedUser();
 
     Result<Boolean> result = service.addUserToGroup(user, input);
@@ -82,5 +83,17 @@ public class UserGroupFetcher {
     User user = ctx.getAuthenticatedUser();
     Group group = env.getSource();
     return service.isAdmin(user, group);
+  }
+
+  /**
+   * Fetches the users that belongs to a group
+   *
+   * @param env GraphQL execution environment
+   * @return a list of available {@link User}
+   * @since 0.1.0
+   */
+  public List<User> listUsersGroup(DataFetchingEnvironment env) {
+    UserGroupInput input = UserGroupFetcherUtils.userGroupAndVisibleMembersInput(env);
+    return service.listUsersGroup(input);
   }
 }

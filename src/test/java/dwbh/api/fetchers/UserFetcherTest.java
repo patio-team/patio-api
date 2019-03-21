@@ -22,11 +22,9 @@ import static io.github.benas.randombeans.api.EnhancedRandom.randomListOf;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
-import dwbh.api.domain.Group;
 import dwbh.api.domain.User;
 import dwbh.api.fetchers.utils.FetcherTestUtils;
 import dwbh.api.services.UserService;
-import graphql.schema.DataFetchingEnvironment;
 import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
@@ -75,31 +73,5 @@ class UserFetcherTest {
 
     // then: check certain assertions should be met
     assertThat("the user is found", result, is(user));
-  }
-
-  @Test
-  void testListUsersGroup() {
-    // given: a group
-    Group group = random(Group.class);
-
-    // and: a mocked service
-    var mockedService = Mockito.mock(UserService.class);
-
-    // and: a mocked environment
-    var mockedEnvironment = Mockito.mock(DataFetchingEnvironment.class);
-
-    // and: mocking service's behavior
-    Mockito.when(mockedService.listUsersGroup(group.getId()))
-        .thenReturn(randomListOf(2, User.class));
-
-    // and: mocking environment behavior
-    Mockito.when(mockedEnvironment.getSource()).thenReturn(group);
-
-    // when: fetching user list invoking the service
-    UserFetcher fetchers = new UserFetcher(mockedService);
-    List<User> userList = fetchers.listUsersGroup(mockedEnvironment);
-
-    // then: check certain assertions should be met
-    assertThat("there're only a certain number of users", userList.size(), is(2));
   }
 }

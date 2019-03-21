@@ -127,9 +127,11 @@ public class GraphQLFactory {
                 "Group",
                 builder ->
                     builder
-                        .dataFetcher("members", userFetcher::listUsersGroup)
+                        .dataFetcher("members", userGroupFetcher::listUsersGroup)
                         .dataFetcher("isCurrentUserAdmin", userGroupFetcher::isCurrentUserAdmin))
-            .type("User", builder -> builder.dataFetcher("groups", groupFetcher::listGroupsUser))
+            .type(
+                "UserProfile",
+                builder -> builder.dataFetcher("groups", groupFetcher::listGroupsUser))
             .build();
 
     return new SchemaGenerator().makeExecutableSchema(registry, wiring);

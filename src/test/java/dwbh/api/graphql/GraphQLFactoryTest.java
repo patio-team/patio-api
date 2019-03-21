@@ -47,7 +47,7 @@ class GraphQLFactoryTest {
 
     // and: mocking group fetcher behavior
     var groupFetcher = mock(GroupFetcher.class);
-    when(groupFetcher.listGroups(any())).thenReturn(randomListOf(2, Group.class));
+    when(groupFetcher.listMyGroups(any())).thenReturn(randomListOf(2, Group.class));
 
     // and: adding group fetcher to fetcher providers
     fetchers.setGroupFetcher(groupFetcher);
@@ -73,13 +73,13 @@ class GraphQLFactoryTest {
     context.setAuthenticatedUser(new User());
     var executionInput =
         ExecutionInput.newExecutionInput()
-            .query("{ listGroups { name } }")
+            .query("{ listMyGroups { name } }")
             .context(context)
             .build();
     var result = graphQLEngine.execute(executionInput);
     Map<String, List<Map<String, ?>>> data = result.getData();
 
-    var groupList = data.get("listGroups");
+    var groupList = data.get("listMyGroups");
 
     // then: we should get the expected result
     assertEquals(groupList.size(), 2);

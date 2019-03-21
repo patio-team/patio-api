@@ -66,6 +66,13 @@ public final class ErrorConstants {
       new Error("API_ERRORS.USER_NOT_IN_GROUP", "The user doesn't belong to group");
 
   /**
+   * Generic code used when somebody is not allowed to do something
+   *
+   * @since 0.1.0
+   */
+  public static final Error NOT_ALLOWED = new Error("API_ERRORS.NOT_ALLOWED", "Not allowed");
+
+  /**
    * Code used when somebody not belonging to a group tries to execute some operation over that
    * group
    *
