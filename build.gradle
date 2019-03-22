@@ -1,5 +1,17 @@
-import dwbh.gradle.FixturesPlugin
 import com.github.jk1.license.render.InventoryHtmlReportRenderer
+
+buildscript {
+    repositories {
+        mavenCentral()
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
+    }
+    dependencies {
+        classpath "net.kaleidos.dwbh:gradle-fixtures-plugin:0.1.0"
+        classpath 'org.postgresql:postgresql:42.2.5'
+    }
+}
 
 plugins {
     id "io.spring.dependency-management" version "1.0.6.RELEASE"
@@ -17,7 +29,7 @@ apply plugin: "application"
 apply plugin: "java"
 apply plugin: "pmd"
 apply plugin: "jacoco"
-apply plugin: FixturesPlugin
+apply plugin: 'net.kaleidos.dwbh.gradle-fixtures-plugin'
 apply from: 'gradle/quality.gradle'
 apply from: 'gradle/fixtures.gradle'
 apply from: 'gradle/docker.gradle'
@@ -54,7 +66,7 @@ dependencies {
     compile 'io.micronaut.configuration:micronaut-flyway:1.0.0.RC3'
     compile 'org.jooq:jooq:3.11.9'
     compile 'org.jooq:jooq-meta:3.11.9'
-    
+
     compile 'com.graphql-java:graphql-java-extended-scalars:1.0'
     compile "com.auth0:java-jwt:3.7.0"
     compile 'org.springframework.security:spring-security-crypto:5.1.2.RELEASE'
