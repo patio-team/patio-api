@@ -92,7 +92,7 @@ type Mutation {
     createVoting(groupId: ID): Voting
 
     # creates a user vote
-    createVote(votingId: ID!, score: Int!, comment: String, anonymous: Boolean): Vote
+    createVote(votingId: ID!, score: Int!, comment: String, anonymous: Boolean = false): Vote
 
     # creates a group
     createGroup(name: String!, visibleMemberList: Boolean!, anonymousVote: Boolean!, votingTime: Time!, votingDays: [DayOfWeek]!): Group
