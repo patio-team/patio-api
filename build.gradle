@@ -8,7 +8,7 @@ buildscript {
         }
     }
     dependencies {
-        classpath "net.kaleidos.dwbh:gradle-fixtures-plugin:0.1.0"
+        classpath "net.kaleidos.dwbh:gradle-fixtures-plugin:0.1.1"
         classpath 'org.postgresql:postgresql:42.2.5'
     }
 }
