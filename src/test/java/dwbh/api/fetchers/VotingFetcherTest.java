@@ -46,7 +46,7 @@ import org.mockito.Mockito;
 class VotingFetcherTest {
 
   @Test
-  void testCreateVotingVoting() {
+  void testCreateVoting() {
     // given: some random data
     var authenticatedUser = random(User.class);
     var votingId = UUID.randomUUID();
@@ -79,7 +79,8 @@ class VotingFetcherTest {
 
     // and: some mocked services
     var mockedEnvironment =
-        FetcherTestUtils.generateMockedEnvironment(authenticatedUser, Map.of("votingId", votingId));
+        FetcherTestUtils.generateMockedEnvironment(
+            authenticatedUser, Map.of("votingId", votingId, "anonymous", false));
 
     var mockedService = Mockito.mock(VotingService.class);
     Mockito.when(mockedService.createVote(any(CreateVoteInput.class)))

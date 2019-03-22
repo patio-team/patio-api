@@ -28,7 +28,7 @@ CREATE TABLE IF NOT EXISTS voting (
 CREATE TABLE IF NOT EXISTS vote (
   id UUID PRIMARY KEY,
   voting_id UUID NOT NULL,
-  created_by UUID NOT NULL,
+  created_by UUID,
   created_at timestamp with time zone NOT NULL,
   comment text,
   score int NOT NULL,

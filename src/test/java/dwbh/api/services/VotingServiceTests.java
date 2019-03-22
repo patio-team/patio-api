@@ -129,6 +129,7 @@ public class VotingServiceTests {
             .withUserId(userId)
             .withVotingId(votingId)
             .withScore(score)
+            .withAnonymous(false)
             .build();
 
     // and: mocked repository calls
@@ -190,7 +191,6 @@ public class VotingServiceTests {
     // and: just one checker has been called an no vote has been created
     verify(votingRepository, times(1)).findVoteByUserAndVoting(any(), any());
     verify(votingRepository, times(0)).hasExpired(any());
-    verify(votingRepository, times(0)).findGroupByUserAndVoting(any(), any());
     verify(votingRepository, times(0)).createVote(any(), any(), any(), any(), any());
   }
 
@@ -227,7 +227,6 @@ public class VotingServiceTests {
     // and: just two checker has been called an no vote has been created
     verify(votingRepository, times(1)).findVoteByUserAndVoting(any(), any());
     verify(votingRepository, times(1)).hasExpired(any());
-    verify(votingRepository, times(0)).findGroupByUserAndVoting(any(), any());
     verify(votingRepository, times(0)).createVote(any(), any(), any(), any(), any());
   }
 
@@ -301,7 +300,6 @@ public class VotingServiceTests {
     // and: no database checker has been called an no vote has been created
     verify(votingRepository, times(0)).findVoteByUserAndVoting(any(), any());
     verify(votingRepository, times(0)).hasExpired(any());
-    verify(votingRepository, times(0)).findGroupByUserAndVoting(any(), any());
     verify(votingRepository, times(0)).createVote(any(), any(), any(), any(), any());
   }
 

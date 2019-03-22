@@ -65,12 +65,14 @@ final class VotingFetcherUtils {
     UUID votingId = environment.getArgument("votingId");
     String comment = environment.getArgument("comment");
     Integer score = environment.getArgument("score");
+    boolean anonymous = environment.getArgument("anonymous");
 
     return CreateVoteInput.newBuilder()
         .withUserId(user.getId())
         .withVotingId(votingId)
         .withComment(comment)
         .withScore(score)
+        .withAnonymous(anonymous)
         .build();
   }
 }

@@ -145,6 +145,23 @@ public class JooqVotingRepositoryTests {
     assertNotNull("vote has been saved!", vote.getId());
   }
 
+  @Test
+  @DisplayName("createVote: Create vote successfully")
+  void createAnonymousVoteSuccessfully() {
+    // given: fixtures
+    fixtures.load(JooqVotingRepositoryTests.class, "createVoteSuccessfully.sql");
+
+    // and: required fields
+    UUID votingId = UUID.fromString("ffad4562-4971-11e9-98cd-d663bd873d93");
+    Integer score = 1;
+
+    // when: trying to save a new vote
+    Vote vote = repository.createVote(null, votingId, OffsetDateTime.now(), null, score);
+
+    // then: we should get a valid vote instance
+    assertNotNull("vote has been saved!", vote.getId());
+  }
+
   @ParameterizedTest(name = "createVote: missing required fields [{index}][{0}, {1}, {2}, {3}]")
   @MethodSource("createVoteFailureDataProvider")
   void createVoteFailure(UUID userId, UUID votingId, OffsetDateTime when, Integer score) {
@@ -164,7 +181,6 @@ public class JooqVotingRepositoryTests {
     return Stream.of(
         Arguments.arguments(userId, votingId, null, score),
         Arguments.arguments(userId, null, OffsetDateTime.now(), score),
-        Arguments.arguments(null, votingId, OffsetDateTime.now(), score),
         Arguments.arguments(userId, votingId, OffsetDateTime.now(), null));
   }
 
