@@ -18,4 +18,4 @@
 
 INSERT INTO groups (id, name, visible_member_list, anonymous_vote, voting_time, voting_days) VALUES ('d64db962-3455-11e9-b210-d663bd873d93','Fantastic Four', false, true, time with time zone '14:48:12.146512+01:00', '{"MONDAY"}');
 INSERT INTO groups (id, name, visible_member_list, anonymous_vote, voting_time, voting_days) VALUES ('dedc6675-ab79-495e-9245-1fc20545eb83', 'Avengers', true, true, time with time zone '14:48:12.146512+01:00', '{"MONDAY", "TUESDAY"}');
-INSERT INTO groups (id, name) VALUES ('d5847624-4b50-4d4a-abd3-ed9209a5448b', 'Illuminati');
+INSERT INTO groups (id, name, visible_member_list, anonymous_vote, voting_time, voting_days) VALUES ('d5847624-4b50-4d4a-abd3-ed9209a5448b', 'Illuminati', true, false, time with time zone '12:00:00.146512+01:00', '{"MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY"}');
