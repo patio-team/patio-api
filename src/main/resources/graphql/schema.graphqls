@@ -64,7 +64,7 @@ type Vote {
 
 # Contains token and user information
 type Login {
-    user: User
+    profile: UserProfile
     token: String
 }
 
