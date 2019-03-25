@@ -57,7 +57,7 @@ class UserGroupFetcherTest {
     var mockedService = Mockito.mock(UserGroupService.class);
 
     // and: mocking service's behavior
-    Mockito.when(mockedService.addUserToGroup(any(), any())).thenReturn(Result.result(true));
+    Mockito.when(mockedService.addUserToGroup(any())).thenReturn(Result.result(true));
 
     // and: a mocked environment
     var mockedEnvironment =
@@ -91,8 +91,7 @@ class UserGroupFetcherTest {
     var mockedService = Mockito.mock(UserGroupService.class);
 
     // and: mocking service's behavior
-    Mockito.when(mockedService.addUserToGroup(any(), any()))
-        .thenReturn(Result.error(code, message));
+    Mockito.when(mockedService.addUserToGroup(any())).thenReturn(Result.error(code, message));
 
     // and: a mocked environment
     var mockedEnvironment =
@@ -127,6 +126,7 @@ class UserGroupFetcherTest {
 
     // and: a mocked environment
     var mockedEnvironment = FetcherTestUtils.generateMockedEnvironment(user, Map.of());
+    Mockito.when(mockedEnvironment.getSource()).thenReturn(random(Group.class));
 
     // when: adding an user to a group invoking the service
     UserGroupFetcher fetchers = new UserGroupFetcher(mockedService);

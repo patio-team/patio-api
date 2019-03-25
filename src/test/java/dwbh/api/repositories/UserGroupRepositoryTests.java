@@ -128,7 +128,7 @@ class UserGroupRepositoryTests {
             .build();
 
     // when: adding an user to a group
-    repository.addUserToGroup(user, group, true);
+    repository.addUserToGroup(user.getId(), group.getId(), true);
 
     // then: check the user is on the group
     List<User> userList =

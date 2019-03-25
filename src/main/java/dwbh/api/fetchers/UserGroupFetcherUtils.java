@@ -19,7 +19,8 @@ package dwbh.api.fetchers;
 
 import dwbh.api.domain.Group;
 import dwbh.api.domain.User;
-import dwbh.api.domain.input.UserGroupInput;
+import dwbh.api.domain.input.EmailGroupInput;
+import dwbh.api.domain.input.UserGroupAndVisibleMemberListInput;
 import dwbh.api.graphql.Context;
 import graphql.schema.DataFetchingEnvironment;
 import java.util.UUID;
@@ -43,30 +44,33 @@ final class UserGroupFetcherUtils {
   }
 
   /**
-   * Creates a {@link UserGroupInput} from the data coming from the {@link DataFetchingEnvironment}
+   * Creates a {@link EmailGroupInput} from the data coming from the {@link DataFetchingEnvironment}
    *
    * @param environment the GraphQL {@link DataFetchingEnvironment}
-   * @return an instance of {@link UserGroupInput}
+   * @return an instance of {@link EmailGroupInput}
    * @since 0.1.0
    */
-  /* default */ static UserGroupInput userGroupAndVisibleMembersInput(
+  /* default */ static UserGroupAndVisibleMemberListInput userGroupAndVisibleMembersInput(
       DataFetchingEnvironment environment) {
     User currentUser = getCurrentUser(environment);
     Group group = environment.getSource();
-    return new UserGroupInput(currentUser.getId(), group.getId(), group.isVisibleMemberList());
+    return new UserGroupAndVisibleMemberListInput(
+        currentUser.getId(), group.getId(), group.isVisibleMemberList());
   }
 
   /**
-   * Creates a {@link UserGroupInput} from the data coming from the {@link DataFetchingEnvironment}
+   * Creates a {@link EmailGroupInput} from the data coming from the {@link DataFetchingEnvironment}
    *
    * @param environment the GraphQL {@link DataFetchingEnvironment}
-   * @return an instance of {@link UserGroupInput}
+   * @return an instance of {@link EmailGroupInput}
    * @since 0.1.0
    */
-  /* default */ static UserGroupInput userGroupInput(DataFetchingEnvironment environment) {
-    UUID userId = environment.getArgument("userId");
+  /* default */ static EmailGroupInput userGroupInput(DataFetchingEnvironment environment) {
+    String email = environment.getArgument("email");
     UUID groupId = environment.getArgument("groupId");
+    Context ctx = environment.getContext();
+    User currentUser = ctx.getAuthenticatedUser();
 
-    return new UserGroupInput(userId, groupId);
+    return new EmailGroupInput(currentUser.getId(), email, groupId);
   }
 }

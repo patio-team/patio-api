@@ -20,6 +20,7 @@ package dwbh.api.repositories;
 import dwbh.api.domain.User;
 import dwbh.api.domain.UserBuilder;
 import dwbh.api.repositories.internal.TablesHelper;
+import dwbh.api.repositories.internal.TablesHelper.UsersTableHelper;
 import java.util.List;
 import java.util.UUID;
 import javax.inject.Singleton;
@@ -68,6 +69,21 @@ public class UserRepository {
         context
             .selectFrom(TablesHelper.USERS_TABLE)
             .where(TablesHelper.UsersTableHelper.ID.eq(userId))
+            .fetchOne(UserRepository::toUser);
+  }
+
+  /**
+   * Get a specific user by email
+   *
+   * @param email user email
+   * @return The requested {@link User}
+   * @since 0.1.0
+   */
+  public User getUserByEmail(String email) {
+    return (User)
+        context
+            .selectFrom(TablesHelper.USERS_TABLE)
+            .where(UsersTableHelper.EMAIL.eq(email))
             .fetchOne(UserRepository::toUser);
   }
 

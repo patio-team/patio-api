@@ -24,19 +24,19 @@ import java.util.UUID;
  *
  * @since 0.1.0
  */
-public class UserGroupInput {
-  private final UUID userId;
+public class EmailGroupInput {
+  private final String email;
   private final UUID groupId;
-  private final boolean visibleMemberList;
+  private final UUID currentUserId;
 
   /**
-   * Returns the id of the user
+   * Returns the email of the user
    *
-   * @return the id of the user
+   * @return the email of the user
    * @since 0.1.0
    */
-  public UUID getUserId() {
-    return userId;
+  public String getEmail() {
+    return email;
   }
 
   /**
@@ -50,39 +50,26 @@ public class UserGroupInput {
   }
 
   /**
-   * Returns if the group has a visible member list
+   * Returns the id of the current user
    *
-   * @return if the group has a visible member list
+   * @return the id of the current user
    * @since 0.1.0
    */
-  public boolean isVisibleMemberList() {
-    return visibleMemberList;
+  public UUID getCurrentUserId() {
+    return currentUserId;
   }
 
   /**
    * Initializes the input with the user id and the group id
    *
-   * @param userId the id of the user
+   * @param currentUserId the id of the current user
+   * @param email the email of the user
    * @param groupId the id of the group
    * @since 0.1.0
    */
-  public UserGroupInput(UUID userId, UUID groupId) {
-    this.userId = userId;
+  public EmailGroupInput(UUID currentUserId, String email, UUID groupId) {
+    this.currentUserId = currentUserId;
+    this.email = email;
     this.groupId = groupId;
-    this.visibleMemberList = false;
-  }
-
-  /**
-   * Initializes the input with the user id, the group id, and visibleMemberList
-   *
-   * @param userId the id of the user
-   * @param groupId the id of the group
-   * @param visibleMemberList if the group has visible member list
-   * @since 0.1.0
-   */
-  public UserGroupInput(UUID userId, UUID groupId, boolean visibleMemberList) {
-    this.userId = userId;
-    this.groupId = groupId;
-    this.visibleMemberList = visibleMemberList;
   }
 }

@@ -100,18 +100,18 @@ public class UserGroupRepository {
   }
 
   /**
-   * Add an user to a group
+   * Add an user to a groupId
    *
-   * @param user The user to add
-   * @param group The group to add to
-   * @param isAdmin indicates if the user will be an admin of the group
+   * @param userId The id of the user to add
+   * @param groupId The id of the group to add to
+   * @param isAdmin indicates if the user will be an admin of the groupId
    * @since 0.1.0
    */
-  public void addUserToGroup(User user, Group group, boolean isAdmin) {
+  public void addUserToGroup(UUID userId, UUID groupId, boolean isAdmin) {
     context
         .insertInto(TablesHelper.USERS_GROUPS_TABLE)
-        .set(UsersGroupsTableHelper.GROUP_ID, group.getId())
-        .set(UsersGroupsTableHelper.USER_ID, user.getId())
+        .set(UsersGroupsTableHelper.GROUP_ID, groupId)
+        .set(UsersGroupsTableHelper.USER_ID, userId)
         .set(UsersGroupsTableHelper.IS_ADMIN, isAdmin)
         .execute();
   }

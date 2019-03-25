@@ -30,7 +30,8 @@ import dwbh.api.domain.Group;
 import dwbh.api.domain.GroupBuilder;
 import dwbh.api.domain.User;
 import dwbh.api.domain.UserGroup;
-import dwbh.api.domain.input.UserGroupInput;
+import dwbh.api.domain.input.EmailGroupInput;
+import dwbh.api.domain.input.UserGroupAndVisibleMemberListInput;
 import dwbh.api.repositories.GroupRepository;
 import dwbh.api.repositories.UserGroupRepository;
 import dwbh.api.repositories.UserRepository;
@@ -61,7 +62,7 @@ public class UserGroupServiceTests {
     // and: a mocked user repository
     var userRepository = Mockito.mock(UserRepository.class);
     Mockito.when(userRepository.getUser(currentUser.getId())).thenReturn(currentUser);
-    Mockito.when(userRepository.getUser(user.getId())).thenReturn(user);
+    Mockito.when(userRepository.getUserByEmail(user.getEmail())).thenReturn(user);
 
     // and: a mocked usergroup repository
     var userGroupRepository = Mockito.mock(UserGroupRepository.class);
@@ -73,13 +74,14 @@ public class UserGroupServiceTests {
     Mockito.when(userGroupRepository.getUserGroup(currentUser.getId(), group.getId()))
         .thenReturn(new UserGroup(currentUser.getId(), group.getId(), true));
 
-    // and: a UserGroupInput
-    UserGroupInput userGroupInput = new UserGroupInput(user.getId(), group.getId());
+    // and: a EmailGroupInput
+    EmailGroupInput emailGroupInput =
+        new EmailGroupInput(currentUser.getId(), user.getEmail(), group.getId());
 
     // when: adding the user to the group
     var userGroupService =
         new UserGroupService(userRepository, groupRepository, userGroupRepository);
-    var result = userGroupService.addUserToGroup(currentUser, userGroupInput);
+    var result = userGroupService.addUserToGroup(emailGroupInput);
 
     // then: we should get it
     assertEquals(result.getErrorList().size(), 0);
@@ -105,7 +107,7 @@ public class UserGroupServiceTests {
     // and: a mocked user repository
     var userRepository = Mockito.mock(UserRepository.class);
     Mockito.when(userRepository.getUser(currentUser.getId())).thenReturn(currentUser);
-    Mockito.when(userRepository.getUser(user.getId())).thenReturn(user);
+    Mockito.when(userRepository.getUserByEmail(user.getEmail())).thenReturn(user);
 
     // and: a mocked usergroup repository
     var userGroupRepository = Mockito.mock(UserGroupRepository.class);
@@ -117,14 +119,15 @@ public class UserGroupServiceTests {
     Mockito.when(userGroupRepository.getUserGroup(currentUser.getId(), group.getId()))
         .thenReturn(new UserGroup(currentUser.getId(), group.getId(), false));
 
-    // and: a UserGroupInput
-    UserGroupInput userGroupInput = new UserGroupInput(user.getId(), group.getId());
+    // and: a EmailGroupInput
+    EmailGroupInput emailGroupInput =
+        new EmailGroupInput(currentUser.getId(), user.getEmail(), group.getId());
 
     // when: adding the user to the group
     var userGroupService =
         new UserGroupService(userRepository, groupRepository, userGroupRepository);
 
-    var result = userGroupService.addUserToGroup(currentUser, userGroupInput);
+    var result = userGroupService.addUserToGroup(emailGroupInput);
 
     // then: we should get it
     assertNull(result.getSuccess());
@@ -153,7 +156,7 @@ public class UserGroupServiceTests {
     // and: a mocked user repository
     var userRepository = Mockito.mock(UserRepository.class);
     Mockito.when(userRepository.getUser(currentUser.getId())).thenReturn(currentUser);
-    Mockito.when(userRepository.getUser(user.getId())).thenReturn(user);
+    Mockito.when(userRepository.getUserByEmail(user.getEmail())).thenReturn(user);
 
     // and: a mocked usergroup repository
     var userGroupRepository = Mockito.mock(UserGroupRepository.class);
@@ -165,14 +168,15 @@ public class UserGroupServiceTests {
     Mockito.when(userGroupRepository.getUserGroup(currentUser.getId(), group.getId()))
         .thenReturn(new UserGroup(currentUser.getId(), group.getId(), true));
 
-    // and: a UserGroupInput
-    UserGroupInput userGroupInput = new UserGroupInput(user.getId(), group.getId());
+    // and: a EmailGroupInput
+    EmailGroupInput emailGroupInput =
+        new EmailGroupInput(currentUser.getId(), user.getEmail(), group.getId());
 
     // when: adding the user to the group
     var userGroupService =
         new UserGroupService(userRepository, groupRepository, userGroupRepository);
 
-    var result = userGroupService.addUserToGroup(currentUser, userGroupInput);
+    var result = userGroupService.addUserToGroup(emailGroupInput);
 
     // then: we should get it
     assertNull(result.getSuccess());
@@ -213,14 +217,15 @@ public class UserGroupServiceTests {
     Mockito.when(userGroupRepository.getUserGroup(currentUser.getId(), group.getId()))
         .thenReturn(new UserGroup(currentUser.getId(), group.getId(), true));
 
-    // and: a UserGroupInput
-    UserGroupInput userGroupInput = new UserGroupInput(user.getId(), group.getId());
+    // and: a EmailGroupInput
+    EmailGroupInput emailGroupInput =
+        new EmailGroupInput(currentUser.getId(), user.getEmail(), group.getId());
 
     // when: adding the user to the group
     var userGroupService =
         new UserGroupService(userRepository, groupRepository, userGroupRepository);
 
-    var result = userGroupService.addUserToGroup(currentUser, userGroupInput);
+    var result = userGroupService.addUserToGroup(emailGroupInput);
 
     // then: we should get it
     assertNull(result.getSuccess());
@@ -247,7 +252,7 @@ public class UserGroupServiceTests {
     // and: a mocked user repository
     var userRepository = Mockito.mock(UserRepository.class);
     Mockito.when(userRepository.getUser(currentUser.getId())).thenReturn(currentUser);
-    Mockito.when(userRepository.getUser(user.getId())).thenReturn(user);
+    Mockito.when(userRepository.getUserByEmail(user.getEmail())).thenReturn(user);
 
     // and: a mocked usergroup repository
     var userGroupRepository = Mockito.mock(UserGroupRepository.class);
@@ -260,14 +265,15 @@ public class UserGroupServiceTests {
     Mockito.when(userGroupRepository.getUserGroup(currentUser.getId(), group.getId()))
         .thenReturn(new UserGroup(currentUser.getId(), group.getId(), true));
 
-    // and: a UserGroupInput
-    UserGroupInput userGroupInput = new UserGroupInput(user.getId(), group.getId());
+    // and: a EmailGroupInput
+    EmailGroupInput emailGroupInput =
+        new EmailGroupInput(currentUser.getId(), user.getEmail(), group.getId());
 
     // when: adding the user to the group
     var userGroupService =
         new UserGroupService(userRepository, groupRepository, userGroupRepository);
 
-    var result = userGroupService.addUserToGroup(currentUser, userGroupInput);
+    var result = userGroupService.addUserToGroup(emailGroupInput);
 
     // then: we should get it
     assertNull(result.getSuccess());
@@ -294,7 +300,9 @@ public class UserGroupServiceTests {
 
     // when: getting a list of users by group
     var userGroupService = new UserGroupService(null, null, userGroupRepository);
-    var input = new UserGroupInput(user.getId(), group.getId(), group.isVisibleMemberList());
+    var input =
+        new UserGroupAndVisibleMemberListInput(
+            user.getId(), group.getId(), group.isVisibleMemberList());
     var usersByGroup = userGroupService.listUsersGroup(input);
 
     // then: we should get the expected number of users
@@ -320,7 +328,9 @@ public class UserGroupServiceTests {
 
     // when: getting a list of users by group
     var userGroupService = new UserGroupService(null, null, userGroupRepository);
-    var input = new UserGroupInput(user.getId(), group.getId(), group.isVisibleMemberList());
+    var input =
+        new UserGroupAndVisibleMemberListInput(
+            user.getId(), group.getId(), group.isVisibleMemberList());
     var usersByGroup = userGroupService.listUsersGroup(input);
 
     // then: we should get the expected number of users
@@ -345,7 +355,9 @@ public class UserGroupServiceTests {
 
     // when: getting a list of users by group
     var userGroupService = new UserGroupService(null, null, userGroupRepository);
-    var input = new UserGroupInput(user.getId(), group.getId(), group.isVisibleMemberList());
+    var input =
+        new UserGroupAndVisibleMemberListInput(
+            user.getId(), group.getId(), group.isVisibleMemberList());
     var usersByGroup = userGroupService.listUsersGroup(input);
 
     // then: we should get the expected number of users
@@ -369,7 +381,9 @@ public class UserGroupServiceTests {
 
     // when: getting a list of users by group
     var userGroupService = new UserGroupService(null, null, userGroupRepository);
-    var input = new UserGroupInput(user.getId(), group.getId(), group.isVisibleMemberList());
+    var input =
+        new UserGroupAndVisibleMemberListInput(
+            user.getId(), group.getId(), group.isVisibleMemberList());
     var usersByGroup = userGroupService.listUsersGroup(input);
 
     // then: we should get the expected number of users
