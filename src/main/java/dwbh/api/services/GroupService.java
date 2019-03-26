@@ -98,7 +98,7 @@ public class GroupService {
             groupInput.getVotingDays(),
             groupInput.getVotingTime());
 
-    userGroupRepository.addUserToGroup(admin, group, true);
+    userGroupRepository.addUserToGroup(admin.getId(), group.getId(), true);
     return group;
   }
 }

@@ -20,11 +20,12 @@ package dwbh.api.domain.input;
 import java.util.UUID;
 
 /**
- * UserGroup input. It contains the ids for a user and a group
+ * ListUsersGroupInput input. It contains the ids for a user and a group, and a boolean indicating
+ * if the group has a visible member list
  *
  * @since 0.1.0
  */
-public class UserGroupInput {
+public class ListUsersGroupInput {
   private final UUID userId;
   private final UUID groupId;
   private final boolean visibleMemberList;
@@ -60,19 +61,6 @@ public class UserGroupInput {
   }
 
   /**
-   * Initializes the input with the user id and the group id
-   *
-   * @param userId the id of the user
-   * @param groupId the id of the group
-   * @since 0.1.0
-   */
-  public UserGroupInput(UUID userId, UUID groupId) {
-    this.userId = userId;
-    this.groupId = groupId;
-    this.visibleMemberList = false;
-  }
-
-  /**
    * Initializes the input with the user id, the group id, and visibleMemberList
    *
    * @param userId the id of the user
@@ -80,7 +68,7 @@ public class UserGroupInput {
    * @param visibleMemberList if the group has visible member list
    * @since 0.1.0
    */
-  public UserGroupInput(UUID userId, UUID groupId, boolean visibleMemberList) {
+  public ListUsersGroupInput(UUID userId, UUID groupId, boolean visibleMemberList) {
     this.userId = userId;
     this.groupId = groupId;
     this.visibleMemberList = visibleMemberList;

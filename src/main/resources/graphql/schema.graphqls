@@ -98,5 +98,5 @@ type Mutation {
     createGroup(name: String!, visibleMemberList: Boolean!, anonymousVote: Boolean!, votingTime: Time!, votingDays: [DayOfWeek]!): Group
 
     # add an user to a group
-    addUserToGroup(userId: ID!, groupId: ID!): Boolean
+    addUserToGroup(email: String!, groupId: ID!): Boolean
 }

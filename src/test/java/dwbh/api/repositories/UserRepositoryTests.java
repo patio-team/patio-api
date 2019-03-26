@@ -87,6 +87,18 @@ class UserRepositoryTests {
   }
 
   @Test
+  void testGetUserByEmail() {
+    // given: a pre-loaded fixtures
+    fixtures.load(UserRepositoryTests.class, "testListUsers.sql");
+
+    // when: asking for a user
+    User user = repository.getUserByEmail("bgrim@email.com");
+
+    // then: check the user is retrieved
+    assertEquals(user.getName(), "Ben Grim");
+  }
+
+  @Test
   void testFindByEmail() {
     // given: a pre-loaded fixtures
     fixtures.load(UserRepositoryTests.class, "testFindByEmail.sql");
