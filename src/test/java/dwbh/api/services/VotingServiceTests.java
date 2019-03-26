@@ -18,31 +18,26 @@
 package dwbh.api.services;
 
 import static io.github.benas.randombeans.api.EnhancedRandom.random;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
-import dwbh.api.domain.Group;
-import dwbh.api.domain.User;
-import dwbh.api.domain.UserGroup;
-import dwbh.api.domain.Vote;
-import dwbh.api.domain.Voting;
+import dwbh.api.domain.*;
 import dwbh.api.domain.input.CreateVoteInput;
 import dwbh.api.domain.input.CreateVotingInput;
+import dwbh.api.domain.input.ListVotingsGroupInput;
 import dwbh.api.repositories.UserGroupRepository;
 import dwbh.api.repositories.VotingRepository;
 import dwbh.api.util.ErrorConstants;
 import dwbh.api.util.Result;
+import java.util.List;
 import java.util.UUID;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mockito;
 
@@ -305,5 +300,68 @@ public class VotingServiceTests {
 
   private static Stream<Integer> testCreateVoteFailBecauseInvalidScoreDataProvider() {
     return Stream.of(null, 0, 6);
+  }
+
+  @Test
+  @DisplayName("listVotingsGroup: success")
+  void testListVotingsGroupSuccessfully() {
+    // given: some mocked data
+    var groupId = UUID.randomUUID();
+    var input =
+        ListVotingsGroupInput.newBuilder()
+            .withGroupId(groupId)
+            .withStartDate("2011-12-03T10:15:30Z")
+            .withEndDate("2011-12-03T10:15:30Z")
+            .build();
+
+    // and: mocked repository calls
+    var votingRepository = Mockito.mock(VotingRepository.class);
+
+    Mockito.when(votingRepository.listVotingsGroup(any(), any(), any()))
+        .thenReturn(List.of(random(Voting.class), random(Voting.class), random(Voting.class)));
+
+    // when: invoking the voting listing
+    VotingService votingService = new VotingService(null, votingRepository);
+    Result<List<Voting>> votings = votingService.listVotingsGroup(input);
+
+    // then: the votings are returned
+    assertEquals(votings.getSuccess().size(), 3, "Successfully listed votings");
+  }
+
+  @ParameterizedTest(name = "testListVotingsGroupFailure: failure because {0}")
+  @MethodSource("listVotingsGroupFailureProvider")
+  void testListVotingsGroupFailure(
+      String name, String startDate, String endDate, String errorCode) {
+    // given: some mocked data
+    var groupId = UUID.randomUUID();
+    var input =
+        ListVotingsGroupInput.newBuilder()
+            .withGroupId(groupId)
+            .withStartDate(startDate)
+            .withEndDate(endDate)
+            .build();
+
+    // when: invoking the voting listing
+    VotingService votingService = new VotingService(null, null);
+    Result<List<Voting>> votings = votingService.listVotingsGroup(input);
+
+    // then: there is an error
+    assertNull(votings.getSuccess(), "No votings");
+    assertEquals(1, votings.getErrorList().size(), "There is one error");
+    assertEquals(errorCode, votings.getErrorList().get(0).getCode());
+  }
+
+  private static Stream<Arguments> listVotingsGroupFailureProvider() {
+    return Stream.of(
+        Arguments.of(
+            "bad start date",
+            "aaaa",
+            "2019-01-21T00:00:00Z",
+            ErrorConstants.START_DATE_IS_INVALID.getCode()),
+        Arguments.of(
+            "bad end date",
+            "2019-01-21T00:00:00Z",
+            "aaaa",
+            ErrorConstants.END_DATE_IS_INVALID.getCode()));
   }
 }

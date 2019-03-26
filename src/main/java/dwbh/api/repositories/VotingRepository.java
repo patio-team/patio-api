@@ -21,6 +21,7 @@ import dwbh.api.domain.Group;
 import dwbh.api.domain.Vote;
 import dwbh.api.domain.Voting;
 import java.time.OffsetDateTime;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -73,6 +74,17 @@ public interface VotingRepository {
    * @since 0.1.0
    */
   Vote findVoteByUserAndVoting(UUID userId, UUID votingId);
+
+  /**
+   * Lists votings on a group, from startDate to endDate
+   *
+   * @param groupId group identifier
+   * @param startDate the date from which the votings are wanted
+   * @param endDate the date to which the votings are wanted
+   * @return a list of votings that belongs to a group
+   * @since 0.1.0
+   */
+  List<Voting> listVotingsGroup(UUID groupId, OffsetDateTime startDate, OffsetDateTime endDate);
 
   /**
    * Checks whether the voting slot has expired or not

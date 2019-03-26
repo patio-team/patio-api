@@ -20,18 +20,22 @@ package dwbh.api.fetchers;
 import static io.github.benas.randombeans.api.EnhancedRandom.random;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 
+import dwbh.api.domain.Group;
 import dwbh.api.domain.User;
 import dwbh.api.domain.Vote;
 import dwbh.api.domain.Voting;
 import dwbh.api.domain.input.CreateVoteInput;
 import dwbh.api.domain.input.CreateVotingInput;
+import dwbh.api.domain.input.ListVotingsGroupInput;
 import dwbh.api.fetchers.utils.FetcherTestUtils;
 import dwbh.api.services.VotingService;
 import dwbh.api.util.Result;
 import graphql.execution.DataFetcherResult;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import org.junit.jupiter.api.DisplayName;
@@ -92,5 +96,35 @@ class VotingFetcherTest {
 
     // then: the vote should have been created successfully
     assertNotNull("The vote should have been created successfully", vote.getData());
+  }
+
+  @Test
+  void testListVotingsGroup() {
+    // given: some random data
+    var authenticatedUser = random(User.class);
+    var group = random(Group.class);
+    var startDate = "2019-01-24T00:00:00Z";
+    var endDate = "2019-01-25T00:00:00Z";
+
+    // and: mocked service
+    var mockedService = Mockito.mock(VotingService.class);
+    Mockito.when(mockedService.listVotingsGroup(any(ListVotingsGroupInput.class)))
+        .thenReturn(Result.result(List.of(random(Voting.class))));
+
+    // and: mocked environment
+    var mockedEnvironment =
+        FetcherTestUtils.generateMockedEnvironment(
+            authenticatedUser, Map.of("startDate", startDate, "endDate", endDate));
+    Mockito.when(mockedEnvironment.getSource()).thenReturn(group);
+
+    // when: invoking the fetcher with correct data
+    VotingFetcher fetcher = new VotingFetcher(mockedService);
+    DataFetcherResult<List<Voting>> result = fetcher.listVotingsGroup(mockedEnvironment);
+
+    // then: we should get no errors
+    assertThat("There is no errors", result.getErrors().size(), is(0));
+
+    // and: we should get the successful result
+    assertEquals("There are votings", result.getData().size(), 1);
   }
 }

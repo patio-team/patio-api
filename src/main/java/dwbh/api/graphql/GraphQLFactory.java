@@ -129,6 +129,7 @@ public class GraphQLFactory {
                 builder ->
                     builder
                         .dataFetcher("members", userGroupFetcher::listUsersGroup)
+                        .dataFetcher("votings", votingFetcher::listVotingsGroup)
                         .dataFetcher("isCurrentUserAdmin", userGroupFetcher::isCurrentUserAdmin))
             .type("Login", builder -> builder.dataFetcher("profile", userFetcher::getCurrentUser))
             .type(
