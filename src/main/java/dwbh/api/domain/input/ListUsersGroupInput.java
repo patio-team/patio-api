@@ -20,23 +20,24 @@ package dwbh.api.domain.input;
 import java.util.UUID;
 
 /**
- * UserGroup input. It contains the ids for a user and a group
+ * ListUsersGroupInput input. It contains the ids for a user and a group, and a boolean indicating
+ * if the group has a visible member list
  *
  * @since 0.1.0
  */
-public class EmailGroupInput {
-  private final String email;
+public class ListUsersGroupInput {
+  private final UUID userId;
   private final UUID groupId;
-  private final UUID currentUserId;
+  private final boolean visibleMemberList;
 
   /**
-   * Returns the email of the user
+   * Returns the id of the user
    *
-   * @return the email of the user
+   * @return the id of the user
    * @since 0.1.0
    */
-  public String getEmail() {
-    return email;
+  public UUID getUserId() {
+    return userId;
   }
 
   /**
@@ -50,26 +51,26 @@ public class EmailGroupInput {
   }
 
   /**
-   * Returns the id of the current user
+   * Returns if the group has a visible member list
    *
-   * @return the id of the current user
+   * @return if the group has a visible member list
    * @since 0.1.0
    */
-  public UUID getCurrentUserId() {
-    return currentUserId;
+  public boolean isVisibleMemberList() {
+    return visibleMemberList;
   }
 
   /**
-   * Initializes the input with the user id and the group id
+   * Initializes the input with the user id, the group id, and visibleMemberList
    *
-   * @param currentUserId the id of the current user
-   * @param email the email of the user
+   * @param userId the id of the user
    * @param groupId the id of the group
+   * @param visibleMemberList if the group has visible member list
    * @since 0.1.0
    */
-  public EmailGroupInput(UUID currentUserId, String email, UUID groupId) {
-    this.currentUserId = currentUserId;
-    this.email = email;
+  public ListUsersGroupInput(UUID userId, UUID groupId, boolean visibleMemberList) {
+    this.userId = userId;
     this.groupId = groupId;
+    this.visibleMemberList = visibleMemberList;
   }
 }

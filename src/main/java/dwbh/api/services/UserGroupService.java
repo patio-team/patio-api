@@ -22,8 +22,8 @@ import static dwbh.api.util.ErrorConstants.NOT_ALLOWED;
 import dwbh.api.domain.Group;
 import dwbh.api.domain.User;
 import dwbh.api.domain.UserGroup;
-import dwbh.api.domain.input.EmailGroupInput;
-import dwbh.api.domain.input.UserGroupAndVisibleMemberListInput;
+import dwbh.api.domain.input.AddUserToGroupInput;
+import dwbh.api.domain.input.ListUsersGroupInput;
 import dwbh.api.repositories.GroupRepository;
 import dwbh.api.repositories.UserGroupRepository;
 import dwbh.api.repositories.UserRepository;
@@ -68,21 +68,21 @@ public class UserGroupService {
   /**
    * Adds an user to a group, if the current user is admin of the group
    *
-   * @param emailGroupInput user and group information
+   * @param addUserToGroupInput user and group information
    * @return an instance of {@link Result} (Boolean | {@link java.lang.Error})
    * @since 0.1.0
    */
   @SuppressWarnings("PMD.OnlyOneReturn")
-  public Result<Boolean> addUserToGroup(EmailGroupInput emailGroupInput) {
+  public Result<Boolean> addUserToGroup(AddUserToGroupInput addUserToGroupInput) {
 
     Optional<Group> group =
-        Optional.ofNullable(groupRepository.getGroup(emailGroupInput.getGroupId()));
+        Optional.ofNullable(groupRepository.getGroup(addUserToGroupInput.getGroupId()));
     Optional<User> user =
-        Optional.ofNullable(userRepository.getUserByEmail(emailGroupInput.getEmail()));
+        Optional.ofNullable(userRepository.getUserByEmail(addUserToGroupInput.getEmail()));
 
     Optional<Result<Boolean>> possibleErrors =
         Check.checkWith(
-            emailGroupInput,
+            addUserToGroupInput,
             List.of(
                 this.createCheckGroupExists(group),
                 this.createCheckUserExists(user),
@@ -92,22 +92,23 @@ public class UserGroupService {
     return possibleErrors.orElseGet(() -> addUserToGroupIfSuccess(user.get(), group.get()));
   }
 
-  private Function<EmailGroupInput, Check> createCheckGroupExists(Optional<Group> group) {
-    return (EmailGroupInput input) ->
+  private Function<AddUserToGroupInput, Check> createCheckGroupExists(Optional<Group> group) {
+    return (AddUserToGroupInput input) ->
         Check.checkIsTrue(group.isPresent(), ErrorConstants.NOT_FOUND);
   }
 
-  private Function<EmailGroupInput, Check> createCheckUserExists(Optional<User> user) {
-    return (EmailGroupInput input) -> Check.checkIsTrue(user.isPresent(), ErrorConstants.NOT_FOUND);
+  private Function<AddUserToGroupInput, Check> createCheckUserExists(Optional<User> user) {
+    return (AddUserToGroupInput input) ->
+        Check.checkIsTrue(user.isPresent(), ErrorConstants.NOT_FOUND);
   }
 
-  private Check createCheckCurrentUserIsAdmin(EmailGroupInput input) {
+  private Check createCheckCurrentUserIsAdmin(AddUserToGroupInput input) {
     return Check.checkIsTrue(
         isAdmin(input.getCurrentUserId(), input.getGroupId()), ErrorConstants.NOT_AN_ADMIN);
   }
 
-  private Function<EmailGroupInput, Check> createCheckUserIsNotInGroup(Optional<User> user) {
-    return (EmailGroupInput input) ->
+  private Function<AddUserToGroupInput, Check> createCheckUserIsNotInGroup(Optional<User> user) {
+    return (AddUserToGroupInput input) ->
         Check.checkIsFalse(
             isUserInGroup(user.get().getId(), input.getGroupId()),
             ErrorConstants.USER_ALREADY_ON_GROUP);
@@ -148,11 +149,11 @@ public class UserGroupService {
    * Fetches the list of users in a Group. If the user is not allowed to get them, returns an empty
    * list
    *
-   * @param input a {@link EmailGroupInput} with the user and the group
+   * @param input a {@link AddUserToGroupInput} with the user and the group
    * @return a list of {@link User} instances
    * @since 0.1.0
    */
-  public List<User> listUsersGroup(UserGroupAndVisibleMemberListInput input) {
+  public List<User> listUsersGroup(ListUsersGroupInput input) {
 
     Optional<Result<List<User>>> possibleErrors =
         Check.checkWith(input, List.of(this::checkUserCanSeeMembers));
@@ -162,7 +163,7 @@ public class UserGroupService {
         .orElseGet(() -> listUsersGroupIfSuccess(input.getGroupId()));
   }
 
-  private Check checkUserCanSeeMembers(UserGroupAndVisibleMemberListInput input) {
+  private Check checkUserCanSeeMembers(ListUsersGroupInput input) {
     UserGroup userGroup = userGroupRepository.getUserGroup(input.getUserId(), input.getGroupId());
     return Check.checkIsTrue(
         userGroup != null && (userGroup.isAdmin() || input.isVisibleMemberList()), NOT_ALLOWED);

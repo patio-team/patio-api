@@ -19,8 +19,8 @@ package dwbh.api.fetchers;
 
 import dwbh.api.domain.Group;
 import dwbh.api.domain.User;
-import dwbh.api.domain.input.EmailGroupInput;
-import dwbh.api.domain.input.UserGroupAndVisibleMemberListInput;
+import dwbh.api.domain.input.AddUserToGroupInput;
+import dwbh.api.domain.input.ListUsersGroupInput;
 import dwbh.api.graphql.Context;
 import graphql.schema.DataFetchingEnvironment;
 import java.util.UUID;
@@ -44,33 +44,35 @@ final class UserGroupFetcherUtils {
   }
 
   /**
-   * Creates a {@link EmailGroupInput} from the data coming from the {@link DataFetchingEnvironment}
+   * Creates a {@link AddUserToGroupInput} from the data coming from the {@link
+   * DataFetchingEnvironment}
    *
    * @param environment the GraphQL {@link DataFetchingEnvironment}
-   * @return an instance of {@link EmailGroupInput}
+   * @return an instance of {@link AddUserToGroupInput}
    * @since 0.1.0
    */
-  /* default */ static UserGroupAndVisibleMemberListInput userGroupAndVisibleMembersInput(
+  /* default */ static ListUsersGroupInput listUsersGroupInput(
       DataFetchingEnvironment environment) {
     User currentUser = getCurrentUser(environment);
     Group group = environment.getSource();
-    return new UserGroupAndVisibleMemberListInput(
-        currentUser.getId(), group.getId(), group.isVisibleMemberList());
+    return new ListUsersGroupInput(currentUser.getId(), group.getId(), group.isVisibleMemberList());
   }
 
   /**
-   * Creates a {@link EmailGroupInput} from the data coming from the {@link DataFetchingEnvironment}
+   * Creates a {@link AddUserToGroupInput} from the data coming from the {@link
+   * DataFetchingEnvironment}
    *
    * @param environment the GraphQL {@link DataFetchingEnvironment}
-   * @return an instance of {@link EmailGroupInput}
+   * @return an instance of {@link AddUserToGroupInput}
    * @since 0.1.0
    */
-  /* default */ static EmailGroupInput userGroupInput(DataFetchingEnvironment environment) {
+  /* default */ static AddUserToGroupInput addUserToGroupInput(
+      DataFetchingEnvironment environment) {
     String email = environment.getArgument("email");
     UUID groupId = environment.getArgument("groupId");
     Context ctx = environment.getContext();
     User currentUser = ctx.getAuthenticatedUser();
 
-    return new EmailGroupInput(currentUser.getId(), email, groupId);
+    return new AddUserToGroupInput(currentUser.getId(), email, groupId);
   }
 }

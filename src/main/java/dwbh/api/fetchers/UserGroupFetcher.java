@@ -20,8 +20,8 @@ package dwbh.api.fetchers;
 import dwbh.api.domain.Group;
 import dwbh.api.domain.User;
 import dwbh.api.domain.UserGroup;
-import dwbh.api.domain.input.EmailGroupInput;
-import dwbh.api.domain.input.UserGroupAndVisibleMemberListInput;
+import dwbh.api.domain.input.AddUserToGroupInput;
+import dwbh.api.domain.input.ListUsersGroupInput;
 import dwbh.api.graphql.Context;
 import dwbh.api.graphql.ResultUtils;
 import dwbh.api.services.UserGroupService;
@@ -65,7 +65,7 @@ public class UserGroupFetcher {
    */
   public DataFetcherResult<Boolean> addUserToGroup(DataFetchingEnvironment env) {
 
-    EmailGroupInput input = UserGroupFetcherUtils.userGroupInput(env);
+    AddUserToGroupInput input = UserGroupFetcherUtils.addUserToGroupInput(env);
 
     Result<Boolean> result = service.addUserToGroup(input);
     return ResultUtils.render(result);
@@ -93,8 +93,7 @@ public class UserGroupFetcher {
    * @since 0.1.0
    */
   public List<User> listUsersGroup(DataFetchingEnvironment env) {
-    UserGroupAndVisibleMemberListInput input =
-        UserGroupFetcherUtils.userGroupAndVisibleMembersInput(env);
+    ListUsersGroupInput input = UserGroupFetcherUtils.listUsersGroupInput(env);
     return service.listUsersGroup(input);
   }
 }
