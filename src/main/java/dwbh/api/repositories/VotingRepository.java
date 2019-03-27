@@ -43,6 +43,25 @@ public interface VotingRepository {
   Voting createVoting(UUID createdBy, UUID groupId, OffsetDateTime when);
 
   /**
+   * Updates a {@link Voting} average value
+   *
+   * @param votingId the id of the {@link Voting} to update
+   * @param average the new average
+   * @return the updated {@link Voting} instance
+   * @since 0.1.0
+   */
+  Voting updateVotingAverage(UUID votingId, Integer average);
+
+  /**
+   * Calculates the average score of all the {@link Vote} that belongs to a {@link Voting}
+   *
+   * @param votingId the id of the {@link Voting} to update
+   * @return the average
+   * @since 0.1.0
+   */
+  Integer calculateVoteAverage(UUID votingId);
+
+  /**
    * Creates a new user's {@link Vote} for a given {@link Voting}
    *
    * @param createdBy who's voting

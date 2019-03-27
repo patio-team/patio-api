@@ -102,6 +102,7 @@ public final class TablesHelper {
     public static final Field<UUID> CREATED_BY_ID = DSL.field("created_by", UUID.class);
     public static final Field<OffsetDateTime> CREATED_AT =
         DSL.field("created_at", OffsetDateTime.class);
+    public static final Field<Integer> AVERAGE = DSL.field("average", Integer.class);
 
     private VotingTableHelper() {
       /* empty */

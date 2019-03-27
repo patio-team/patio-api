@@ -52,6 +52,7 @@ type Voting {
     group: Group,
     createdAt: DateTime
     createdBy: User
+    average: Int
 }
 
 type Vote {

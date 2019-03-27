@@ -152,8 +152,14 @@ public class VotingService {
             OffsetDateTime.now(),
             input.getComment(),
             input.getScore());
+    updateVotingAverage(input.getVotingId());
 
     return Result.result(createdVote);
+  }
+
+  private void updateVotingAverage(UUID votingId) {
+    Integer average = votingRepository.calculateVoteAverage(votingId);
+    votingRepository.updateVotingAverage(votingId, average);
   }
 
   /**
