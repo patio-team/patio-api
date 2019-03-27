@@ -35,6 +35,7 @@ import dwbh.api.fetchers.utils.FetcherTestUtils;
 import dwbh.api.services.VotingService;
 import dwbh.api.util.Result;
 import graphql.execution.DataFetcherResult;
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -103,13 +104,13 @@ class VotingFetcherTest {
     // given: some random data
     var authenticatedUser = random(User.class);
     var group = random(Group.class);
-    var startDate = "2019-01-24T00:00:00Z";
-    var endDate = "2019-01-25T00:00:00Z";
+    var startDate = OffsetDateTime.parse("2019-01-24T00:00:00Z");
+    var endDate = OffsetDateTime.parse("2019-01-25T00:00:00Z");
 
     // and: mocked service
     var mockedService = Mockito.mock(VotingService.class);
     Mockito.when(mockedService.listVotingsGroup(any(ListVotingsGroupInput.class)))
-        .thenReturn(Result.result(List.of(random(Voting.class))));
+        .thenReturn(List.of(random(Voting.class)));
 
     // and: mocked environment
     var mockedEnvironment =
@@ -119,12 +120,9 @@ class VotingFetcherTest {
 
     // when: invoking the fetcher with correct data
     VotingFetcher fetcher = new VotingFetcher(mockedService);
-    DataFetcherResult<List<Voting>> result = fetcher.listVotingsGroup(mockedEnvironment);
+    List<Voting> result = fetcher.listVotingsGroup(mockedEnvironment);
 
-    // then: we should get no errors
-    assertThat("There is no errors", result.getErrors().size(), is(0));
-
-    // and: we should get the successful result
-    assertEquals("There are votings", result.getData().size(), 1);
+    // then: we should get the successful result
+    assertEquals("There are votings", result.size(), 1);
   }
 }

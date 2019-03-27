@@ -24,6 +24,7 @@ import dwbh.api.domain.input.CreateVotingInput;
 import dwbh.api.domain.input.ListVotingsGroupInput;
 import dwbh.api.graphql.Context;
 import graphql.schema.DataFetchingEnvironment;
+import java.time.OffsetDateTime;
 import java.util.UUID;
 
 /**
@@ -88,8 +89,8 @@ final class VotingFetcherUtils {
   /* default */ static ListVotingsGroupInput createListVotingsGroupInput(
       DataFetchingEnvironment environment) {
     Group group = environment.getSource();
-    String startDate = environment.getArgument("startDate");
-    String endDate = environment.getArgument("endDate");
+    OffsetDateTime startDate = environment.getArgument("startDate");
+    OffsetDateTime endDate = environment.getArgument("endDate");
 
     return ListVotingsGroupInput.newBuilder()
         .withGroupId(group.getId())

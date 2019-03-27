@@ -17,6 +17,7 @@
  */
 package dwbh.api.domain.input;
 
+import java.time.OffsetDateTime;
 import java.util.UUID;
 
 /**
@@ -26,8 +27,8 @@ import java.util.UUID;
  * @since 0.1.0
  */
 public class ListVotingsGroupInput {
-  private final String startDate;
-  private final String endDate;
+  private final OffsetDateTime startDate;
+  private final OffsetDateTime endDate;
   private final UUID groupId;
 
   /**
@@ -36,7 +37,7 @@ public class ListVotingsGroupInput {
    * @return the startDate
    * @since 0.1.0
    */
-  public String getStartDate() {
+  public OffsetDateTime getStartDate() {
     return startDate;
   }
 
@@ -46,7 +47,7 @@ public class ListVotingsGroupInput {
    * @return the endDate
    * @since 0.1.0
    */
-  public String getEndDate() {
+  public OffsetDateTime getEndDate() {
     return endDate;
   }
 
@@ -78,7 +79,7 @@ public class ListVotingsGroupInput {
    * @param endDate the endDate
    * @since 0.1.0
    */
-  public ListVotingsGroupInput(UUID groupId, String startDate, String endDate) {
+  public ListVotingsGroupInput(UUID groupId, OffsetDateTime startDate, OffsetDateTime endDate) {
     this.groupId = groupId;
     this.startDate = startDate;
     this.endDate = endDate;
@@ -116,7 +117,7 @@ public class ListVotingsGroupInput {
      * @return current builder instance
      * @since 0.1.0
      */
-    public Builder withStartDate(String startDate) {
+    public Builder withStartDate(OffsetDateTime startDate) {
       this.input = new ListVotingsGroupInput(input.getGroupId(), startDate, input.getEndDate());
       return this;
     }
@@ -128,7 +129,7 @@ public class ListVotingsGroupInput {
      * @return current builder instance
      * @since 0.1.0
      */
-    public Builder withEndDate(String endDate) {
+    public Builder withEndDate(OffsetDateTime endDate) {
       this.input = new ListVotingsGroupInput(input.getGroupId(), input.getStartDate(), endDate);
       return this;
     }

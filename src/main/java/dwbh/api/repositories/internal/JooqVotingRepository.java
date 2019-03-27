@@ -198,16 +198,17 @@ public class JooqVotingRepository implements VotingRepository {
 
   @Override
   public Integer calculateVoteAverage(UUID votingId) {
-    Record record =
+    Optional<Record1<BigDecimal>> record =
         context
             .select(DSL.avg(VoteTableHelper.SCORE))
             .from(VOTE_TABLE)
             .where(VoteTableHelper.VOTING_ID.eq(votingId))
-            .fetchOne();
+            .fetchOptional();
 
-    return record.get(0) == null
-        ? null
-        : ((BigDecimal) record.get(0)).setScale(0, RoundingMode.HALF_UP).intValue();
+    return record
+        .map(Record1::component1)
+        .map(decimal -> decimal.setScale(0, RoundingMode.HALF_UP).intValue())
+        .orElse(null);
   }
 
   private static Voting toVoting(Record record) {

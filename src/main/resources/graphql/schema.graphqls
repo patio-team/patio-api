@@ -32,7 +32,7 @@ type Group {
     votingDays: [DayOfWeek]
     votingTime: Time
     isCurrentUserAdmin: Boolean
-    votings(startDate: String!, endDate: String!): [Voting]
+    votings(startDate: DateTime!, endDate: DateTime!): [Voting]
 }
 
 type UserProfile {

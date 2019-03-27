@@ -30,7 +30,6 @@ import dwbh.api.util.Check;
 import dwbh.api.util.ErrorConstants;
 import dwbh.api.util.Result;
 import java.time.OffsetDateTime;
-import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -170,40 +169,8 @@ public class VotingService {
    * @return a list of {@link Voting} instances
    * @since 0.1.0
    */
-  public Result<List<Voting>> listVotingsGroup(ListVotingsGroupInput input) {
-    Optional<Result<List<Voting>>> possibleErrors =
-        Check.checkWith(input, List.of(this::checkStartDateIsValid, this::checkEndDateIsValid));
-
-    return possibleErrors.orElseGet(() -> listVotingsGroupIfSuccess(input));
-  }
-
-  private Check checkStartDateIsValid(ListVotingsGroupInput input) {
-    return Check.checkIsTrue(
-        isDateValid(input.getStartDate()), ErrorConstants.START_DATE_IS_INVALID);
-  }
-
-  private Check checkEndDateIsValid(ListVotingsGroupInput input) {
-    return Check.checkIsTrue(isDateValid(input.getEndDate()), ErrorConstants.END_DATE_IS_INVALID);
-  }
-
-  private boolean isDateValid(String date) {
-    boolean valid = true; // NOPMD
-    try {
-      OffsetDateTime.parse(date);
-    } catch (DateTimeParseException e) {
-      valid = false;
-    }
-
-    return valid;
-  }
-
-  private Result<List<Voting>> listVotingsGroupIfSuccess(ListVotingsGroupInput input) {
-    List<Voting> votings =
-        votingRepository.listVotingsGroup(
-            input.getGroupId(),
-            OffsetDateTime.parse(input.getStartDate()),
-            OffsetDateTime.parse(input.getEndDate()));
-
-    return Result.result(votings);
+  public List<Voting> listVotingsGroup(ListVotingsGroupInput input) {
+    return votingRepository.listVotingsGroup(
+        input.getGroupId(), input.getStartDate(), input.getEndDate());
   }
 }

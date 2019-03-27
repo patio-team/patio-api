@@ -31,13 +31,13 @@ import dwbh.api.repositories.UserGroupRepository;
 import dwbh.api.repositories.VotingRepository;
 import dwbh.api.util.ErrorConstants;
 import dwbh.api.util.Result;
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mockito;
 
@@ -310,8 +310,8 @@ public class VotingServiceTests {
     var input =
         ListVotingsGroupInput.newBuilder()
             .withGroupId(groupId)
-            .withStartDate("2011-12-03T10:15:30Z")
-            .withEndDate("2011-12-03T10:15:30Z")
+            .withStartDate(OffsetDateTime.parse("2011-12-03T10:15:30Z"))
+            .withEndDate(OffsetDateTime.parse("2011-12-03T10:15:30Z"))
             .build();
 
     // and: mocked repository calls
@@ -322,46 +322,9 @@ public class VotingServiceTests {
 
     // when: invoking the voting listing
     VotingService votingService = new VotingService(null, votingRepository);
-    Result<List<Voting>> votings = votingService.listVotingsGroup(input);
+    List<Voting> votings = votingService.listVotingsGroup(input);
 
     // then: the votings are returned
-    assertEquals(votings.getSuccess().size(), 3, "Successfully listed votings");
-  }
-
-  @ParameterizedTest(name = "testListVotingsGroupFailure: failure because {0}")
-  @MethodSource("listVotingsGroupFailureProvider")
-  void testListVotingsGroupFailure(
-      String name, String startDate, String endDate, String errorCode) {
-    // given: some mocked data
-    var groupId = UUID.randomUUID();
-    var input =
-        ListVotingsGroupInput.newBuilder()
-            .withGroupId(groupId)
-            .withStartDate(startDate)
-            .withEndDate(endDate)
-            .build();
-
-    // when: invoking the voting listing
-    VotingService votingService = new VotingService(null, null);
-    Result<List<Voting>> votings = votingService.listVotingsGroup(input);
-
-    // then: there is an error
-    assertNull(votings.getSuccess(), "No votings");
-    assertEquals(1, votings.getErrorList().size(), "There is one error");
-    assertEquals(errorCode, votings.getErrorList().get(0).getCode());
-  }
-
-  private static Stream<Arguments> listVotingsGroupFailureProvider() {
-    return Stream.of(
-        Arguments.of(
-            "bad start date",
-            "aaaa",
-            "2019-01-21T00:00:00Z",
-            ErrorConstants.START_DATE_IS_INVALID.getCode()),
-        Arguments.of(
-            "bad end date",
-            "2019-01-21T00:00:00Z",
-            "aaaa",
-            ErrorConstants.END_DATE_IS_INVALID.getCode()));
+    assertEquals(votings.size(), 3, "Successfully listed votings");
   }
 }
