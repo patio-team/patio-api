@@ -106,7 +106,7 @@ public interface VotingRepository {
   List<Voting> listVotingsGroup(UUID groupId, OffsetDateTime startDate, OffsetDateTime endDate);
 
   /**
-   * Checks whether the voting slot has expired or not
+   * BaseService whether the voting slot has expired or not
    *
    * @param votingId the id of the voting slot
    * @return true if the voting slot has expired, false otherwise

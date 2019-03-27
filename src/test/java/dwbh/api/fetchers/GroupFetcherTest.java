@@ -28,6 +28,8 @@ import dwbh.api.domain.Group;
 import dwbh.api.domain.User;
 import dwbh.api.fetchers.utils.FetcherTestUtils;
 import dwbh.api.services.GroupService;
+import dwbh.api.util.Result;
+import graphql.execution.DataFetcherResult;
 import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
@@ -79,28 +81,6 @@ class GroupFetcherTest {
   }
 
   @Test
-  void testGetGroup() {
-    // given: an group
-    Group group = random(Group.class);
-    // and: a mocking service
-    var mockedService = Mockito.mock(GroupService.class);
-
-    // and: mocking service's behavior
-    Mockito.when(mockedService.getGroup(group.getId())).thenReturn(group);
-
-    // and: a mocked environment
-    var mockedEnvironment =
-        FetcherTestUtils.generateMockedEnvironment(null, Map.of("id", group.getId()));
-
-    // when: fetching get group invoking the service
-    GroupFetcher fetchers = new GroupFetcher(mockedService);
-    Group result = fetchers.getGroup(mockedEnvironment);
-
-    // then: check certain assertions should be met
-    assertThat("the group is found", result, is(group));
-  }
-
-  @Test
   void testCreateGroup() {
     // given: a group
     Group group = random(Group.class);
@@ -141,5 +121,31 @@ class GroupFetcherTest {
         result.getVotingDays().size(),
         is(group.getVotingDays().size()));
     assertNotNull("time is present", result.getVotingTime());
+  }
+
+  @Test
+  void testGetGroup() {
+    // given: an group
+    Group group = random(Group.class);
+
+    // and: an user
+    User user = random(User.class);
+
+    // and: a mocking service
+    var mockedService = Mockito.mock(GroupService.class);
+
+    // and: mocking service's behavior
+    Mockito.when(mockedService.getGroup(any())).thenReturn(Result.result(group));
+
+    // and: a mocked environment
+    var mockedEnvironment =
+        FetcherTestUtils.generateMockedEnvironment(user, Map.of("id", group.getId()));
+
+    // when: fetching get group invoking the service
+    GroupFetcher fetchers = new GroupFetcher(mockedService);
+    DataFetcherResult<Group> result = fetchers.getGroup(mockedEnvironment);
+
+    // then: check certain assertions should be met
+    assertThat("the group is found", result.getData(), is(group));
   }
 }

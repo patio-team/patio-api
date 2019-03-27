@@ -25,7 +25,7 @@ import com.tngtech.archunit.junit.ArchTest;
 import com.tngtech.archunit.library.Architectures;
 
 /**
- * Checks that the architecture layer constraints are respected
+ * BaseService that the architecture layer constraints are respected
  *
  * @since 0.1.0
  */

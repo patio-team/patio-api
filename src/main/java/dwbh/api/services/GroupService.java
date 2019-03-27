@@ -19,10 +19,16 @@ package dwbh.api.services;
 
 import dwbh.api.domain.Group;
 import dwbh.api.domain.User;
+import dwbh.api.domain.input.GetGroupInput;
 import dwbh.api.domain.input.GroupInput;
 import dwbh.api.repositories.GroupRepository;
 import dwbh.api.repositories.UserGroupRepository;
+import dwbh.api.repositories.UserRepository;
+import dwbh.api.repositories.VotingRepository;
+import dwbh.api.util.Check;
+import dwbh.api.util.Result;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import javax.inject.Singleton;
 
@@ -32,21 +38,23 @@ import javax.inject.Singleton;
  * @since 0.1.0
  */
 @Singleton
-public class GroupService {
-
-  private final transient GroupRepository groupRepository;
-  private final transient UserGroupRepository userGroupRepository;
+public class GroupService extends BaseService {
 
   /**
-   * Initializes service by using the database repository
+   * Initializes service by using the database repositories
    *
    * @param groupRepository an instance of {@link GroupRepository}
+   * @param userRepository an instance of {@link UserRepository}
    * @param userGroupRepository an instance of {@link UserGroupRepository}
+   * @param votingRepository an instance of {@link VotingRepository}
    * @since 0.1.0
    */
-  public GroupService(GroupRepository groupRepository, UserGroupRepository userGroupRepository) {
-    this.groupRepository = groupRepository;
-    this.userGroupRepository = userGroupRepository;
+  public GroupService(
+      GroupRepository groupRepository,
+      UserRepository userRepository,
+      UserGroupRepository userGroupRepository,
+      VotingRepository votingRepository) {
+    super(groupRepository, userRepository, userGroupRepository, votingRepository);
   }
 
   /**
@@ -57,17 +65,6 @@ public class GroupService {
    */
   public List<Group> listGroups() {
     return groupRepository.listGroups();
-  }
-
-  /**
-   * Get a specific group
-   *
-   * @param groupId group identifier
-   * @return The requested {@link Group}
-   * @since 0.1.0
-   */
-  public Group getGroup(UUID groupId) {
-    return groupRepository.getGroup(groupId);
   }
 
   /**
@@ -100,5 +97,26 @@ public class GroupService {
 
     userGroupRepository.addUserToGroup(admin.getId(), group.getId(), true);
     return group;
+  }
+
+  /**
+   * Get a specific group
+   *
+   * @param input required data to retrieve a {@link Group}
+   * @return The requested {@link Group}
+   * @since 0.1.0
+   */
+  public Result<Group> getGroup(GetGroupInput input) {
+
+    Optional<Group> group = Optional.ofNullable(groupRepository.getGroup(input.getGroupId()));
+
+    Optional<Result<Group>> possibleErrors =
+        Check.checkWith(
+            input,
+            List.of(
+                this.createCheckGroupExists(group),
+                this.createCheckUserIsInGroup(input.getCurrentUserId(), input.getGroupId())));
+
+    return possibleErrors.orElseGet(() -> Result.result(group.get()));
   }
 }

@@ -80,7 +80,7 @@ public class UserGroupServiceTests {
 
     // when: adding the user to the group
     var userGroupService =
-        new UserGroupService(userRepository, groupRepository, userGroupRepository);
+        new UserGroupService(groupRepository, userRepository, userGroupRepository, null);
     var result = userGroupService.addUserToGroup(addUserToGroupInput);
 
     // then: we should get it
@@ -125,7 +125,7 @@ public class UserGroupServiceTests {
 
     // when: adding the user to the group
     var userGroupService =
-        new UserGroupService(userRepository, groupRepository, userGroupRepository);
+        new UserGroupService(groupRepository, userRepository, userGroupRepository, null);
 
     var result = userGroupService.addUserToGroup(addUserToGroupInput);
 
@@ -174,7 +174,7 @@ public class UserGroupServiceTests {
 
     // when: adding the user to the group
     var userGroupService =
-        new UserGroupService(userRepository, groupRepository, userGroupRepository);
+        new UserGroupService(groupRepository, userRepository, userGroupRepository, null);
 
     var result = userGroupService.addUserToGroup(addUserToGroupInput);
 
@@ -223,7 +223,7 @@ public class UserGroupServiceTests {
 
     // when: adding the user to the group
     var userGroupService =
-        new UserGroupService(userRepository, groupRepository, userGroupRepository);
+        new UserGroupService(groupRepository, userRepository, userGroupRepository, null);
 
     var result = userGroupService.addUserToGroup(addUserToGroupInput);
 
@@ -271,7 +271,7 @@ public class UserGroupServiceTests {
 
     // when: adding the user to the group
     var userGroupService =
-        new UserGroupService(userRepository, groupRepository, userGroupRepository);
+        new UserGroupService(groupRepository, userRepository, userGroupRepository, null);
 
     var result = userGroupService.addUserToGroup(addUserToGroupInput);
 
@@ -299,7 +299,7 @@ public class UserGroupServiceTests {
         .thenReturn(new UserGroup(user.getId(), group.getId(), false));
 
     // when: getting a list of users by group
-    var userGroupService = new UserGroupService(null, null, userGroupRepository);
+    var userGroupService = new UserGroupService(null, null, userGroupRepository, null);
     var input = new ListUsersGroupInput(user.getId(), group.getId(), group.isVisibleMemberList());
     var usersByGroup = userGroupService.listUsersGroup(input);
 
@@ -325,7 +325,7 @@ public class UserGroupServiceTests {
         .thenReturn(new UserGroup(user.getId(), group.getId(), true));
 
     // when: getting a list of users by group
-    var userGroupService = new UserGroupService(null, null, userGroupRepository);
+    var userGroupService = new UserGroupService(null, null, userGroupRepository, null);
     var input = new ListUsersGroupInput(user.getId(), group.getId(), group.isVisibleMemberList());
     var usersByGroup = userGroupService.listUsersGroup(input);
 
@@ -350,7 +350,7 @@ public class UserGroupServiceTests {
         .thenReturn(new UserGroup(user.getId(), group.getId(), false));
 
     // when: getting a list of users by group
-    var userGroupService = new UserGroupService(null, null, userGroupRepository);
+    var userGroupService = new UserGroupService(null, null, userGroupRepository, null);
     var input = new ListUsersGroupInput(user.getId(), group.getId(), group.isVisibleMemberList());
     var usersByGroup = userGroupService.listUsersGroup(input);
 
@@ -374,7 +374,7 @@ public class UserGroupServiceTests {
     Mockito.when(userGroupRepository.getUserGroup(any(), any())).thenReturn(null);
 
     // when: getting a list of users by group
-    var userGroupService = new UserGroupService(null, null, userGroupRepository);
+    var userGroupService = new UserGroupService(null, null, userGroupRepository, null);
     var input = new ListUsersGroupInput(user.getId(), group.getId(), group.isVisibleMemberList());
     var usersByGroup = userGroupService.listUsersGroup(input);
 
