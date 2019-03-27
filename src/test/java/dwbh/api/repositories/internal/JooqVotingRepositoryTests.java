@@ -17,29 +17,19 @@
  */
 package dwbh.api.repositories.internal;
 
-import static junit.framework.TestCase.assertEquals;
-import static junit.framework.TestCase.assertNotNull;
-import static org.rnorth.visibleassertions.VisibleAssertions.assertNull;
+import static org.junit.Assert.*;
 
-import dwbh.api.domain.Group;
-import dwbh.api.domain.GroupBuilder;
-import dwbh.api.domain.User;
-import dwbh.api.domain.UserBuilder;
-import dwbh.api.domain.Vote;
-import dwbh.api.domain.Voting;
+import dwbh.api.domain.*;
 import dwbh.api.fixtures.Fixtures;
 import dwbh.api.repositories.VotingRepository;
 import io.micronaut.test.annotation.MicronautTest;
 import java.time.OffsetDateTime;
+import java.util.List;
 import java.util.UUID;
 import java.util.stream.Stream;
 import javax.inject.Inject;
 import org.flywaydb.core.Flyway;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -255,5 +245,87 @@ public class JooqVotingRepositoryTests {
 
     // then: the vote is null
     assertNull("the vote is null", vote);
+  }
+
+  @ParameterizedTest(name = "listVotingsGroup: success with {0}")
+  @MethodSource("listVotingsGroupSuccessDataProvider")
+  void listVotingsGroupSuccess(
+      String name, OffsetDateTime startDate, OffsetDateTime endDate, int expectedSize) {
+    // given: fixtures
+    fixtures.load(JooqVotingRepositoryTests.class, "listVotingsGroupSuccessfully.sql");
+
+    // and: good parameters
+    UUID groupId = UUID.fromString("d64db962-3455-11e9-b210-d663bd873d93");
+
+    // when: looking for votings of a group
+    List<Voting> votings = repository.listVotingsGroup(groupId, startDate, endDate);
+
+    // then: we should get the expected number of votings
+    assertEquals(votings.size(), expectedSize);
+  }
+
+  private static Stream<Arguments> listVotingsGroupSuccessDataProvider() {
+    return Stream.of(
+        Arguments.of(
+            "voting between dates",
+            OffsetDateTime.parse("2019-01-19T00:00:00Z"),
+            OffsetDateTime.parse("2019-01-21T00:00:00Z"),
+            1),
+        Arguments.of(
+            "voting outside dates",
+            OffsetDateTime.parse("2019-01-25T00:00:00Z"),
+            OffsetDateTime.parse("2019-01-26T00:00:00Z"),
+            0));
+  }
+
+  @Test
+  @DisplayName("Updates the average of a voting successfully")
+  void updateVotingAverageSuccessfully() {
+    // given: a pre-loaded fixtures
+    fixtures.load(JooqVotingRepositoryTests.class, "updateVotingAverageSuccessfully.sql");
+
+    // and: a new average
+    Integer newAverage = 4;
+
+    // when: creating the database entry
+    Voting voting =
+        repository.updateVotingAverage(
+            UUID.fromString("ffad4562-4971-11e9-98cd-d663bd873d93"), newAverage);
+
+    // then: we should assure the record has been updated
+    assertEquals(voting.getAverage(), newAverage);
+  }
+
+  @Test
+  @DisplayName("Calculates the average of the votes of a voting successfully")
+  void calculateVoteAverageAverageSuccessfully() {
+    // given: a pre-loaded fixtures
+    fixtures.load(JooqVotingRepositoryTests.class, "calculateVoteAverageSuccessfully.sql");
+
+    // when: calculating the average
+    Integer average =
+        repository.calculateVoteAverage(UUID.fromString("ffad4562-4971-11e9-98cd-d663bd873d93"));
+
+    // then: we get the correct average
+    assertEquals(average, (Integer) 5);
+
+    // and when calculating another average
+    average =
+        repository.calculateVoteAverage(UUID.fromString("f95d3520-0e95-4b4d-862e-6e3230026449"));
+
+    // then: we get the correct average
+    assertEquals(average, (Integer) 1);
+  }
+
+  @Test
+  @DisplayName(
+      "Calculates the average of the votes of a voting successfully when there are no votes")
+  void calculateVoteAverageAverageNoVotesSuccessfully() {
+    // when: creating the database entry
+    Integer average =
+        repository.calculateVoteAverage(UUID.fromString("ffad4562-4971-11e9-98cd-d663bd873d93"));
+
+    // then: we get a null average
+    assertEquals(average, null);
   }
 }

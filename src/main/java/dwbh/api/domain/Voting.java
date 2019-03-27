@@ -31,6 +31,7 @@ public class Voting {
   private OffsetDateTime createdAt;
   private User createdBy;
   private Group group;
+  private Integer average;
 
   /**
    * Returns the voting's id
@@ -113,6 +114,25 @@ public class Voting {
   }
 
   /**
+   * Returns the voting's average
+   *
+   * @return the voting's average
+   * @since 0.1.0
+   */
+  public Integer getAverage() {
+    return average;
+  }
+  /**
+   * Sets the voting average
+   *
+   * @param average the voting average
+   * @since 0.1.0
+   */
+  public void setAverage(Integer average) {
+    this.average = average;
+  }
+
+  /**
    * Creates a new fluent builder to build instances of type {@link Voting}
    *
    * @return an instance of the voting builder
@@ -132,6 +152,7 @@ public class Voting {
     private transient OffsetDateTime createdAt;
     private transient User createdBy;
     private transient Group group;
+    private transient Integer average;
 
     private Builder() {
       /* empty */
@@ -146,6 +167,18 @@ public class Voting {
      */
     public Builder withId(UUID id) {
       this.id = id;
+      return this;
+    }
+
+    /**
+     * Sets average
+     *
+     * @param average average of the {@link Voting} record
+     * @return current builder instance
+     * @since 0.1.0
+     */
+    public Builder withAverage(Integer average) {
+      this.average = average;
       return this;
     }
 
@@ -197,6 +230,7 @@ public class Voting {
       voting.setCreatedAt(createdAt);
       voting.setGroup(group);
       voting.setCreatedBy(createdBy);
+      voting.setAverage(average);
 
       return voting;
     }

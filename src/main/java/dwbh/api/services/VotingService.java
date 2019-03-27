@@ -23,6 +23,7 @@ import dwbh.api.domain.Vote;
 import dwbh.api.domain.Voting;
 import dwbh.api.domain.input.CreateVoteInput;
 import dwbh.api.domain.input.CreateVotingInput;
+import dwbh.api.domain.input.ListVotingsGroupInput;
 import dwbh.api.repositories.UserGroupRepository;
 import dwbh.api.repositories.VotingRepository;
 import dwbh.api.util.Check;
@@ -41,6 +42,7 @@ import javax.inject.Singleton;
  * @since 0.1.0
  */
 @Singleton
+@SuppressWarnings("PMD.TooManyMethods")
 public class VotingService {
 
   private final transient UserGroupRepository userGroupRepository;
@@ -149,7 +151,26 @@ public class VotingService {
             OffsetDateTime.now(),
             input.getComment(),
             input.getScore());
+    updateVotingAverage(input.getVotingId());
 
     return Result.result(createdVote);
+  }
+
+  private void updateVotingAverage(UUID votingId) {
+    Integer average = votingRepository.calculateVoteAverage(votingId);
+    votingRepository.updateVotingAverage(votingId, average);
+  }
+
+  /**
+   * Gets the votings that belongs to a group
+   *
+   * @param input The {@link ListVotingsGroupInput} with data to obtain the list of votings of a
+   *     group
+   * @return a list of {@link Voting} instances
+   * @since 0.1.0
+   */
+  public List<Voting> listVotingsGroup(ListVotingsGroupInput input) {
+    return votingRepository.listVotingsGroup(
+        input.getGroupId(), input.getStartDate(), input.getEndDate());
   }
 }

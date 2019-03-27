@@ -16,23 +16,7 @@
 -- along with DWBH.  If not, see <https://www.gnu.org/licenses/>
 --
 
-CREATE TABLE IF NOT EXISTS voting (
-  id UUID PRIMARY KEY,
-  group_id UUID NOT NULL,
-  created_at timestamp with time zone NOT NULL,
-  created_by UUID NOT NULL,
-  average int,
-  FOREIGN KEY (created_by) REFERENCES users(id),
-  FOREIGN KEY (group_id) REFERENCES groups(id)
-);
-
-CREATE TABLE IF NOT EXISTS vote (
-  id UUID PRIMARY KEY,
-  voting_id UUID NOT NULL,
-  created_by UUID,
-  created_at timestamp with time zone NOT NULL,
-  comment text,
-  score int NOT NULL,
-  FOREIGN KEY (created_by) REFERENCES users(id),
-  FOREIGN KEY (voting_id) REFERENCES voting(id)
-);
+INSERT INTO groups (id, name, voting_time, voting_days) VALUES ('d64db962-3455-11e9-b210-d663bd873d93','Fantastic Four', time with time zone '14:48:12.146512+01:00', '{"MONDAY"}');
+INSERT INTO users (id, name, email, password, otp) VALUES ('486590a3-fcc1-4657-a9ed-5f0f95dadea6','Sue Storm', 'sstorm@email.com', 'password', '');
+INSERT INTO users_groups (group_id, user_id, is_admin) VALUES ('d64db962-3455-11e9-b210-d663bd873d93','486590a3-fcc1-4657-a9ed-5f0f95dadea6', 't');
+INSERT INTO voting (id, group_id, created_at, created_by, average) VALUES ('ffad4562-4971-11e9-98cd-d663bd873d93', 'd64db962-3455-11e9-b210-d663bd873d93', now(), '486590a3-fcc1-4657-a9ed-5f0f95dadea6', 2);

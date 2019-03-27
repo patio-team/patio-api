@@ -17,20 +17,18 @@
  */
 package dwbh.api.repositories.internal;
 
-import static dwbh.api.repositories.internal.TablesHelper.GROUPS_TABLE;
-import static dwbh.api.repositories.internal.TablesHelper.VOTE_TABLE;
-import static dwbh.api.repositories.internal.TablesHelper.VOTING_TABLE;
+import static dwbh.api.repositories.internal.TablesHelper.*;
 
 import dwbh.api.domain.Group;
 import dwbh.api.domain.GroupBuilder;
 import dwbh.api.domain.Vote;
 import dwbh.api.domain.Voting;
 import dwbh.api.repositories.VotingRepository;
-import dwbh.api.repositories.internal.TablesHelper.GroupsTableHelper;
-import dwbh.api.repositories.internal.TablesHelper.VoteTableHelper;
-import dwbh.api.repositories.internal.TablesHelper.VotingTableHelper;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.OffsetDateTime;
 import java.time.OffsetTime;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import javax.inject.Singleton;
@@ -46,6 +44,7 @@ import org.jooq.impl.DSL;
  * @since 0.1.0
  */
 @Singleton
+@SuppressWarnings("PMD.TooManyMethods")
 public class JooqVotingRepository implements VotingRepository {
 
   private final transient DSLContext context;
@@ -73,7 +72,10 @@ public class JooqVotingRepository implements VotingRepository {
                 VotingTableHelper.CREATED_BY_ID,
                 VotingTableHelper.CREATED_AT)
             .values(id, groupId, createdBy, when)
-            .returning(VotingTableHelper.VOTING_ID, VoteTableHelper.CREATED_AT)
+            .returning(
+                VotingTableHelper.VOTING_ID,
+                VotingTableHelper.CREATED_AT,
+                VotingTableHelper.AVERAGE)
             .fetchOne();
 
     return toVoting(record);
@@ -116,7 +118,7 @@ public class JooqVotingRepository implements VotingRepository {
                 GroupsTableHelper.VISIBLE_MEMBER_LIST,
                 GroupsTableHelper.DAYS_OF_WEEK,
                 GroupsTableHelper.TIME)
-            .from(TablesHelper.USERS_GROUPS_TABLE)
+            .from(USERS_GROUPS_TABLE)
             .innerJoin(VOTING_TABLE)
             .on(DSL.field("voting.group_id").eq(DSL.field("users_groups.group_id")))
             .innerJoin(GROUPS_TABLE)
@@ -162,14 +164,58 @@ public class JooqVotingRepository implements VotingRepository {
     return record.map(Record1::component1).map(JooqVotingRepository::hasExpired).orElse(true);
   }
 
+  @Override
+  public List<Voting> listVotingsGroup(
+      UUID groupId, OffsetDateTime startDate, OffsetDateTime endDate) {
+    return context
+        .select(
+            VotingTableHelper.VOTING_ID, VotingTableHelper.CREATED_AT, VotingTableHelper.AVERAGE)
+        .from(VOTING_TABLE)
+        .where(VotingTableHelper.GROUP_ID.eq(groupId))
+        .and(VotingTableHelper.CREATED_AT.between(startDate, endDate))
+        .fetch(JooqVotingRepository::toVoting);
+  }
+
   private static boolean hasExpired(OffsetDateTime createdAt) {
     return createdAt.plusDays(1).isBefore(OffsetDateTime.now());
+  }
+
+  @Override
+  public Voting updateVotingAverage(UUID votingId, Integer average) {
+    Record record =
+        context
+            .update(VOTING_TABLE)
+            .set(VotingTableHelper.AVERAGE, average)
+            .where(VotingTableHelper.VOTING_ID.eq(votingId))
+            .returning(
+                VotingTableHelper.VOTING_ID,
+                VotingTableHelper.CREATED_AT,
+                VotingTableHelper.AVERAGE)
+            .fetchOne();
+
+    return toVoting(record);
+  }
+
+  @Override
+  public Integer calculateVoteAverage(UUID votingId) {
+    Optional<Record1<BigDecimal>> record =
+        context
+            .select(DSL.avg(VoteTableHelper.SCORE))
+            .from(VOTE_TABLE)
+            .where(VoteTableHelper.VOTING_ID.eq(votingId))
+            .fetchOptional();
+
+    return record
+        .map(Record1::component1)
+        .map(decimal -> decimal.setScale(0, RoundingMode.HALF_UP).intValue())
+        .orElse(null);
   }
 
   private static Voting toVoting(Record record) {
     return Voting.newBuilder()
         .withId(record.get(VotingTableHelper.VOTING_ID))
         .withCreatedAt(record.get(VotingTableHelper.CREATED_AT))
+        .withAverage(record.get(VotingTableHelper.AVERAGE))
         .build();
   }
 

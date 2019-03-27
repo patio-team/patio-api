@@ -106,6 +106,26 @@ public final class ErrorConstants {
   public static final Error VOTE_CANT_BE_ANONYMOUS =
       new Error("API_ERRORS.VOTE_CANT_BE_ANONYMOUS", "The group doesn't allow anonymous votes");
 
+  /**
+   * Code used when the startDate parameter doesn't follow ISO format ('2011-12-03T10:15:30Z')
+   *
+   * @since 0.1.0
+   */
+  public static final Error START_DATE_IS_INVALID =
+      new Error(
+          "API_ERRORS.START_DATE_IS_INVALID",
+          "The the start date doesn't follow ISO format ('2011-12-03T10:15:30Z')");
+
+  /**
+   * Code used when the endDate parameter doesn't follow ISO format ('2011-12-03T10:15:30Z')
+   *
+   * @since 0.1.0
+   */
+  public static final Error END_DATE_IS_INVALID =
+      new Error(
+          "API_ERRORS.END_DATE_IS_INVALID",
+          "The the end date doesn't follow ISO format ('2011-12-03T10:15:30Z')");
+
   private ErrorConstants() {
     /* empty */
   }

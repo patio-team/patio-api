@@ -22,10 +22,12 @@ import dwbh.api.domain.Vote;
 import dwbh.api.domain.Voting;
 import dwbh.api.domain.input.CreateVoteInput;
 import dwbh.api.domain.input.CreateVotingInput;
+import dwbh.api.domain.input.ListVotingsGroupInput;
 import dwbh.api.graphql.ResultUtils;
 import dwbh.api.services.VotingService;
 import graphql.execution.DataFetcherResult;
 import graphql.schema.DataFetchingEnvironment;
+import java.util.List;
 import javax.inject.Singleton;
 
 /**
@@ -67,7 +69,7 @@ public class VotingFetcher {
   }
 
   /**
-   * Creates a new group {@link Voting} slot
+   * Creates a new {@link Voting} slot
    *
    * @param env GraphQL execution environment
    * @return the info of the {@link Voting} created or an error
@@ -77,5 +79,17 @@ public class VotingFetcher {
     CreateVotingInput input = VotingFetcherUtils.createVoting(env);
 
     return ResultUtils.render(service.createVoting(input));
+  }
+
+  /**
+   * Fetches the votings that belongs to a group
+   *
+   * @param env GraphQL execution environment
+   * @return a list of available {@link Voting}
+   * @since 0.1.0
+   */
+  public List<Voting> listVotingsGroup(DataFetchingEnvironment env) {
+    ListVotingsGroupInput input = VotingFetcherUtils.createListVotingsGroupInput(env);
+    return service.listVotingsGroup(input);
   }
 }

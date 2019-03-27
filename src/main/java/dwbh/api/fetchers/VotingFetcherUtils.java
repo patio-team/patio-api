@@ -17,11 +17,14 @@
  */
 package dwbh.api.fetchers;
 
+import dwbh.api.domain.Group;
 import dwbh.api.domain.User;
 import dwbh.api.domain.input.CreateVoteInput;
 import dwbh.api.domain.input.CreateVotingInput;
+import dwbh.api.domain.input.ListVotingsGroupInput;
 import dwbh.api.graphql.Context;
 import graphql.schema.DataFetchingEnvironment;
+import java.time.OffsetDateTime;
 import java.util.UUID;
 
 /**
@@ -73,6 +76,26 @@ final class VotingFetcherUtils {
         .withComment(comment)
         .withScore(score)
         .withAnonymous(anonymous)
+        .build();
+  }
+
+  /**
+   * Creates a {@link ListVotingsGroupInput}
+   *
+   * @param environment the GraphQL {@link DataFetchingEnvironment}
+   * @return an instance of type {@link ListVotingsGroupInput}
+   * @since 0.1.0
+   */
+  /* default */ static ListVotingsGroupInput createListVotingsGroupInput(
+      DataFetchingEnvironment environment) {
+    Group group = environment.getSource();
+    OffsetDateTime startDate = environment.getArgument("startDate");
+    OffsetDateTime endDate = environment.getArgument("endDate");
+
+    return ListVotingsGroupInput.newBuilder()
+        .withGroupId(group.getId())
+        .withStartDate(startDate)
+        .withEndDate(endDate)
         .build();
   }
 }

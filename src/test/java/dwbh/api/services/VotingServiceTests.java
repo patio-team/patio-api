@@ -18,26 +18,21 @@
 package dwbh.api.services;
 
 import static io.github.benas.randombeans.api.EnhancedRandom.random;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
-import dwbh.api.domain.Group;
-import dwbh.api.domain.User;
-import dwbh.api.domain.UserGroup;
-import dwbh.api.domain.Vote;
-import dwbh.api.domain.Voting;
+import dwbh.api.domain.*;
 import dwbh.api.domain.input.CreateVoteInput;
 import dwbh.api.domain.input.CreateVotingInput;
+import dwbh.api.domain.input.ListVotingsGroupInput;
 import dwbh.api.repositories.UserGroupRepository;
 import dwbh.api.repositories.VotingRepository;
 import dwbh.api.util.ErrorConstants;
 import dwbh.api.util.Result;
+import java.time.OffsetDateTime;
+import java.util.List;
 import java.util.UUID;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.DisplayName;
@@ -305,5 +300,31 @@ public class VotingServiceTests {
 
   private static Stream<Integer> testCreateVoteFailBecauseInvalidScoreDataProvider() {
     return Stream.of(null, 0, 6);
+  }
+
+  @Test
+  @DisplayName("listVotingsGroup: success")
+  void testListVotingsGroupSuccessfully() {
+    // given: some mocked data
+    var groupId = UUID.randomUUID();
+    var input =
+        ListVotingsGroupInput.newBuilder()
+            .withGroupId(groupId)
+            .withStartDate(OffsetDateTime.parse("2011-12-03T10:15:30Z"))
+            .withEndDate(OffsetDateTime.parse("2011-12-03T10:15:30Z"))
+            .build();
+
+    // and: mocked repository calls
+    var votingRepository = Mockito.mock(VotingRepository.class);
+
+    Mockito.when(votingRepository.listVotingsGroup(any(), any(), any()))
+        .thenReturn(List.of(random(Voting.class), random(Voting.class), random(Voting.class)));
+
+    // when: invoking the voting listing
+    VotingService votingService = new VotingService(null, votingRepository);
+    List<Voting> votings = votingService.listVotingsGroup(input);
+
+    // then: the votings are returned
+    assertEquals(votings.size(), 3, "Successfully listed votings");
   }
 }
