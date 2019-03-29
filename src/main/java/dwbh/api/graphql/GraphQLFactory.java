@@ -124,7 +124,8 @@ public class GraphQLFactory {
                         .dataFetcher("createGroup", groupFetcher::createGroup)
                         .dataFetcher("addUserToGroup", userGroupFetcher::addUserToGroup)
                         .dataFetcher("createVoting", votingFetcher::createVoting)
-                        .dataFetcher("createVote", votingFetcher::createVote))
+                        .dataFetcher("createVote", votingFetcher::createVote)
+                        .dataFetcher("leaveGroup", userGroupFetcher::leaveGroup))
             .type(
                 "Group",
                 builder ->

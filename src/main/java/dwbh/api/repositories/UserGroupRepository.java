@@ -147,4 +147,36 @@ public class UserGroupRepository {
 
     return new UserGroup(userId, groupId, isAdmin);
   }
+
+  /**
+   * Get the list of admins of a group
+   *
+   * @param groupId group identifier
+   * @return The list of {@link UserGroup} that are admin
+   * @since 0.1.0
+   */
+  public List<UserGroup> listAdminsGroup(UUID groupId) {
+    return (List<UserGroup>)
+        context
+            .selectFrom(TablesHelper.USERS_GROUPS_TABLE)
+            .where(UsersGroupsTableHelper.GROUP_ID.eq(groupId))
+            .and(UsersGroupsTableHelper.IS_ADMIN.eq(true))
+            .fetch(UserGroupRepository::toUserGroup);
+  }
+
+  /**
+   * Deletes a user group relationship
+   *
+   * @param userId user identifier
+   * @param groupId group identifier
+   * @since 0.1.0
+   */
+  public void removeUserFromGroup(UUID userId, UUID groupId) {
+
+    context
+        .deleteFrom(TablesHelper.USERS_GROUPS_TABLE)
+        .where(UsersGroupsTableHelper.GROUP_ID.eq(groupId))
+        .and(UsersGroupsTableHelper.USER_ID.eq(userId))
+        .execute();
+  }
 }

@@ -105,4 +105,7 @@ type Mutation {
 
     # add an user to a group
     addUserToGroup(email: String!, groupId: ID!): Boolean
+
+    # add an user to a group
+    leaveGroup(groupId: ID!): Boolean
 }

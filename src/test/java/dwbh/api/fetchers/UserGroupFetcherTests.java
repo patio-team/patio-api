@@ -21,7 +21,10 @@ import static io.github.benas.randombeans.api.EnhancedRandom.random;
 import static io.github.benas.randombeans.api.EnhancedRandom.randomListOf;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 
 import dwbh.api.domain.Group;
@@ -159,5 +162,34 @@ class UserGroupFetcherTests {
 
     // then: check certain assertions should be met
     assertThat("there're only a certain number of users", userList.size(), is(2));
+  }
+
+  @Test
+  void testLeaveGroupSuccess() {
+    // given: a group
+    Group group = random(Group.class);
+
+    // and: an user
+    User user = random(User.class);
+
+    // and: a mocking service
+    var mockedService = Mockito.mock(UserGroupService.class);
+
+    // and: mocking service's behavior
+    Mockito.when(mockedService.leaveGroup(any())).thenReturn(Result.result(true));
+
+    // and: a mocked environment
+    var mockedEnvironment =
+        FetcherTestUtils.generateMockedEnvironment(user, Map.of("groupId", group.getId()));
+
+    // when: invoking the service
+    UserGroupFetcher fetchers = new UserGroupFetcher(mockedService);
+    var result = fetchers.leaveGroup(mockedEnvironment);
+
+    // then: there should be no errors
+    assertTrue(result.getErrors().isEmpty());
+
+    // and: a true value should be returned
+    assertEquals(result.getData(), true);
   }
 }

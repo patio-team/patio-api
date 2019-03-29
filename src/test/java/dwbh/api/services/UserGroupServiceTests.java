@@ -31,11 +31,13 @@ import dwbh.api.domain.GroupBuilder;
 import dwbh.api.domain.User;
 import dwbh.api.domain.UserGroup;
 import dwbh.api.domain.input.AddUserToGroupInput;
+import dwbh.api.domain.input.LeaveGroupInput;
 import dwbh.api.domain.input.ListUsersGroupInput;
 import dwbh.api.repositories.GroupRepository;
 import dwbh.api.repositories.UserGroupRepository;
 import dwbh.api.repositories.UserRepository;
 import dwbh.api.util.ErrorConstants;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -383,5 +385,142 @@ public class UserGroupServiceTests {
 
     // and: The method to get the list of users has been called
     verify(userGroupRepository, times(0)).listUsersGroup(any());
+  }
+
+  @Test
+  void testLeaveGroupSuccess() {
+    // given: an users
+    var currentUser = random(User.class);
+
+    // and: a group
+    var group = random(Group.class);
+
+    // and: a mocked usergroup repository
+    var userGroupRepository = Mockito.mock(UserGroupRepository.class);
+    Mockito.when(userGroupRepository.getUserGroup(currentUser.getId(), group.getId()))
+        .thenReturn(random(UserGroup.class));
+    Mockito.when(userGroupRepository.listAdminsGroup(group.getId())).thenReturn(List.of());
+
+    // and: a LeaveGroupInput
+    LeaveGroupInput leaveGroupInput =
+        LeaveGroupInput.newBuilder()
+            .withCurrentUserId(currentUser.getId())
+            .withGroupId(group.getId())
+            .build();
+
+    // when: calling to leaveGroup
+    var userGroupService = new UserGroupService(null, null, userGroupRepository, null);
+    var result = userGroupService.leaveGroup(leaveGroupInput);
+
+    // then: we should get a success
+    assertEquals(result.getErrorList().size(), 0);
+    assertEquals(result.getSuccess(), true);
+
+    // and: The method to remove an user from a group has been called
+    verify(userGroupRepository, times(1)).removeUserFromGroup(any(), any());
+  }
+
+  @Test
+  void testLeaveGroupAdminSuccess() {
+    // given: an users
+    var currentUser = random(User.class);
+
+    // and: a group
+    var group = random(Group.class);
+
+    // and: a mocked usergroup repository
+    var userGroupRepository = Mockito.mock(UserGroupRepository.class);
+    Mockito.when(userGroupRepository.getUserGroup(currentUser.getId(), group.getId()))
+        .thenReturn(random(UserGroup.class));
+    Mockito.when(userGroupRepository.listAdminsGroup(group.getId()))
+        .thenReturn(
+            List.of(
+                new UserGroup(currentUser.getId(), group.getId(), true), random(UserGroup.class)));
+
+    // and: a LeaveGroupInput
+    LeaveGroupInput leaveGroupInput =
+        LeaveGroupInput.newBuilder()
+            .withCurrentUserId(currentUser.getId())
+            .withGroupId(group.getId())
+            .build();
+
+    // when: calling to leaveGroup
+    var userGroupService = new UserGroupService(null, null, userGroupRepository, null);
+    var result = userGroupService.leaveGroup(leaveGroupInput);
+
+    // then: we should get a success
+    assertEquals(result.getErrorList().size(), 0);
+    assertEquals(result.getSuccess(), true);
+
+    // and: The method to remove an user from a group has been called
+    verify(userGroupRepository, times(1)).removeUserFromGroup(any(), any());
+  }
+
+  @Test
+  void testLeaveGroupFailIfUserDoesntBelongToGroup() {
+    // given: an users
+    var currentUser = random(User.class);
+
+    // and: a group
+    var group = random(Group.class);
+
+    // and: a mocked usergroup repository
+    var userGroupRepository = Mockito.mock(UserGroupRepository.class);
+    Mockito.when(userGroupRepository.getUserGroup(currentUser.getId(), group.getId()))
+        .thenReturn(null);
+
+    // and: a LeaveGroupInput
+    LeaveGroupInput leaveGroupInput =
+        LeaveGroupInput.newBuilder()
+            .withCurrentUserId(currentUser.getId())
+            .withGroupId(group.getId())
+            .build();
+
+    // when: calling to leaveGroup
+    var userGroupService = new UserGroupService(null, null, userGroupRepository, null);
+    var result = userGroupService.leaveGroup(leaveGroupInput);
+
+    // then: we should get a failure
+    assertNull(result.getSuccess());
+    assertEquals(result.getErrorList().size(), 1);
+    assertEquals(result.getErrorList().get(0), ErrorConstants.USER_NOT_IN_GROUP);
+
+    // and: The method to remove an user from a group hasn't been called
+    verify(userGroupRepository, times(0)).removeUserFromGroup(any(), any());
+  }
+
+  @Test
+  void testLeaveGroupFailIfUserIsUniqueAdmin() {
+    // given: an users
+    var currentUser = random(User.class);
+
+    // and: a group
+    var group = random(Group.class);
+
+    // and: a mocked usergroup repository
+    var userGroupRepository = Mockito.mock(UserGroupRepository.class);
+    Mockito.when(userGroupRepository.getUserGroup(currentUser.getId(), group.getId()))
+        .thenReturn(random(UserGroup.class));
+    Mockito.when(userGroupRepository.listAdminsGroup(group.getId()))
+        .thenReturn(List.of(new UserGroup(currentUser.getId(), group.getId(), true)));
+
+    // and: a LeaveGroupInput
+    LeaveGroupInput leaveGroupInput =
+        LeaveGroupInput.newBuilder()
+            .withCurrentUserId(currentUser.getId())
+            .withGroupId(group.getId())
+            .build();
+
+    // when: calling to leaveGroup
+    var userGroupService = new UserGroupService(null, null, userGroupRepository, null);
+    var result = userGroupService.leaveGroup(leaveGroupInput);
+
+    // then: we should get a failure
+    assertNull(result.getSuccess());
+    assertEquals(result.getErrorList().size(), 1);
+    assertEquals(result.getErrorList().get(0), ErrorConstants.UNIQUE_ADMIN);
+
+    // and: The method to remove an user from a group hasn't been called
+    verify(userGroupRepository, times(0)).removeUserFromGroup(any(), any());
   }
 }
