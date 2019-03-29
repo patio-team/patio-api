@@ -21,6 +21,7 @@ import dwbh.api.domain.Group;
 import dwbh.api.domain.User;
 import dwbh.api.domain.input.CreateVoteInput;
 import dwbh.api.domain.input.CreateVotingInput;
+import dwbh.api.domain.input.GetVotingInput;
 import dwbh.api.domain.input.ListVotingsGroupInput;
 import dwbh.api.graphql.Context;
 import graphql.schema.DataFetchingEnvironment;
@@ -96,6 +97,23 @@ final class VotingFetcherUtils {
         .withGroupId(group.getId())
         .withStartDate(startDate)
         .withEndDate(endDate)
+        .build();
+  }
+
+  /**
+   * Creates a {@link GetVotingInput} from the data coming from the {@link DataFetchingEnvironment}
+   *
+   * @param environment the GraphQL {@link DataFetchingEnvironment}
+   * @return an instance of {@link GetVotingInput}
+   * @since 0.1.0
+   */
+  /* default */ static GetVotingInput getVotingInput(DataFetchingEnvironment environment) {
+    UUID votingId = environment.getArgument("id");
+    Context ctx = environment.getContext();
+    User currentUser = ctx.getAuthenticatedUser();
+    return GetVotingInput.newBuilder()
+        .withCurrentUserId(currentUser.getId())
+        .withVotingId(votingId)
         .build();
   }
 }

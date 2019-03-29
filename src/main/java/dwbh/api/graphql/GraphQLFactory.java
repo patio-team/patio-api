@@ -115,6 +115,7 @@ public class GraphQLFactory {
                         .dataFetcher("listUsers", userFetcher::listUsers)
                         .dataFetcher("getUser", userFetcher::getUser)
                         .dataFetcher("myProfile", userFetcher::getCurrentUser)
+                        .dataFetcher("getVoting", votingFetcher::getVoting)
                         .dataFetcher("login", securityFetcher::login))
             .type(
                 SCHEMA_TYPE_MUTATION,

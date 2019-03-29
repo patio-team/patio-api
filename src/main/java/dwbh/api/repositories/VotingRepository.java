@@ -85,6 +85,16 @@ public interface VotingRepository {
   Group findGroupByUserAndVoting(UUID userId, UUID votingId);
 
   /**
+   * Finds the voting id passed as parameter, if the user belongs to the group of the voting
+   *
+   * @param userId the id of the user
+   * @param votingId id of the voting
+   * @return an instance of {@link Voting} if it's found or null otherwise
+   * @since 0.1.0
+   */
+  Voting findVotingByUserAndVoting(UUID userId, UUID votingId);
+
+  /**
    * Finds the vote of an user on a voting
    *
    * @param userId id of the user

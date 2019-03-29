@@ -18,14 +18,23 @@
 package dwbh.api.services;
 
 import static io.github.benas.randombeans.api.EnhancedRandom.random;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
-import dwbh.api.domain.*;
+import dwbh.api.domain.Group;
+import dwbh.api.domain.User;
+import dwbh.api.domain.UserGroup;
+import dwbh.api.domain.Vote;
+import dwbh.api.domain.Voting;
 import dwbh.api.domain.input.CreateVoteInput;
 import dwbh.api.domain.input.CreateVotingInput;
+import dwbh.api.domain.input.GetVotingInput;
 import dwbh.api.domain.input.ListVotingsGroupInput;
 import dwbh.api.repositories.UserGroupRepository;
 import dwbh.api.repositories.VotingRepository;
@@ -35,6 +44,7 @@ import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Stream;
+import org.junit.Assert;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -331,5 +341,46 @@ public class VotingServiceTests {
 
     // then: the votings are returned
     assertEquals(votings.size(), 3, "Successfully listed votings");
+  }
+
+  @Test
+  void testGetVoting() {
+    // given: a mocked voting repository
+    var votingRepository = mock(VotingRepository.class);
+    Mockito.when(votingRepository.findVotingByUserAndVoting(any(), any()))
+        .thenReturn(random(Voting.class));
+
+    // when: getting a voting by id
+    var votingService = new VotingService(null, null, null, votingRepository);
+    var input =
+        GetVotingInput.newBuilder()
+            .withCurrentUserId(UUID.randomUUID())
+            .withVotingId(UUID.randomUUID())
+            .build();
+    Result<Voting> result = votingService.getVoting(input);
+
+    // then: we should get it
+    assertNotNull(result.getSuccess());
+  }
+
+  @Test
+  void testGetVotingFailIfVotingDoesntExists() {
+    // given: a mocked voting repository
+    var votingRepository = mock(VotingRepository.class);
+    Mockito.when(votingRepository.findVotingByUserAndVoting(any(), any())).thenReturn(null);
+
+    // when: getting a voting by id
+    var votingService = new VotingService(null, null, null, votingRepository);
+    var input =
+        GetVotingInput.newBuilder()
+            .withCurrentUserId(UUID.randomUUID())
+            .withVotingId(UUID.randomUUID())
+            .build();
+    Result<Voting> result = votingService.getVoting(input);
+
+    // then: we should get an error
+    assertNotNull(result.getErrorList());
+    Assert.assertNull(result.getSuccess());
+    assertEquals(ErrorConstants.NOT_FOUND, result.getErrorList().get(0));
   }
 }

@@ -17,9 +17,16 @@
  */
 package dwbh.api.repositories.internal;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
-import dwbh.api.domain.*;
+import dwbh.api.domain.Group;
+import dwbh.api.domain.GroupBuilder;
+import dwbh.api.domain.User;
+import dwbh.api.domain.UserBuilder;
+import dwbh.api.domain.Vote;
+import dwbh.api.domain.Voting;
 import dwbh.api.fixtures.Fixtures;
 import dwbh.api.repositories.VotingRepository;
 import io.micronaut.test.annotation.MicronautTest;
@@ -29,7 +36,11 @@ import java.util.UUID;
 import java.util.stream.Stream;
 import javax.inject.Inject;
 import org.flywaydb.core.Flyway;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -210,6 +221,42 @@ public class JooqVotingRepositoryTests {
     assertNotNull("and the name", group.getName());
     assertNotNull("and the days", group.getVotingDays());
     assertNotNull("and the time", group.getVotingTime());
+  }
+
+  @Test
+  @DisplayName("findVotingByUserAndVoting: success")
+  void findVotingByUserAndVoting() {
+    // given: fixtures
+    fixtures.load(JooqVotingRepositoryTests.class, "findVotingByUserAndVotingSuccessfully.sql");
+
+    // and: good parameters
+    UUID userId = UUID.fromString("486590a3-fcc1-4657-a9ed-5f0f95dadea6");
+    UUID votingId = UUID.fromString("ffad4562-4971-11e9-98cd-d663bd873d93");
+
+    // when: looking for a voting with good parameter
+    Voting voting = repository.findVotingByUserAndVoting(userId, votingId);
+
+    // then: we should get a populated voting
+    assertNotNull("there is the voting", voting);
+    assertEquals(voting.getId(), votingId);
+    assertEquals(voting.getAverage(), (Integer) 3);
+  }
+
+  @Test
+  @DisplayName("findVotingByUserAndVoting: failure")
+  void findVotingByUserAndVotingFailure() {
+    // given: fixtures
+    fixtures.load(JooqVotingRepositoryTests.class, "findVotingByUserAndVotingFailure.sql");
+
+    // and: good parameters
+    UUID userId = UUID.fromString("486590a3-fcc1-4657-a9ed-5f0f95dadea6");
+    UUID votingId = UUID.fromString("ffad4562-4971-11e9-98cd-d663bd873d93");
+
+    // when: looking for a voting with good parameter
+    Voting voting = repository.findVotingByUserAndVoting(userId, votingId);
+
+    // then: we shouldn't get a voting
+    assertNull("there is no voting", voting);
   }
 
   @Test

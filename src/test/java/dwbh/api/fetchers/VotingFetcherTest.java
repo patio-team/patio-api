@@ -125,4 +125,30 @@ class VotingFetcherTest {
     // then: we should get the successful result
     assertEquals("There are votings", result.size(), 1);
   }
+
+  @Test
+  void testGetVoting() {
+    // given: an voting
+    Voting voting = random(Voting.class);
+
+    // and: an user
+    User user = random(User.class);
+
+    // and: a mocking service
+    var mockedService = Mockito.mock(VotingService.class);
+
+    // and: mocking service's behavior
+    Mockito.when(mockedService.getVoting(any())).thenReturn(Result.result(voting));
+
+    // and: a mocked environment
+    var mockedEnvironment =
+        FetcherTestUtils.generateMockedEnvironment(user, Map.of("id", voting.getId()));
+
+    // when: fetching get voting invoking the service
+    VotingFetcher fetchers = new VotingFetcher(mockedService);
+    DataFetcherResult<Voting> result = fetchers.getVoting(mockedEnvironment);
+
+    // then: check certain assertions should be met
+    assertThat("the voting is found", result.getData(), is(voting));
+  }
 }
