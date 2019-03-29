@@ -383,4 +383,24 @@ public class VotingServiceTests {
     Assert.assertNull(result.getSuccess());
     assertEquals(ErrorConstants.NOT_FOUND, result.getErrorList().get(0));
   }
+
+  @Test
+  @DisplayName("listVotesVoting: success")
+  void testListVotesVotingSuccessfully() {
+    // given: some mocked data
+    var votingId = UUID.randomUUID();
+
+    // and: mocked repository calls
+    var votingRepository = Mockito.mock(VotingRepository.class);
+
+    Mockito.when(votingRepository.listVotesVoting(any()))
+        .thenReturn(List.of(random(Vote.class), random(Vote.class), random(Vote.class)));
+
+    // when: invoking the vote listing
+    VotingService votingService = new VotingService(null, null, null, votingRepository);
+    List<Vote> votes = votingService.listVotesVoting(votingId);
+
+    // then: the votes are returned
+    assertEquals(votes.size(), 3, "Successfully listed votes");
+  }
 }

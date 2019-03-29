@@ -40,7 +40,7 @@ import org.mockito.Mockito;
  *
  * @since 0.1.0
  */
-class UserGroupFetcherTest {
+class UserGroupFetcherTests {
 
   @Test
   void testAddUserToGroupSuccess() {

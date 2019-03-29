@@ -105,4 +105,16 @@ public class VotingFetcher {
     GetVotingInput input = VotingFetcherUtils.getVotingInput(env);
     return ResultUtils.render(service.getVoting(input));
   }
+
+  /**
+   * Fetches the votes that belongs to a vote
+   *
+   * @param env GraphQL execution environment
+   * @return a list of available {@link Vote}
+   * @since 0.1.0
+   */
+  public List<Vote> listVotesVoting(DataFetchingEnvironment env) {
+    Voting voting = env.getSource();
+    return service.listVotesVoting(voting.getId());
+  }
 }

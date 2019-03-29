@@ -53,6 +53,7 @@ type Voting {
     createdAt: DateTime
     createdBy: User
     average: Int
+    votes: [Vote]
 }
 
 type Vote {

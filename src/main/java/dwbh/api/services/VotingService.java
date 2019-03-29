@@ -166,6 +166,16 @@ public class VotingService extends BaseService {
     return votingRepository.listVotingsGroup(
         input.getGroupId(), input.getStartDate(), input.getEndDate());
   }
+  /**
+   * Gets the votes that belongs to a voting
+   *
+   * @param votingId The id of the {@link Voting}
+   * @return a list of {@link Vote} instances
+   * @since 0.1.0
+   */
+  public List<Vote> listVotesVoting(UUID votingId) {
+    return votingRepository.listVotesVoting(votingId);
+  }
 
   /**
    * Get a specific voting

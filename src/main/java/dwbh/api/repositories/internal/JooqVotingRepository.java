@@ -251,4 +251,12 @@ public class JooqVotingRepository implements VotingRepository {
         .withScore(record.get(VoteTableHelper.SCORE))
         .build();
   }
+
+  @Override
+  public List<Vote> listVotesVoting(UUID votingId) {
+    return context
+        .selectFrom(TablesHelper.VOTE_TABLE)
+        .where(VoteTableHelper.VOTING_ID.eq(votingId))
+        .fetch(JooqVotingRepository::toVote);
+  }
 }

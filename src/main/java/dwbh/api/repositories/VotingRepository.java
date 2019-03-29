@@ -116,6 +116,15 @@ public interface VotingRepository {
   List<Voting> listVotingsGroup(UUID groupId, OffsetDateTime startDate, OffsetDateTime endDate);
 
   /**
+   * Lists votes on a voting
+   *
+   * @param votingId voting identifier
+   * @return a list of votings that belongs to a group
+   * @since 0.1.0
+   */
+  List<Vote> listVotesVoting(UUID votingId);
+
+  /**
    * BaseService whether the voting slot has expired or not
    *
    * @param votingId the id of the voting slot

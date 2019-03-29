@@ -375,4 +375,17 @@ public class JooqVotingRepositoryTests {
     // then: we get a null average
     assertEquals(average, null);
   }
+
+  @Test
+  void testListVotesVoting() {
+    // given: a pre-loaded fixtures
+    fixtures.load(JooqVotingRepositoryTests.class, "listVotesVotingSuccessfully.sql");
+
+    // when: asking for the list of votes
+    List<Vote> voteList =
+        repository.listVotesVoting(UUID.fromString("ffad4562-4971-11e9-98cd-d663bd873d93"));
+
+    // then: check there're the expected number of votes
+    assertEquals(voteList.size(), 4);
+  }
 }

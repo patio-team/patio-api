@@ -136,6 +136,7 @@ public class GraphQLFactory {
             .type(
                 "UserProfile",
                 builder -> builder.dataFetcher("groups", groupFetcher::listGroupsUser))
+            .type("Voting", builder -> builder.dataFetcher("votes", votingFetcher::listVotesVoting))
             .build();
 
     return new SchemaGenerator().makeExecutableSchema(registry, wiring);
