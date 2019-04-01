@@ -18,13 +18,14 @@
 package dwbh.api.services;
 
 import dwbh.api.domain.Group;
-import dwbh.api.domain.UserGroup;
 import dwbh.api.domain.Vote;
 import dwbh.api.domain.Voting;
 import dwbh.api.domain.input.CreateVoteInput;
 import dwbh.api.domain.input.CreateVotingInput;
 import dwbh.api.domain.input.ListVotingsGroupInput;
+import dwbh.api.repositories.GroupRepository;
 import dwbh.api.repositories.UserGroupRepository;
+import dwbh.api.repositories.UserRepository;
 import dwbh.api.repositories.VotingRepository;
 import dwbh.api.util.Check;
 import dwbh.api.util.ErrorConstants;
@@ -43,21 +44,22 @@ import javax.inject.Singleton;
  */
 @Singleton
 @SuppressWarnings("PMD.TooManyMethods")
-public class VotingService {
-
-  private final transient UserGroupRepository userGroupRepository;
-  private final transient VotingRepository votingRepository;
-
+public class VotingService extends BaseService {
   /**
-   * Initializes service by using the database repository
+   * Initializes service by using the database repositories
    *
+   * @param groupRepository an instance of {@link GroupRepository}
+   * @param userRepository an instance of {@link UserRepository}
    * @param userGroupRepository an instance of {@link UserGroupRepository}
    * @param votingRepository an instance of {@link VotingRepository}
    * @since 0.1.0
    */
-  public VotingService(UserGroupRepository userGroupRepository, VotingRepository votingRepository) {
-    this.userGroupRepository = userGroupRepository;
-    this.votingRepository = votingRepository;
+  public VotingService(
+      GroupRepository groupRepository,
+      UserRepository userRepository,
+      UserGroupRepository userGroupRepository,
+      VotingRepository votingRepository) {
+    super(groupRepository, userRepository, userGroupRepository, votingRepository);
   }
 
   /**
@@ -68,14 +70,9 @@ public class VotingService {
    * @since 0.1.0
    */
   public Result<Voting> createVoting(CreateVotingInput input) {
-    return Check.<Voting, CreateVotingInput>checkWith(input, List.of(this::checkUserIsInGroup))
+    return Check.<Voting, CreateVotingInput>checkWith(
+            input, List.of(this.createCheckUserIsInGroup(input.getUserId(), input.getGroupId())))
         .orElseGet(() -> createVotingIfSuccess(input));
-  }
-
-  private Check checkUserIsInGroup(CreateVotingInput input) {
-    UserGroup userGroup = userGroupRepository.getUserGroup(input.getUserId(), input.getGroupId());
-
-    return Check.checkIsTrue(userGroup != null, ErrorConstants.USER_NOT_IN_GROUP);
   }
 
   private Result<Voting> createVotingIfSuccess(CreateVotingInput input) {
@@ -105,7 +102,7 @@ public class VotingService {
                 this::checkScoreIsValid,
                 this::checkUserHasntAlreadyVoted,
                 this::checkVotingHasNotExpired,
-                this.createCheckUserIsInGroup(group),
+                this.createCheckGroupExists(group),
                 this.createCheckAnonymousOk(group)));
 
     return possibleErrors.orElseGet(() -> createVoteIfSuccess(input));
@@ -114,11 +111,6 @@ public class VotingService {
   private Check checkVotingHasNotExpired(CreateVoteInput payload) {
     return Check.checkIsFalse(
         votingRepository.hasExpired(payload.getVotingId()), ErrorConstants.VOTING_HAS_EXPIRED);
-  }
-
-  private Function<CreateVoteInput, Check> createCheckUserIsInGroup(Optional<Group> group) {
-    return (CreateVoteInput input) ->
-        Check.checkIsTrue(group.isPresent(), ErrorConstants.USER_NOT_IN_GROUP);
   }
 
   private Function<CreateVoteInput, Check> createCheckAnonymousOk(Optional<Group> group) {

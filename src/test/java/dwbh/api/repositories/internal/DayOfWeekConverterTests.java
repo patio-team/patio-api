@@ -25,7 +25,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 /**
- * Checks {@link DayOfWeekConverter}
+ * BaseService {@link DayOfWeekConverter}
  *
  * @since 0.1.0
  */

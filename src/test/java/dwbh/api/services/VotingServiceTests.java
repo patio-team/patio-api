@@ -66,7 +66,7 @@ public class VotingServiceTests {
         .thenReturn(new UserGroup(user.getId(), group.getId(), true));
 
     // when: invoking the service
-    var votingService = new VotingService(userGroupRepository, votingRepository);
+    var votingService = new VotingService(null, null, userGroupRepository, votingRepository);
     var votingInput =
         CreateVotingInput.newBuilder().withUserId(user.getId()).withGroupId(group.getId()).build();
     var votingResult = votingService.createVoting(votingInput);
@@ -96,7 +96,7 @@ public class VotingServiceTests {
     Mockito.when(userGroupRepository.getUserGroup(any(), any())).thenReturn(null);
 
     // when: invoking the service
-    var votingService = new VotingService(userGroupRepository, votingRepository);
+    var votingService = new VotingService(null, null, userGroupRepository, votingRepository);
     var votingInput =
         CreateVotingInput.newBuilder().withUserId(user.getId()).withGroupId(group.getId()).build();
     var votingResult = votingService.createVoting(votingInput);
@@ -140,7 +140,8 @@ public class VotingServiceTests {
         .thenReturn(Vote.newBuilder().build());
 
     // when: invoking the vote creation
-    VotingService votingService = new VotingService(userGroupRepository, votingRepository);
+    VotingService votingService =
+        new VotingService(null, null, userGroupRepository, votingRepository);
     Result<Vote> vote = votingService.createVote(input);
 
     // then: vote has been created
@@ -175,7 +176,8 @@ public class VotingServiceTests {
         .thenReturn(Mockito.mock(Vote.class));
 
     // when: invoking the vote creation
-    VotingService votingService = new VotingService(userGroupRepository, votingRepository);
+    VotingService votingService =
+        new VotingService(null, null, userGroupRepository, votingRepository);
     Result<Vote> vote = votingService.createVote(input);
 
     // then: vote can't be created
@@ -211,7 +213,8 @@ public class VotingServiceTests {
     Mockito.when(votingRepository.hasExpired(any())).thenReturn(true);
 
     // when: invoking the vote creation
-    VotingService votingService = new VotingService(userGroupRepository, votingRepository);
+    VotingService votingService =
+        new VotingService(null, null, userGroupRepository, votingRepository);
     Result<Vote> vote = votingService.createVote(input);
 
     // then: vote can't be created
@@ -248,13 +251,14 @@ public class VotingServiceTests {
     Mockito.when(votingRepository.findGroupByUserAndVoting(any(), any())).thenReturn(null);
 
     // when: invoking the vote creation
-    VotingService votingService = new VotingService(userGroupRepository, votingRepository);
+    VotingService votingService =
+        new VotingService(null, null, userGroupRepository, votingRepository);
     Result<Vote> vote = votingService.createVote(input);
 
     // then: vote can't be created
     assertNull(vote.getSuccess(), "No vote");
     assertEquals(1, vote.getErrorList().size(), "There is one error");
-    assertEquals(ErrorConstants.USER_NOT_IN_GROUP.getCode(), vote.getErrorList().get(0).getCode());
+    assertEquals(ErrorConstants.NOT_FOUND.getCode(), vote.getErrorList().get(0).getCode());
 
     // and: three checkers has been called an no vote has been created
     verify(votingRepository, times(1)).findVoteByUserAndVoting(any(), any());
@@ -284,7 +288,8 @@ public class VotingServiceTests {
         .thenReturn(Vote.newBuilder().build());
 
     // when: invoking the vote creation
-    VotingService votingService = new VotingService(userGroupRepository, votingRepository);
+    VotingService votingService =
+        new VotingService(null, null, userGroupRepository, votingRepository);
     Result<Vote> vote = votingService.createVote(input);
 
     // then: vote can't be created
@@ -321,7 +326,7 @@ public class VotingServiceTests {
         .thenReturn(List.of(random(Voting.class), random(Voting.class), random(Voting.class)));
 
     // when: invoking the voting listing
-    VotingService votingService = new VotingService(null, votingRepository);
+    VotingService votingService = new VotingService(null, null, null, votingRepository);
     List<Voting> votings = votingService.listVotingsGroup(input);
 
     // then: the votings are returned

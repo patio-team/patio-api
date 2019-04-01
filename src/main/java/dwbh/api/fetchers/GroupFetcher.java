@@ -19,12 +19,14 @@ package dwbh.api.fetchers;
 
 import dwbh.api.domain.Group;
 import dwbh.api.domain.User;
+import dwbh.api.domain.input.GetGroupInput;
 import dwbh.api.domain.input.GroupInput;
 import dwbh.api.graphql.Context;
+import dwbh.api.graphql.ResultUtils;
 import dwbh.api.services.GroupService;
+import graphql.execution.DataFetcherResult;
 import graphql.schema.DataFetchingEnvironment;
 import java.util.List;
-import java.util.UUID;
 import javax.inject.Singleton;
 
 /**
@@ -77,19 +79,6 @@ public class GroupFetcher {
   }
 
   /**
-   * Get the specified group
-   *
-   * @param env GraphQL execution environment
-   * @return The requested {@link Group}
-   * @since 0.1.0
-   */
-  public Group getGroup(DataFetchingEnvironment env) {
-    UUID groupId = env.getArgument("id");
-
-    return service.getGroup(groupId);
-  }
-
-  /**
    * Fetches the groups that belongs to an user
    *
    * @param env GraphQL execution environment
@@ -114,5 +103,17 @@ public class GroupFetcher {
     GroupInput input = GroupFetcherUtils.group(env);
 
     return service.createGroup(user, input);
+  }
+
+  /**
+   * Get the specified group
+   *
+   * @param env GraphQL execution environment
+   * @return The requested {@link Group}
+   * @since 0.1.0
+   */
+  public DataFetcherResult<Group> getGroup(DataFetchingEnvironment env) {
+    GetGroupInput input = GroupFetcherUtils.getGroupInput(env);
+    return ResultUtils.render(service.getGroup(input));
   }
 }

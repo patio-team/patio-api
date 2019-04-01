@@ -19,19 +19,22 @@ package dwbh.api.services;
 
 import static io.github.benas.randombeans.api.EnhancedRandom.random;
 import static io.github.benas.randombeans.api.EnhancedRandom.randomListOf;
+import static org.junit.Assert.assertNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 import dwbh.api.domain.Group;
 import dwbh.api.domain.User;
+import dwbh.api.domain.UserGroup;
+import dwbh.api.domain.input.GetGroupInput;
 import dwbh.api.domain.input.GroupInput;
 import dwbh.api.repositories.GroupRepository;
 import dwbh.api.repositories.UserGroupRepository;
+import dwbh.api.util.ErrorConstants;
+import dwbh.api.util.Result;
 import java.time.DayOfWeek;
 import java.util.List;
 import java.util.UUID;
@@ -56,25 +59,11 @@ public class GroupServiceTests {
     Mockito.when(groupRepository.listGroups()).thenReturn(randomListOf(4, Group.class));
 
     // when: invoking service listGroups()
-    var groupService = new GroupService(groupRepository, null);
+    var groupService = new GroupService(groupRepository, null, null, null);
     var groupList = groupService.listGroups();
 
     // then: we should get the expected number of groups
     assertEquals(4, groupList.size());
-  }
-
-  @Test
-  void testGetGroup() {
-    // given: a mocked group repository
-    var groupRepository = mock(GroupRepository.class);
-    Mockito.when(groupRepository.getGroup(any())).thenReturn(random(Group.class));
-
-    // when: getting a group by id
-    var groupService = new GroupService(groupRepository, null);
-    var group = groupService.getGroup(UUID.randomUUID());
-
-    // then: we should get it
-    assertNotNull(group);
   }
 
   @Test
@@ -85,7 +74,7 @@ public class GroupServiceTests {
         .thenReturn(randomListOf(5, Group.class));
 
     // when: getting a list of groups by group
-    var groupService = new GroupService(null, userGroupRepository);
+    var groupService = new GroupService(null, null, userGroupRepository, null);
     var groupsByGroup = groupService.listGroupsUser(UUID.randomUUID());
 
     // then: we should get the expected number of groups
@@ -107,7 +96,7 @@ public class GroupServiceTests {
     GroupInput groupInput = new GroupInput("avengers", true, true, days, null);
 
     // when: getting a group by id
-    var groupService = new GroupService(groupRepository, userGroupRepository);
+    var groupService = new GroupService(groupRepository, null, userGroupRepository, null);
     var group = groupService.createGroup(random(User.class), groupInput);
 
     // then: we should get it
@@ -119,5 +108,78 @@ public class GroupServiceTests {
 
   private static Stream<Arguments> testCreateGroupDataProvider() {
     return Stream.of(Arguments.of(List.of(DayOfWeek.MONDAY), null));
+  }
+
+  @Test
+  void testGetGroup() {
+    // given: a mocked group repository
+    var groupRepository = mock(GroupRepository.class);
+    Mockito.when(groupRepository.getGroup(any())).thenReturn(random(Group.class));
+
+    // and: a mocked user group repository
+    var userGroupRepository = mock(UserGroupRepository.class);
+    Mockito.when(userGroupRepository.getUserGroup(any(), any()))
+        .thenReturn(random(UserGroup.class));
+
+    // when: getting a group by id
+    var groupService = new GroupService(groupRepository, null, userGroupRepository, null);
+    var input =
+        GetGroupInput.newBuilder()
+            .withCurrentUserId(UUID.randomUUID())
+            .withGroupId(UUID.randomUUID())
+            .build();
+    Result<Group> result = groupService.getGroup(input);
+
+    // then: we should get it
+    assertNotNull(result.getSuccess());
+  }
+
+  @Test
+  void testGetGroupFailIfGroupDoesntExists() {
+    // given: a mocked group repository
+    var groupRepository = mock(GroupRepository.class);
+    Mockito.when(groupRepository.getGroup(any())).thenReturn(null);
+
+    // and: a mocked user group repository
+    var userGroupRepository = mock(UserGroupRepository.class);
+
+    // when: getting a group by id
+    var groupService = new GroupService(groupRepository, null, userGroupRepository, null);
+    var input =
+        GetGroupInput.newBuilder()
+            .withCurrentUserId(UUID.randomUUID())
+            .withGroupId(UUID.randomUUID())
+            .build();
+    Result<Group> result = groupService.getGroup(input);
+
+    // then: we should get an error
+    assertNotNull(result.getErrorList());
+    assertNull(result.getSuccess());
+    assertEquals(ErrorConstants.NOT_FOUND, result.getErrorList().get(0));
+  }
+
+  @Test
+  void testGetGroupfailIfuserDoesntBelongsToGroup() {
+    // given: a mocked group repository
+    var groupRepository = mock(GroupRepository.class);
+    Mockito.when(groupRepository.getGroup(any())).thenReturn(random(Group.class));
+
+    // and: a mocked user group repository
+    var userGroupRepository = mock(UserGroupRepository.class);
+    Mockito.when(userGroupRepository.getUserGroup(any(), any())).thenReturn(null);
+
+    // when: getting a group by id
+    var groupService = new GroupService(groupRepository, null, userGroupRepository, null);
+    var input =
+        GetGroupInput.newBuilder()
+            .withCurrentUserId(UUID.randomUUID())
+            .withGroupId(UUID.randomUUID())
+            .build();
+    Result<Group> result = groupService.getGroup(input);
+
+    // then: we should get an error
+    assertNotNull(result.getErrorList());
+    assertNull(result.getSuccess());
+    assertEquals(ErrorConstants.USER_NOT_IN_GROUP, result.getErrorList().get(0));
   }
 }

@@ -18,7 +18,10 @@
 package dwbh.api.services;
 
 import dwbh.api.domain.User;
+import dwbh.api.repositories.GroupRepository;
+import dwbh.api.repositories.UserGroupRepository;
 import dwbh.api.repositories.UserRepository;
+import dwbh.api.repositories.VotingRepository;
 import java.util.List;
 import java.util.UUID;
 import javax.inject.Singleton;
@@ -29,18 +32,23 @@ import javax.inject.Singleton;
  * @since 0.1.0
  */
 @Singleton
-public class UserService {
-
-  private final transient UserRepository userRepository;
+public class UserService extends BaseService {
 
   /**
-   * Initializes service by using the database repository
+   * Initializes service by using the database repositories
    *
+   * @param groupRepository an instance of {@link GroupRepository}
    * @param userRepository an instance of {@link UserRepository}
+   * @param userGroupRepository an instance of {@link UserGroupRepository}
+   * @param votingRepository an instance of {@link VotingRepository}
    * @since 0.1.0
    */
-  public UserService(UserRepository userRepository) {
-    this.userRepository = userRepository;
+  public UserService(
+      GroupRepository groupRepository,
+      UserRepository userRepository,
+      UserGroupRepository userGroupRepository,
+      VotingRepository votingRepository) {
+    super(groupRepository, userRepository, userGroupRepository, votingRepository);
   }
 
   /**

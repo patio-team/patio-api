@@ -24,7 +24,7 @@ import com.tngtech.archunit.junit.AnalyzeClasses;
 import com.tngtech.archunit.junit.ArchTest;
 
 /**
- * Checks fetcher constraints
+ * BaseService fetcher constraints
  *
  * @since 0.1.0
  */
