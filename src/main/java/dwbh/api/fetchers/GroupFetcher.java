@@ -20,7 +20,7 @@ package dwbh.api.fetchers;
 import dwbh.api.domain.Group;
 import dwbh.api.domain.User;
 import dwbh.api.domain.input.GetGroupInput;
-import dwbh.api.domain.input.GroupInput;
+import dwbh.api.domain.input.UpsertGroupInput;
 import dwbh.api.graphql.Context;
 import dwbh.api.graphql.ResultUtils;
 import dwbh.api.services.GroupService;
@@ -94,15 +94,25 @@ public class GroupFetcher {
    * Creates a new group
    *
    * @param env GraphQL execution environment
-   * @return a list of available {@link User}
+   * @return the new {@link Group}
    * @since 0.1.0
    */
   public Group createGroup(DataFetchingEnvironment env) {
-    Context ctx = env.getContext();
-    User user = ctx.getAuthenticatedUser();
-    GroupInput input = GroupFetcherUtils.group(env);
+    UpsertGroupInput input = GroupFetcherUtils.upsertGroupInput(env);
 
-    return service.createGroup(user, input);
+    return service.createGroup(input);
+  }
+
+  /**
+   * Updates a group
+   *
+   * @param env GraphQL execution environment
+   * @return the updated {@link Group}
+   * @since 0.1.0
+   */
+  public DataFetcherResult<Group> updateGroup(DataFetchingEnvironment env) {
+    UpsertGroupInput input = GroupFetcherUtils.upsertGroupInput(env);
+    return ResultUtils.render(service.updateGroup(input));
   }
 
   /**

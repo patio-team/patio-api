@@ -19,7 +19,7 @@ package dwbh.api.fetchers;
 
 import dwbh.api.domain.User;
 import dwbh.api.domain.input.GetGroupInput;
-import dwbh.api.domain.input.GroupInput;
+import dwbh.api.domain.input.UpsertGroupInput;
 import dwbh.api.graphql.Context;
 import graphql.schema.DataFetchingEnvironment;
 import java.time.DayOfWeek;
@@ -41,23 +41,6 @@ final class GroupFetcherUtils {
   }
 
   /**
-   * Creates a {@link GroupInput} from the data coming from the {@link DataFetchingEnvironment}
-   *
-   * @param environment the GraphQL {@link DataFetchingEnvironment}
-   * @return an instance of {@link GroupInput}
-   * @since 0.1.0
-   */
-  /* default */ static GroupInput group(DataFetchingEnvironment environment) {
-    String name = environment.getArgument("name");
-    boolean visibleMemberList = environment.getArgument("visibleMemberList");
-    boolean anonymousVote = environment.getArgument("anonymousVote");
-    List<DayOfWeek> votingDays = environment.getArgument("votingDays");
-    OffsetTime votingTime = environment.getArgument("votingTime");
-
-    return new GroupInput(name, visibleMemberList, anonymousVote, votingDays, votingTime);
-  }
-
-  /**
    * Creates a {@link GetGroupInput} from the data coming from the {@link DataFetchingEnvironment}
    *
    * @param environment the GraphQL {@link DataFetchingEnvironment}
@@ -71,6 +54,35 @@ final class GroupFetcherUtils {
     return GetGroupInput.newBuilder()
         .withCurrentUserId(currentUser.getId())
         .withGroupId(groupId)
+        .build();
+  }
+
+  /**
+   * Creates a {@link UpsertGroupInput} from the data coming from the {@link
+   * DataFetchingEnvironment}
+   *
+   * @param environment the GraphQL {@link DataFetchingEnvironment}
+   * @return an instance of {@link UpsertGroupInput}
+   * @since 0.1.0
+   */
+  /* default */ static UpsertGroupInput upsertGroupInput(DataFetchingEnvironment environment) {
+    UUID groupId = environment.getArgument("groupId");
+    String name = environment.getArgument("name");
+    boolean visibleMemberList = environment.getArgument("visibleMemberList");
+    boolean anonymousVote = environment.getArgument("anonymousVote");
+    List<DayOfWeek> votingDays = environment.getArgument("votingDays");
+    OffsetTime votingTime = environment.getArgument("votingTime");
+    Context ctx = environment.getContext();
+    User currentUser = ctx.getAuthenticatedUser();
+
+    return UpsertGroupInput.newBuilder()
+        .withCurrentUserId(currentUser.getId())
+        .withGroupId(groupId)
+        .withName(name)
+        .withVisibleMemberList(visibleMemberList)
+        .withAnonymousVote(anonymousVote)
+        .withVotingDays(votingDays)
+        .withVotingTime(votingTime)
         .build();
   }
 }

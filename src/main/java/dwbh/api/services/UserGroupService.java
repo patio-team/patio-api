@@ -85,7 +85,7 @@ public class UserGroupService extends BaseService {
             List.of(
                 this.createCheckGroupExists(group),
                 this.createCheckUserExists(user),
-                this.createCheckCurrentUserIsAdmin(
+                this.createCheckUserIsAdmin(
                     addUserToGroupInput.getCurrentUserId(), addUserToGroupInput.getGroupId()),
                 this.createCheckUserIsNotInGroup(
                     user.map(User::getId).orElse(null), addUserToGroupInput.getGroupId())));
@@ -98,30 +98,9 @@ public class UserGroupService extends BaseService {
         Check.checkIsTrue(user.isPresent(), ErrorConstants.NOT_FOUND);
   }
 
-  private <U> Function<U, Check> createCheckCurrentUserIsAdmin(UUID currentUserId, UUID groupId) {
-    return (U input) -> checkCurrentUserIsAdmin(currentUserId, groupId);
-  }
-
-  private Check checkCurrentUserIsAdmin(UUID currentUserId, UUID groupId) {
-    return Check.checkIsTrue(isAdmin(currentUserId, groupId), ErrorConstants.NOT_AN_ADMIN);
-  }
-
   private Result<Boolean> addUserToGroupIfSuccess(User user, Group group) {
     userGroupRepository.addUserToGroup(user.getId(), group.getId(), false);
     return Result.result(true);
-  }
-
-  /**
-   * Returns if the user is admin of the group
-   *
-   * @param userId The id of the user
-   * @param groupId The id of the group
-   * @return a boolean indicating if the user is admin of the group
-   * @since 0.1.0
-   */
-  public boolean isAdmin(UUID userId, UUID groupId) {
-    UserGroup currentUserGroup = userGroupRepository.getUserGroup(userId, groupId);
-    return currentUserGroup != null && currentUserGroup.isAdmin();
   }
 
   /**

@@ -76,28 +76,37 @@ public class GroupRepository {
   }
 
   /**
-   * Creates a group
+   * Creates or Updates a group
    *
+   * @param groupId group's id
    * @param name group's name
    * @param visibleMemberList indicates if the group allows the members to see the member list
    * @param anonymousVote indicates if the group allows anonymous votes
    * @param daysOfWeek days of the week when reminders are sent
    * @param time moment of the day when reminders are sent
-   * @return The created {@link Group}
+   * @return The created or updated {@link Group}
    * @since 0.1.0
    */
-  public Group createGroup(
+  public Group upsertGroup(
+      UUID groupId,
       String name,
       boolean visibleMemberList,
       boolean anonymousVote,
       List<DayOfWeek> daysOfWeek,
       OffsetTime time) {
 
-    UUID id = UUID.randomUUID();
-
     context
-        .insertInto(TablesHelper.GROUPS_TABLE)
-        .set(GroupsTableHelper.ID, id)
+        .insertInto(
+            TablesHelper.GROUPS_TABLE,
+            GroupsTableHelper.ID,
+            GroupsTableHelper.NAME,
+            GroupsTableHelper.VISIBLE_MEMBER_LIST,
+            GroupsTableHelper.ANONYMOUS_VOTE,
+            GroupsTableHelper.TIME,
+            GroupsTableHelper.DAYS_OF_WEEK)
+        .values(groupId, name, visibleMemberList, anonymousVote, time, daysOfWeek)
+        .onConflict(GroupsTableHelper.ID)
+        .doUpdate()
         .set(GroupsTableHelper.NAME, name)
         .set(GroupsTableHelper.VISIBLE_MEMBER_LIST, visibleMemberList)
         .set(GroupsTableHelper.ANONYMOUS_VOTE, anonymousVote)
@@ -107,7 +116,7 @@ public class GroupRepository {
 
     return GroupBuilder.builder()
         .withName(name)
-        .withId(id)
+        .withId(groupId)
         .withVisibleMemberList(visibleMemberList)
         .withAnonymousVote(anonymousVote)
         .withDaysOfWeek(daysOfWeek)

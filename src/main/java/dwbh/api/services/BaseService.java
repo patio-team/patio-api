@@ -111,4 +111,34 @@ public class BaseService {
     UserGroup currentUserGroup = userGroupRepository.getUserGroup(userId, groupId);
     return currentUserGroup != null;
   }
+
+  /**
+   * Creates a new check for checking if the user is admin of the group
+   *
+   * @param <U> the type parameter
+   * @param currentUserId The id of the user
+   * @param groupId The id of the group
+   * @return an instance of type {@link Function} with the check
+   * @since 0.1.0
+   */
+  public <U> Function<U, Check> createCheckUserIsAdmin(UUID currentUserId, UUID groupId) {
+    return (U input) -> checkCurrentUserIsAdmin(currentUserId, groupId);
+  }
+
+  private Check checkCurrentUserIsAdmin(UUID currentUserId, UUID groupId) {
+    return Check.checkIsTrue(isAdmin(currentUserId, groupId), ErrorConstants.NOT_AN_ADMIN);
+  }
+
+  /**
+   * Returns if the user is admin of the group
+   *
+   * @param userId The id of the user
+   * @param groupId The id of the group
+   * @return a boolean indicating if the user is admin of the group
+   * @since 0.1.0
+   */
+  public boolean isAdmin(UUID userId, UUID groupId) {
+    UserGroup currentUserGroup = userGroupRepository.getUserGroup(userId, groupId);
+    return currentUserGroup != null && currentUserGroup.isAdmin();
+  }
 }

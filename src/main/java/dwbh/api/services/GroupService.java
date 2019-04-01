@@ -18,9 +18,8 @@
 package dwbh.api.services;
 
 import dwbh.api.domain.Group;
-import dwbh.api.domain.User;
 import dwbh.api.domain.input.GetGroupInput;
-import dwbh.api.domain.input.GroupInput;
+import dwbh.api.domain.input.UpsertGroupInput;
 import dwbh.api.repositories.GroupRepository;
 import dwbh.api.repositories.UserGroupRepository;
 import dwbh.api.repositories.UserRepository;
@@ -81,22 +80,54 @@ public class GroupService extends BaseService {
   /**
    * Creates a new Group
    *
-   * @param admin User that creates the group, and will be the first member and admin
-   * @param groupInput group information
+   * @param createGroupInput group information
    * @return The created {@link Group}
    * @since 0.1.0
    */
-  public Group createGroup(User admin, GroupInput groupInput) {
+  public Group createGroup(UpsertGroupInput createGroupInput) {
+    UUID id = UUID.randomUUID();
     Group group =
-        groupRepository.createGroup(
-            groupInput.getName(),
-            groupInput.isAnonymousVote(),
-            groupInput.isVisibleMemberList(),
-            groupInput.getVotingDays(),
-            groupInput.getVotingTime());
+        groupRepository.upsertGroup(
+            id,
+            createGroupInput.getName(),
+            createGroupInput.isAnonymousVote(),
+            createGroupInput.isVisibleMemberList(),
+            createGroupInput.getVotingDays(),
+            createGroupInput.getVotingTime());
 
-    userGroupRepository.addUserToGroup(admin.getId(), group.getId(), true);
+    userGroupRepository.addUserToGroup(createGroupInput.getCurrentUserId(), group.getId(), true);
     return group;
+  }
+
+  /**
+   * Updates a new Group
+   *
+   * @param updateGroupInput group information
+   * @return The updated {@link Group}
+   * @since 0.1.0
+   */
+  public Result<Group> updateGroup(UpsertGroupInput updateGroupInput) {
+
+    Optional<Result<Group>> possibleErrors =
+        Check.checkWith(
+            updateGroupInput,
+            List.of(
+                this.createCheckUserIsAdmin(
+                    updateGroupInput.getCurrentUserId(), updateGroupInput.getGroupId())));
+    return possibleErrors.orElseGet(() -> updateGroupIfSuccess(updateGroupInput));
+  }
+
+  private Result<Group> updateGroupIfSuccess(UpsertGroupInput updateGroupInput) {
+    Group group =
+        groupRepository.upsertGroup(
+            updateGroupInput.getGroupId(),
+            updateGroupInput.getName(),
+            updateGroupInput.isAnonymousVote(),
+            updateGroupInput.isVisibleMemberList(),
+            updateGroupInput.getVotingDays(),
+            updateGroupInput.getVotingTime());
+
+    return Result.result(group);
   }
 
   /**

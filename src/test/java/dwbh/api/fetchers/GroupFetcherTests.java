@@ -92,7 +92,7 @@ class GroupFetcherTests {
     var mockedService = Mockito.mock(GroupService.class);
 
     // and: mocking service's behavior
-    Mockito.when(mockedService.createGroup(any(), any())).thenReturn(group);
+    Mockito.when(mockedService.createGroup(any())).thenReturn(group);
 
     // and: a mocked environment
     var mockedEnvironment =
@@ -147,5 +147,43 @@ class GroupFetcherTests {
 
     // then: check certain assertions should be met
     assertThat("the group is found", result.getData(), is(group));
+  }
+
+  @Test
+  void testUpdateGroup() {
+    // given: a group
+    Group group = random(Group.class);
+
+    // and: an user
+    User user = random(User.class);
+
+    // and: a mocking service
+    var mockedService = Mockito.mock(GroupService.class);
+
+    // and: mocking service's behavior
+    Mockito.when(mockedService.updateGroup(any())).thenReturn(Result.result(group));
+
+    // and: a mocked environment
+    var mockedEnvironment =
+        FetcherTestUtils.generateMockedEnvironment(
+            user,
+            Map.of(
+                "name",
+                group.getName(),
+                "visibleMemberList",
+                group.isVisibleMemberList(),
+                "anonymousVote",
+                group.isAnonymousVote(),
+                "votingDays",
+                group.getVotingDays(),
+                "votingTime",
+                group.getVotingTime()));
+
+    // when: creating a group invoking the service
+    GroupFetcher fetchers = new GroupFetcher(mockedService);
+    DataFetcherResult<Group> result = fetchers.updateGroup(mockedEnvironment);
+
+    // then: check certain assertions should be met
+    assertThat("the group is returned", result.getData(), is(group));
   }
 }
