@@ -22,6 +22,7 @@ import dwbh.api.domain.Vote;
 import dwbh.api.domain.Voting;
 import dwbh.api.domain.input.CreateVoteInput;
 import dwbh.api.domain.input.CreateVotingInput;
+import dwbh.api.domain.input.GetVotingInput;
 import dwbh.api.domain.input.ListVotingsGroupInput;
 import dwbh.api.graphql.ResultUtils;
 import dwbh.api.services.VotingService;
@@ -91,5 +92,29 @@ public class VotingFetcher {
   public List<Voting> listVotingsGroup(DataFetchingEnvironment env) {
     ListVotingsGroupInput input = VotingFetcherUtils.createListVotingsGroupInput(env);
     return service.listVotingsGroup(input);
+  }
+
+  /**
+   * Get the specified voting
+   *
+   * @param env GraphQL execution environment
+   * @return The requested {@link Voting}
+   * @since 0.1.0
+   */
+  public DataFetcherResult<Voting> getVoting(DataFetchingEnvironment env) {
+    GetVotingInput input = VotingFetcherUtils.getVotingInput(env);
+    return ResultUtils.render(service.getVoting(input));
+  }
+
+  /**
+   * Fetches the votes that belongs to a vote
+   *
+   * @param env GraphQL execution environment
+   * @return a list of available {@link Vote}
+   * @since 0.1.0
+   */
+  public List<Vote> listVotesVoting(DataFetchingEnvironment env) {
+    Voting voting = env.getSource();
+    return service.listVotesVoting(voting.getId());
   }
 }

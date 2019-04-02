@@ -53,6 +53,7 @@ type Voting {
     createdAt: DateTime
     createdBy: User
     average: Int
+    votes: [Vote]
 }
 
 type Vote {
@@ -78,6 +79,9 @@ type Query {
     # get group by its id
     getGroup(id: ID!): Group
 
+    # get voting by its id
+    getVoting(id: ID!): Voting
+
     # get user by its id
     getUser(id: ID!): User
 
@@ -101,4 +105,7 @@ type Mutation {
 
     # add an user to a group
     addUserToGroup(email: String!, groupId: ID!): Boolean
+
+    # add an user to a group
+    leaveGroup(groupId: ID!): Boolean
 }

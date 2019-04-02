@@ -21,6 +21,7 @@ import dwbh.api.domain.Group;
 import dwbh.api.domain.User;
 import dwbh.api.domain.UserGroup;
 import dwbh.api.domain.input.AddUserToGroupInput;
+import dwbh.api.domain.input.LeaveGroupInput;
 import dwbh.api.domain.input.ListUsersGroupInput;
 import dwbh.api.graphql.Context;
 import dwbh.api.graphql.ResultUtils;
@@ -95,5 +96,17 @@ public class UserGroupFetcher {
   public List<User> listUsersGroup(DataFetchingEnvironment env) {
     ListUsersGroupInput input = UserGroupFetcherUtils.listUsersGroupInput(env);
     return service.listUsersGroup(input);
+  }
+
+  /**
+   * Leave the specified group
+   *
+   * @param env GraphQL execution environment
+   * @return an instance of {@link DataFetcherResult} because it could return errors
+   * @since 0.1.0
+   */
+  public DataFetcherResult<Boolean> leaveGroup(DataFetchingEnvironment env) {
+    LeaveGroupInput input = UserGroupFetcherUtils.leaveGroupInput(env);
+    return ResultUtils.render(service.leaveGroup(input));
   }
 }

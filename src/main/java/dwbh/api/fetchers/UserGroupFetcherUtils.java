@@ -20,6 +20,7 @@ package dwbh.api.fetchers;
 import dwbh.api.domain.Group;
 import dwbh.api.domain.User;
 import dwbh.api.domain.input.AddUserToGroupInput;
+import dwbh.api.domain.input.LeaveGroupInput;
 import dwbh.api.domain.input.ListUsersGroupInput;
 import dwbh.api.graphql.Context;
 import graphql.schema.DataFetchingEnvironment;
@@ -74,5 +75,22 @@ final class UserGroupFetcherUtils {
     User currentUser = ctx.getAuthenticatedUser();
 
     return new AddUserToGroupInput(currentUser.getId(), email, groupId);
+  }
+
+  /**
+   * Creates a {@link LeaveGroupInput} from the data coming from the {@link DataFetchingEnvironment}
+   *
+   * @param environment the GraphQL {@link DataFetchingEnvironment}
+   * @return an instance of {@link LeaveGroupInput}
+   * @since 0.1.0
+   */
+  /* default */ static LeaveGroupInput leaveGroupInput(DataFetchingEnvironment environment) {
+    UUID groupId = environment.getArgument("groupId");
+    Context ctx = environment.getContext();
+    User currentUser = ctx.getAuthenticatedUser();
+    return LeaveGroupInput.newBuilder()
+        .withCurrentUserId(currentUser.getId())
+        .withGroupId(groupId)
+        .build();
   }
 }

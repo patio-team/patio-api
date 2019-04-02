@@ -22,6 +22,7 @@ import dwbh.api.domain.Vote;
 import dwbh.api.domain.Voting;
 import dwbh.api.domain.input.CreateVoteInput;
 import dwbh.api.domain.input.CreateVotingInput;
+import dwbh.api.domain.input.GetVotingInput;
 import dwbh.api.domain.input.ListVotingsGroupInput;
 import dwbh.api.repositories.GroupRepository;
 import dwbh.api.repositories.UserGroupRepository;
@@ -164,5 +165,47 @@ public class VotingService extends BaseService {
   public List<Voting> listVotingsGroup(ListVotingsGroupInput input) {
     return votingRepository.listVotingsGroup(
         input.getGroupId(), input.getStartDate(), input.getEndDate());
+  }
+  /**
+   * Gets the votes that belongs to a voting
+   *
+   * @param votingId The id of the {@link Voting}
+   * @return a list of {@link Vote} instances
+   * @since 0.1.0
+   */
+  public List<Vote> listVotesVoting(UUID votingId) {
+    return votingRepository.listVotesVoting(votingId);
+  }
+
+  /**
+   * Get a specific voting
+   *
+   * @param input required data to retrieve a {@link Voting}
+   * @return The requested {@link Voting}
+   * @since 0.1.0
+   */
+  public Result<Voting> getVoting(GetVotingInput input) {
+
+    Optional<Voting> voting =
+        Optional.ofNullable(
+            votingRepository.findVotingByUserAndVoting(
+                input.getCurrentUserId(), input.getVotingId()));
+
+    Optional<Result<Voting>> possibleErrors =
+        Check.checkWith(input, List.of(this.createCheckVotingExists(voting)));
+
+    return possibleErrors.orElseGet(() -> Result.result(voting.get()));
+  }
+
+  /**
+   * Creates a new check for checking if a voting exists
+   *
+   * @param <U> the type parameter
+   * @param voting An {@link Optional} that may contains the voting
+   * @return an instance of type {@link Function} with the check
+   * @since 0.1.0
+   */
+  protected <U> Function<U, Check> createCheckVotingExists(Optional<Voting> voting) {
+    return (U input) -> Check.checkIsTrue(voting.isPresent(), ErrorConstants.NOT_FOUND);
   }
 }

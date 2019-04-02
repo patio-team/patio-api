@@ -17,13 +17,14 @@
  */
 package dwbh.api.repositories.internal;
 
-import static dwbh.api.repositories.internal.TablesHelper.*;
-
 import dwbh.api.domain.Group;
 import dwbh.api.domain.GroupBuilder;
 import dwbh.api.domain.Vote;
 import dwbh.api.domain.Voting;
 import dwbh.api.repositories.VotingRepository;
+import dwbh.api.repositories.internal.TablesHelper.GroupsTableHelper;
+import dwbh.api.repositories.internal.TablesHelper.VoteTableHelper;
+import dwbh.api.repositories.internal.TablesHelper.VotingTableHelper;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.OffsetDateTime;
@@ -35,6 +36,7 @@ import javax.inject.Singleton;
 import org.jooq.DSLContext;
 import org.jooq.Record;
 import org.jooq.Record1;
+import org.jooq.Record5;
 import org.jooq.Record6;
 import org.jooq.impl.DSL;
 
@@ -44,7 +46,7 @@ import org.jooq.impl.DSL;
  * @since 0.1.0
  */
 @Singleton
-@SuppressWarnings("PMD.TooManyMethods")
+@SuppressWarnings({"PMD.TooManyMethods", "PMD.AvoidDuplicateLiterals"})
 public class JooqVotingRepository implements VotingRepository {
 
   private final transient DSLContext context;
@@ -65,7 +67,7 @@ public class JooqVotingRepository implements VotingRepository {
 
     Record record =
         context
-            .insertInto(VOTING_TABLE)
+            .insertInto(TablesHelper.VOTING_TABLE)
             .columns(
                 VotingTableHelper.VOTING_ID,
                 VotingTableHelper.GROUP_ID,
@@ -88,7 +90,7 @@ public class JooqVotingRepository implements VotingRepository {
 
     Record record =
         context
-            .insertInto(VOTE_TABLE)
+            .insertInto(TablesHelper.VOTE_TABLE)
             .columns(
                 VoteTableHelper.VOTE_ID,
                 VoteTableHelper.VOTING_ID,
@@ -118,10 +120,10 @@ public class JooqVotingRepository implements VotingRepository {
                 GroupsTableHelper.VISIBLE_MEMBER_LIST,
                 GroupsTableHelper.DAYS_OF_WEEK,
                 GroupsTableHelper.TIME)
-            .from(USERS_GROUPS_TABLE)
-            .innerJoin(VOTING_TABLE)
+            .from(TablesHelper.USERS_GROUPS_TABLE)
+            .innerJoin(TablesHelper.VOTING_TABLE)
             .on(DSL.field("voting.group_id").eq(DSL.field("users_groups.group_id")))
-            .innerJoin(GROUPS_TABLE)
+            .innerJoin(TablesHelper.GROUPS_TABLE)
             .on(DSL.field("groups.id").eq(DSL.field("users_groups.group_id")))
             .where(DSL.field("voting.id").eq(votingId))
             .and(DSL.field("users_groups.user_id").eq(userId))
@@ -131,10 +133,32 @@ public class JooqVotingRepository implements VotingRepository {
   }
 
   @Override
+  public Voting findVotingByUserAndVoting(UUID userId, UUID votingId) {
+    Optional<Record5<UUID, UUID, UUID, OffsetDateTime, Integer>> record =
+        context
+            .select(
+                DSL.field("voting.id", UUID.class).as("id"),
+                DSL.field("voting.group_id", UUID.class).as("group_id"),
+                VotingTableHelper.CREATED_BY_ID,
+                VotingTableHelper.CREATED_AT,
+                VotingTableHelper.AVERAGE)
+            .from(TablesHelper.VOTING_TABLE)
+            .innerJoin(TablesHelper.USERS_GROUPS_TABLE)
+            .on(DSL.field("users_groups.group_id").eq(DSL.field("voting.group_id")))
+            .innerJoin(TablesHelper.GROUPS_TABLE)
+            .on(DSL.field("groups.id").eq(DSL.field("users_groups.group_id")))
+            .where(DSL.field("voting.id").eq(votingId))
+            .and(DSL.field("users_groups.user_id").eq(userId))
+            .fetchOptional();
+
+    return record.map(JooqVotingRepository::toVoting).orElse(null);
+  }
+
+  @Override
   public Vote findVoteByUserAndVoting(UUID userId, UUID votingId) {
     return (Vote)
         context
-            .selectFrom(VOTE_TABLE)
+            .selectFrom(TablesHelper.VOTE_TABLE)
             .where(VoteTableHelper.CREATED_BY_ID.eq(userId))
             .and(VoteTableHelper.VOTING_ID.eq(votingId))
             .fetchOne(JooqVotingRepository::toVote);
@@ -157,7 +181,7 @@ public class JooqVotingRepository implements VotingRepository {
     Optional<Record1<OffsetDateTime>> record =
         context
             .select(VotingTableHelper.CREATED_AT)
-            .from(VOTING_TABLE)
+            .from(TablesHelper.VOTING_TABLE)
             .where(VotingTableHelper.VOTING_ID.eq(votingId))
             .fetchOptional();
 
@@ -170,7 +194,7 @@ public class JooqVotingRepository implements VotingRepository {
     return context
         .select(
             VotingTableHelper.VOTING_ID, VotingTableHelper.CREATED_AT, VotingTableHelper.AVERAGE)
-        .from(VOTING_TABLE)
+        .from(TablesHelper.VOTING_TABLE)
         .where(VotingTableHelper.GROUP_ID.eq(groupId))
         .and(VotingTableHelper.CREATED_AT.between(startDate, endDate))
         .fetch(JooqVotingRepository::toVoting);
@@ -184,7 +208,7 @@ public class JooqVotingRepository implements VotingRepository {
   public Voting updateVotingAverage(UUID votingId, Integer average) {
     Record record =
         context
-            .update(VOTING_TABLE)
+            .update(TablesHelper.VOTING_TABLE)
             .set(VotingTableHelper.AVERAGE, average)
             .where(VotingTableHelper.VOTING_ID.eq(votingId))
             .returning(
@@ -201,7 +225,7 @@ public class JooqVotingRepository implements VotingRepository {
     Optional<Record1<BigDecimal>> record =
         context
             .select(DSL.avg(VoteTableHelper.SCORE))
-            .from(VOTE_TABLE)
+            .from(TablesHelper.VOTE_TABLE)
             .where(VoteTableHelper.VOTING_ID.eq(votingId))
             .fetchOptional();
 
@@ -226,5 +250,13 @@ public class JooqVotingRepository implements VotingRepository {
         .withComment(record.get(VoteTableHelper.COMMENT))
         .withScore(record.get(VoteTableHelper.SCORE))
         .build();
+  }
+
+  @Override
+  public List<Vote> listVotesVoting(UUID votingId) {
+    return context
+        .selectFrom(TablesHelper.VOTE_TABLE)
+        .where(VoteTableHelper.VOTING_ID.eq(votingId))
+        .fetch(JooqVotingRepository::toVote);
   }
 }

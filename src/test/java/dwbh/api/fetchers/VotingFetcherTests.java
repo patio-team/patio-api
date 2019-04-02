@@ -48,7 +48,7 @@ import org.mockito.Mockito;
  *
  * @since 0.1.0
  */
-class VotingFetcherTest {
+class VotingFetcherTests {
 
   @Test
   void testCreateVoting() {
@@ -124,5 +124,53 @@ class VotingFetcherTest {
 
     // then: we should get the successful result
     assertEquals("There are votings", result.size(), 1);
+  }
+
+  @Test
+  void testGetVoting() {
+    // given: an voting
+    Voting voting = random(Voting.class);
+
+    // and: an user
+    User user = random(User.class);
+
+    // and: a mocking service
+    var mockedService = Mockito.mock(VotingService.class);
+
+    // and: mocking service's behavior
+    Mockito.when(mockedService.getVoting(any())).thenReturn(Result.result(voting));
+
+    // and: a mocked environment
+    var mockedEnvironment =
+        FetcherTestUtils.generateMockedEnvironment(user, Map.of("id", voting.getId()));
+
+    // when: fetching get voting invoking the service
+    VotingFetcher fetchers = new VotingFetcher(mockedService);
+    DataFetcherResult<Voting> result = fetchers.getVoting(mockedEnvironment);
+
+    // then: check certain assertions should be met
+    assertThat("the voting is found", result.getData(), is(voting));
+  }
+
+  @Test
+  void testListVotesVoting() {
+    // given: some random data
+    var authenticatedUser = random(User.class);
+    var voting = random(Voting.class);
+
+    // and: mocked service
+    var mockedService = Mockito.mock(VotingService.class);
+    Mockito.when(mockedService.listVotesVoting(any())).thenReturn(List.of(random(Vote.class)));
+
+    // and: mocked environment
+    var mockedEnvironment = FetcherTestUtils.generateMockedEnvironment(authenticatedUser, Map.of());
+    Mockito.when(mockedEnvironment.getSource()).thenReturn(voting);
+
+    // when: invoking the fetcher with correct data
+    VotingFetcher fetcher = new VotingFetcher(mockedService);
+    List<Vote> result = fetcher.listVotesVoting(mockedEnvironment);
+
+    // then: we should get the successful result
+    assertEquals("There are votes", result.size(), 1);
   }
 }

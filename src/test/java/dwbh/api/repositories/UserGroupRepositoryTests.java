@@ -17,12 +17,14 @@
  */
 package dwbh.api.repositories;
 
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import dwbh.api.domain.Group;
 import dwbh.api.domain.GroupBuilder;
 import dwbh.api.domain.User;
 import dwbh.api.domain.UserBuilder;
+import dwbh.api.domain.UserGroup;
 import dwbh.api.fixtures.Fixtures;
 import io.micronaut.test.annotation.MicronautTest;
 import java.util.List;
@@ -43,6 +45,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
  */
 @MicronautTest
 @Testcontainers
+@SuppressWarnings("PMD.AvoidDuplicateLiterals")
 class UserGroupRepositoryTests {
 
   @Container
@@ -134,5 +137,52 @@ class UserGroupRepositoryTests {
     List<User> userList =
         repository.listUsersGroup(UUID.fromString("dedc6675-ab79-495e-9245-1fc20545eb83"));
     assertEquals(userList.get(0).getId(), user.getId());
+  }
+
+  @Test
+  void testListAdminsGroup() {
+    // given: a pre-loaded fixtures
+    fixtures.load(UserGroupRepositoryTests.class, "testListGroups.sql");
+    fixtures.load(UserGroupRepositoryTests.class, "testListUsers.sql");
+    fixtures.load(UserGroupRepositoryTests.class, "testListUsersGroups.sql");
+
+    // when: asking for the list of admins for one group
+    List<UserGroup> adminsList =
+        repository.listAdminsGroup(UUID.fromString("d64db962-3455-11e9-b210-d663bd873d93"));
+
+    // then: check there're the expected number of admins
+    assertEquals(adminsList.size(), 2);
+
+    // when: asking for the list of admins for other group
+    adminsList =
+        repository.listAdminsGroup(UUID.fromString("dedc6675-ab79-495e-9245-1fc20545eb83"));
+
+    // then: check there're the expected number of admins
+    assertEquals(adminsList.size(), 1);
+  }
+
+  @Test
+  void testRemoveUserFromGroup() {
+    // given: a pre-loaded fixtures
+    fixtures.load(UserGroupRepositoryTests.class, "testListGroups.sql");
+    fixtures.load(UserGroupRepositoryTests.class, "testListUsers.sql");
+    fixtures.load(UserGroupRepositoryTests.class, "testListUsersGroups.sql");
+    String userId = "c2a771bc-f8c5-4112-a440-c80fa4c8e382";
+    String groupId = "d64db962-3455-11e9-b210-d663bd873d93";
+
+    // previouly: check the group has 3 users
+    List<User> userList = repository.listUsersGroup(UUID.fromString(groupId));
+    assertEquals(userList.size(), 3);
+
+    // when: removing an user from a group
+    repository.removeUserFromGroup(UUID.fromString(userId), UUID.fromString(groupId));
+
+    // then: check the user has now only 2 users
+    userList = repository.listUsersGroup(UUID.fromString(groupId));
+    assertEquals(userList.size(), 2);
+
+    // and: the user is not one of them
+    assertNotEquals(userList.get(0).getId().toString(), userId);
+    assertNotEquals(userList.get(1).getId().toString(), userId);
   }
 }

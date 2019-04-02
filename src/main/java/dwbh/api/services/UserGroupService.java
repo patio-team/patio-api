@@ -23,6 +23,7 @@ import dwbh.api.domain.Group;
 import dwbh.api.domain.User;
 import dwbh.api.domain.UserGroup;
 import dwbh.api.domain.input.AddUserToGroupInput;
+import dwbh.api.domain.input.LeaveGroupInput;
 import dwbh.api.domain.input.ListUsersGroupInput;
 import dwbh.api.repositories.GroupRepository;
 import dwbh.api.repositories.UserGroupRepository;
@@ -43,6 +44,7 @@ import javax.inject.Singleton;
  * @since 0.1.0
  */
 @Singleton
+@SuppressWarnings("PMD.TooManyMethods")
 public class UserGroupService extends BaseService {
 
   /**
@@ -148,5 +150,39 @@ public class UserGroupService extends BaseService {
 
   private List<User> listUsersGroupIfSuccess(UUID groupId) {
     return userGroupRepository.listUsersGroup(groupId);
+  }
+
+  /**
+   * Make the current user leave the specified group
+   *
+   * @param input required data to retrieve a {@link Group}
+   * @return The requested {@link Group}
+   * @since 0.1.0
+   */
+  public Result<Boolean> leaveGroup(LeaveGroupInput input) {
+    Optional<Result<Boolean>> possibleErrors =
+        Check.checkWith(
+            input,
+            List.of(
+                this.createCheckUserIsInGroup(input.getCurrentUserId(), input.getGroupId()),
+                this.createCheckCurrentUserIsNotUniqueAdmin(
+                    input.getCurrentUserId(), input.getGroupId())));
+
+    return possibleErrors.orElseGet(() -> leaveGroupIfSuccess(input));
+  }
+
+  private <U> Function<U, Check> createCheckCurrentUserIsNotUniqueAdmin(UUID userId, UUID groupId) {
+    return (U input) ->
+        Check.checkIsFalse(isUniqueAdmin(userId, groupId), ErrorConstants.UNIQUE_ADMIN);
+  }
+
+  private boolean isUniqueAdmin(UUID userId, UUID groupId) {
+    List<UserGroup> admins = userGroupRepository.listAdminsGroup(groupId);
+    return admins.size() == 1 && admins.get(0).getUserId().equals(userId);
+  }
+
+  private Result<Boolean> leaveGroupIfSuccess(LeaveGroupInput input) {
+    userGroupRepository.removeUserFromGroup(input.getCurrentUserId(), input.getGroupId());
+    return Result.result(true);
   }
 }

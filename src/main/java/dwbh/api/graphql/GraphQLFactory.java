@@ -115,6 +115,7 @@ public class GraphQLFactory {
                         .dataFetcher("listUsers", userFetcher::listUsers)
                         .dataFetcher("getUser", userFetcher::getUser)
                         .dataFetcher("myProfile", userFetcher::getCurrentUser)
+                        .dataFetcher("getVoting", votingFetcher::getVoting)
                         .dataFetcher("login", securityFetcher::login))
             .type(
                 SCHEMA_TYPE_MUTATION,
@@ -123,7 +124,8 @@ public class GraphQLFactory {
                         .dataFetcher("createGroup", groupFetcher::createGroup)
                         .dataFetcher("addUserToGroup", userGroupFetcher::addUserToGroup)
                         .dataFetcher("createVoting", votingFetcher::createVoting)
-                        .dataFetcher("createVote", votingFetcher::createVote))
+                        .dataFetcher("createVote", votingFetcher::createVote)
+                        .dataFetcher("leaveGroup", userGroupFetcher::leaveGroup))
             .type(
                 "Group",
                 builder ->
@@ -135,6 +137,7 @@ public class GraphQLFactory {
             .type(
                 "UserProfile",
                 builder -> builder.dataFetcher("groups", groupFetcher::listGroupsUser))
+            .type("Voting", builder -> builder.dataFetcher("votes", votingFetcher::listVotesVoting))
             .build();
 
     return new SchemaGenerator().makeExecutableSchema(registry, wiring);

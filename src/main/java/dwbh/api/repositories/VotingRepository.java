@@ -85,6 +85,16 @@ public interface VotingRepository {
   Group findGroupByUserAndVoting(UUID userId, UUID votingId);
 
   /**
+   * Finds the voting id passed as parameter, if the user belongs to the group of the voting
+   *
+   * @param userId the id of the user
+   * @param votingId id of the voting
+   * @return an instance of {@link Voting} if it's found or null otherwise
+   * @since 0.1.0
+   */
+  Voting findVotingByUserAndVoting(UUID userId, UUID votingId);
+
+  /**
    * Finds the vote of an user on a voting
    *
    * @param userId id of the user
@@ -104,6 +114,15 @@ public interface VotingRepository {
    * @since 0.1.0
    */
   List<Voting> listVotingsGroup(UUID groupId, OffsetDateTime startDate, OffsetDateTime endDate);
+
+  /**
+   * Lists votes on a voting
+   *
+   * @param votingId voting identifier
+   * @return a list of votings that belongs to a group
+   * @since 0.1.0
+   */
+  List<Vote> listVotesVoting(UUID votingId);
 
   /**
    * BaseService whether the voting slot has expired or not
