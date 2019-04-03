@@ -24,13 +24,15 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 import dwbh.api.domain.Group;
 import dwbh.api.domain.User;
 import dwbh.api.domain.UserGroup;
 import dwbh.api.domain.input.GetGroupInput;
-import dwbh.api.domain.input.GroupInput;
+import dwbh.api.domain.input.UpsertGroupInput;
 import dwbh.api.repositories.GroupRepository;
 import dwbh.api.repositories.UserGroupRepository;
 import dwbh.api.util.ErrorConstants;
@@ -86,18 +88,28 @@ public class GroupServiceTests {
   void testCreateGroup(List<DayOfWeek> days) {
     // given: a mocked group repository
     var groupRepository = mock(GroupRepository.class);
-    Mockito.when(groupRepository.createGroup(any(), anyBoolean(), anyBoolean(), any(), any()))
+    Mockito.when(
+            groupRepository.upsertGroup(any(), any(), anyBoolean(), anyBoolean(), any(), any()))
         .thenReturn(random(Group.class));
+
+    // and: an user
+    var user = random(User.class);
 
     // and: a mocked usergroup repository
     var userGroupRepository = mock(UserGroupRepository.class);
 
-    // and: a GroupInput
-    GroupInput groupInput = new GroupInput("avengers", true, true, days, null);
+    // and: a CreateGroupInput
+    UpsertGroupInput createGroupInput =
+        UpsertGroupInput.newBuilder()
+            .withName("avengers")
+            .withVisibleMemberList(true)
+            .withAnonymousVote(true)
+            .withCurrentUserId(user.getId())
+            .build();
 
-    // when: getting a group by id
+    // when: creating a group
     var groupService = new GroupService(groupRepository, null, userGroupRepository, null);
-    var group = groupService.createGroup(random(User.class), groupInput);
+    var group = groupService.createGroup(createGroupInput);
 
     // then: we should get it
     assertNotNull(group);
@@ -181,5 +193,36 @@ public class GroupServiceTests {
     assertNotNull(result.getErrorList());
     assertNull(result.getSuccess());
     assertEquals(ErrorConstants.USER_NOT_IN_GROUP, result.getErrorList().get(0));
+  }
+
+  @Test
+  void testUpdateGroup() {
+    // given: a mocked group repository
+    var groupRepository = mock(GroupRepository.class);
+    Mockito.when(
+            groupRepository.upsertGroup(any(), any(), anyBoolean(), anyBoolean(), any(), any()))
+        .thenReturn(random(Group.class));
+
+    // and: an user
+    var user = random(User.class);
+
+    // and: a mocked usergroup repository
+    var userGroupRepository = mock(UserGroupRepository.class);
+
+    // and: a CreateGroupInput
+    UpsertGroupInput updateGroupInput =
+        UpsertGroupInput.newBuilder()
+            .withName("avengers")
+            .withVisibleMemberList(true)
+            .withAnonymousVote(true)
+            .withCurrentUserId(user.getId())
+            .build();
+
+    // when: updating a group
+    var groupService = new GroupService(groupRepository, null, userGroupRepository, null);
+    var group = groupService.updateGroup(updateGroupInput);
+
+    // then: we should get it
+    assertNotNull(group);
   }
 }

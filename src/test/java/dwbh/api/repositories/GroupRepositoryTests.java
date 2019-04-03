@@ -91,12 +91,48 @@ class GroupRepositoryTests {
   @Test
   void testCreateGroup() {
     // when: creating a group
+    UUID idGroup = UUID.randomUUID();
     Group group =
-        repository.createGroup(
-            "Avengers", true, true, List.of(DayOfWeek.MONDAY, DayOfWeek.SUNDAY), OffsetTime.now());
+        repository.upsertGroup(
+            idGroup,
+            "Avengers",
+            true,
+            true,
+            List.of(DayOfWeek.MONDAY, DayOfWeek.SUNDAY),
+            OffsetTime.now());
 
     // then: check the group is retrieved
     assertEquals(group.getName(), "Avengers");
+
+    // and: the group exist on the database
+    Group group2 = repository.getGroup(group.getId());
+    assertEquals(group.getName(), group2.getName());
+  }
+
+  @Test
+  void testUpdateGroup() {
+    // given: a pre-loaded fixtures
+    fixtures.load(GroupRepositoryTests.class, "testUpdateGroup.sql");
+
+    // and: new values
+    var groupId = UUID.fromString("53f11bb6-45db-11e9-b210-d663bd873d93");
+    var name = "XForce";
+    var visibleMemberList = true;
+    var anonymousVote = true;
+    var votingDays = List.of(DayOfWeek.MONDAY, DayOfWeek.SUNDAY);
+    var votingTime = OffsetTime.now();
+
+    // when: updating a group
+    Group group =
+        repository.upsertGroup(
+            groupId, name, visibleMemberList, anonymousVote, votingDays, votingTime);
+
+    // then: check the group is retrieved
+    assertEquals(group.getName(), name);
+    assertEquals(group.isVisibleMemberList(), visibleMemberList);
+    assertEquals(group.isAnonymousVote(), anonymousVote);
+    assertEquals(group.getVotingDays(), votingDays);
+    assertEquals(group.getVotingTime(), votingTime);
 
     // and: the group exist on the database
     Group group2 = repository.getGroup(group.getId());
