@@ -18,24 +18,13 @@
 package dwbh.api.services;
 
 import static io.github.benas.randombeans.api.EnhancedRandom.random;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
-import dwbh.api.domain.Group;
-import dwbh.api.domain.User;
-import dwbh.api.domain.UserGroup;
-import dwbh.api.domain.Vote;
-import dwbh.api.domain.Voting;
-import dwbh.api.domain.input.CreateVoteInput;
-import dwbh.api.domain.input.CreateVotingInput;
-import dwbh.api.domain.input.GetVotingInput;
-import dwbh.api.domain.input.ListVotingsGroupInput;
+import dwbh.api.domain.*;
+import dwbh.api.domain.input.*;
 import dwbh.api.repositories.UserGroupRepository;
 import dwbh.api.repositories.VotingRepository;
 import dwbh.api.util.ErrorConstants;
@@ -446,5 +435,154 @@ public class VotingServiceTests {
 
     // then: the votes are returned
     assertEquals(votes.size(), 3, "Successfully listed votes");
+  }
+
+  @Test
+  @DisplayName("listUserVotesInGroup: success")
+  void testListUserVotesInGroupSuccessfully() {
+    // given: some mocked data
+    var groupId = UUID.randomUUID();
+    var userId = UUID.randomUUID();
+    var currentUserId = UUID.randomUUID();
+    var startDateTime = OffsetDateTime.now();
+    var endDateTime = OffsetDateTime.now();
+
+    // and: mocked userGroupRepository
+    var userGroupRepository = mock(UserGroupRepository.class);
+    Mockito.when(userGroupRepository.getUserGroup(currentUserId, groupId))
+        .thenReturn(
+            UserGroup.builder()
+                .with(userGroup -> userGroup.setUserId(userId))
+                .with(userGroup -> userGroup.setGroupId(groupId))
+                .build());
+    Mockito.when(userGroupRepository.getUserGroup(userId, groupId))
+        .thenReturn(
+            UserGroup.builder()
+                .with(userGroup -> userGroup.setUserId(userId))
+                .with(userGroup -> userGroup.setGroupId(groupId))
+                .build());
+
+    // and: mocked repository calls
+    var votingRepository = Mockito.mock(VotingRepository.class);
+
+    Mockito.when(votingRepository.listUserVotesInGroup(any(), any(), any(), any()))
+        .thenReturn(List.of(random(Vote.class), random(Vote.class), random(Vote.class)));
+
+    // and input data
+    var input =
+        UserVotesInGroupInput.builder()
+            .with(userVotesInGroupInput -> userVotesInGroupInput.setCurrentUserId(currentUserId))
+            .with(userVotesInGroupInput -> userVotesInGroupInput.setUserId(userId))
+            .with(userVotesInGroupInput -> userVotesInGroupInput.setGroupId(groupId))
+            .with(userVotesInGroupInput -> userVotesInGroupInput.setGroupId(groupId))
+            .with(userVotesInGroupInput -> userVotesInGroupInput.setStartDateTime(startDateTime))
+            .with(userVotesInGroupInput -> userVotesInGroupInput.setEndDateTime(endDateTime))
+            .build();
+
+    // when: invoking the vote listing
+    var votingService = new VotingService(votingRepository, userGroupRepository);
+    Result<List<Vote>> votes = votingService.listUserVotesInGroup(input);
+
+    // then: the votes are returned
+    assertNotNull(votes.getSuccess());
+    assertEquals(votes.getSuccess().size(), 3, "Successfully listed votes");
+  }
+
+  @Test
+  @DisplayName("listUserVotesInGroup: current user is not in group")
+  void testListUserVotesInGroupFailBecauseCurrentUserIsNotInGroup() {
+    // given: some mocked data
+    var groupId = UUID.randomUUID();
+    var currentUserId = UUID.randomUUID();
+    var userId = UUID.randomUUID();
+    var startDateTime = OffsetDateTime.now();
+    var endDateTime = OffsetDateTime.now();
+
+    // and: mocked userGroupRepository
+    var userGroupRepository = mock(UserGroupRepository.class);
+    Mockito.when(userGroupRepository.getUserGroup(userId, groupId))
+        .thenReturn(
+            UserGroup.builder()
+                .with(userGroup -> userGroup.setUserId(userId))
+                .with(userGroup -> userGroup.setGroupId(groupId))
+                .build());
+
+    // and: mocked repository calls
+    var votingRepository = Mockito.mock(VotingRepository.class);
+
+    Mockito.when(votingRepository.listUserVotesInGroup(any(), any(), any(), any()))
+        .thenReturn(List.of(random(Vote.class), random(Vote.class), random(Vote.class)));
+
+    // and input data
+    var input =
+        UserVotesInGroupInput.builder()
+            .with(userVotesInGroupInput -> userVotesInGroupInput.setCurrentUserId(currentUserId))
+            .with(userVotesInGroupInput -> userVotesInGroupInput.setUserId(userId))
+            .with(userVotesInGroupInput -> userVotesInGroupInput.setGroupId(groupId))
+            .with(userVotesInGroupInput -> userVotesInGroupInput.setGroupId(groupId))
+            .with(userVotesInGroupInput -> userVotesInGroupInput.setStartDateTime(startDateTime))
+            .with(userVotesInGroupInput -> userVotesInGroupInput.setEndDateTime(endDateTime))
+            .build();
+
+    // when: invoking the vote listing
+    var votingService = new VotingService(votingRepository, userGroupRepository);
+    Result<List<Vote>> votes = votingService.listUserVotesInGroup(input);
+
+    // then: votes can't be retrieved
+    assertNull(votes.getSuccess(), "No votes");
+    assertEquals(1, votes.getErrorList().size(), "There is one error");
+    assertEquals(ErrorConstants.USER_NOT_IN_GROUP.getCode(), votes.getErrorList().get(0).getCode());
+
+    // and: listUserVotesInGroup hasn't been called
+    verify(votingRepository, times(0)).listUserVotesInGroup(any(), any(), any(), any());
+  }
+
+  @Test
+  @DisplayName("listUserVotesInGroup: target user is not in group")
+  void testListUserVotesInGroupFailBecauseTargetUserIsNotInGroup() {
+    // given: some mocked data
+    var groupId = UUID.randomUUID();
+    var currentUserId = UUID.randomUUID();
+    var userId = UUID.randomUUID();
+    var startDateTime = OffsetDateTime.now();
+    var endDateTime = OffsetDateTime.now();
+
+    // and: mocked userGroupRepository
+    var userGroupRepository = mock(UserGroupRepository.class);
+    Mockito.when(userGroupRepository.getUserGroup(currentUserId, groupId))
+        .thenReturn(
+            UserGroup.builder()
+                .with(userGroup -> userGroup.setUserId(userId))
+                .with(userGroup -> userGroup.setGroupId(groupId))
+                .build());
+
+    // and: mocked repository calls
+    var votingRepository = Mockito.mock(VotingRepository.class);
+
+    Mockito.when(votingRepository.listUserVotesInGroup(any(), any(), any(), any()))
+        .thenReturn(List.of(random(Vote.class), random(Vote.class), random(Vote.class)));
+
+    // and input data
+    var input =
+        UserVotesInGroupInput.builder()
+            .with(userVotesInGroupInput -> userVotesInGroupInput.setCurrentUserId(currentUserId))
+            .with(userVotesInGroupInput -> userVotesInGroupInput.setUserId(userId))
+            .with(userVotesInGroupInput -> userVotesInGroupInput.setGroupId(groupId))
+            .with(userVotesInGroupInput -> userVotesInGroupInput.setGroupId(groupId))
+            .with(userVotesInGroupInput -> userVotesInGroupInput.setStartDateTime(startDateTime))
+            .with(userVotesInGroupInput -> userVotesInGroupInput.setEndDateTime(endDateTime))
+            .build();
+
+    // when: invoking the vote listing
+    var votingService = new VotingService(votingRepository, userGroupRepository);
+    Result<List<Vote>> votes = votingService.listUserVotesInGroup(input);
+
+    // then: votes can't be retrieved
+    assertNull(votes.getSuccess(), "No votes");
+    assertEquals(1, votes.getErrorList().size(), "There is one error");
+    assertEquals(ErrorConstants.USER_NOT_IN_GROUP.getCode(), votes.getErrorList().get(0).getCode());
+
+    // and: listUserVotesInGroup hasn't been called
+    verify(votingRepository, times(0)).listUserVotesInGroup(any(), any(), any(), any());
   }
 }

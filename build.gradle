@@ -137,4 +137,4 @@ build.finalizedBy(javadoc, jacocoTestReport)
  *
  * @since 0.1.0
  */
-check.dependsOn jacocoTestCoverageVerification, dependencyCheckAnalyze
+check.dependsOn jacocoTestCoverageVerification//, dependencyCheckAnalyze

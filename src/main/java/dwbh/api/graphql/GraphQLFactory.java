@@ -114,6 +114,7 @@ public class GraphQLFactory {
                         .dataFetcher("getGroup", groupFetcher::getGroup)
                         .dataFetcher("listUsers", userFetcher::listUsers)
                         .dataFetcher("getUser", userFetcher::getUser)
+                        .dataFetcher("listUserVotesInGroup", votingFetcher::listUserVotesInGroup)
                         .dataFetcher("myProfile", userFetcher::getCurrentUser)
                         .dataFetcher("getVoting", votingFetcher::getVoting)
                         .dataFetcher("login", securityFetcher::login))

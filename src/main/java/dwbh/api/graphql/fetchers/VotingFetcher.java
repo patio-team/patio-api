@@ -20,10 +20,7 @@ package dwbh.api.graphql.fetchers;
 import dwbh.api.domain.Group;
 import dwbh.api.domain.Vote;
 import dwbh.api.domain.Voting;
-import dwbh.api.domain.input.CreateVoteInput;
-import dwbh.api.domain.input.CreateVotingInput;
-import dwbh.api.domain.input.GetVotingInput;
-import dwbh.api.domain.input.ListVotingsGroupInput;
+import dwbh.api.domain.input.*;
 import dwbh.api.graphql.ResultUtils;
 import dwbh.api.services.VotingService;
 import graphql.execution.DataFetcherResult;
@@ -107,7 +104,7 @@ public class VotingFetcher {
   }
 
   /**
-   * Fetches the votes that belongs to a vote
+   * Fetches the votes that belongs to a voting
    *
    * @param env GraphQL execution environment
    * @return a list of available {@link Vote}
@@ -116,5 +113,17 @@ public class VotingFetcher {
   public List<Vote> listVotesVoting(DataFetchingEnvironment env) {
     Voting voting = env.getSource();
     return service.listVotesVoting(voting.getId());
+  }
+
+  /**
+   * Fetches the votes that belongs to an user in a group between two dates
+   *
+   * @param env GraphQL execution environment
+   * @return a list of available {@link Vote}
+   * @since 0.1.0
+   */
+  public DataFetcherResult<List<Vote>> listUserVotesInGroup(DataFetchingEnvironment env) {
+    UserVotesInGroupInput input = VotingFetcherUtils.userVotesInput(env);
+    return ResultUtils.render(service.listUserVotesInGroup(input));
   }
 }

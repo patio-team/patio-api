@@ -20,19 +20,10 @@ package dwbh.api.services;
 import dwbh.api.domain.Group;
 import dwbh.api.domain.Vote;
 import dwbh.api.domain.Voting;
-import dwbh.api.domain.input.CreateVoteInput;
-import dwbh.api.domain.input.CreateVotingInput;
-import dwbh.api.domain.input.GetVotingInput;
-import dwbh.api.domain.input.ListVotingsGroupInput;
+import dwbh.api.domain.input.*;
 import dwbh.api.repositories.UserGroupRepository;
 import dwbh.api.repositories.VotingRepository;
-import dwbh.api.services.internal.checkers.NotNull;
-import dwbh.api.services.internal.checkers.UserIsInGroup;
-import dwbh.api.services.internal.checkers.UserOnlyVotedOnce;
-import dwbh.api.services.internal.checkers.VoteAnonymousAllowedInGroup;
-import dwbh.api.services.internal.checkers.VoteScoreBoundaries;
-import dwbh.api.services.internal.checkers.VotingExists;
-import dwbh.api.services.internal.checkers.VotingHasExpired;
+import dwbh.api.services.internal.checkers.*;
 import dwbh.api.util.Result;
 import java.time.OffsetDateTime;
 import java.util.List;
@@ -166,5 +157,26 @@ public class VotingService {
             () ->
                 votingRepository.findVotingByUserAndVoting(
                     input.getCurrentUserId(), input.getVotingId()));
+  }
+
+  /**
+   * Fetches the votes that belongs to an user in a group between two dates. The current user and
+   * the user should be members of the group
+   *
+   * @param input required data to retrieve a list of {@link Vote}
+   * @return a result with a list of {@link Vote} or an {@link Error}
+   * @since 0.1.0
+   */
+  public Result<List<Vote>> listUserVotesInGroup(UserVotesInGroupInput input) {
+    UserIsInGroup userIsInGroup = new UserIsInGroup(userGroupRepository);
+    return Result.<List<Vote>>create()
+        .thenCheck(() -> userIsInGroup.check(input.getCurrentUserId(), input.getGroupId()))
+        .thenCheck(() -> userIsInGroup.check(input.getUserId(), input.getGroupId()))
+        .then(() -> listUserVotesInGroupIfSuccess(input));
+  }
+
+  private List<Vote> listUserVotesInGroupIfSuccess(UserVotesInGroupInput input) {
+    return votingRepository.listUserVotesInGroup(
+        input.getUserId(), input.getGroupId(), input.getStartDateTime(), input.getEndDateTime());
   }
 }
