@@ -22,8 +22,7 @@ import dwbh.api.domain.input.GetGroupInput;
 import dwbh.api.domain.input.UpsertGroupInput;
 import dwbh.api.repositories.GroupRepository;
 import dwbh.api.repositories.UserGroupRepository;
-import dwbh.api.repositories.UserRepository;
-import dwbh.api.repositories.VotingRepository;
+import dwbh.api.services.internal.CheckersUtils;
 import dwbh.api.util.Check;
 import dwbh.api.util.Result;
 import java.util.List;
@@ -37,23 +36,23 @@ import javax.inject.Singleton;
  * @since 0.1.0
  */
 @Singleton
-public class GroupService extends BaseService {
+public class GroupService {
+  /** The Group repository. */
+  private final transient GroupRepository groupRepository;
+
+  /** The User group repository. */
+  private final transient UserGroupRepository userGroupRepository;
 
   /**
    * Initializes service by using the database repositories
    *
    * @param groupRepository an instance of {@link GroupRepository}
-   * @param userRepository an instance of {@link UserRepository}
    * @param userGroupRepository an instance of {@link UserGroupRepository}
-   * @param votingRepository an instance of {@link VotingRepository}
    * @since 0.1.0
    */
-  public GroupService(
-      GroupRepository groupRepository,
-      UserRepository userRepository,
-      UserGroupRepository userGroupRepository,
-      VotingRepository votingRepository) {
-    super(groupRepository, userRepository, userGroupRepository, votingRepository);
+  public GroupService(GroupRepository groupRepository, UserGroupRepository userGroupRepository) {
+    this.groupRepository = groupRepository;
+    this.userGroupRepository = userGroupRepository;
   }
 
   /**
@@ -112,8 +111,10 @@ public class GroupService extends BaseService {
         Check.checkWith(
             updateGroupInput,
             List.of(
-                this.createCheckUserIsAdmin(
-                    updateGroupInput.getCurrentUserId(), updateGroupInput.getGroupId())));
+                CheckersUtils.createCheckUserIsAdmin(
+                    updateGroupInput.getCurrentUserId(),
+                    updateGroupInput.getGroupId(),
+                    userGroupRepository)));
     return possibleErrors.orElseGet(() -> updateGroupIfSuccess(updateGroupInput));
   }
 
@@ -145,8 +146,9 @@ public class GroupService extends BaseService {
         Check.checkWith(
             input,
             List.of(
-                this.createCheckGroupExists(group),
-                this.createCheckUserIsInGroup(input.getCurrentUserId(), input.getGroupId())));
+                CheckersUtils.createCheckExists(group),
+                CheckersUtils.createCheckUserIsInGroup(
+                    input.getCurrentUserId(), input.getGroupId(), userGroupRepository)));
 
     return possibleErrors.orElseGet(() -> Result.result(group.get()));
   }

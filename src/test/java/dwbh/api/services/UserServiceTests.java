@@ -43,7 +43,7 @@ public class UserServiceTests {
     Mockito.when(userRepository.listUsers()).thenReturn(randomListOf(4, User.class));
 
     // when: invoking service listUsers()
-    var userService = new UserService(null, userRepository, null, null);
+    var userService = new UserService(userRepository);
     var userList = userService.listUsers();
 
     // then: we should get the expected number of users
@@ -57,7 +57,7 @@ public class UserServiceTests {
     Mockito.when(userRepository.getUser(any())).thenReturn(random(User.class));
 
     // when: getting a user by id
-    var userService = new UserService(null, userRepository, null, null);
+    var userService = new UserService(userRepository);
     var user = userService.getUser(UUID.randomUUID());
 
     // then: we should get it

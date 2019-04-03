@@ -24,10 +24,9 @@ import dwbh.api.domain.input.CreateVoteInput;
 import dwbh.api.domain.input.CreateVotingInput;
 import dwbh.api.domain.input.GetVotingInput;
 import dwbh.api.domain.input.ListVotingsGroupInput;
-import dwbh.api.repositories.GroupRepository;
 import dwbh.api.repositories.UserGroupRepository;
-import dwbh.api.repositories.UserRepository;
 import dwbh.api.repositories.VotingRepository;
+import dwbh.api.services.internal.CheckersUtils;
 import dwbh.api.util.Check;
 import dwbh.api.util.ErrorConstants;
 import dwbh.api.util.Result;
@@ -45,22 +44,23 @@ import javax.inject.Singleton;
  */
 @Singleton
 @SuppressWarnings("PMD.TooManyMethods")
-public class VotingService extends BaseService {
+public class VotingService {
+  /** The Voting repository. */
+  protected final transient VotingRepository votingRepository;
+
+  /** The User group repository. */
+  protected final transient UserGroupRepository userGroupRepository;
+
   /**
    * Initializes service by using the database repositories
    *
-   * @param groupRepository an instance of {@link GroupRepository}
-   * @param userRepository an instance of {@link UserRepository}
-   * @param userGroupRepository an instance of {@link UserGroupRepository}
    * @param votingRepository an instance of {@link VotingRepository}
+   * @param userGroupRepository an instance of {@link UserGroupRepository}
    * @since 0.1.0
    */
-  public VotingService(
-      GroupRepository groupRepository,
-      UserRepository userRepository,
-      UserGroupRepository userGroupRepository,
-      VotingRepository votingRepository) {
-    super(groupRepository, userRepository, userGroupRepository, votingRepository);
+  public VotingService(VotingRepository votingRepository, UserGroupRepository userGroupRepository) {
+    this.votingRepository = votingRepository;
+    this.userGroupRepository = userGroupRepository;
   }
 
   /**
@@ -72,7 +72,10 @@ public class VotingService extends BaseService {
    */
   public Result<Voting> createVoting(CreateVotingInput input) {
     return Check.<Voting, CreateVotingInput>checkWith(
-            input, List.of(this.createCheckUserIsInGroup(input.getUserId(), input.getGroupId())))
+            input,
+            List.of(
+                CheckersUtils.createCheckUserIsInGroup(
+                    input.getUserId(), input.getGroupId(), userGroupRepository)))
         .orElseGet(() -> createVotingIfSuccess(input));
   }
 
@@ -103,7 +106,7 @@ public class VotingService extends BaseService {
                 this::checkScoreIsValid,
                 this::checkUserHasntAlreadyVoted,
                 this::checkVotingHasNotExpired,
-                this.createCheckGroupExists(group),
+                CheckersUtils.createCheckExists(group),
                 this.createCheckAnonymousOk(group)));
 
     return possibleErrors.orElseGet(() -> createVoteIfSuccess(input));

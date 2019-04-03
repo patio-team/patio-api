@@ -28,7 +28,7 @@ import dwbh.api.domain.input.ListUsersGroupInput;
 import dwbh.api.repositories.GroupRepository;
 import dwbh.api.repositories.UserGroupRepository;
 import dwbh.api.repositories.UserRepository;
-import dwbh.api.repositories.VotingRepository;
+import dwbh.api.services.internal.CheckersUtils;
 import dwbh.api.util.Check;
 import dwbh.api.util.ErrorConstants;
 import dwbh.api.util.Result;
@@ -45,7 +45,15 @@ import javax.inject.Singleton;
  */
 @Singleton
 @SuppressWarnings("PMD.TooManyMethods")
-public class UserGroupService extends BaseService {
+public class UserGroupService {
+  /** The Group repository. */
+  protected final transient GroupRepository groupRepository;
+
+  /** The User repository. */
+  protected final transient UserRepository userRepository;
+
+  /** The User group repository. */
+  protected final transient UserGroupRepository userGroupRepository;
 
   /**
    * Initializes service by using the database repositories
@@ -53,15 +61,15 @@ public class UserGroupService extends BaseService {
    * @param groupRepository an instance of {@link GroupRepository}
    * @param userRepository an instance of {@link UserRepository}
    * @param userGroupRepository an instance of {@link UserGroupRepository}
-   * @param votingRepository an instance of {@link VotingRepository}
    * @since 0.1.0
    */
   public UserGroupService(
       GroupRepository groupRepository,
       UserRepository userRepository,
-      UserGroupRepository userGroupRepository,
-      VotingRepository votingRepository) {
-    super(groupRepository, userRepository, userGroupRepository, votingRepository);
+      UserGroupRepository userGroupRepository) {
+    this.groupRepository = groupRepository;
+    this.userRepository = userRepository;
+    this.userGroupRepository = userGroupRepository;
   }
 
   /**
@@ -83,19 +91,18 @@ public class UserGroupService extends BaseService {
         Check.checkWith(
             addUserToGroupInput,
             List.of(
-                this.createCheckGroupExists(group),
-                this.createCheckUserExists(user),
-                this.createCheckUserIsAdmin(
-                    addUserToGroupInput.getCurrentUserId(), addUserToGroupInput.getGroupId()),
-                this.createCheckUserIsNotInGroup(
-                    user.map(User::getId).orElse(null), addUserToGroupInput.getGroupId())));
+                CheckersUtils.createCheckExists(group),
+                CheckersUtils.createCheckExists(user),
+                CheckersUtils.createCheckUserIsAdmin(
+                    addUserToGroupInput.getCurrentUserId(),
+                    addUserToGroupInput.getGroupId(),
+                    userGroupRepository),
+                CheckersUtils.createCheckUserIsNotInGroup(
+                    user.map(User::getId).orElse(null),
+                    addUserToGroupInput.getGroupId(),
+                    userGroupRepository)));
 
     return possibleErrors.orElseGet(() -> addUserToGroupIfSuccess(user.get(), group.get()));
-  }
-
-  private Function<AddUserToGroupInput, Check> createCheckUserExists(Optional<User> user) {
-    return (AddUserToGroupInput input) ->
-        Check.checkIsTrue(user.isPresent(), ErrorConstants.NOT_FOUND);
   }
 
   private Result<Boolean> addUserToGroupIfSuccess(User user, Group group) {
@@ -143,7 +150,8 @@ public class UserGroupService extends BaseService {
         Check.checkWith(
             input,
             List.of(
-                this.createCheckUserIsInGroup(input.getCurrentUserId(), input.getGroupId()),
+                CheckersUtils.createCheckUserIsInGroup(
+                    input.getCurrentUserId(), input.getGroupId(), userGroupRepository),
                 this.createCheckCurrentUserIsNotUniqueAdmin(
                     input.getCurrentUserId(), input.getGroupId())));
 
@@ -163,5 +171,17 @@ public class UserGroupService extends BaseService {
   private Result<Boolean> leaveGroupIfSuccess(LeaveGroupInput input) {
     userGroupRepository.removeUserFromGroup(input.getCurrentUserId(), input.getGroupId());
     return Result.result(true);
+  }
+
+  /**
+   * Returns if the user is admin of the group
+   *
+   * @param userId The id of the user
+   * @param groupId The id of the group
+   * @return a boolean indicating if the user is admin of the group
+   * @since 0.1.0
+   */
+  public boolean isAdmin(UUID userId, UUID groupId) {
+    return CheckersUtils.isAdmin(userId, groupId, userGroupRepository);
   }
 }

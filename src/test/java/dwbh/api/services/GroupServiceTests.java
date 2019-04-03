@@ -64,7 +64,7 @@ public class GroupServiceTests {
     Mockito.when(groupRepository.listGroups()).thenReturn(randomListOf(4, Group.class));
 
     // when: invoking service listGroups()
-    var groupService = new GroupService(groupRepository, null, null, null);
+    var groupService = new GroupService(groupRepository, null);
     var groupList = groupService.listGroups();
 
     // then: we should get the expected number of groups
@@ -79,7 +79,7 @@ public class GroupServiceTests {
         .thenReturn(randomListOf(5, Group.class));
 
     // when: getting a list of groups by group
-    var groupService = new GroupService(null, null, userGroupRepository, null);
+    var groupService = new GroupService(null, userGroupRepository);
     var groupsByGroup = groupService.listGroupsUser(UUID.randomUUID());
 
     // then: we should get the expected number of groups
@@ -111,7 +111,7 @@ public class GroupServiceTests {
             .build();
 
     // when: creating a group
-    var groupService = new GroupService(groupRepository, null, userGroupRepository, null);
+    var groupService = new GroupService(groupRepository, userGroupRepository);
     var group = groupService.createGroup(createGroupInput);
 
     // then: we should get it
@@ -137,7 +137,7 @@ public class GroupServiceTests {
         .thenReturn(random(UserGroup.class));
 
     // when: getting a group by id
-    var groupService = new GroupService(groupRepository, null, userGroupRepository, null);
+    var groupService = new GroupService(groupRepository, userGroupRepository);
     var input =
         GetGroupInput.newBuilder()
             .withCurrentUserId(UUID.randomUUID())
@@ -159,7 +159,7 @@ public class GroupServiceTests {
     var userGroupRepository = mock(UserGroupRepository.class);
 
     // when: getting a group by id
-    var groupService = new GroupService(groupRepository, null, userGroupRepository, null);
+    var groupService = new GroupService(groupRepository, userGroupRepository);
     var input =
         GetGroupInput.newBuilder()
             .withCurrentUserId(UUID.randomUUID())
@@ -184,7 +184,7 @@ public class GroupServiceTests {
     Mockito.when(userGroupRepository.getUserGroup(any(), any())).thenReturn(null);
 
     // when: getting a group by id
-    var groupService = new GroupService(groupRepository, null, userGroupRepository, null);
+    var groupService = new GroupService(groupRepository, userGroupRepository);
     var input =
         GetGroupInput.newBuilder()
             .withCurrentUserId(UUID.randomUUID())
@@ -227,7 +227,7 @@ public class GroupServiceTests {
             .build();
 
     // when: updating a group
-    var groupService = new GroupService(groupRepository, null, userGroupRepository, null);
+    var groupService = new GroupService(groupRepository, userGroupRepository);
     var groupResult = groupService.updateGroup(updateGroupInput);
     var group = groupResult.getSuccess();
 
