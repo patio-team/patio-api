@@ -19,8 +19,10 @@ package dwbh.api.services;
 
 import static io.github.benas.randombeans.api.EnhancedRandom.random;
 import static io.github.benas.randombeans.api.EnhancedRandom.randomListOf;
+import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
@@ -29,6 +31,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import dwbh.api.domain.Group;
+import dwbh.api.domain.GroupBuilder;
 import dwbh.api.domain.User;
 import dwbh.api.domain.UserGroup;
 import dwbh.api.domain.input.GetGroupInput;
@@ -199,30 +202,39 @@ public class GroupServiceTests {
   void testUpdateGroup() {
     // given: a mocked group repository
     var groupRepository = mock(GroupRepository.class);
+    var groupInstance =
+        GroupBuilder.builder().withVisibleMemberList(true).withAnonymousVote(false).build();
+
     Mockito.when(
             groupRepository.upsertGroup(any(), any(), anyBoolean(), anyBoolean(), any(), any()))
-        .thenReturn(random(Group.class));
+        .thenReturn(groupInstance);
 
     // and: an user
     var user = random(User.class);
 
     // and: a mocked usergroup repository
     var userGroupRepository = mock(UserGroupRepository.class);
+    var userGroup = new UserGroup(null, null, true);
+    Mockito.when(userGroupRepository.getUserGroup(any(), any())).thenReturn(userGroup);
 
     // and: a CreateGroupInput
     UpsertGroupInput updateGroupInput =
         UpsertGroupInput.newBuilder()
             .withName("avengers")
             .withVisibleMemberList(true)
-            .withAnonymousVote(true)
+            .withAnonymousVote(false)
             .withCurrentUserId(user.getId())
             .build();
 
     // when: updating a group
     var groupService = new GroupService(groupRepository, null, userGroupRepository, null);
-    var group = groupService.updateGroup(updateGroupInput);
+    var groupResult = groupService.updateGroup(updateGroupInput);
+    var group = groupResult.getSuccess();
 
     // then: we should get it
-    assertNotNull(group);
+    assertNotNull(groupResult);
+
+    assertTrue(group.isVisibleMemberList());
+    assertFalse(group.isAnonymousVote());
   }
 }

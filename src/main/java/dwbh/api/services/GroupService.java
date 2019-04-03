@@ -122,8 +122,8 @@ public class GroupService extends BaseService {
         groupRepository.upsertGroup(
             updateGroupInput.getGroupId(),
             updateGroupInput.getName(),
-            updateGroupInput.isAnonymousVote(),
             updateGroupInput.isVisibleMemberList(),
+            updateGroupInput.isAnonymousVote(),
             updateGroupInput.getVotingDays(),
             updateGroupInput.getVotingTime());
 
