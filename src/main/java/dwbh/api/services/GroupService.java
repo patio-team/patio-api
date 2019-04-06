@@ -22,11 +22,11 @@ import dwbh.api.domain.input.GetGroupInput;
 import dwbh.api.domain.input.UpsertGroupInput;
 import dwbh.api.repositories.GroupRepository;
 import dwbh.api.repositories.UserGroupRepository;
-import dwbh.api.services.internal.CheckersUtils;
-import dwbh.api.util.Check;
+import dwbh.api.services.internal.checkers.NotNull;
+import dwbh.api.services.internal.checkers.UserIsGroupAdmin;
+import dwbh.api.services.internal.checkers.UserIsInGroup;
 import dwbh.api.util.Result;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 import javax.inject.Singleton;
 
@@ -37,10 +37,8 @@ import javax.inject.Singleton;
  */
 @Singleton
 public class GroupService {
-  /** The Group repository. */
-  private final transient GroupRepository groupRepository;
 
-  /** The User group repository. */
+  private final transient GroupRepository groupRepository;
   private final transient UserGroupRepository userGroupRepository;
 
   /**
@@ -101,34 +99,26 @@ public class GroupService {
   /**
    * Updates a new Group
    *
-   * @param updateGroupInput group information
+   * @param input group information
    * @return The updated {@link Group}
    * @since 0.1.0
    */
-  public Result<Group> updateGroup(UpsertGroupInput updateGroupInput) {
+  public Result<Group> updateGroup(UpsertGroupInput input) {
+    UserIsGroupAdmin userIsGroupAdmin = new UserIsGroupAdmin(userGroupRepository);
+    Result<Group> check =
+        Result.fromCheck(userIsGroupAdmin.check(input.getCurrentUserId(), input.getGroupId()));
 
-    Optional<Result<Group>> possibleErrors =
-        Check.checkWith(
-            updateGroupInput,
-            List.of(
-                CheckersUtils.createCheckUserIsAdmin(
-                    updateGroupInput.getCurrentUserId(),
-                    updateGroupInput.getGroupId(),
-                    userGroupRepository)));
-    return possibleErrors.orElseGet(() -> updateGroupIfSuccess(updateGroupInput));
+    return check.then(() -> updateGroupIfSuccess(input));
   }
 
-  private Result<Group> updateGroupIfSuccess(UpsertGroupInput updateGroupInput) {
-    Group group =
-        groupRepository.upsertGroup(
-            updateGroupInput.getGroupId(),
-            updateGroupInput.getName(),
-            updateGroupInput.isVisibleMemberList(),
-            updateGroupInput.isAnonymousVote(),
-            updateGroupInput.getVotingDays(),
-            updateGroupInput.getVotingTime());
-
-    return Result.result(group);
+  private Group updateGroupIfSuccess(UpsertGroupInput updateGroupInput) {
+    return groupRepository.upsertGroup(
+        updateGroupInput.getGroupId(),
+        updateGroupInput.getName(),
+        updateGroupInput.isVisibleMemberList(),
+        updateGroupInput.isAnonymousVote(),
+        updateGroupInput.getVotingDays(),
+        updateGroupInput.getVotingTime());
   }
 
   /**
@@ -139,17 +129,12 @@ public class GroupService {
    * @since 0.1.0
    */
   public Result<Group> getGroup(GetGroupInput input) {
+    NotNull notNull = new NotNull();
+    UserIsInGroup userIsInGroup = new UserIsInGroup(userGroupRepository);
+    Group group = groupRepository.getGroup(input.getGroupId());
 
-    Optional<Group> group = Optional.ofNullable(groupRepository.getGroup(input.getGroupId()));
-
-    Optional<Result<Group>> possibleErrors =
-        Check.checkWith(
-            input,
-            List.of(
-                CheckersUtils.createCheckExists(group),
-                CheckersUtils.createCheckUserIsInGroup(
-                    input.getCurrentUserId(), input.getGroupId(), userGroupRepository)));
-
-    return possibleErrors.orElseGet(() -> Result.result(group.get()));
+    return Result.<Group>fromCheck(notNull.check(group))
+        .thenCheck(() -> userIsInGroup.check(input.getCurrentUserId(), input.getGroupId()))
+        .then(() -> group);
   }
 }

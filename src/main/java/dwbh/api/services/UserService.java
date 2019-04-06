@@ -31,8 +31,7 @@ import javax.inject.Singleton;
 @Singleton
 public class UserService {
 
-  /** The User repository. */
-  protected final transient UserRepository userRepository;
+  private final transient UserRepository userRepository;
 
   /**
    * Initializes service by using the database repositories

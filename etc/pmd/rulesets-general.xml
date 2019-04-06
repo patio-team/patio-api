@@ -63,8 +63,6 @@
         </properties>
     </rule>
 
-
-
     <rule ref="category/java/design.xml">
         <exclude name="DataClass"/>
         <exclude name="LawOfDemeter"/>
@@ -90,7 +88,10 @@
         </properties>
     </rule>
 
-    <rule ref="category/java/errorprone.xml"/>
+    <rule ref="category/java/errorprone.xml">
+        <exclude name="DataflowAnomalyAnalysis" />
+    </rule>
+
     <rule ref="category/java/multithreading.xml"/>
     <rule ref="category/java/performance.xml"/>
     <rule ref="category/java/security.xml"/>

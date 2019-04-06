@@ -83,6 +83,7 @@ public class UserGroupFetcher {
     Context ctx = env.getContext();
     User user = ctx.getAuthenticatedUser();
     Group group = env.getSource();
+
     return service.isAdmin(user.getId(), group.getId());
   }
 

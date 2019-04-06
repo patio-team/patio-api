@@ -13,6 +13,7 @@ test {
 pmd {
     toolVersion "6.11.0"
     ignoreFailures = false
+    ruleSets = [] // https://stackoverflow.com/questions/53695965/not-able-to-exclude-some-rules-from-pmd
     ruleSetFiles 'etc/pmd/rulesets-general.xml'
 }
 
