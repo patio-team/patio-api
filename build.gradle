@@ -11,6 +11,7 @@ plugins {
     id 'com.github.jk1.dependency-license-report' version '1.5'
     id "com.github.hierynomus.license" version "0.15.0"
     id "net.kaleidos.dwbh.gradle-fixtures-plugin" version "0.1.2"
+    id "org.owasp.dependencycheck" version "5.0.0-M2"
 }
 
 apply plugin: "application"
@@ -21,6 +22,7 @@ apply from: 'gradle/quality.gradle'
 apply from: 'gradle/fixtures.gradle'
 apply from: 'gradle/docker.gradle'
 apply from: 'gradle/docs.gradle'
+apply from: 'gradle/security.gradle'
 
 group "kaleidos.net"
 
@@ -56,7 +58,7 @@ dependencies {
 
     compile 'com.graphql-java:graphql-java-extended-scalars:1.0'
     compile "com.auth0:java-jwt:3.7.0"
-    compile 'org.springframework.security:spring-security-crypto:5.1.2.RELEASE'
+    compile 'org.springframework.security:spring-security-crypto:5.1.5.RELEASE'
 
     compile 'com.amazonaws:aws-java-sdk-ses:1.11.285'
 
@@ -135,4 +137,4 @@ build.finalizedBy(javadoc, jacocoTestReport)
  *
  * @since 0.1.0
  */
-check.dependsOn jacocoTestCoverageVerification
+check.dependsOn jacocoTestCoverageVerification, dependencyCheckAnalyze
