@@ -105,10 +105,10 @@ public class GroupService {
    */
   public Result<Group> updateGroup(UpsertGroupInput input) {
     UserIsGroupAdmin userIsGroupAdmin = new UserIsGroupAdmin(userGroupRepository);
-    Result<Group> check =
-        Result.fromCheck(userIsGroupAdmin.check(input.getCurrentUserId(), input.getGroupId()));
 
-    return check.then(() -> updateGroupIfSuccess(input));
+    return Result.<Group>create()
+        .thenCheck(() -> userIsGroupAdmin.check(input.getCurrentUserId(), input.getGroupId()))
+        .then(() -> updateGroupIfSuccess(input));
   }
 
   private Group updateGroupIfSuccess(UpsertGroupInput updateGroupInput) {
@@ -129,11 +129,13 @@ public class GroupService {
    * @since 0.1.0
    */
   public Result<Group> getGroup(GetGroupInput input) {
-    NotNull notNull = new NotNull();
-    UserIsInGroup userIsInGroup = new UserIsInGroup(userGroupRepository);
     Group group = groupRepository.getGroup(input.getGroupId());
 
-    return Result.<Group>fromCheck(notNull.check(group))
+    NotNull notNull = new NotNull();
+    UserIsInGroup userIsInGroup = new UserIsInGroup(userGroupRepository);
+
+    return Result.<Group>create()
+        .thenCheck(() -> notNull.check(group))
         .thenCheck(() -> userIsInGroup.check(input.getCurrentUserId(), input.getGroupId()))
         .then(() -> group);
   }

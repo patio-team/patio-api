@@ -87,18 +87,14 @@ public class Result<T> {
   }
 
   /**
-   * This method creates a possible failing {@link Result} from a given {@link Check}. Once you have
-   * the result you can chain calls to {@link Result#thenCheck(Supplier)} if you want to check more
-   * conditions or simply call {@link Result#then(Supplier)} if there're no more checkers and you
-   * want to end the execution with the final success result.
+   * Creates an empty {@link Result} instance
    *
    * @param <U> the expected result type
-   * @param check check to start a {@link Result} chain
-   * @return a partial and possibly failing {@link Result}
+   * @return an empty non failing {@link Result}
    * @since 0.1.0
    */
-  public static <U> Result<U> fromCheck(Check check) {
-    return Result.result(null).toResult(check);
+  public static <U> Result<U> create() {
+    return Result.result(null);
   }
 
   /**

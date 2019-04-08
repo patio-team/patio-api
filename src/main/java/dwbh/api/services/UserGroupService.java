@@ -82,7 +82,8 @@ public class UserGroupService {
     UserIsGroupAdmin userIsGroupAdmin = new UserIsGroupAdmin(userGroupRepository);
     UserIsNotInGroup notInGroupChecker = new UserIsNotInGroup(userGroupRepository);
 
-    return Result.<Boolean>fromCheck(notNull.check(group))
+    return Result.<Boolean>create()
+        .thenCheck(() -> notNull.check(group))
         .thenCheck(() -> notNull.check(user))
         .thenCheck(() -> userIsGroupAdmin.check(input.getCurrentUserId(), input.getGroupId()))
         .thenCheck(() -> notInGroupChecker.check(user.getId(), input.getGroupId()))
@@ -103,12 +104,13 @@ public class UserGroupService {
    * @since 0.1.0
    */
   public List<User> listUsersGroup(ListUsersGroupInput input) {
-    UserCanSeeGroupMembers checker = new UserCanSeeGroupMembers(userGroupRepository);
-    Result<List<User>> check =
-        Result.fromCheck(
-            checker.check(input.getUserId(), input.getGroupId(), input.isVisibleMemberList()));
+    UserCanSeeGroupMembers seeGroupMembers = new UserCanSeeGroupMembers(userGroupRepository);
 
-    return check
+    return Result.<List<User>>create()
+        .thenCheck(
+            () ->
+                seeGroupMembers.check(
+                    input.getUserId(), input.getGroupId(), input.isVisibleMemberList()))
         .then(() -> listUsersGroupIfSuccess(input.getGroupId()))
         .orElseGet(List::of)
         .getSuccess();
@@ -129,8 +131,8 @@ public class UserGroupService {
     UserIsInGroup userIsInGroup = new UserIsInGroup(userGroupRepository);
     UserIsNotUniqueGroupAdmin notUniqueAdmin = new UserIsNotUniqueGroupAdmin(userGroupRepository);
 
-    return Result.<Boolean>fromCheck(
-            userIsInGroup.check(input.getCurrentUserId(), input.getGroupId()))
+    return Result.<Boolean>create()
+        .thenCheck(() -> userIsInGroup.check(input.getCurrentUserId(), input.getGroupId()))
         .thenCheck(() -> notUniqueAdmin.check(input.getCurrentUserId(), input.getGroupId()))
         .then(() -> leaveGroupIfSuccess(input));
   }

@@ -70,10 +70,11 @@ public class VotingService {
    * @since 0.1.0
    */
   public Result<Voting> createVoting(CreateVotingInput input) {
-    UserIsInGroup checker = new UserIsInGroup(userGroupRepository);
-    Result<Voting> errors = Result.fromCheck(checker.check(input.getUserId(), input.getGroupId()));
+    UserIsInGroup userIsInGroup = new UserIsInGroup(userGroupRepository);
 
-    return errors.then(() -> createVotingIfSuccess(input));
+    return Result.<Voting>create()
+        .thenCheck(() -> userIsInGroup.check(input.getUserId(), input.getGroupId()))
+        .then(() -> createVotingIfSuccess(input));
   }
 
   private Voting createVotingIfSuccess(CreateVotingInput input) {
@@ -98,7 +99,8 @@ public class VotingService {
     NotNull notNull = new NotNull();
     VoteAnonymousAllowedInGroup anonymousAllowed = new VoteAnonymousAllowedInGroup();
 
-    return Result.<Vote>fromCheck(voteScoreBoundaries.check(input.getScore()))
+    return Result.<Vote>create()
+        .thenCheck(() -> voteScoreBoundaries.check(input.getScore()))
         .thenCheck(() -> userOnlyVotedOnce.check(input))
         .thenCheck(() -> votingHasExpired.check(input.getVotingId()))
         .thenCheck(() -> notNull.check(group))
@@ -157,12 +159,12 @@ public class VotingService {
    */
   public Result<Voting> getVoting(GetVotingInput input) {
     VotingExists votingExists = new VotingExists(votingRepository);
-    Result<Voting> check =
-        Result.fromCheck(votingExists.check(input.getCurrentUserId(), input.getVotingId()));
 
-    return check.then(
-        () ->
-            votingRepository.findVotingByUserAndVoting(
-                input.getCurrentUserId(), input.getVotingId()));
+    return Result.<Voting>create()
+        .thenCheck(() -> votingExists.check(input.getCurrentUserId(), input.getVotingId()))
+        .then(
+            () ->
+                votingRepository.findVotingByUserAndVoting(
+                    input.getCurrentUserId(), input.getVotingId()));
   }
 }
