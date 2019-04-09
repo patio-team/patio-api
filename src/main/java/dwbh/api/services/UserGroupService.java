@@ -17,8 +17,6 @@
  */
 package dwbh.api.services;
 
-import static dwbh.api.util.ErrorConstants.NOT_ALLOWED;
-
 import dwbh.api.domain.Group;
 import dwbh.api.domain.User;
 import dwbh.api.domain.UserGroup;
@@ -28,14 +26,16 @@ import dwbh.api.domain.input.ListUsersGroupInput;
 import dwbh.api.repositories.GroupRepository;
 import dwbh.api.repositories.UserGroupRepository;
 import dwbh.api.repositories.UserRepository;
-import dwbh.api.repositories.VotingRepository;
-import dwbh.api.util.Check;
-import dwbh.api.util.ErrorConstants;
+import dwbh.api.services.internal.checkers.NotNull;
+import dwbh.api.services.internal.checkers.UserCanSeeGroupMembers;
+import dwbh.api.services.internal.checkers.UserIsGroupAdmin;
+import dwbh.api.services.internal.checkers.UserIsInGroup;
+import dwbh.api.services.internal.checkers.UserIsNotInGroup;
+import dwbh.api.services.internal.checkers.UserIsNotUniqueGroupAdmin;
 import dwbh.api.util.Result;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.function.Function;
 import javax.inject.Singleton;
 
 /**
@@ -44,8 +44,11 @@ import javax.inject.Singleton;
  * @since 0.1.0
  */
 @Singleton
-@SuppressWarnings("PMD.TooManyMethods")
-public class UserGroupService extends BaseService {
+public class UserGroupService {
+
+  private final transient GroupRepository groupRepository;
+  private final transient UserRepository userRepository;
+  private final transient UserGroupRepository userGroupRepository;
 
   /**
    * Initializes service by using the database repositories
@@ -53,54 +56,43 @@ public class UserGroupService extends BaseService {
    * @param groupRepository an instance of {@link GroupRepository}
    * @param userRepository an instance of {@link UserRepository}
    * @param userGroupRepository an instance of {@link UserGroupRepository}
-   * @param votingRepository an instance of {@link VotingRepository}
    * @since 0.1.0
    */
   public UserGroupService(
       GroupRepository groupRepository,
       UserRepository userRepository,
-      UserGroupRepository userGroupRepository,
-      VotingRepository votingRepository) {
-    super(groupRepository, userRepository, userGroupRepository, votingRepository);
+      UserGroupRepository userGroupRepository) {
+    this.groupRepository = groupRepository;
+    this.userRepository = userRepository;
+    this.userGroupRepository = userGroupRepository;
   }
 
   /**
    * Adds an user to a group, if the current user is admin of the group
    *
-   * @param addUserToGroupInput user and group information
+   * @param input user and group information
    * @return an instance of {@link Result} (Boolean | {@link java.lang.Error})
    * @since 0.1.0
    */
-  @SuppressWarnings("PMD.OnlyOneReturn")
-  public Result<Boolean> addUserToGroup(AddUserToGroupInput addUserToGroupInput) {
+  public Result<Boolean> addUserToGroup(AddUserToGroupInput input) {
+    Group group = groupRepository.getGroup(input.getGroupId());
+    User user = userRepository.getUserByEmail(input.getEmail());
 
-    Optional<Group> group =
-        Optional.ofNullable(groupRepository.getGroup(addUserToGroupInput.getGroupId()));
-    Optional<User> user =
-        Optional.ofNullable(userRepository.getUserByEmail(addUserToGroupInput.getEmail()));
+    NotNull notNull = new NotNull();
+    UserIsGroupAdmin userIsGroupAdmin = new UserIsGroupAdmin(userGroupRepository);
+    UserIsNotInGroup notInGroupChecker = new UserIsNotInGroup(userGroupRepository);
 
-    Optional<Result<Boolean>> possibleErrors =
-        Check.checkWith(
-            addUserToGroupInput,
-            List.of(
-                this.createCheckGroupExists(group),
-                this.createCheckUserExists(user),
-                this.createCheckUserIsAdmin(
-                    addUserToGroupInput.getCurrentUserId(), addUserToGroupInput.getGroupId()),
-                this.createCheckUserIsNotInGroup(
-                    user.map(User::getId).orElse(null), addUserToGroupInput.getGroupId())));
-
-    return possibleErrors.orElseGet(() -> addUserToGroupIfSuccess(user.get(), group.get()));
+    return Result.<Boolean>create()
+        .thenCheck(() -> notNull.check(group))
+        .thenCheck(() -> notNull.check(user))
+        .thenCheck(() -> userIsGroupAdmin.check(input.getCurrentUserId(), input.getGroupId()))
+        .thenCheck(() -> notInGroupChecker.check(user.getId(), input.getGroupId()))
+        .then(() -> addUserToGroupIfSuccess(user, group));
   }
 
-  private Function<AddUserToGroupInput, Check> createCheckUserExists(Optional<User> user) {
-    return (AddUserToGroupInput input) ->
-        Check.checkIsTrue(user.isPresent(), ErrorConstants.NOT_FOUND);
-  }
-
-  private Result<Boolean> addUserToGroupIfSuccess(User user, Group group) {
+  private Boolean addUserToGroupIfSuccess(User user, Group group) {
     userGroupRepository.addUserToGroup(user.getId(), group.getId(), false);
-    return Result.result(true);
+    return true;
   }
 
   /**
@@ -112,19 +104,16 @@ public class UserGroupService extends BaseService {
    * @since 0.1.0
    */
   public List<User> listUsersGroup(ListUsersGroupInput input) {
+    UserCanSeeGroupMembers seeGroupMembers = new UserCanSeeGroupMembers(userGroupRepository);
 
-    Optional<Result<List<User>>> possibleErrors =
-        Check.checkWith(input, List.of(this::checkUserCanSeeMembers));
-
-    return possibleErrors
-        .map(o -> List.<User>of())
-        .orElseGet(() -> listUsersGroupIfSuccess(input.getGroupId()));
-  }
-
-  private Check checkUserCanSeeMembers(ListUsersGroupInput input) {
-    UserGroup userGroup = userGroupRepository.getUserGroup(input.getUserId(), input.getGroupId());
-    return Check.checkIsTrue(
-        userGroup != null && (userGroup.isAdmin() || input.isVisibleMemberList()), NOT_ALLOWED);
+    return Result.<List<User>>create()
+        .thenCheck(
+            () ->
+                seeGroupMembers.check(
+                    input.getUserId(), input.getGroupId(), input.isVisibleMemberList()))
+        .then(() -> listUsersGroupIfSuccess(input.getGroupId()))
+        .orElseGet(List::of)
+        .getSuccess();
   }
 
   private List<User> listUsersGroupIfSuccess(UUID groupId) {
@@ -139,29 +128,30 @@ public class UserGroupService extends BaseService {
    * @since 0.1.0
    */
   public Result<Boolean> leaveGroup(LeaveGroupInput input) {
-    Optional<Result<Boolean>> possibleErrors =
-        Check.checkWith(
-            input,
-            List.of(
-                this.createCheckUserIsInGroup(input.getCurrentUserId(), input.getGroupId()),
-                this.createCheckCurrentUserIsNotUniqueAdmin(
-                    input.getCurrentUserId(), input.getGroupId())));
+    UserIsInGroup userIsInGroup = new UserIsInGroup(userGroupRepository);
+    UserIsNotUniqueGroupAdmin notUniqueAdmin = new UserIsNotUniqueGroupAdmin(userGroupRepository);
 
-    return possibleErrors.orElseGet(() -> leaveGroupIfSuccess(input));
+    return Result.<Boolean>create()
+        .thenCheck(() -> userIsInGroup.check(input.getCurrentUserId(), input.getGroupId()))
+        .thenCheck(() -> notUniqueAdmin.check(input.getCurrentUserId(), input.getGroupId()))
+        .then(() -> leaveGroupIfSuccess(input));
   }
 
-  private <U> Function<U, Check> createCheckCurrentUserIsNotUniqueAdmin(UUID userId, UUID groupId) {
-    return (U input) ->
-        Check.checkIsFalse(isUniqueAdmin(userId, groupId), ErrorConstants.UNIQUE_ADMIN);
-  }
-
-  private boolean isUniqueAdmin(UUID userId, UUID groupId) {
-    List<UserGroup> admins = userGroupRepository.listAdminsGroup(groupId);
-    return admins.size() == 1 && admins.get(0).getUserId().equals(userId);
-  }
-
-  private Result<Boolean> leaveGroupIfSuccess(LeaveGroupInput input) {
+  private Boolean leaveGroupIfSuccess(LeaveGroupInput input) {
     userGroupRepository.removeUserFromGroup(input.getCurrentUserId(), input.getGroupId());
-    return Result.result(true);
+    return true;
+  }
+
+  /**
+   * Checks whether the user is admin is a given group or not
+   *
+   * @param userId user's id
+   * @param groupId group's id
+   * @return true if the user is admin in the given group
+   */
+  public boolean isAdmin(UUID userId, UUID groupId) {
+    return Optional.ofNullable(userGroupRepository.getUserGroup(userId, groupId))
+        .map(UserGroup::isAdmin)
+        .orElse(false);
   }
 }

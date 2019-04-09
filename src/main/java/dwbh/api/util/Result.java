@@ -18,6 +18,8 @@
 package dwbh.api.util;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.function.Supplier;
 
 /**
  * Represents a result that may contain whether a successful content or a failure content (errors)
@@ -62,6 +64,92 @@ public class Result<T> {
    */
   public List<Error> getErrorList() {
     return errorList;
+  }
+
+  /**
+   * Whether the instance is a success
+   *
+   * @return true if the result doesn't have any error
+   * @since 0.1.0
+   */
+  public boolean isSuccess() {
+    return !this.hasErrors();
+  }
+
+  /**
+   * Whether the instance has errors or not
+   *
+   * @return true if the result does have errors
+   * @since 0.1.0
+   */
+  public boolean hasErrors() {
+    return Optional.ofNullable(this.errorList).map(list -> !list.isEmpty()).orElse(false);
+  }
+
+  /**
+   * Creates an empty {@link Result} instance
+   *
+   * @param <U> the expected result type
+   * @return an empty non failing {@link Result}
+   * @since 0.1.0
+   */
+  public static <U> Result<U> create() {
+    return Result.result(null);
+  }
+
+  /**
+   * This method is used to concatenate checkers executions. It will short-circuit as soon as any of
+   * the checkers returns a failing {@link Result}
+   *
+   * @param supplier a function providing the result of a {@link Check}
+   * @return a result of the {@link Check} execution
+   * @since 0.1.0
+   */
+  public Result<T> thenCheck(Supplier<Check> supplier) {
+    return this.hasErrors() ? this : toResult(supplier.get());
+  }
+
+  /**
+   * Because every checker can define the "check" method in its own terms, this method helps
+   * translating the resulting {@link Check} result to a {@link Result} instance.
+   *
+   * @param <U> the expected result type
+   * @param check an instance of {@link Check} to be converted to {@link Result}
+   * @return an instance of {@link Result}. It could contain errors if the passed {@link Check}
+   *     failed. An empty successful result otherwise
+   * @since 0.1.0
+   */
+  private <U> Result<U> toResult(Check check) {
+    Optional<Result<U>> optional =
+        Optional.ofNullable(check).filter(Check::hasError).map(Check::getError).map(Result::error);
+
+    return optional.orElse(Result.result(null));
+  }
+
+  /**
+   * In case the current result has errors {@link Result} it will provide an alternative outcome
+   *
+   * @param supplier an execution returning an alternative {@link Result}
+   * @return the passed supplier's result if the current result has errors or the current result if
+   *     it's a success
+   * @since 0.1.0
+   */
+  public Result<T> orElseGet(Supplier<T> supplier) {
+    return this.hasErrors() ? Result.result(supplier.get()) : this;
+  }
+
+  /**
+   * If the current instance is a success but we want to provide an alternative {@link Result}. This
+   * is useful at the end of a series of checkers. If all of them passed then we can provide the
+   * expected business logic output.
+   *
+   * @param supplier a supplier returning an alternative success result
+   * @return the supplier's result if the current result is successful. The current result
+   *     otherwise.
+   * @since 0.1.0
+   */
+  public Result<T> then(Supplier<T> supplier) {
+    return this.isSuccess() ? Result.result(supplier.get()) : this;
   }
 
   /**

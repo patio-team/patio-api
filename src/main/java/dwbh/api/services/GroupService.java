@@ -22,12 +22,11 @@ import dwbh.api.domain.input.GetGroupInput;
 import dwbh.api.domain.input.UpsertGroupInput;
 import dwbh.api.repositories.GroupRepository;
 import dwbh.api.repositories.UserGroupRepository;
-import dwbh.api.repositories.UserRepository;
-import dwbh.api.repositories.VotingRepository;
-import dwbh.api.util.Check;
+import dwbh.api.services.internal.checkers.NotNull;
+import dwbh.api.services.internal.checkers.UserIsGroupAdmin;
+import dwbh.api.services.internal.checkers.UserIsInGroup;
 import dwbh.api.util.Result;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 import javax.inject.Singleton;
 
@@ -37,23 +36,21 @@ import javax.inject.Singleton;
  * @since 0.1.0
  */
 @Singleton
-public class GroupService extends BaseService {
+public class GroupService {
+
+  private final transient GroupRepository groupRepository;
+  private final transient UserGroupRepository userGroupRepository;
 
   /**
    * Initializes service by using the database repositories
    *
    * @param groupRepository an instance of {@link GroupRepository}
-   * @param userRepository an instance of {@link UserRepository}
    * @param userGroupRepository an instance of {@link UserGroupRepository}
-   * @param votingRepository an instance of {@link VotingRepository}
    * @since 0.1.0
    */
-  public GroupService(
-      GroupRepository groupRepository,
-      UserRepository userRepository,
-      UserGroupRepository userGroupRepository,
-      VotingRepository votingRepository) {
-    super(groupRepository, userRepository, userGroupRepository, votingRepository);
+  public GroupService(GroupRepository groupRepository, UserGroupRepository userGroupRepository) {
+    this.groupRepository = groupRepository;
+    this.userGroupRepository = userGroupRepository;
   }
 
   /**
@@ -102,32 +99,26 @@ public class GroupService extends BaseService {
   /**
    * Updates a new Group
    *
-   * @param updateGroupInput group information
+   * @param input group information
    * @return The updated {@link Group}
    * @since 0.1.0
    */
-  public Result<Group> updateGroup(UpsertGroupInput updateGroupInput) {
+  public Result<Group> updateGroup(UpsertGroupInput input) {
+    UserIsGroupAdmin userIsGroupAdmin = new UserIsGroupAdmin(userGroupRepository);
 
-    Optional<Result<Group>> possibleErrors =
-        Check.checkWith(
-            updateGroupInput,
-            List.of(
-                this.createCheckUserIsAdmin(
-                    updateGroupInput.getCurrentUserId(), updateGroupInput.getGroupId())));
-    return possibleErrors.orElseGet(() -> updateGroupIfSuccess(updateGroupInput));
+    return Result.<Group>create()
+        .thenCheck(() -> userIsGroupAdmin.check(input.getCurrentUserId(), input.getGroupId()))
+        .then(() -> updateGroupIfSuccess(input));
   }
 
-  private Result<Group> updateGroupIfSuccess(UpsertGroupInput updateGroupInput) {
-    Group group =
-        groupRepository.upsertGroup(
-            updateGroupInput.getGroupId(),
-            updateGroupInput.getName(),
-            updateGroupInput.isVisibleMemberList(),
-            updateGroupInput.isAnonymousVote(),
-            updateGroupInput.getVotingDays(),
-            updateGroupInput.getVotingTime());
-
-    return Result.result(group);
+  private Group updateGroupIfSuccess(UpsertGroupInput updateGroupInput) {
+    return groupRepository.upsertGroup(
+        updateGroupInput.getGroupId(),
+        updateGroupInput.getName(),
+        updateGroupInput.isVisibleMemberList(),
+        updateGroupInput.isAnonymousVote(),
+        updateGroupInput.getVotingDays(),
+        updateGroupInput.getVotingTime());
   }
 
   /**
@@ -138,16 +129,14 @@ public class GroupService extends BaseService {
    * @since 0.1.0
    */
   public Result<Group> getGroup(GetGroupInput input) {
+    Group group = groupRepository.getGroup(input.getGroupId());
 
-    Optional<Group> group = Optional.ofNullable(groupRepository.getGroup(input.getGroupId()));
+    NotNull notNull = new NotNull();
+    UserIsInGroup userIsInGroup = new UserIsInGroup(userGroupRepository);
 
-    Optional<Result<Group>> possibleErrors =
-        Check.checkWith(
-            input,
-            List.of(
-                this.createCheckGroupExists(group),
-                this.createCheckUserIsInGroup(input.getCurrentUserId(), input.getGroupId())));
-
-    return possibleErrors.orElseGet(() -> Result.result(group.get()));
+    return Result.<Group>create()
+        .thenCheck(() -> notNull.check(group))
+        .thenCheck(() -> userIsInGroup.check(input.getCurrentUserId(), input.getGroupId()))
+        .then(() -> group);
   }
 }

@@ -24,18 +24,19 @@ import dwbh.api.domain.input.CreateVoteInput;
 import dwbh.api.domain.input.CreateVotingInput;
 import dwbh.api.domain.input.GetVotingInput;
 import dwbh.api.domain.input.ListVotingsGroupInput;
-import dwbh.api.repositories.GroupRepository;
 import dwbh.api.repositories.UserGroupRepository;
-import dwbh.api.repositories.UserRepository;
 import dwbh.api.repositories.VotingRepository;
-import dwbh.api.util.Check;
-import dwbh.api.util.ErrorConstants;
+import dwbh.api.services.internal.checkers.NotNull;
+import dwbh.api.services.internal.checkers.UserIsInGroup;
+import dwbh.api.services.internal.checkers.UserOnlyVotedOnce;
+import dwbh.api.services.internal.checkers.VoteAnonymousAllowedInGroup;
+import dwbh.api.services.internal.checkers.VoteScoreBoundaries;
+import dwbh.api.services.internal.checkers.VotingExists;
+import dwbh.api.services.internal.checkers.VotingHasExpired;
 import dwbh.api.util.Result;
 import java.time.OffsetDateTime;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
-import java.util.function.Function;
 import javax.inject.Singleton;
 
 /**
@@ -44,23 +45,21 @@ import javax.inject.Singleton;
  * @since 0.1.0
  */
 @Singleton
-@SuppressWarnings("PMD.TooManyMethods")
-public class VotingService extends BaseService {
+public class VotingService {
+
+  private final transient VotingRepository votingRepository;
+  private final transient UserGroupRepository userGroupRepository;
+
   /**
    * Initializes service by using the database repositories
    *
-   * @param groupRepository an instance of {@link GroupRepository}
-   * @param userRepository an instance of {@link UserRepository}
-   * @param userGroupRepository an instance of {@link UserGroupRepository}
    * @param votingRepository an instance of {@link VotingRepository}
+   * @param userGroupRepository an instance of {@link UserGroupRepository}
    * @since 0.1.0
    */
-  public VotingService(
-      GroupRepository groupRepository,
-      UserRepository userRepository,
-      UserGroupRepository userGroupRepository,
-      VotingRepository votingRepository) {
-    super(groupRepository, userRepository, userGroupRepository, votingRepository);
+  public VotingService(VotingRepository votingRepository, UserGroupRepository userGroupRepository) {
+    this.votingRepository = votingRepository;
+    this.userGroupRepository = userGroupRepository;
   }
 
   /**
@@ -71,16 +70,16 @@ public class VotingService extends BaseService {
    * @since 0.1.0
    */
   public Result<Voting> createVoting(CreateVotingInput input) {
-    return Check.<Voting, CreateVotingInput>checkWith(
-            input, List.of(this.createCheckUserIsInGroup(input.getUserId(), input.getGroupId())))
-        .orElseGet(() -> createVotingIfSuccess(input));
+    UserIsInGroup userIsInGroup = new UserIsInGroup(userGroupRepository);
+
+    return Result.<Voting>create()
+        .thenCheck(() -> userIsInGroup.check(input.getUserId(), input.getGroupId()))
+        .then(() -> createVotingIfSuccess(input));
   }
 
-  private Result<Voting> createVotingIfSuccess(CreateVotingInput input) {
-    Voting voting =
-        votingRepository.createVoting(input.getUserId(), input.getGroupId(), OffsetDateTime.now());
-
-    return Result.result(voting);
+  private Voting createVotingIfSuccess(CreateVotingInput input) {
+    return votingRepository.createVoting(
+        input.getUserId(), input.getGroupId(), OffsetDateTime.now());
   }
 
   /**
@@ -92,50 +91,24 @@ public class VotingService extends BaseService {
    * @since 0.1.0
    */
   public Result<Vote> createVote(CreateVoteInput input) {
-    Optional<Group> group =
-        Optional.ofNullable(
-            votingRepository.findGroupByUserAndVoting(input.getUserId(), input.getVotingId()));
+    Group group = votingRepository.findGroupByUserAndVoting(input.getUserId(), input.getVotingId());
 
-    Optional<Result<Vote>> possibleErrors =
-        Check.checkWith(
-            input,
-            List.of(
-                this::checkScoreIsValid,
-                this::checkUserHasntAlreadyVoted,
-                this::checkVotingHasNotExpired,
-                this.createCheckGroupExists(group),
-                this.createCheckAnonymousOk(group)));
+    VoteScoreBoundaries voteScoreBoundaries = new VoteScoreBoundaries();
+    UserOnlyVotedOnce userOnlyVotedOnce = new UserOnlyVotedOnce(votingRepository);
+    VotingHasExpired votingHasExpired = new VotingHasExpired(votingRepository);
+    NotNull notNull = new NotNull();
+    VoteAnonymousAllowedInGroup anonymousAllowed = new VoteAnonymousAllowedInGroup();
 
-    return possibleErrors.orElseGet(() -> createVoteIfSuccess(input));
+    return Result.<Vote>create()
+        .thenCheck(() -> voteScoreBoundaries.check(input.getScore()))
+        .thenCheck(() -> userOnlyVotedOnce.check(input))
+        .thenCheck(() -> votingHasExpired.check(input.getVotingId()))
+        .thenCheck(() -> notNull.check(group))
+        .thenCheck(() -> anonymousAllowed.check(input.isAnonymous(), group.isAnonymousVote()))
+        .then(() -> createVoteIfSuccess(input));
   }
 
-  private Check checkVotingHasNotExpired(CreateVoteInput payload) {
-    return Check.checkIsFalse(
-        votingRepository.hasExpired(payload.getVotingId()), ErrorConstants.VOTING_HAS_EXPIRED);
-  }
-
-  private Function<CreateVoteInput, Check> createCheckAnonymousOk(Optional<Group> group) {
-    return (CreateVoteInput input) ->
-        Check.checkIsTrue(
-            group.isPresent() && (!input.isAnonymous() || group.get().isAnonymousVote()),
-            ErrorConstants.VOTE_CANT_BE_ANONYMOUS);
-  }
-
-  private Check checkUserHasntAlreadyVoted(CreateVoteInput input) {
-    Optional<Vote> vote =
-        Optional.ofNullable(
-            votingRepository.findVoteByUserAndVoting(input.getUserId(), input.getVotingId()));
-
-    return Check.checkIsTrue(vote.isEmpty(), ErrorConstants.USER_ALREADY_VOTE);
-  }
-
-  private Check checkScoreIsValid(CreateVoteInput input) {
-    return Check.checkIsTrue(
-        input.getScore() != null && input.getScore() >= 1 && input.getScore() <= 5,
-        ErrorConstants.SCORE_IS_INVALID);
-  }
-
-  private Result<Vote> createVoteIfSuccess(CreateVoteInput input) {
+  private Vote createVoteIfSuccess(CreateVoteInput input) {
     UUID userId = input.isAnonymous() ? null : input.getUserId();
     Vote createdVote =
         votingRepository.createVote(
@@ -146,7 +119,7 @@ public class VotingService extends BaseService {
             input.getScore());
     updateVotingAverage(input.getVotingId());
 
-    return Result.result(createdVote);
+    return createdVote;
   }
 
   private void updateVotingAverage(UUID votingId) {
@@ -185,27 +158,13 @@ public class VotingService extends BaseService {
    * @since 0.1.0
    */
   public Result<Voting> getVoting(GetVotingInput input) {
+    VotingExists votingExists = new VotingExists(votingRepository);
 
-    Optional<Voting> voting =
-        Optional.ofNullable(
-            votingRepository.findVotingByUserAndVoting(
-                input.getCurrentUserId(), input.getVotingId()));
-
-    Optional<Result<Voting>> possibleErrors =
-        Check.checkWith(input, List.of(this.createCheckVotingExists(voting)));
-
-    return possibleErrors.orElseGet(() -> Result.result(voting.get()));
-  }
-
-  /**
-   * Creates a new check for checking if a voting exists
-   *
-   * @param <U> the type parameter
-   * @param voting An {@link Optional} that may contains the voting
-   * @return an instance of type {@link Function} with the check
-   * @since 0.1.0
-   */
-  protected <U> Function<U, Check> createCheckVotingExists(Optional<Voting> voting) {
-    return (U input) -> Check.checkIsTrue(voting.isPresent(), ErrorConstants.NOT_FOUND);
+    return Result.<Voting>create()
+        .thenCheck(() -> votingExists.check(input.getCurrentUserId(), input.getVotingId()))
+        .then(
+            () ->
+                votingRepository.findVotingByUserAndVoting(
+                    input.getCurrentUserId(), input.getVotingId()));
   }
 }
