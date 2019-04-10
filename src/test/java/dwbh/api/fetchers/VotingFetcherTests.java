@@ -115,7 +115,7 @@ class VotingFetcherTests {
     // and: mocked environment
     var mockedEnvironment =
         FetcherTestUtils.generateMockedEnvironment(
-            authenticatedUser, Map.of("startDate", startDate, "endDate", endDate));
+            authenticatedUser, Map.of("startDateTime", startDate, "endDateTime", endDate));
     Mockito.when(mockedEnvironment.getSource()).thenReturn(group);
 
     // when: invoking the fetcher with correct data
