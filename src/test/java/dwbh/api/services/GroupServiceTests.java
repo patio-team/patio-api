@@ -31,7 +31,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import dwbh.api.domain.Group;
-import dwbh.api.domain.GroupBuilder;
 import dwbh.api.domain.User;
 import dwbh.api.domain.UserGroup;
 import dwbh.api.domain.input.GetGroupInput;
@@ -67,7 +66,7 @@ public class GroupServiceTests {
     var groupService = new GroupService(groupRepository, null);
     var groupList = groupService.listGroups();
 
-    // then: we should get the expected number of groups
+    // then: we should build the expected number of groups
     assertEquals(4, groupList.size());
   }
 
@@ -82,7 +81,7 @@ public class GroupServiceTests {
     var groupService = new GroupService(null, userGroupRepository);
     var groupsByGroup = groupService.listGroupsUser(UUID.randomUUID());
 
-    // then: we should get the expected number of groups
+    // then: we should build the expected number of groups
     assertEquals(5, groupsByGroup.size());
   }
 
@@ -114,7 +113,7 @@ public class GroupServiceTests {
     var groupService = new GroupService(groupRepository, userGroupRepository);
     var group = groupService.createGroup(createGroupInput);
 
-    // then: we should get it
+    // then: we should build it
     assertNotNull(group);
 
     // and: The method to add an user to a group has been called
@@ -145,7 +144,7 @@ public class GroupServiceTests {
             .build();
     Result<Group> result = groupService.getGroup(input);
 
-    // then: we should get it
+    // then: we should build it
     assertNotNull(result.getSuccess());
   }
 
@@ -167,7 +166,7 @@ public class GroupServiceTests {
             .build();
     Result<Group> result = groupService.getGroup(input);
 
-    // then: we should get an error
+    // then: we should build an error
     assertNotNull(result.getErrorList());
     assertNull(result.getSuccess());
     assertEquals(ErrorConstants.NOT_FOUND, result.getErrorList().get(0));
@@ -192,7 +191,7 @@ public class GroupServiceTests {
             .build();
     Result<Group> result = groupService.getGroup(input);
 
-    // then: we should get an error
+    // then: we should build an error
     assertNotNull(result.getErrorList());
     assertNull(result.getSuccess());
     assertEquals(ErrorConstants.USER_NOT_IN_GROUP, result.getErrorList().get(0));
@@ -203,7 +202,10 @@ public class GroupServiceTests {
     // given: a mocked group repository
     var groupRepository = mock(GroupRepository.class);
     var groupInstance =
-        GroupBuilder.builder().withVisibleMemberList(true).withAnonymousVote(false).build();
+        Group.builder()
+            .with(g -> g.setVisibleMemberList(true))
+            .with(g -> g.setAnonymousVote(false))
+            .build();
 
     Mockito.when(
             groupRepository.upsertGroup(any(), any(), anyBoolean(), anyBoolean(), any(), any()))
@@ -214,7 +216,7 @@ public class GroupServiceTests {
 
     // and: a mocked usergroup repository
     var userGroupRepository = mock(UserGroupRepository.class);
-    var userGroup = new UserGroup(null, null, true);
+    var userGroup = UserGroup.builder().with(ug -> ug.setAdmin(true)).build();
     Mockito.when(userGroupRepository.getUserGroup(any(), any())).thenReturn(userGroup);
 
     // and: a CreateGroupInput
@@ -231,7 +233,7 @@ public class GroupServiceTests {
     var groupResult = groupService.updateGroup(updateGroupInput);
     var group = groupResult.getSuccess();
 
-    // then: we should get it
+    // then: we should build it
     assertNotNull(groupResult);
 
     assertTrue(group.isVisibleMemberList());

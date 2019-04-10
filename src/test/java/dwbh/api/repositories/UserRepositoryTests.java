@@ -109,7 +109,7 @@ class UserRepositoryTests {
     // when: searching the user by email
     User userByEmail = repository.findByEmail(refUser.getEmail());
 
-    // then: we should get the same values
+    // then: we should build the same values
     assertEquals(refUser.getName(), userByEmail.getName());
     assertEquals(refUser.getEmail(), userByEmail.getEmail());
   }

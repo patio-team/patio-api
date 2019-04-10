@@ -44,7 +44,7 @@ public class AuthenticationCheckTests {
     var result = createGraphQL().execute(input);
     Map<String, ?> payload = result.getData();
 
-    // then: we should get result because it has the directive
+    // then: we should build result because it has the directive
     assertEquals("Hi", payload.get("sayHi"));
   }
 
@@ -52,14 +52,14 @@ public class AuthenticationCheckTests {
   void testQueryAllowedBecauseUser() {
     // when: executing a query with and authenticated user
     var context = new Context();
-    context.setAuthenticatedUser(new User());
+    context.setAuthenticatedUser(User.builder().build());
 
     var input =
         ExecutionInput.newExecutionInput().query("{ sayHiAuthenticated }").context(context).build();
     var result = createGraphQL().execute(input);
     Map<String, ?> payload = result.getData();
 
-    // then: we should get result because there was an authenticated user
+    // then: we should build result because there was an authenticated user
     assertEquals("Hi authenticated", payload.get("sayHiAuthenticated"));
   }
 

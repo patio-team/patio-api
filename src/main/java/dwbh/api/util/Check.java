@@ -34,8 +34,8 @@ public final class Check {
   }
 
   /**
-   * If the condition is not true, then the resulting {@link Check} will contain the error passed as
-   * an argument.
+   * ifMatches the condition is not true, then the resulting {@link Check} will contain the error
+   * passed as an argument.
    *
    * @param cond expected condition to be true
    * @param error the result in case the condition is not met
@@ -48,8 +48,8 @@ public final class Check {
   }
 
   /**
-   * If the condition is not false, then the resulting {@link Check} will contain the error passed
-   * as an argument.
+   * ifMatches the condition is not false, then the resulting {@link Check} will contain the error
+   * passed as an argument.
    *
    * @param cond expected condition to be false
    * @param error the result in case the condition is not met

@@ -46,7 +46,7 @@ public class UserServiceTests {
     var userService = new UserService(userRepository);
     var userList = userService.listUsers();
 
-    // then: we should get the expected number of users
+    // then: we should build the expected number of users
     assertEquals(4, userList.size());
   }
 
@@ -60,7 +60,7 @@ public class UserServiceTests {
     var userService = new UserService(userRepository);
     var user = userService.getUser(UUID.randomUUID());
 
-    // then: we should get it
+    // then: we should build it
     assertNotNull(user);
   }
 }

@@ -59,7 +59,7 @@ public class Auth0CryptoServiceTests {
     // and: verifying the token back
     String subject = cryptoService.verifyToken(token).get();
 
-    // we should get the expected values
+    // we should build the expected values
     assertEquals(subject, user.getEmail());
   }
 
@@ -72,7 +72,7 @@ public class Auth0CryptoServiceTests {
     // when: verifying the token
     Optional<String> subject = cryptoService.verifyToken("a");
 
-    // we should get the expected values
+    // we should build the expected values
     assertFalse(subject.isPresent());
   }
 
@@ -89,7 +89,7 @@ public class Auth0CryptoServiceTests {
     // and: verifying a corrupt token
     Optional<String> subject = cryptoService.verifyToken(token.substring(1));
 
-    // we should not get the user's subject
+    // we should not build the user's subject
     assertFalse(subject.isPresent());
   }
 
@@ -107,7 +107,7 @@ public class Auth0CryptoServiceTests {
     // then: we should expect to be always the same
     assertTrue(cryptoService.verifyWithHash(plainTextPassword, hashedPassword));
 
-    // and: get different hash for different inputs
+    // and: build different hash for different inputs
     assertFalse(cryptoService.verifyWithHash("adminadmin2", hashedPassword));
   }
 }

@@ -41,13 +41,13 @@ public class DayOfWeekConverterTests {
   }
 
   @Test
-  @DisplayName("Fails trying to get from type")
+  @DisplayName("Fails trying to build from type")
   void testFailureGettingFromType() {
     assertThrows(IllegalStateException.class, () -> new DayOfWeekConverter().fromType());
   }
 
   @Test
-  @DisplayName("Fails trying to get to type")
+  @DisplayName("Fails trying to build to type")
   void testFailureGettingToType() {
     assertThrows(IllegalStateException.class, () -> new DayOfWeekConverter().toType());
   }

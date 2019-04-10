@@ -17,6 +17,7 @@
  */
 package dwbh.api.domain;
 
+import dwbh.api.util.Builder;
 import java.util.UUID;
 
 /**
@@ -24,12 +25,26 @@ import java.util.UUID;
  *
  * @since 0.1.0
  */
-public class User {
+public final class User {
   private UUID id;
   private String name;
   private String email;
   private String password;
   private String otp;
+
+  private User() {
+    /* empty */
+  }
+
+  /**
+   * Creates a builder to create instances of type {@link User}
+   *
+   * @return a builder to create instances of type {@link User}
+   * @since 0.1.0
+   */
+  public static Builder<User> builder() {
+    return Builder.build(User::new);
+  }
 
   /**
    * Gets name.

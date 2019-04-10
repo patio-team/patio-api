@@ -23,7 +23,6 @@ package dwbh.api.domain;
  * @since 0.1.0
  */
 public class Login {
-
   private final String token;
   private final User user;
 

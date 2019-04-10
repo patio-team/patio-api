@@ -46,7 +46,8 @@ class ContextBuilderTests {
 
     // and: a security service checking and getting a user
     var mockedService = Mockito.mock(SecurityService.class);
-    Mockito.when(mockedService.findUserByToken(Mockito.anyString())).thenReturn(new User());
+    Mockito.when(mockedService.findUserByToken(Mockito.anyString()))
+        .thenReturn(User.builder().build());
 
     // when: building a context from a given token
     var builder = new ContextBuilder(mockedService);

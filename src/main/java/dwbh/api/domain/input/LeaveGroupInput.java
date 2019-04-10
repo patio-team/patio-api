@@ -20,7 +20,7 @@ package dwbh.api.domain.input;
 import java.util.UUID;
 
 /**
- * Input to get a group
+ * Input to build a group
  *
  * @since 0.1.0
  */

@@ -20,7 +20,7 @@ package dwbh.api.domain.input;
 import java.util.UUID;
 
 /**
- * Input to get a voting
+ * Input to build a voting
  *
  * @since 0.1.0
  */

@@ -17,6 +17,7 @@
  */
 package dwbh.api.domain;
 
+import dwbh.api.util.Builder;
 import java.util.ArrayList;
 import java.util.List;
 import javax.validation.constraints.NotBlank;
@@ -27,7 +28,7 @@ import javax.validation.constraints.NotNull;
  *
  * @since 0.1.0
  */
-public class Email {
+public final class Email {
   @NotNull @NotBlank private String recipient;
 
   @NotNull @NotBlank private String subject;
@@ -39,6 +40,20 @@ public class Email {
   private String htmlBody;
   private String textBody;
   private String replyTo;
+
+  private Email() {
+    /* empty */
+  }
+
+  /**
+   * Creates a builder to build instances of type {@link Email}
+   *
+   * @return a {@link Builder} that creates instances of type {@link Email}
+   * @since 0.1.0
+   */
+  public static Builder<Email> builder() {
+    return Builder.build(Email::new);
+  }
 
   /**
    * Returns the email recipient

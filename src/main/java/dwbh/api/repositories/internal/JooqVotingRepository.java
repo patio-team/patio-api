@@ -18,7 +18,6 @@
 package dwbh.api.repositories.internal;
 
 import dwbh.api.domain.Group;
-import dwbh.api.domain.GroupBuilder;
 import dwbh.api.domain.Vote;
 import dwbh.api.domain.Voting;
 import dwbh.api.repositories.VotingRepository;
@@ -166,13 +165,14 @@ public class JooqVotingRepository implements VotingRepository {
 
   private static Group toGroup(
       Record6<UUID, String, Boolean, Boolean, String[], OffsetTime> record6) {
-    return GroupBuilder.builder()
-        .withId(record6.component1())
-        .withName(record6.component2())
-        .withAnonymousVote(record6.component3())
-        .withVisibleMemberList(record6.component4())
-        .withDaysOfWeek(new DayOfWeekConverter().from(record6.component5()))
-        .withTime(record6.component6())
+
+    return Group.builder()
+        .with(group -> group.setId(record6.component1()))
+        .with(group -> group.setName(record6.component2()))
+        .with(group -> group.setAnonymousVote(record6.component3()))
+        .with(group -> group.setVisibleMemberList(record6.component4()))
+        .with(group -> group.setVotingDays(new DayOfWeekConverter().from(record6.component5())))
+        .with(group -> group.setVotingTime(record6.component6()))
         .build();
   }
 
@@ -237,18 +237,18 @@ public class JooqVotingRepository implements VotingRepository {
 
   private static Voting toVoting(Record record) {
     return Voting.newBuilder()
-        .withId(record.get(VotingTableHelper.VOTING_ID))
-        .withCreatedAt(record.get(VotingTableHelper.CREATED_AT))
-        .withAverage(record.get(VotingTableHelper.AVERAGE))
+        .with(voting -> voting.setId(record.get(VotingTableHelper.VOTING_ID)))
+        .with(voting -> voting.setCreatedAt(record.get(VotingTableHelper.CREATED_AT)))
+        .with(voting -> voting.setAverage(record.get(VotingTableHelper.AVERAGE)))
         .build();
   }
 
   private static Vote toVote(Record record) {
     return Vote.newBuilder()
-        .withId(record.get(VoteTableHelper.VOTE_ID))
-        .withCreatedAt(record.get(VoteTableHelper.CREATED_AT))
-        .withComment(record.get(VoteTableHelper.COMMENT))
-        .withScore(record.get(VoteTableHelper.SCORE))
+        .with(vote -> vote.setId(record.get(VoteTableHelper.VOTE_ID)))
+        .with(vote -> vote.setCreatedAt(record.get(VoteTableHelper.CREATED_AT)))
+        .with(vote -> vote.setComment(record.get(VoteTableHelper.COMMENT)))
+        .with(vote -> vote.setScore(record.get(VoteTableHelper.SCORE)))
         .build();
   }
 

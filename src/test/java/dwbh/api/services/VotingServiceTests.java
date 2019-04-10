@@ -73,7 +73,12 @@ public class VotingServiceTests {
 
     var userGroupRepository = mock(UserGroupRepository.class);
     Mockito.when(userGroupRepository.getUserGroup(any(), any()))
-        .thenReturn(new UserGroup(user.getId(), group.getId(), true));
+        .thenReturn(
+            UserGroup.builder()
+                .with(ug -> ug.setUserId(user.getId()))
+                .with(ug -> ug.setGroupId(group.getId()))
+                .with(ug -> ug.setAdmin(true))
+                .build());
 
     // when: invoking the service
     var votingService = new VotingService(votingRepository, userGroupRepository);
@@ -81,7 +86,7 @@ public class VotingServiceTests {
         CreateVotingInput.newBuilder().withUserId(user.getId()).withGroupId(group.getId()).build();
     var votingResult = votingService.createVoting(votingInput);
 
-    // then: we should get the expected result
+    // then: we should build the expected result
     assertNotNull(votingResult);
     assertEquals(0, votingResult.getErrorList().size());
 
@@ -111,10 +116,10 @@ public class VotingServiceTests {
         CreateVotingInput.newBuilder().withUserId(user.getId()).withGroupId(group.getId()).build();
     var votingResult = votingService.createVoting(votingInput);
 
-    // then: we shouldn't get any successful
+    // then: we shouldn't build any successful
     assertNull(votingResult.getSuccess());
 
-    // and: we should get errors
+    // and: we should build errors
     assertEquals(1, votingResult.getErrorList().size());
     assertEquals(ErrorConstants.USER_NOT_IN_GROUP, votingResult.getErrorList().get(0));
 
@@ -182,7 +187,7 @@ public class VotingServiceTests {
     var votingRepository = Mockito.mock(VotingRepository.class);
 
     Mockito.when(votingRepository.findVoteByUserAndVoting(any(), any()))
-        .thenReturn(Mockito.mock(Vote.class));
+        .thenReturn(Vote.newBuilder().build());
 
     // when: invoking the vote creation
     var votingService = new VotingService(votingRepository, userGroupRepository);
@@ -354,7 +359,7 @@ public class VotingServiceTests {
             .build();
     Result<Voting> result = votingService.getVoting(input);
 
-    // then: we should get it
+    // then: we should build it
     assertNotNull(result.getSuccess());
   }
 
@@ -373,7 +378,7 @@ public class VotingServiceTests {
             .build();
     Result<Voting> result = votingService.getVoting(input);
 
-    // then: we should get an error
+    // then: we should build an error
     assertNotNull(result.getErrorList());
     Assert.assertNull(result.getSuccess());
     assertEquals(ErrorConstants.NOT_FOUND, result.getErrorList().get(0));
@@ -389,7 +394,9 @@ public class VotingServiceTests {
     var votingRepository = Mockito.mock(VotingRepository.class);
 
     Mockito.when(votingRepository.listVotesVoting(any()))
-        .thenReturn(List.of(random(Vote.class), random(Vote.class), random(Vote.class)));
+        .thenReturn(
+            List.of(
+                Vote.newBuilder().build(), Vote.newBuilder().build(), Vote.newBuilder().build()));
 
     // when: invoking the vote listing
     var votingService = new VotingService(votingRepository, null);

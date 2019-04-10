@@ -18,7 +18,6 @@
 package dwbh.api.repositories;
 
 import dwbh.api.domain.Group;
-import dwbh.api.domain.GroupBuilder;
 import dwbh.api.repositories.internal.DayOfWeekConverter;
 import dwbh.api.repositories.internal.TablesHelper;
 import dwbh.api.repositories.internal.TablesHelper.GroupsTableHelper;
@@ -114,13 +113,13 @@ public class GroupRepository {
         .set(GroupsTableHelper.DAYS_OF_WEEK, daysOfWeek)
         .execute();
 
-    return GroupBuilder.builder()
-        .withName(name)
-        .withId(groupId)
-        .withVisibleMemberList(visibleMemberList)
-        .withAnonymousVote(anonymousVote)
-        .withDaysOfWeek(daysOfWeek)
-        .withTime(time)
+    return Group.builder()
+        .with(group -> group.setName(name))
+        .with(group -> group.setId(groupId))
+        .with(group -> group.setVisibleMemberList(visibleMemberList))
+        .with(group -> group.setAnonymousVote(anonymousVote))
+        .with(group -> group.setVotingDays(daysOfWeek))
+        .with(group -> group.setVotingTime(time))
         .build();
   }
 
@@ -140,13 +139,13 @@ public class GroupRepository {
         record.get(GroupsTableHelper.DAYS_OF_WEEK, new DayOfWeekConverter());
     OffsetTime offsetTime = record.get(GroupsTableHelper.TIME);
 
-    return GroupBuilder.builder()
-        .withName(name)
-        .withId(id)
-        .withVisibleMemberList(visibleMemberList)
-        .withAnonymousVote(anonymousVote)
-        .withDaysOfWeek(dayOfWeeks)
-        .withTime(offsetTime)
+    return Group.builder()
+        .with(group -> group.setName(name))
+        .with(group -> group.setId(id))
+        .with(group -> group.setVisibleMemberList(visibleMemberList))
+        .with(group -> group.setAnonymousVote(anonymousVote))
+        .with(group -> group.setVotingDays(dayOfWeeks))
+        .with(group -> group.setVotingTime(offsetTime))
         .build();
   }
 }

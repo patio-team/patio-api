@@ -17,6 +17,7 @@
  */
 package dwbh.api.domain;
 
+import dwbh.api.util.Builder;
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
@@ -25,27 +26,26 @@ import java.util.UUID;
  *
  * @since 0.1.0
  */
-public class Vote {
-  private final transient UUID id;
-  private final transient Voting voting;
-  private final transient User createdBy;
-  private final transient OffsetDateTime createdAt;
-  private final transient String comment;
-  private final transient Integer score;
+public final class Vote {
+  private transient UUID id;
+  private transient Voting voting;
+  private transient User createdBy;
+  private transient OffsetDateTime createdAt;
+  private transient String comment;
+  private transient Integer score;
 
-  private Vote(
-      UUID id,
-      Voting voting,
-      User createdBy,
-      OffsetDateTime createdAt,
-      String comment,
-      Integer score) {
-    this.id = id;
-    this.voting = voting;
-    this.createdBy = createdBy;
-    this.createdAt = createdAt;
-    this.comment = comment;
-    this.score = score;
+  private Vote() {
+    /* empty */
+  }
+
+  /**
+   * A builder to build an instance of type {@link Vote}
+   *
+   * @return an instance of {@link Builder}
+   * @since 0.1.0
+   */
+  public static Builder<Vote> newBuilder() {
+    return Builder.build(Vote::new);
   }
 
   /**
@@ -59,6 +59,16 @@ public class Vote {
   }
 
   /**
+   * Sets vote's id
+   *
+   * @param id the vote's identifier
+   * @since 0.1.0
+   */
+  public void setId(UUID id) {
+    this.id = id;
+  }
+
+  /**
    * Return vote's voting record
    *
    * @return an instance of type {@link Voting}
@@ -66,6 +76,16 @@ public class Vote {
    */
   public Voting getVoting() {
     return voting;
+  }
+
+  /**
+   * Sets the voting this vote belongs to
+   *
+   * @param voting the {@link Voting} this vote belongs to
+   * @since 0.1.0
+   */
+  public void setVoting(Voting voting) {
+    this.voting = voting;
   }
 
   /**
@@ -79,6 +99,16 @@ public class Vote {
   }
 
   /**
+   * Sets the creator of the vote
+   *
+   * @param createdBy who created the vote
+   * @since 0.1.0
+   */
+  public void setCreatedBy(User createdBy) {
+    this.createdBy = createdBy;
+  }
+
+  /**
    * Returns the moment the user voted
    *
    * @return an instance of type {@link OffsetDateTime}
@@ -86,6 +116,16 @@ public class Vote {
    */
   public OffsetDateTime getCreatedAt() {
     return createdAt;
+  }
+
+  /**
+   * Sets when the vote has been created
+   *
+   * @param createdAt when the vote's been created
+   * @since 0.1.0
+   */
+  public void setCreatedAt(OffsetDateTime createdAt) {
+    this.createdAt = createdAt;
   }
 
   /**
@@ -99,6 +139,16 @@ public class Vote {
   }
 
   /**
+   * Sets any extra comment the user may want to add
+   *
+   * @param comment a string with any comment
+   * @since 0.1.0
+   */
+  public void setComment(String comment) {
+    this.comment = comment;
+  }
+
+  /**
    * Returns the score that the user wanted to vote
    *
    * @return a simple {@link Integer} with the score
@@ -109,110 +159,12 @@ public class Vote {
   }
 
   /**
-   * A builder to build an instance of type {@link Vote}
+   * Sets the vote score
    *
-   * @return an instance of {@link Builder}
+   * @param score sets the vote's score
    * @since 0.1.0
    */
-  public static Builder newBuilder() {
-    return new Builder();
-  }
-
-  /**
-   * Builds an instance of type {@link Vote}
-   *
-   * @since 0.1.0
-   */
-  public static class Builder {
-
-    private transient Vote vote = new Vote(null, null, null, null, null, null);
-
-    /**
-     * Sets the vote's id
-     *
-     * @param id vote's id
-     * @return instance of the current builder
-     * @since 0.1.0
-     */
-    public Builder withId(UUID id) {
-      this.vote =
-          new Vote(id, vote.voting, vote.createdBy, vote.createdAt, vote.comment, vote.score);
-      return this;
-    }
-
-    /**
-     * The {@link Voting} this vote belongs
-     *
-     * @param voting the {@link Voting} this vote belongs
-     * @return instance of the current builder
-     * @since 0.1.0
-     */
-    public Builder withVoting(Voting voting) {
-      this.vote =
-          new Vote(vote.id, voting, vote.createdBy, vote.createdAt, vote.comment, vote.score);
-      return this;
-    }
-
-    /**
-     * Sets the user who did the vote
-     *
-     * @param createdBy the user who did vote
-     * @return instance of the current builder
-     * @since 0.1.0
-     */
-    public Builder withCreatedBy(User createdBy) {
-      this.vote =
-          new Vote(vote.id, vote.voting, createdBy, vote.createdAt, vote.comment, vote.score);
-      return this;
-    }
-
-    /**
-     * Sets when the vote was created
-     *
-     * @param createdAt when the vote was created
-     * @return instance of the current builder
-     * @since 0.1.0
-     */
-    public Builder withCreatedAt(OffsetDateTime createdAt) {
-      this.vote =
-          new Vote(vote.id, vote.voting, vote.createdBy, createdAt, vote.comment, vote.score);
-      return this;
-    }
-
-    /**
-     * Sets any comment that the user considered important to complete the vote
-     *
-     * @param comment any comment that the user may want to add to the vote
-     * @return instance of the current builder
-     * @since 0.1.0
-     */
-    public Builder withComment(String comment) {
-      this.vote =
-          new Vote(vote.id, vote.voting, vote.createdBy, vote.createdAt, comment, vote.score);
-      return this;
-    }
-
-    /**
-     * Sets the score the user wants to vote
-     *
-     * @param score the score to vote
-     * @return instance of the current builder
-     * @since 0.1.0
-     */
-    public Builder withScore(Integer score) {
-      this.vote =
-          new Vote(vote.id, vote.voting, vote.createdBy, vote.createdAt, vote.comment, score);
-      return this;
-    }
-
-    /**
-     * Returns the instance of type {@link Vote} built with this builder
-     *
-     * @return an instance of {@link Vote}
-     * @since 0.1.0
-     */
-    public Vote build() {
-      return this.vote;
-    }
+  public void setScore(Integer score) {
+    this.score = score;
   }
 }

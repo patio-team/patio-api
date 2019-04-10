@@ -18,7 +18,6 @@
 package dwbh.api.repositories;
 
 import dwbh.api.domain.User;
-import dwbh.api.domain.UserBuilder;
 import dwbh.api.repositories.internal.TablesHelper;
 import dwbh.api.repositories.internal.TablesHelper.UsersTableHelper;
 import java.util.List;
@@ -116,12 +115,12 @@ public class UserRepository {
     String otp = record.get(TablesHelper.UsersTableHelper.OTP);
     UUID id = record.get(TablesHelper.UsersTableHelper.ID);
 
-    return UserBuilder.builder()
-        .withName(name)
-        .withId(id)
-        .withEmail(email)
-        .withPassword(password)
-        .withOtp(otp)
+    return User.builder()
+        .with(user -> user.setName(name))
+        .with(user -> user.setId(id))
+        .with(user -> user.setEmail(email))
+        .with(user -> user.setPassword(password))
+        .with(user -> user.setOtp(otp))
         .build();
   }
 }
