@@ -90,8 +90,8 @@ final class VotingFetcherUtils {
   /* default */ static ListVotingsGroupInput createListVotingsGroupInput(
       DataFetchingEnvironment environment) {
     Group group = environment.getSource();
-    OffsetDateTime startDate = environment.getArgument("startDate");
-    OffsetDateTime endDate = environment.getArgument("endDate");
+    OffsetDateTime startDate = environment.getArgument("startDateTime");
+    OffsetDateTime endDate = environment.getArgument("endDateTime");
 
     return ListVotingsGroupInput.newBuilder()
         .withGroupId(group.getId())
