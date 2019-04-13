@@ -42,3 +42,9 @@ aws:
   region: ${DWBH_AWS_REGION}
   accessKey: ${DWBH_ACCESS_KEY}
   secretKey: ${DWBH_SECRET_KEY}
+
+crypto:
+  password: SHA-256
+  jwt:
+    secret: ${DWBH_JWT_SECRET}
+    days: ${DWBH_JWT_DAYS}
