@@ -17,9 +17,7 @@
  */
 package dwbh.api.util;
 
-import java.util.List;
 import java.util.Optional;
-import java.util.function.Function;
 
 /**
  * Abstraction to chain several assertions and return when the first error happens
@@ -58,28 +56,6 @@ public final class Check {
    */
   public static Check checkIsFalse(boolean cond, Error error) {
     return checkIsTrue(!cond, error);
-  }
-
-  /**
-   * Applies a list of functions that receive the object to check as input and return a {@link
-   * Check} as result. It will return the first check with an error or an empty optional.
-   *
-   * @param <U> the type of the {@link Result}
-   * @param <T> the type of the checker functions input
-   * @param objectToCheck object passed to all checks
-   * @param checkers list of functions receiving
-   * @return an {@link Optional} instance. It'll contain either a {@link Check} with error or an
-   *     empty value
-   * @since 0.1.0
-   */
-  public static <U, T> Optional<Result<U>> checkWith(
-      T objectToCheck, List<Function<T, Check>> checkers) {
-    return checkers.stream()
-        .map(checker -> checker.apply(objectToCheck))
-        .dropWhile(result -> !result.hasError())
-        .findFirst()
-        .map(Check::getError)
-        .map(Result::error);
   }
 
   /**
