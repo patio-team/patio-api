@@ -26,12 +26,12 @@ import static org.mockito.Mockito.when;
 
 import dwbh.api.domain.Group;
 import dwbh.api.domain.User;
-import dwbh.api.fetchers.FetcherProvider;
-import dwbh.api.fetchers.GroupFetcher;
-import dwbh.api.fetchers.SecurityFetcher;
-import dwbh.api.fetchers.UserFetcher;
-import dwbh.api.fetchers.UserGroupFetcher;
-import dwbh.api.fetchers.VotingFetcher;
+import dwbh.api.graphql.fetchers.FetcherProvider;
+import dwbh.api.graphql.fetchers.GroupFetcher;
+import dwbh.api.graphql.fetchers.SecurityFetcher;
+import dwbh.api.graphql.fetchers.UserFetcher;
+import dwbh.api.graphql.fetchers.UserGroupFetcher;
+import dwbh.api.graphql.fetchers.VotingFetcher;
 import graphql.ExecutionInput;
 import io.micronaut.core.io.ResourceResolver;
 import java.util.List;

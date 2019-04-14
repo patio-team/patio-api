@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with DWBH.  If not, see <https://www.gnu.org/licenses/>
  */
-package dwbh.api.fetchers;
+package dwbh.api.graphql.fetchers;
 
 import dwbh.api.domain.User;
 import dwbh.api.domain.input.GetGroupInput;

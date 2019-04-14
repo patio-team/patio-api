@@ -19,7 +19,7 @@ package dwbh.api.graphql;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
-import dwbh.api.fetchers.FetcherProvider;
+import dwbh.api.graphql.fetchers.FetcherProvider;
 import dwbh.api.graphql.instrumentation.AuthenticationCheck;
 import dwbh.api.graphql.scalars.ScalarsConstants;
 import graphql.GraphQL;

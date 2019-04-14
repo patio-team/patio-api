@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with DWBH.  If not, see <https://www.gnu.org/licenses/>
  */
-package dwbh.api.fetchers;
+package dwbh.api.graphql.fetchers;
 
 import static io.github.benas.randombeans.api.EnhancedRandom.random;
 import static io.github.benas.randombeans.api.EnhancedRandom.randomListOf;
@@ -29,8 +29,8 @@ import static org.mockito.ArgumentMatchers.any;
 
 import dwbh.api.domain.Group;
 import dwbh.api.domain.User;
-import dwbh.api.fetchers.utils.FetcherTestUtils;
 import dwbh.api.graphql.I18nGraphQLError;
+import dwbh.api.graphql.fetchers.utils.FetcherTestUtils;
 import dwbh.api.services.UserGroupService;
 import dwbh.api.util.Result;
 import java.util.List;

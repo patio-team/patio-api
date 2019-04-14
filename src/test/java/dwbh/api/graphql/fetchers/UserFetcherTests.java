@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with DWBH.  If not, see <https://www.gnu.org/licenses/>
  */
-package dwbh.api.fetchers;
+package dwbh.api.graphql.fetchers;
 
 import static io.github.benas.randombeans.api.EnhancedRandom.random;
 import static io.github.benas.randombeans.api.EnhancedRandom.randomListOf;
@@ -23,7 +23,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
 import dwbh.api.domain.User;
-import dwbh.api.fetchers.utils.FetcherTestUtils;
+import dwbh.api.graphql.fetchers.utils.FetcherTestUtils;
 import dwbh.api.services.UserService;
 import java.util.List;
 import java.util.Map;
