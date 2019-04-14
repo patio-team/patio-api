@@ -38,8 +38,12 @@ import dwbh.api.repositories.UserRepository;
 import dwbh.api.util.ErrorConstants;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mockito;
 
 /**
@@ -621,5 +625,26 @@ public class UserGroupServiceTests {
 
     // and: The method to remove an user from a group hasn't been called
     verify(userGroupRepository, times(0)).removeUserFromGroup(any(), any());
+  }
+
+  @ParameterizedTest(name = "Check whether a user is a group admin or not [{index}]")
+  @MethodSource("testIsAdminSource")
+  void testIsAdmin(UserGroup userGroup, boolean expected) {
+    var repository = Mockito.mock(UserGroupRepository.class);
+    Mockito.when(repository.getUserGroup(any(), any())).thenReturn(userGroup);
+
+    // when: asking if the user is admin
+    var service = new UserGroupService(null, null, repository);
+    var isAdmin = service.isAdmin(UUID.randomUUID(), UUID.randomUUID());
+
+    // then: we should get the expected result
+    assertEquals(expected, isAdmin);
+  }
+
+  private static Stream<Arguments> testIsAdminSource() {
+    return Stream.of(
+        Arguments.of(UserGroup.builder().with(ug -> ug.setAdmin(true)).build(), true),
+        Arguments.of(null, false),
+        Arguments.of(UserGroup.builder().build(), false));
   }
 }
