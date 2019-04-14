@@ -48,6 +48,7 @@ import org.junit.Assert;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mockito;
 
@@ -315,6 +316,47 @@ public class VotingServiceTests {
 
   private static Stream<Integer> testCreateVoteFailBecauseInvalidScoreDataProvider() {
     return Stream.of(null, 0, 6);
+  }
+
+  @ParameterizedTest(name = "Vote can be created because vote can't be anonymous")
+  @MethodSource("testCreateVoteFailBecauseAnonymousSource")
+  void testCreateVoteFailBecauseAnonymous(
+      boolean inputAnonymous, boolean groupAnonymous, boolean correct) {
+    // given: some mocked data
+    var votingId = UUID.randomUUID();
+    var userId = UUID.randomUUID();
+    var input =
+        CreateVoteInput.newBuilder()
+            .withUserId(userId)
+            .withScore(2)
+            .withVotingId(votingId)
+            .withAnonymous(inputAnonymous)
+            .build();
+
+    // and: mocked repository calls
+    var userGroupRepository = Mockito.mock(UserGroupRepository.class);
+    var votingRepository = Mockito.mock(VotingRepository.class);
+
+    Mockito.when(votingRepository.findGroupByUserAndVoting(any(), any()))
+        .thenReturn(Group.builder().with(g -> g.setAnonymousVote(groupAnonymous)).build());
+
+    Mockito.when(votingRepository.createVote(any(), any(), any(), any(), any()))
+        .thenReturn(Vote.newBuilder().build());
+
+    // when: invoking the vote creation
+    var votingService = new VotingService(votingRepository, userGroupRepository);
+    Result<Vote> vote = votingService.createVote(input);
+
+    // then:
+    assertEquals(vote.getErrorList().isEmpty(), correct, "Check is expected result");
+  }
+
+  private static Stream<Arguments> testCreateVoteFailBecauseAnonymousSource() {
+    return Stream.of(
+        Arguments.of(true, false, false),
+        Arguments.of(true, true, true),
+        Arguments.of(false, true, true),
+        Arguments.of(false, false, true));
   }
 
   @Test
