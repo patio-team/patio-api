@@ -29,6 +29,7 @@ import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import dwbh.api.domain.Group;
 import dwbh.api.domain.User;
@@ -43,6 +44,7 @@ import java.time.DayOfWeek;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Stream;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -238,5 +240,57 @@ public class GroupServiceTests {
 
     assertTrue(group.isVisibleMemberList());
     assertFalse(group.isAnonymousVote());
+  }
+
+  @Test
+  @DisplayName("Update group with no user")
+  void testUpdateGroupWhenNoUser() {
+    // given: a mocked group repository
+    var groupRepository = mock(GroupRepository.class);
+    var userGroupRepository = mock(UserGroupRepository.class);
+
+    UpsertGroupInput updateGroupInput =
+        UpsertGroupInput.newBuilder()
+            .withName("avengers")
+            .withVisibleMemberList(true)
+            .withAnonymousVote(false)
+            .build();
+
+    // when: updating a group
+    var groupService = new GroupService(groupRepository, userGroupRepository);
+    var groupResult = groupService.updateGroup(updateGroupInput);
+
+    // then: there is errors because no user has been provided
+    assertTrue(groupResult.hasErrors());
+    assertEquals(
+        ErrorConstants.NOT_AN_ADMIN.getCode(), groupResult.getErrorList().get(0).getCode());
+  }
+
+  @Test
+  @DisplayName("Update group with no admin user")
+  void testUpdateGroupWhenNotAdmin() {
+    // given: a mocked group repository
+    var groupRepository = mock(GroupRepository.class);
+    var userGroupRepository = mock(UserGroupRepository.class);
+
+    UpsertGroupInput updateGroupInput =
+        UpsertGroupInput.newBuilder()
+            .withName("avengers")
+            .withCurrentUserId(UUID.randomUUID())
+            .withVisibleMemberList(true)
+            .withAnonymousVote(false)
+            .build();
+
+    when(userGroupRepository.getUserGroup(any(), any()))
+        .thenReturn(UserGroup.builder().with(ug -> ug.setAdmin(false)).build());
+
+    // when: updating a group
+    var groupService = new GroupService(groupRepository, userGroupRepository);
+    var groupResult = groupService.updateGroup(updateGroupInput);
+
+    // then: there is errors because no user has been provided
+    assertTrue(groupResult.hasErrors());
+    assertEquals(
+        ErrorConstants.NOT_AN_ADMIN.getCode(), groupResult.getErrorList().get(0).getCode());
   }
 }

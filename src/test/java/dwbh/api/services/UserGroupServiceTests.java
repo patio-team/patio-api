@@ -37,7 +37,13 @@ import dwbh.api.repositories.UserGroupRepository;
 import dwbh.api.repositories.UserRepository;
 import dwbh.api.util.ErrorConstants;
 import java.util.List;
+import java.util.UUID;
+import java.util.stream.Stream;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mockito;
 
 /**
@@ -465,7 +471,8 @@ public class UserGroupServiceTests {
   }
 
   @Test
-  void testLeaveGroupAdminSuccess() {
+  @DisplayName("leaving group succeeded because is not unique admin")
+  void testLeaveGroupAdminSuccessNotUniqueAdmin() {
     // given: an users
     var currentUser = random(User.class);
 
@@ -485,6 +492,47 @@ public class UserGroupServiceTests {
                     .with(ug -> ug.setAdmin(true))
                     .build(),
                 UserGroup.builder().build()));
+
+    // and: a LeaveGroupInput
+    LeaveGroupInput leaveGroupInput =
+        LeaveGroupInput.newBuilder()
+            .withCurrentUserId(currentUser.getId())
+            .withGroupId(group.getId())
+            .build();
+
+    // when: calling to leaveGroup
+    var userGroupService = new UserGroupService(null, null, userGroupRepository);
+    var result = userGroupService.leaveGroup(leaveGroupInput);
+
+    // then: we should build a success
+    assertEquals(result.getErrorList().size(), 0);
+    assertEquals(result.getSuccess(), true);
+
+    // and: The method to remove an user from a group has been called
+    verify(userGroupRepository, times(1)).removeUserFromGroup(any(), any());
+  }
+
+  @Test
+  @DisplayName("leaving group succeeded because is not admin")
+  void testLeaveGroupAdminSuccessNotAdmin() {
+    // given: an users
+    var currentUser = random(User.class);
+
+    // and: a group
+    var group = random(Group.class);
+
+    // and: a mocked usergroup repository
+    var userGroupRepository = Mockito.mock(UserGroupRepository.class);
+    Mockito.when(userGroupRepository.getUserGroup(currentUser.getId(), group.getId()))
+        .thenReturn(random(UserGroup.class));
+    Mockito.when(userGroupRepository.listAdminsGroup(group.getId()))
+        .thenReturn(
+            List.of(
+                UserGroup.builder()
+                    .with(ug -> ug.setUserId(UUID.randomUUID()))
+                    .with(ug -> ug.setGroupId(group.getId()))
+                    .with(ug -> ug.setAdmin(true))
+                    .build()));
 
     // and: a LeaveGroupInput
     LeaveGroupInput leaveGroupInput =
@@ -577,5 +625,26 @@ public class UserGroupServiceTests {
 
     // and: The method to remove an user from a group hasn't been called
     verify(userGroupRepository, times(0)).removeUserFromGroup(any(), any());
+  }
+
+  @ParameterizedTest(name = "Check whether a user is a group admin or not [{index}]")
+  @MethodSource("testIsAdminSource")
+  void testIsAdmin(UserGroup userGroup, boolean expected) {
+    var repository = Mockito.mock(UserGroupRepository.class);
+    Mockito.when(repository.getUserGroup(any(), any())).thenReturn(userGroup);
+
+    // when: asking if the user is admin
+    var service = new UserGroupService(null, null, repository);
+    var isAdmin = service.isAdmin(UUID.randomUUID(), UUID.randomUUID());
+
+    // then: we should get the expected result
+    assertEquals(expected, isAdmin);
+  }
+
+  private static Stream<Arguments> testIsAdminSource() {
+    return Stream.of(
+        Arguments.of(UserGroup.builder().with(ug -> ug.setAdmin(true)).build(), true),
+        Arguments.of(null, false),
+        Arguments.of(UserGroup.builder().build(), false));
   }
 }
