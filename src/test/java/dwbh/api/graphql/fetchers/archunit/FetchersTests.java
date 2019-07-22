@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with DWBH.  If not, see <https://www.gnu.org/licenses/>
  */
-package dwbh.api.fetchers.archunit;
+package dwbh.api.graphql.fetchers.archunit;
 
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
 
@@ -28,7 +28,7 @@ import com.tngtech.archunit.junit.ArchTest;
  *
  * @since 0.1.0
  */
-@AnalyzeClasses(packages = "dwbh.api.fetchers")
+@AnalyzeClasses(packages = "dwbh.api.graphql.fetchers")
 public class FetchersTests {
 
   private static final String NAME_FETCHER_SUFFIX_ = "Fetcher";

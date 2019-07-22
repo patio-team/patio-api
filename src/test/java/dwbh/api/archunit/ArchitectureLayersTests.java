@@ -53,7 +53,7 @@ public class ArchitectureLayersTests {
             .layer(LAYER_SERVICE)
             .definedBy("..services..")
             .layer(LAYER_GRAPH_QL)
-            .definedBy("..fetchers..", "..graphql..")
+            .definedBy("..graphql..")
             .layer(LAYER_UTILS)
             .definedBy("..utils..")
 

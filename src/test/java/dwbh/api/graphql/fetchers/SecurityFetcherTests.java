@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with DWBH.  If not, see <https://www.gnu.org/licenses/>
  */
-package dwbh.api.fetchers;
+package dwbh.api.graphql.fetchers;
 
 import static io.github.benas.randombeans.api.EnhancedRandom.random;
 import static org.junit.jupiter.api.Assertions.assertEquals;
