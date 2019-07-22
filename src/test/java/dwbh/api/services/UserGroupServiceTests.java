@@ -27,7 +27,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import dwbh.api.domain.Group;
-import dwbh.api.domain.GroupBuilder;
 import dwbh.api.domain.User;
 import dwbh.api.domain.UserGroup;
 import dwbh.api.domain.input.AddUserToGroupInput;
@@ -74,7 +73,12 @@ public class UserGroupServiceTests {
 
     // and: the currentUser is admin of the group
     Mockito.when(userGroupRepository.getUserGroup(currentUser.getId(), group.getId()))
-        .thenReturn(new UserGroup(currentUser.getId(), group.getId(), true));
+        .thenReturn(
+            UserGroup.builder()
+                .with(ug -> ug.setUserId(currentUser.getId()))
+                .with(ug -> ug.setGroupId(group.getId()))
+                .with(ug -> ug.setAdmin(true))
+                .build());
 
     // and: a AddUserToGroupInput
     AddUserToGroupInput addUserToGroupInput =
@@ -85,7 +89,7 @@ public class UserGroupServiceTests {
         new UserGroupService(groupRepository, userRepository, userGroupRepository);
     var result = userGroupService.addUserToGroup(addUserToGroupInput);
 
-    // then: we should get it
+    // then: we should build it
     assertEquals(result.getErrorList().size(), 0);
     assertEquals(result.getSuccess(), true);
 
@@ -119,7 +123,12 @@ public class UserGroupServiceTests {
 
     // and: the currentUser is NOT an admin of the group
     Mockito.when(userGroupRepository.getUserGroup(currentUser.getId(), group.getId()))
-        .thenReturn(new UserGroup(currentUser.getId(), group.getId(), false));
+        .thenReturn(
+            UserGroup.builder()
+                .with(ug -> ug.setUserId(currentUser.getId()))
+                .with(ug -> ug.setGroupId(group.getId()))
+                .with(ug -> ug.setAdmin(false))
+                .build());
 
     // and: a AddUserToGroupInput
     AddUserToGroupInput addUserToGroupInput =
@@ -131,7 +140,7 @@ public class UserGroupServiceTests {
 
     var result = userGroupService.addUserToGroup(addUserToGroupInput);
 
-    // then: we should get it
+    // then: we should build it
     assertNull(result.getSuccess());
     assertEquals(result.getErrorList().size(), 1);
     assertEquals(result.getErrorList().get(0), ErrorConstants.NOT_AN_ADMIN);
@@ -168,7 +177,12 @@ public class UserGroupServiceTests {
 
     // and: the currentUser is an admin of the group
     Mockito.when(userGroupRepository.getUserGroup(currentUser.getId(), group.getId()))
-        .thenReturn(new UserGroup(currentUser.getId(), group.getId(), true));
+        .thenReturn(
+            UserGroup.builder()
+                .with(ug -> ug.setUserId(currentUser.getId()))
+                .with(ug -> ug.setGroupId(group.getId()))
+                .with(ug -> ug.setAdmin(true))
+                .build());
 
     // and: a AddUserToGroupInput
     AddUserToGroupInput addUserToGroupInput =
@@ -180,7 +194,7 @@ public class UserGroupServiceTests {
 
     var result = userGroupService.addUserToGroup(addUserToGroupInput);
 
-    // then: we should get it
+    // then: we should build it
     assertNull(result.getSuccess());
     assertEquals(result.getErrorList().size(), 1);
     assertEquals(result.getErrorList().get(0), ErrorConstants.NOT_FOUND);
@@ -217,7 +231,12 @@ public class UserGroupServiceTests {
 
     // and: the currentUser is an admin of the group
     Mockito.when(userGroupRepository.getUserGroup(currentUser.getId(), group.getId()))
-        .thenReturn(new UserGroup(currentUser.getId(), group.getId(), true));
+        .thenReturn(
+            UserGroup.builder()
+                .with(ug -> ug.setUserId(currentUser.getId()))
+                .with(ug -> ug.setGroupId(group.getId()))
+                .with(ug -> ug.setAdmin(true))
+                .build());
 
     // and: a AddUserToGroupInput
     AddUserToGroupInput addUserToGroupInput =
@@ -229,7 +248,7 @@ public class UserGroupServiceTests {
 
     var result = userGroupService.addUserToGroup(addUserToGroupInput);
 
-    // then: we should get it
+    // then: we should build it
     assertNull(result.getSuccess());
     assertEquals(result.getErrorList().size(), 1);
     assertEquals(result.getErrorList().get(0), ErrorConstants.NOT_FOUND);
@@ -261,11 +280,21 @@ public class UserGroupServiceTests {
 
     // and: the user already belong to the group
     Mockito.when(userGroupRepository.getUserGroup(user.getId(), group.getId()))
-        .thenReturn(new UserGroup(user.getId(), group.getId(), false));
+        .thenReturn(
+            UserGroup.builder()
+                .with(ug -> ug.setUserId(user.getId()))
+                .with(ug -> ug.setGroupId(group.getId()))
+                .with(ug -> ug.setAdmin(false))
+                .build());
 
     // and: the currentUser is an admin of the group
     Mockito.when(userGroupRepository.getUserGroup(currentUser.getId(), group.getId()))
-        .thenReturn(new UserGroup(currentUser.getId(), group.getId(), true));
+        .thenReturn(
+            UserGroup.builder()
+                .with(ug -> ug.setUserId(currentUser.getId()))
+                .with(ug -> ug.setGroupId(group.getId()))
+                .with(ug -> ug.setAdmin(true))
+                .build());
 
     // and: a AddUserToGroupInput
     AddUserToGroupInput addUserToGroupInput =
@@ -277,7 +306,7 @@ public class UserGroupServiceTests {
 
     var result = userGroupService.addUserToGroup(addUserToGroupInput);
 
-    // then: we should get it
+    // then: we should build it
     assertNull(result.getSuccess());
     assertEquals(result.getErrorList().size(), 1);
     assertEquals(result.getErrorList().get(0), ErrorConstants.USER_ALREADY_ON_GROUP);
@@ -292,23 +321,28 @@ public class UserGroupServiceTests {
     var user = random(User.class);
 
     // and: a group
-    var group = GroupBuilder.builder().withVisibleMemberList(true).build();
+    var group = Group.builder().with(g -> g.setVisibleMemberList(true)).build();
 
     // given: a mocked user repository
     var userGroupRepository = Mockito.mock(UserGroupRepository.class);
     Mockito.when(userGroupRepository.listUsersGroup(any())).thenReturn(randomListOf(5, User.class));
     Mockito.when(userGroupRepository.getUserGroup(any(), any()))
-        .thenReturn(new UserGroup(user.getId(), group.getId(), false));
+        .thenReturn(
+            UserGroup.builder()
+                .with(ug -> ug.setUserId(user.getId()))
+                .with(ug -> ug.setGroupId(group.getId()))
+                .with(ug -> ug.setAdmin(false))
+                .build());
 
     // when: getting a list of users by group
     var userGroupService = new UserGroupService(null, null, userGroupRepository);
     var input = new ListUsersGroupInput(user.getId(), group.getId(), group.isVisibleMemberList());
     var usersByGroup = userGroupService.listUsersGroup(input);
 
-    // then: we should get the expected number of users
+    // then: we should build the expected number of users
     assertEquals(5, usersByGroup.size());
 
-    // and: The method to get the list of users has been called
+    // and: The method to build the list of users has been called
     verify(userGroupRepository, times(1)).listUsersGroup(any());
   }
 
@@ -318,23 +352,28 @@ public class UserGroupServiceTests {
     var user = random(User.class);
 
     // and: a group
-    var group = GroupBuilder.builder().withVisibleMemberList(false).build();
+    var group = Group.builder().with(g -> g.setVisibleMemberList(false)).build();
 
     // given: a mocked user repository
     var userGroupRepository = Mockito.mock(UserGroupRepository.class);
     Mockito.when(userGroupRepository.listUsersGroup(any())).thenReturn(randomListOf(5, User.class));
     Mockito.when(userGroupRepository.getUserGroup(any(), any()))
-        .thenReturn(new UserGroup(user.getId(), group.getId(), true));
+        .thenReturn(
+            UserGroup.builder()
+                .with(ug -> ug.setUserId(user.getId()))
+                .with(ug -> ug.setGroupId(group.getId()))
+                .with(ug -> ug.setAdmin(true))
+                .build());
 
     // when: getting a list of users by group
     var userGroupService = new UserGroupService(null, null, userGroupRepository);
     var input = new ListUsersGroupInput(user.getId(), group.getId(), group.isVisibleMemberList());
     var usersByGroup = userGroupService.listUsersGroup(input);
 
-    // then: we should get the expected number of users
+    // then: we should build the expected number of users
     assertEquals(5, usersByGroup.size());
 
-    // and: The method to get the list of users has been called
+    // and: The method to build the list of users has been called
     verify(userGroupRepository, times(1)).listUsersGroup(any());
   }
 
@@ -344,22 +383,27 @@ public class UserGroupServiceTests {
     var user = random(User.class);
 
     // and: a group
-    var group = GroupBuilder.builder().withVisibleMemberList(false).build();
+    var group = Group.builder().with(g -> g.setVisibleMemberList(false)).build();
 
     // given: a mocked user repository
     var userGroupRepository = Mockito.mock(UserGroupRepository.class);
     Mockito.when(userGroupRepository.getUserGroup(any(), any()))
-        .thenReturn(new UserGroup(user.getId(), group.getId(), false));
+        .thenReturn(
+            UserGroup.builder()
+                .with(ug -> ug.setUserId(user.getId()))
+                .with(ug -> ug.setGroupId(group.getId()))
+                .with(ug -> ug.setAdmin(false))
+                .build());
 
     // when: getting a list of users by group
     var userGroupService = new UserGroupService(null, null, userGroupRepository);
     var input = new ListUsersGroupInput(user.getId(), group.getId(), group.isVisibleMemberList());
     var usersByGroup = userGroupService.listUsersGroup(input);
 
-    // then: we should get the expected number of users
+    // then: we should build the expected number of users
     assertEquals(0, usersByGroup.size());
 
-    // and: The method to get the list of users has been called
+    // and: The method to build the list of users has been called
     verify(userGroupRepository, times(0)).listUsersGroup(any());
   }
 
@@ -369,7 +413,7 @@ public class UserGroupServiceTests {
     var user = random(User.class);
 
     // and: a group
-    var group = GroupBuilder.builder().withVisibleMemberList(true).build();
+    var group = Group.builder().with(g -> g.setVisibleMemberList(true)).build();
 
     // given: a mocked user repository
     var userGroupRepository = Mockito.mock(UserGroupRepository.class);
@@ -380,10 +424,10 @@ public class UserGroupServiceTests {
     var input = new ListUsersGroupInput(user.getId(), group.getId(), group.isVisibleMemberList());
     var usersByGroup = userGroupService.listUsersGroup(input);
 
-    // then: we should get the expected number of users
+    // then: we should build the expected number of users
     assertEquals(0, usersByGroup.size());
 
-    // and: The method to get the list of users has been called
+    // and: The method to build the list of users has been called
     verify(userGroupRepository, times(0)).listUsersGroup(any());
   }
 
@@ -412,7 +456,7 @@ public class UserGroupServiceTests {
     var userGroupService = new UserGroupService(null, null, userGroupRepository);
     var result = userGroupService.leaveGroup(leaveGroupInput);
 
-    // then: we should get a success
+    // then: we should build a success
     assertEquals(result.getErrorList().size(), 0);
     assertEquals(result.getSuccess(), true);
 
@@ -435,7 +479,12 @@ public class UserGroupServiceTests {
     Mockito.when(userGroupRepository.listAdminsGroup(group.getId()))
         .thenReturn(
             List.of(
-                new UserGroup(currentUser.getId(), group.getId(), true), random(UserGroup.class)));
+                UserGroup.builder()
+                    .with(ug -> ug.setUserId(currentUser.getId()))
+                    .with(ug -> ug.setGroupId(group.getId()))
+                    .with(ug -> ug.setAdmin(true))
+                    .build(),
+                UserGroup.builder().build()));
 
     // and: a LeaveGroupInput
     LeaveGroupInput leaveGroupInput =
@@ -448,7 +497,7 @@ public class UserGroupServiceTests {
     var userGroupService = new UserGroupService(null, null, userGroupRepository);
     var result = userGroupService.leaveGroup(leaveGroupInput);
 
-    // then: we should get a success
+    // then: we should build a success
     assertEquals(result.getErrorList().size(), 0);
     assertEquals(result.getSuccess(), true);
 
@@ -480,7 +529,7 @@ public class UserGroupServiceTests {
     var userGroupService = new UserGroupService(null, null, userGroupRepository);
     var result = userGroupService.leaveGroup(leaveGroupInput);
 
-    // then: we should get a failure
+    // then: we should build a failure
     assertNull(result.getSuccess());
     assertEquals(result.getErrorList().size(), 1);
     assertEquals(result.getErrorList().get(0), ErrorConstants.USER_NOT_IN_GROUP);
@@ -502,7 +551,13 @@ public class UserGroupServiceTests {
     Mockito.when(userGroupRepository.getUserGroup(currentUser.getId(), group.getId()))
         .thenReturn(random(UserGroup.class));
     Mockito.when(userGroupRepository.listAdminsGroup(group.getId()))
-        .thenReturn(List.of(new UserGroup(currentUser.getId(), group.getId(), true)));
+        .thenReturn(
+            List.of(
+                UserGroup.builder()
+                    .with(ug -> ug.setUserId(currentUser.getId()))
+                    .with(ug -> ug.setGroupId(group.getId()))
+                    .with(ug -> ug.setAdmin(true))
+                    .build()));
 
     // and: a LeaveGroupInput
     LeaveGroupInput leaveGroupInput =
@@ -515,7 +570,7 @@ public class UserGroupServiceTests {
     var userGroupService = new UserGroupService(null, null, userGroupRepository);
     var result = userGroupService.leaveGroup(leaveGroupInput);
 
-    // then: we should get a failure
+    // then: we should build a failure
     assertNull(result.getSuccess());
     assertEquals(result.getErrorList().size(), 1);
     assertEquals(result.getErrorList().get(0), ErrorConstants.UNIQUE_ADMIN);

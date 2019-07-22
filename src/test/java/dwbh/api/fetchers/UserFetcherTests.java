@@ -67,7 +67,7 @@ class UserFetcherTests {
     var mockedEnvironment =
         FetcherTestUtils.generateMockedEnvironment(null, Map.of("id", user.getId()));
 
-    // when: fetching get user invoking the service
+    // when: fetching build user invoking the service
     UserFetcher fetchers = new UserFetcher(mockedService);
     User result = fetchers.getUser(mockedEnvironment);
 
@@ -83,7 +83,7 @@ class UserFetcherTests {
     // and: a mocked environment
     var mockedEnvironment = FetcherTestUtils.generateMockedEnvironment(user, Map.of());
 
-    // when: fetching get user invoking the service
+    // when: fetching build user invoking the service
     UserFetcher fetchers = new UserFetcher(null);
     User result = fetchers.getCurrentUser(mockedEnvironment);
 

@@ -56,7 +56,7 @@ public class DefaultSecurityServiceTests {
     var securityService = new DefaultSecurityService(cryptoService, userRepository);
     var user = securityService.findUserByToken("good_token");
 
-    // then: we should get the information of the matching user
+    // then: we should build the information of the matching user
     assertEquals(providedUser.getName(), user.getName());
   }
 
@@ -73,7 +73,7 @@ public class DefaultSecurityServiceTests {
     var securityService = new DefaultSecurityService(cryptoService, userRepository);
     var user = securityService.findUserByToken("good_token");
 
-    // then: we should get NO user
+    // then: we should build NO user
     assertNull(user);
   }
 
@@ -95,7 +95,7 @@ public class DefaultSecurityServiceTests {
     var securityService = new DefaultSecurityService(cryptoService, userRepository);
     var result = securityService.login(new LoginInput(storedUser.getEmail(), plainPassword));
 
-    // then: we should get a token that matches the user stored in database
+    // then: we should build a token that matches the user stored in database
     var resultUser = result.getSuccess().getUser();
     var resultToken = result.getSuccess().getToken();
     var resultEmail = cryptoService.verifyToken(resultToken).get();
@@ -121,7 +121,7 @@ public class DefaultSecurityServiceTests {
     var loginInput = random(LoginInput.class);
     var result = securityService.login(loginInput);
 
-    // then: we should get an error because of bad credentials
+    // then: we should build an error because of bad credentials
     var errors = result.getErrorList();
     var badCredentialsError = errors.get(0);
 

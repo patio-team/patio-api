@@ -57,7 +57,7 @@ public class DayOfWeekTests {
     var executionResult = createGraphQL().execute(input);
     Map<String, ?> data = executionResult.getData();
 
-    // we should get the same id because the conversion went ok
+    // we should build the same id because the conversion went ok
     assertEquals(data.get("findDayOfWeek"), dayOfWeek.toString());
   }
 
@@ -74,7 +74,7 @@ public class DayOfWeekTests {
     var executionResult = createGraphQL().execute(input);
     Map<String, ?> data = executionResult.getData();
 
-    // we should get the same id because the conversion went ok
+    // we should build the same id because the conversion went ok
     assertNull(data.get("findDayOfWeek"));
   }
 
@@ -95,7 +95,7 @@ public class DayOfWeekTests {
     var executionResult = createGraphQL().execute(input);
     List<GraphQLError> errors = executionResult.getErrors();
 
-    // we should get a coercing value exception
+    // we should build a coercing value exception
     assertTrue(errors.size() == 1);
     assertTrue(errors.get(0) instanceof GraphQLError);
   }
@@ -116,7 +116,7 @@ public class DayOfWeekTests {
     var executionResult = createGraphQL().execute(input);
     Map<String, ?> data = executionResult.getData();
 
-    // we should get the same id because the conversion went ok
+    // we should build the same id because the conversion went ok
     assertEquals(data.get("findDayOfWeek"), dayOfWeek.toString());
   }
 
@@ -133,7 +133,7 @@ public class DayOfWeekTests {
     var executionResult = createGraphQL().execute(input);
     Map<String, ?> data = executionResult.getData();
 
-    // we should not get anything
+    // we should not build anything
     assertNull(data.get("findDayOfWeek"));
   }
 
@@ -153,7 +153,7 @@ public class DayOfWeekTests {
     var executionResult = createGraphQL().execute(input);
     List<GraphQLError> errors = executionResult.getErrors();
 
-    // we should get a coercing literal exception
+    // we should build a coercing literal exception
     assertTrue(errors.size() == 1);
     assertTrue(errors.get(0) instanceof GraphQLError);
   }

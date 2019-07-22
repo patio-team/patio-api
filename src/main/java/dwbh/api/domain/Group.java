@@ -17,6 +17,7 @@
  */
 package dwbh.api.domain;
 
+import dwbh.api.util.Builder;
 import java.time.DayOfWeek;
 import java.time.OffsetTime;
 import java.util.List;
@@ -27,13 +28,27 @@ import java.util.UUID;
  *
  * @since 0.1.0
  */
-public class Group {
+public final class Group {
   private String name;
   private UUID id;
   private boolean visibleMemberList;
   private boolean anonymousVote;
   private List<DayOfWeek> votingDays;
   private OffsetTime votingTime;
+
+  private Group() {
+    /* empty */
+  }
+
+  /**
+   * Creates a new {@link Group} builder
+   *
+   * @return a builder to create {@link Group} instances
+   * @since 0.1.0
+   */
+  public static Builder<Group> builder() {
+    return Builder.build(Group::new);
+  }
 
   /**
    * Returns the name of the group

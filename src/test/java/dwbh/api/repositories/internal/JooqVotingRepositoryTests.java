@@ -22,9 +22,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
 import dwbh.api.domain.Group;
-import dwbh.api.domain.GroupBuilder;
 import dwbh.api.domain.User;
-import dwbh.api.domain.UserBuilder;
 import dwbh.api.domain.Vote;
 import dwbh.api.domain.Voting;
 import dwbh.api.fixtures.Fixtures;
@@ -86,19 +84,19 @@ public class JooqVotingRepositoryTests {
 
     // and: required data to create voting
     User user =
-        UserBuilder.builder()
-            .withId(UUID.fromString("486590a3-fcc1-4657-a9ed-5f0f95dadea6"))
+        User.builder()
+            .with(u -> u.setId(UUID.fromString("486590a3-fcc1-4657-a9ed-5f0f95dadea6")))
             .build();
     Group group =
-        GroupBuilder.builder()
-            .withId(UUID.fromString("d64db962-3455-11e9-b210-d663bd873d93"))
+        Group.builder()
+            .with(g -> g.setId(UUID.fromString("d64db962-3455-11e9-b210-d663bd873d93")))
             .build();
 
     // when: creating the database entry
     Voting voting = repository.createVoting(user.getId(), group.getId(), OffsetDateTime.now());
 
     // then: we should assure the record has been inserted
-    assertNotNull("We should get the returned id after insertion", voting.getId());
+    assertNotNull("We should build the returned id after insertion", voting.getId());
   }
 
   @ParameterizedTest(name = "Failing when creating voting")
@@ -114,12 +112,12 @@ public class JooqVotingRepositoryTests {
 
   private static Stream<Arguments> createVotingFailureDataProvider() {
     User user =
-        UserBuilder.builder()
-            .withId(UUID.fromString("486590a3-fcc1-4657-a9ed-5f0f95dadea6"))
+        User.builder()
+            .with(u -> u.setId(UUID.fromString("486590a3-fcc1-4657-a9ed-5f0f95dadea6")))
             .build();
     Group group =
-        GroupBuilder.builder()
-            .withId(UUID.fromString("d64db962-3455-11e9-b210-d663bd873d93"))
+        Group.builder()
+            .with(g -> g.setId(UUID.fromString("d64db962-3455-11e9-b210-d663bd873d93")))
             .build();
 
     return Stream.of(
@@ -142,7 +140,7 @@ public class JooqVotingRepositoryTests {
     // when: trying to save a new vote
     Vote vote = repository.createVote(userId, votingId, OffsetDateTime.now(), null, score);
 
-    // then: we should get a valid vote instance
+    // then: we should build a valid vote instance
     assertNotNull("vote has been saved!", vote.getId());
   }
 
@@ -159,7 +157,7 @@ public class JooqVotingRepositoryTests {
     // when: trying to save a new vote
     Vote vote = repository.createVote(null, votingId, OffsetDateTime.now(), null, score);
 
-    // then: we should get a valid vote instance
+    // then: we should build a valid vote instance
     assertNotNull("vote has been saved!", vote.getId());
   }
 
@@ -215,7 +213,7 @@ public class JooqVotingRepositoryTests {
     // when: looking for a group with good parameter
     Group group = repository.findGroupByUserAndVoting(userId, votingId);
 
-    // then: we should get a populated group
+    // then: we should build a populated group
     assertNotNull("there is the group", group);
     assertNotNull("with the id", group.getId());
     assertNotNull("and the name", group.getName());
@@ -236,7 +234,7 @@ public class JooqVotingRepositoryTests {
     // when: looking for a voting with good parameter
     Voting voting = repository.findVotingByUserAndVoting(userId, votingId);
 
-    // then: we should get a populated voting
+    // then: we should build a populated voting
     assertNotNull("there is the voting", voting);
     assertEquals(voting.getId(), votingId);
     assertEquals(voting.getAverage(), (Integer) 3);
@@ -255,7 +253,7 @@ public class JooqVotingRepositoryTests {
     // when: looking for a voting with good parameter
     Voting voting = repository.findVotingByUserAndVoting(userId, votingId);
 
-    // then: we shouldn't get a voting
+    // then: we shouldn't build a voting
     assertNull("there is no voting", voting);
   }
 
@@ -272,7 +270,7 @@ public class JooqVotingRepositoryTests {
     // when: looking for a vote with good parameter
     Vote vote = repository.findVoteByUserAndVoting(userId, votingId);
 
-    // then: we should get a populated vote
+    // then: we should build a populated vote
     assertNotNull("there is the group", vote);
     assertNotNull("with the id", vote.getId());
     assertNotNull("and the comment", vote.getComment());
@@ -307,7 +305,7 @@ public class JooqVotingRepositoryTests {
     // when: looking for votings of a group
     List<Voting> votings = repository.listVotingsGroup(groupId, startDate, endDate);
 
-    // then: we should get the expected number of votings
+    // then: we should build the expected number of votings
     assertEquals(votings.size(), expectedSize);
   }
 
@@ -353,14 +351,14 @@ public class JooqVotingRepositoryTests {
     Integer average =
         repository.calculateVoteAverage(UUID.fromString("ffad4562-4971-11e9-98cd-d663bd873d93"));
 
-    // then: we get the correct average
+    // then: we build the correct average
     assertEquals(average, (Integer) 5);
 
     // and when calculating another average
     average =
         repository.calculateVoteAverage(UUID.fromString("f95d3520-0e95-4b4d-862e-6e3230026449"));
 
-    // then: we get the correct average
+    // then: we build the correct average
     assertEquals(average, (Integer) 1);
   }
 
@@ -372,7 +370,7 @@ public class JooqVotingRepositoryTests {
     Integer average =
         repository.calculateVoteAverage(UUID.fromString("ffad4562-4971-11e9-98cd-d663bd873d93"));
 
-    // then: we get a null average
+    // then: we build a null average
     assertEquals(average, null);
   }
 

@@ -96,8 +96,8 @@ public class UserGroupService {
   }
 
   /**
-   * Fetches the list of users in a Group. If the user is not allowed to get them, returns an empty
-   * list
+   * Fetches the list of users in a Group. ifMatches the user is not allowed to build them, returns
+   * an empty list
    *
    * @param input a {@link AddUserToGroupInput} with the user and the group
    * @return a list of {@link User} instances

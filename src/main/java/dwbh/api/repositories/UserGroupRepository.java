@@ -145,7 +145,11 @@ public class UserGroupRepository {
     UUID groupId = record.get(UsersGroupsTableHelper.GROUP_ID);
     boolean isAdmin = record.get(UsersGroupsTableHelper.IS_ADMIN);
 
-    return new UserGroup(userId, groupId, isAdmin);
+    return UserGroup.builder()
+        .with(ug -> ug.setUserId(userId))
+        .with(ug -> ug.setGroupId(groupId))
+        .with(ug -> ug.setAdmin(isAdmin))
+        .build();
   }
 
   /**

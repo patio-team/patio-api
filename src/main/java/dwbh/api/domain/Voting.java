@@ -17,6 +17,7 @@
  */
 package dwbh.api.domain;
 
+import dwbh.api.util.Builder;
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
@@ -25,13 +26,26 @@ import java.util.UUID;
  *
  * @since 0.1.0
  */
-public class Voting {
-
+public final class Voting {
   private UUID id;
   private OffsetDateTime createdAt;
   private User createdBy;
   private Group group;
   private Integer average;
+
+  private Voting() {
+    /* empty */
+  }
+
+  /**
+   * Creates a new fluent builder to build instances of type {@link Voting}
+   *
+   * @return an instance of the voting builder
+   * @since 0.1.0
+   */
+  public static Builder<Voting> newBuilder() {
+    return Builder.build(Voting::new);
+  }
 
   /**
    * Returns the voting's id
@@ -122,6 +136,7 @@ public class Voting {
   public Integer getAverage() {
     return average;
   }
+
   /**
    * Sets the voting average
    *
@@ -130,109 +145,5 @@ public class Voting {
    */
   public void setAverage(Integer average) {
     this.average = average;
-  }
-
-  /**
-   * Creates a new fluent builder to build instances of type {@link Voting}
-   *
-   * @return an instance of the voting builder
-   * @since 0.1.0
-   */
-  public static Builder newBuilder() {
-    return new Builder();
-  }
-
-  /**
-   * Builds instances of type {@link Voting}
-   *
-   * @since 0.1.0
-   */
-  public static class Builder {
-    private transient UUID id;
-    private transient OffsetDateTime createdAt;
-    private transient User createdBy;
-    private transient Group group;
-    private transient Integer average;
-
-    private Builder() {
-      /* empty */
-    }
-
-    /**
-     * Sets voting id
-     *
-     * @param id id of the {@link Voting} record
-     * @return current builder instance
-     * @since 0.1.0
-     */
-    public Builder withId(UUID id) {
-      this.id = id;
-      return this;
-    }
-
-    /**
-     * Sets average
-     *
-     * @param average average of the {@link Voting} record
-     * @return current builder instance
-     * @since 0.1.0
-     */
-    public Builder withAverage(Integer average) {
-      this.average = average;
-      return this;
-    }
-
-    /**
-     * Sets creation time
-     *
-     * @param createdAt creation time
-     * @return current builder instance
-     * @since 0.1.0
-     */
-    public Builder withCreatedAt(OffsetDateTime createdAt) {
-      this.createdAt = createdAt;
-      return this;
-    }
-
-    /**
-     * Sets who created it
-     *
-     * @param createdBy who created it
-     * @return current builder instance
-     * @since 0.1.0
-     */
-    public Builder withCreatedBy(User createdBy) {
-      this.createdBy = createdBy;
-      return this;
-    }
-
-    /**
-     * Sets the group
-     *
-     * @param group the group the voting belongs
-     * @return current builder instance
-     * @since 0.1.0
-     */
-    public Builder withGroup(Group group) {
-      this.group = group;
-      return this;
-    }
-
-    /**
-     * Initializes and returns the {@link Voting} instance built
-     *
-     * @return the {@link Voting} instance initialized
-     * @since 0.1.0
-     */
-    public Voting build() {
-      Voting voting = new Voting();
-      voting.setId(id);
-      voting.setCreatedAt(createdAt);
-      voting.setGroup(group);
-      voting.setCreatedBy(createdBy);
-      voting.setAverage(average);
-
-      return voting;
-    }
   }
 }

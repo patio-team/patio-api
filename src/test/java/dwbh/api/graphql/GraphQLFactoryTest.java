@@ -70,7 +70,7 @@ class GraphQLFactoryTest {
 
     // and: querying the schema with an authenticated user
     var context = new Context();
-    context.setAuthenticatedUser(new User());
+    context.setAuthenticatedUser(User.builder().build());
     var executionInput =
         ExecutionInput.newExecutionInput()
             .query("{ listMyGroups { name } }")
@@ -81,7 +81,7 @@ class GraphQLFactoryTest {
 
     var groupList = data.get("listMyGroups");
 
-    // then: we should get the expected result
+    // then: we should build the expected result
     assertEquals(groupList.size(), 2);
   }
 

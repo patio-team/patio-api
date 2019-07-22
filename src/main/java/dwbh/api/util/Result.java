@@ -23,8 +23,8 @@ import java.util.function.Supplier;
 
 /**
  * Represents a result that may contain whether a successful content or a failure content (errors)
- * or both. If it's sure the result should only contain a successful response you can use the type
- * directly, otherwise the use of this type is encouraged.
+ * or both. ifMatches it's sure the result should only contain a successful response you can use the
+ * type directly, otherwise the use of this type is encouraged.
  *
  * @since 0.1.0
  */
@@ -139,9 +139,9 @@ public class Result<T> {
   }
 
   /**
-   * If the current instance is a success but we want to provide an alternative {@link Result}. This
-   * is useful at the end of a series of checkers. If all of them passed then we can provide the
-   * expected business logic output.
+   * ifMatches the current instance is a success but we want to provide an alternative {@link
+   * Result}. This is useful at the end of a series of checkers. ifMatches all of them passed then
+   * we can provide the expected business logic output.
    *
    * @param supplier a supplier returning an alternative success result
    * @return the supplier's result if the current result is successful. The current result

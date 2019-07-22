@@ -141,7 +141,7 @@ class GroupFetcherTests {
     var mockedEnvironment =
         FetcherTestUtils.generateMockedEnvironment(user, Map.of("id", group.getId()));
 
-    // when: fetching get group invoking the service
+    // when: fetching build group invoking the service
     GroupFetcher fetchers = new GroupFetcher(mockedService);
     DataFetcherResult<Group> result = fetchers.getGroup(mockedEnvironment);
 

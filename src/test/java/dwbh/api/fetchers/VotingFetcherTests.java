@@ -68,10 +68,10 @@ class VotingFetcherTests {
     VotingFetcher fetcher = new VotingFetcher(mockedService);
     DataFetcherResult<Voting> result = fetcher.createVoting(mockedEnvironment);
 
-    // then: we should get no errors
+    // then: we should build no errors
     assertThat("There is no errors", result.getErrors().size(), is(0));
 
-    // and: we should get the successful result
+    // and: we should build the successful result
     assertNotNull("There is new voting", result.getData().getId());
   }
 
@@ -122,7 +122,7 @@ class VotingFetcherTests {
     VotingFetcher fetcher = new VotingFetcher(mockedService);
     List<Voting> result = fetcher.listVotingsGroup(mockedEnvironment);
 
-    // then: we should get the successful result
+    // then: we should build the successful result
     assertEquals("There are votings", result.size(), 1);
   }
 
@@ -144,7 +144,7 @@ class VotingFetcherTests {
     var mockedEnvironment =
         FetcherTestUtils.generateMockedEnvironment(user, Map.of("id", voting.getId()));
 
-    // when: fetching get voting invoking the service
+    // when: fetching build voting invoking the service
     VotingFetcher fetchers = new VotingFetcher(mockedService);
     DataFetcherResult<Voting> result = fetchers.getVoting(mockedEnvironment);
 
@@ -170,7 +170,7 @@ class VotingFetcherTests {
     VotingFetcher fetcher = new VotingFetcher(mockedService);
     List<Vote> result = fetcher.listVotesVoting(mockedEnvironment);
 
-    // then: we should get the successful result
+    // then: we should build the successful result
     assertEquals("There are votes", result.size(), 1);
   }
 }

@@ -21,9 +21,7 @@ import static org.junit.Assert.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import dwbh.api.domain.Group;
-import dwbh.api.domain.GroupBuilder;
 import dwbh.api.domain.User;
-import dwbh.api.domain.UserBuilder;
 import dwbh.api.domain.UserGroup;
 import dwbh.api.fixtures.Fixtures;
 import io.micronaut.test.annotation.MicronautTest;
@@ -118,16 +116,16 @@ class UserGroupRepositoryTests {
 
     // and: an user
     User user =
-        UserBuilder.builder()
-            .withName("Tony Stark")
-            .withId(UUID.fromString("3465094c-5545-4007-a7bc-da2b1a88d9dc"))
+        User.builder()
+            .with(u -> u.setName("Tony Stark"))
+            .with(u -> u.setId(UUID.fromString("3465094c-5545-4007-a7bc-da2b1a88d9dc")))
             .build();
 
     // and: a group
     Group group =
-        GroupBuilder.builder()
-            .withName("Avengers")
-            .withId(UUID.fromString("dedc6675-ab79-495e-9245-1fc20545eb83"))
+        Group.builder()
+            .with(g -> g.setName("Avengers"))
+            .with(g -> g.setId(UUID.fromString("dedc6675-ab79-495e-9245-1fc20545eb83")))
             .build();
 
     // when: adding an user to a group

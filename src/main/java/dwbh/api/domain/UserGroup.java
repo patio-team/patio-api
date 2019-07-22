@@ -17,6 +17,7 @@
  */
 package dwbh.api.domain;
 
+import dwbh.api.util.Builder;
 import java.util.UUID;
 
 /**
@@ -24,10 +25,24 @@ import java.util.UUID;
  *
  * @since 0.1.0
  */
-public class UserGroup {
+public final class UserGroup {
   private UUID userId;
   private UUID groupId;
   private boolean admin;
+
+  private UserGroup() {
+    /* empty */
+  }
+
+  /**
+   * Creates a new {@link Builder} to create an instance of type {@link UserGroup}
+   *
+   * @return an instance of {@link Builder} to create instances of type {@link UserGroup}
+   * @since 0.1.0
+   */
+  public static Builder<UserGroup> builder() {
+    return Builder.build(UserGroup::new);
+  }
 
   /**
    * Gets groupId.
@@ -80,20 +95,6 @@ public class UserGroup {
    * @param admin New value of admin.
    */
   public void setAdmin(boolean admin) {
-    this.admin = admin;
-  }
-
-  /**
-   * Initializes the UserGroup
-   *
-   * @param userId The id of the user
-   * @param groupId The id of the group
-   * @param admin Indicates if the user is getIsAdmin on the group
-   * @since 0.1.0
-   */
-  public UserGroup(UUID userId, UUID groupId, boolean admin) {
-    this.userId = userId;
-    this.groupId = groupId;
     this.admin = admin;
   }
 }
