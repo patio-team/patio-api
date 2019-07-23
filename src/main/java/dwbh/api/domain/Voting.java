@@ -28,7 +28,7 @@ import java.util.UUID;
  */
 public final class Voting {
   private UUID id;
-  private OffsetDateTime createdAt;
+  private OffsetDateTime createdAtDateTime;
   private User createdBy;
   private Group group;
   private Integer average;
@@ -73,18 +73,18 @@ public final class Voting {
    * @return the moment the voting was created
    * @since 0.1.0
    */
-  public OffsetDateTime getCreatedAt() {
-    return createdAt;
+  public OffsetDateTime getCreatedAtDateTime() {
+    return createdAtDateTime;
   }
 
   /**
    * Sets the moment the voting was created
    *
-   * @param createdAt when the voting was created
+   * @param createdAtDateTime when the voting was created
    * @since 0.1.0
    */
-  public void setCreatedAt(OffsetDateTime createdAt) {
-    this.createdAt = createdAt;
+  public void setCreatedAtDateTime(OffsetDateTime createdAtDateTime) {
+    this.createdAtDateTime = createdAtDateTime;
   }
 
   /**

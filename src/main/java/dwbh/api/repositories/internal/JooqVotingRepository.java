@@ -234,7 +234,7 @@ public class JooqVotingRepository implements VotingRepository {
   private static Voting toVoting(Record record) {
     return Voting.newBuilder()
         .with(voting -> voting.setId(record.get(VotingTableHelper.VOTING_ID)))
-        .with(voting -> voting.setCreatedAt(record.get(VotingTableHelper.CREATED_AT)))
+        .with(voting -> voting.setCreatedAtDateTime(record.get(VotingTableHelper.CREATED_AT)))
         .with(voting -> voting.setAverage(record.get(VotingTableHelper.AVERAGE)))
         .build();
   }
@@ -242,7 +242,7 @@ public class JooqVotingRepository implements VotingRepository {
   private static Vote toVote(Record record) {
     return Vote.newBuilder()
         .with(vote -> vote.setId(record.get(VoteTableHelper.VOTE_ID)))
-        .with(vote -> vote.setCreatedAt(record.get(VoteTableHelper.CREATED_AT)))
+        .with(vote -> vote.setCreatedAtDateTime(record.get(VoteTableHelper.CREATED_AT)))
         .with(vote -> vote.setComment(record.get(VoteTableHelper.COMMENT)))
         .with(vote -> vote.setScore(record.get(VoteTableHelper.SCORE)))
         .build();
