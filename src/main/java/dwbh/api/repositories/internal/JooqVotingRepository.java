@@ -32,11 +32,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import javax.inject.Singleton;
-import org.jooq.DSLContext;
-import org.jooq.Record;
-import org.jooq.Record1;
-import org.jooq.Record5;
-import org.jooq.Record6;
+import org.jooq.*;
 import org.jooq.impl.DSL;
 
 /**
@@ -257,6 +253,24 @@ public class JooqVotingRepository implements VotingRepository {
     return context
         .selectFrom(TablesHelper.VOTE_TABLE)
         .where(VoteTableHelper.VOTING_ID.eq(votingId))
+        .fetch(JooqVotingRepository::toVote);
+  }
+
+  @Override
+  public List<Vote> listUserVotesInGroup(
+      UUID userId, UUID groupId, OffsetDateTime startDateTime, OffsetDateTime endDateTime) {
+    return context
+        .select(
+            DSL.field("vote.id", UUID.class).as("id"),
+            DSL.field("vote.created_at", OffsetDateTime.class).as("created_at"),
+            DSL.field(VoteTableHelper.COMMENT),
+            DSL.field(VoteTableHelper.SCORE))
+        .from(TablesHelper.VOTE_TABLE)
+        .innerJoin(TablesHelper.VOTING_TABLE)
+        .on(DSL.field("vote.voting_id").eq(DSL.field("voting.id")))
+        .where(DSL.field("vote.created_by").eq(userId))
+        .and(VotingTableHelper.GROUP_ID.eq(groupId))
+        .and(DSL.field("vote.created_at").between(startDateTime, endDateTime))
         .fetch(JooqVotingRepository::toVote);
   }
 }

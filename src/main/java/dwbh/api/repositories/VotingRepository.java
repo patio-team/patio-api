@@ -29,6 +29,7 @@ import java.util.UUID;
  *
  * @since 0.1.0
  */
+@SuppressWarnings({"PMD.TooManyMethods"})
 public interface VotingRepository {
 
   /**
@@ -132,4 +133,17 @@ public interface VotingRepository {
    * @since 0.1.0
    */
   boolean hasExpired(UUID votingId);
+
+  /**
+   * Fetches the votes that belongs to an user in a group between two dates
+   *
+   * @param userId user identifier
+   * @param groupId group identifier
+   * @param startDateTime the date from which the votes are wanted
+   * @param endDateTime the date to which the votes are wanted
+   * @return a list of votes
+   * @since 0.1.0
+   */
+  List<Vote> listUserVotesInGroup(
+      UUID userId, UUID groupId, OffsetDateTime startDateTime, OffsetDateTime endDateTime);
 }

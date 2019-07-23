@@ -173,4 +173,46 @@ class VotingFetcherTests {
     // then: we should build the successful result
     assertEquals("There are votes", result.size(), 1);
   }
+
+  @Test
+  void testLListUserVotesInGroup() {
+    // given: some mocked data
+    var groupId = UUID.randomUUID();
+    var userId = UUID.randomUUID();
+    var startDate = OffsetDateTime.parse("2019-01-24T00:00:00Z");
+    var endDate = OffsetDateTime.parse("2019-01-25T00:00:00Z");
+
+    // and: some votes
+    List<Vote> votes = List.of(random(Vote.class), random(Vote.class), random(Vote.class));
+
+    // and: an user
+    User currentUser = random(User.class);
+
+    // and: a mocking service
+    var mockedService = Mockito.mock(VotingService.class);
+
+    // and: mocking service's behavior
+    Mockito.when(mockedService.listUserVotesInGroup(any())).thenReturn(Result.result(votes));
+
+    // and: a mocked environment
+    var mockedEnvironment =
+        FetcherTestUtils.generateMockedEnvironment(
+            currentUser,
+            Map.of(
+                "userId",
+                userId,
+                "groupId",
+                groupId,
+                "startDateTime",
+                startDate,
+                "endDateTime",
+                endDate));
+
+    // when: fetching get voting invoking the service
+    VotingFetcher fetchers = new VotingFetcher(mockedService);
+    DataFetcherResult<List<Vote>> result = fetchers.listUserVotesInGroup(mockedEnvironment);
+
+    // then: check certain assertions should be met
+    assertThat("the votes are found", result.getData(), is(votes));
+  }
 }

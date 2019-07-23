@@ -19,10 +19,7 @@ package dwbh.api.graphql.fetchers;
 
 import dwbh.api.domain.Group;
 import dwbh.api.domain.User;
-import dwbh.api.domain.input.CreateVoteInput;
-import dwbh.api.domain.input.CreateVotingInput;
-import dwbh.api.domain.input.GetVotingInput;
-import dwbh.api.domain.input.ListVotingsGroupInput;
+import dwbh.api.domain.input.*;
 import dwbh.api.graphql.Context;
 import graphql.schema.DataFetchingEnvironment;
 import java.time.OffsetDateTime;
@@ -114,6 +111,30 @@ final class VotingFetcherUtils {
     return GetVotingInput.newBuilder()
         .withCurrentUserId(currentUser.getId())
         .withVotingId(votingId)
+        .build();
+  }
+
+  /**
+   * Creates a {@link UserVotesInGroupInput} from the data coming from the {@link
+   * DataFetchingEnvironment}
+   *
+   * @param environment the GraphQL {@link DataFetchingEnvironment}
+   * @return an instance of {@link UserVotesInGroupInput}
+   * @since 0.1.0
+   */
+  /* default */ static UserVotesInGroupInput userVotesInput(DataFetchingEnvironment environment) {
+    UUID groupId = environment.getArgument("groupId");
+    UUID userId = environment.getArgument("userId");
+    OffsetDateTime startDateTime = environment.getArgument("startDateTime");
+    OffsetDateTime endDateTime = environment.getArgument("endDateTime");
+    Context ctx = environment.getContext();
+    User currentUser = ctx.getAuthenticatedUser();
+    return UserVotesInGroupInput.builder()
+        .with(input -> input.setCurrentUserId(currentUser.getId()))
+        .with(input -> input.setUserId(userId))
+        .with(input -> input.setGroupId(groupId))
+        .with(input -> input.setStartDateTime(startDateTime))
+        .with(input -> input.setEndDateTime(endDateTime))
         .build();
   }
 }

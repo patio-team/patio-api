@@ -386,4 +386,41 @@ public class JooqVotingRepositoryTests {
     // then: check there're the expected number of votes
     assertEquals(voteList.size(), 4);
   }
+
+  @ParameterizedTest(name = "listUserVotesInGroupSuccess: success when {0}")
+  @MethodSource("listUserVotesInGroupSuccessDataProvider")
+  void listUserVotesInGroupSuccess(
+      String name, OffsetDateTime startDateTime, OffsetDateTime endDateTime, int expectedSize) {
+    // given: fixtures
+    fixtures.load(JooqVotingRepositoryTests.class, "listUserVotesInGroupSuccessfully.sql");
+
+    // and: good parameters
+    UUID userId = UUID.fromString("486590a3-fcc1-4657-a9ed-5f0f95dadea6");
+    UUID groupId = UUID.fromString("d64db962-3455-11e9-b210-d663bd873d93");
+
+    // when: looking for a vote with good parameter
+    List<Vote> votes = repository.listUserVotesInGroup(userId, groupId, startDateTime, endDateTime);
+
+    // then: we should get a list of the correct size
+    assertEquals(expectedSize, votes.size());
+  }
+
+  private static Stream<Arguments> listUserVotesInGroupSuccessDataProvider() {
+    return Stream.of(
+        Arguments.of(
+            "there are three votes between the dates",
+            OffsetDateTime.parse("2019-01-01T00:00:00Z"),
+            OffsetDateTime.parse("2019-01-10T00:00:00Z"),
+            2),
+        Arguments.of(
+            "there are one vote between the dates",
+            OffsetDateTime.parse("2019-01-04T00:00:00Z"),
+            OffsetDateTime.parse("2019-01-05T00:00:00Z"),
+            1),
+        Arguments.of(
+            "there are no votes between the dates",
+            OffsetDateTime.parse("2019-01-10T00:00:00Z"),
+            OffsetDateTime.parse("2019-01-20T00:00:00Z"),
+            0));
+  }
 }
