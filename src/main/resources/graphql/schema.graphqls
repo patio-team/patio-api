@@ -50,7 +50,7 @@ type User {
 type Voting {
     id: ID,
     group: Group,
-    createdAt: DateTime
+    createdAtDateTime: DateTime
     createdBy: User
     average: Int
     votes: [Vote]
@@ -61,7 +61,7 @@ type Vote {
     score: Int
     comment: String
     voting: Voting
-    createdAt: DateTime
+    createdAtDateTime: DateTime
     createdBy: User
 }
 

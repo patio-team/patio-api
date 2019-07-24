@@ -30,7 +30,7 @@ public final class Vote {
   private transient UUID id;
   private transient Voting voting;
   private transient User createdBy;
-  private transient OffsetDateTime createdAt;
+  private transient OffsetDateTime createdAtDateTime;
   private transient String comment;
   private transient Integer score;
 
@@ -114,18 +114,18 @@ public final class Vote {
    * @return an instance of type {@link OffsetDateTime}
    * @since 0.1.0
    */
-  public OffsetDateTime getCreatedAt() {
-    return createdAt;
+  public OffsetDateTime getCreatedAtDateTime() {
+    return createdAtDateTime;
   }
 
   /**
    * Sets when the vote has been created
    *
-   * @param createdAt when the vote's been created
+   * @param createdAtDateTime when the vote's been created
    * @since 0.1.0
    */
-  public void setCreatedAt(OffsetDateTime createdAt) {
-    this.createdAt = createdAt;
+  public void setCreatedAtDateTime(OffsetDateTime createdAtDateTime) {
+    this.createdAtDateTime = createdAtDateTime;
   }
 
   /**
