@@ -30,10 +30,10 @@ import org.junit.jupiter.api.Test;
 public class AlgorithmFactoryTests {
 
   @Test
-  void testCreateAlgorithm() {
+  void testCreateAlgorithm() throws Exception {
     // when: creating a new algorithm instance
     var factory = new AlgorithmFactory();
-    var algorithm = factory.create("secret");
+    var algorithm = factory.create("secret", "HS256");
 
     // then: we should expect a new instance
     assertNotNull(algorithm);

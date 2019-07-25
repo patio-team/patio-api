@@ -15,44 +15,37 @@
  * You should have received a copy of the GNU General Public License
  * along with DWBH.  If not, see <https://www.gnu.org/licenses/>
  */
-package dwbh.api.domain;
+package dwbh.api.util;
+
+import org.jooq.Field;
+import org.jooq.Record;
 
 /**
- * Information delivered when a used authenticates successfully in the system
+ * Jooq persistence related helper functions
  *
  * @since 0.1.0
  */
-public class Login {
-  private final Tokens tokens;
-  private final User user;
+public final class JooqUtils {
 
-  /**
-   * Initializes a login instance
-   *
-   * @param tokens the user's tokens
-   * @param user the user's general information
-   * @since 0.1.0
-   */
-  public Login(Tokens tokens, User user) {
-    this.tokens = tokens;
-    this.user = user;
+  private JooqUtils() {
+    /* empty */
   }
 
   /**
-   * Returns the user's tokens
+   * Takes a {@link Record} field value safely
    *
-   * @return the generated tokens for user
+   * @param record {@link Record} to take the value from
+   * @param field field to get the value from
+   * @param <T> the type of the value wrapped in the {@link Field}
+   * @return field value or null if there's no value or field is not present in record
    * @since 0.1.0
    */
-  public Tokens getTokens() {
-    return tokens;
-  }
-
-  /**
-   * @return the user's information
-   * @since 0.1.0
-   */
-  public User getUser() {
-    return user;
+  @SuppressWarnings("PMD.OnlyOneReturn")
+  public static <T> T getValueSafely(Record record, Field<T> field) {
+    try {
+      return record.getValue(field);
+    } catch (IllegalArgumentException illegal) {
+      return null;
+    }
   }
 }

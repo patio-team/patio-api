@@ -15,44 +15,25 @@
  * You should have received a copy of the GNU General Public License
  * along with DWBH.  If not, see <https://www.gnu.org/licenses/>
  */
-package dwbh.api.domain;
+package dwbh.api.services;
+
+import java.util.Optional;
 
 /**
- * Information delivered when a used authenticates successfully in the system
+ * Service to complete authorization workflow. Workflow has started in the front-end getting the
+ * authorization code and the service completes the flow by getting an access token from the
+ * previous authorization code.
  *
  * @since 0.1.0
  */
-public class Login {
-  private final Tokens tokens;
-  private final User user;
+public interface OauthService {
 
   /**
-   * Initializes a login instance
+   * Gets an access token from a previously acquired authorization code
    *
-   * @param tokens the user's tokens
-   * @param user the user's general information
+   * @param authorizationCode authorization code acquired in oauth2 previous steps
+   * @return an access token
    * @since 0.1.0
    */
-  public Login(Tokens tokens, User user) {
-    this.tokens = tokens;
-    this.user = user;
-  }
-
-  /**
-   * Returns the user's tokens
-   *
-   * @return the generated tokens for user
-   * @since 0.1.0
-   */
-  public Tokens getTokens() {
-    return tokens;
-  }
-
-  /**
-   * @return the user's information
-   * @since 0.1.0
-   */
-  public User getUser() {
-    return user;
-  }
+  Optional<String> getAccessToken(String authorizationCode);
 }

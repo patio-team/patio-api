@@ -17,6 +17,8 @@
  */
 package dwbh.api.services;
 
+import com.auth0.jwt.interfaces.DecodedJWT;
+import dwbh.api.domain.Tokens;
 import dwbh.api.domain.User;
 import java.util.Optional;
 
@@ -31,10 +33,10 @@ public interface CryptoService {
    * Creates a new token from the {@link User} information
    *
    * @param user user to create the token from
-   * @return a valid token
+   * @return a valid pair of tokens
    * @since 0.1.0
    */
-  String createToken(User user);
+  Tokens createTokens(User user);
 
   /**
    * Verifies that the provided token is valid
@@ -43,7 +45,16 @@ public interface CryptoService {
    * @return the token subject if the token is valid, is empty otherwise
    * @since 0.1.0
    */
-  Optional<String> verifyToken(String token);
+  Optional<DecodedJWT> verifyToken(String token);
+
+  /**
+   * Decodes without verifying anything the token passed as argument
+   *
+   * @param token token to decode
+   * @return an instance of {@link DecodedJWT}
+   * @since 0.1.0
+   */
+  Optional<DecodedJWT> decode(String token);
 
   /**
    * Hashes a given text

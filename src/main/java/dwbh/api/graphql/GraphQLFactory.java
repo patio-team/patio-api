@@ -23,6 +23,7 @@ import dwbh.api.graphql.fetchers.FetcherProvider;
 import dwbh.api.graphql.instrumentation.AuthenticationCheck;
 import dwbh.api.graphql.scalars.ScalarsConstants;
 import graphql.GraphQL;
+import graphql.execution.instrumentation.dataloader.DataLoaderDispatcherInstrumentation;
 import graphql.schema.GraphQLSchema;
 import graphql.schema.idl.RuntimeWiring;
 import graphql.schema.idl.SchemaGenerator;
@@ -63,6 +64,7 @@ public class GraphQLFactory {
         .map(registry -> configureQueryType(registry, fetcherProvider))
         .map(GraphQL::newGraphQL)
         .map(builder -> builder.instrumentation(new AuthenticationCheck()))
+        .map(builder -> builder.instrumentation(new DataLoaderDispatcherInstrumentation()))
         .map(GraphQL.Builder::build)
         .orElseThrow();
   }
@@ -117,7 +119,8 @@ public class GraphQLFactory {
                         .dataFetcher("listUserVotesInGroup", votingFetcher::listUserVotesInGroup)
                         .dataFetcher("myProfile", userFetcher::getCurrentUser)
                         .dataFetcher("getVoting", votingFetcher::getVoting)
-                        .dataFetcher("login", securityFetcher::login))
+                        .dataFetcher("login", securityFetcher::login)
+                        .dataFetcher("loginOauth2", securityFetcher::loginOauth2))
             .type(
                 SCHEMA_TYPE_MUTATION,
                 builder ->

@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS users (
   id UUID PRIMARY KEY,
   name varchar(200) NOT NULL,
   email varchar(200) NOT NULL,
-  password varchar(200) NOT NULL,
+  password varchar(200),
   otp varchar(200) NULL
 );
 

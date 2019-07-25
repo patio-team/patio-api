@@ -46,8 +46,8 @@ class ExecutionInputCustomizerTests {
 
     // and: a security service checking and getting a user
     var mockedService = Mockito.mock(SecurityService.class);
-    Mockito.when(mockedService.findUserByToken(Mockito.anyString()))
-        .thenReturn(User.builder().build());
+    Mockito.when(mockedService.resolveUser(Mockito.anyString()))
+        .thenReturn(Optional.of(User.builder().build()));
 
     // when: customizing a given ExecutionInput
     var builder = new ExecutionInputCustomizer(mockedService, new DataLoaderRegistry());

@@ -69,7 +69,7 @@ public class ExecutionInputCustomizer implements GraphQLExecutionInputCustomizer
 
   private Optional<Context> resolveUser(String token) {
     return Optional.of(token)
-        .map(securityService::findUserByToken)
+        .flatMap(securityService::resolveUser)
         .map(
             user -> {
               Context context = new Context();
