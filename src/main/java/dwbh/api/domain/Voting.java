@@ -30,7 +30,7 @@ public final class Voting {
   private UUID id;
   private OffsetDateTime createdAtDateTime;
   private User createdBy;
-  private Group group;
+  private UUID groupId;
   private Integer average;
 
   private Voting() {
@@ -108,23 +108,23 @@ public final class Voting {
   }
 
   /**
-   * Returns the group the voting was created for
+   * Returns the group id the voting was created for
    *
-   * @return the {@link Group} the voting was created for
+   * @return the {@link UUID} the voting was created for
    * @since 0.1.0
    */
-  public Group getGroup() {
-    return group;
+  public UUID getGroupId() {
+    return groupId;
   }
 
   /**
    * Sets the group the voting was created for
    *
-   * @param group the group the voting was created for
+   * @param groupId the group id the voting was created for
    * @since 0.1.0
    */
-  public void setGroup(Group group) {
-    this.group = group;
+  public void setGroupId(UUID groupId) {
+    this.groupId = groupId;
   }
 
   /**

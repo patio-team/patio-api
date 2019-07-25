@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS voting (
   id UUID PRIMARY KEY,
   group_id UUID NOT NULL,
   created_at timestamp with time zone NOT NULL,
-  created_by UUID NOT NULL,
+  created_by UUID,
   average int,
   FOREIGN KEY (created_by) REFERENCES users(id),
   FOREIGN KEY (group_id) REFERENCES groups(id)

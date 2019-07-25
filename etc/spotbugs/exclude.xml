@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <!--
 
     Copyright (C) 2019 Kaleidos Open Source SL
@@ -17,20 +18,15 @@
     along with DWBH.  If not, see <https://www.gnu.org/licenses/>
 
 -->
-<configuration>
-
-    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
-        <!-- encoders are assigned the type
-             ch.qos.logback.classic.encoder.PatternLayoutEncoder by default -->
-        <encoder>
-            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
-        </encoder>
-    </appender>
-
-    <logger name="org.jooq.tools.LoggerListener" level="INFO"/>
-    <logger name="dwbh.api" level="INFO" />
-
-    <root level="info">
-        <appender-ref ref="STDOUT"/>
-    </root>
-</configuration>
+<FindBugsFilter
+    xmlns="https://github.com/spotbugs/filter/3.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="https://github.com/spotbugs/filter/3.0.0 https://raw.githubusercontent.com/spotbugs/spotbugs/3.1.0/spotbugs/etc/findbugsfilter.xsd">
+    <Match>
+        <Not>
+            <!-- A Class method annotated with @Scheduled produces a class ending -->
+            <!-- with XXXDefinition and a nested class with lowerCase name -->
+            <Class name="dwbh.api.services.internal.VotingSchedulingServiceDefinition"/>
+        </Not>
+    </Match>
+</FindBugsFilter>

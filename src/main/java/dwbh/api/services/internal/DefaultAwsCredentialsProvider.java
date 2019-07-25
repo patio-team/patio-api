@@ -41,8 +41,8 @@ public class DefaultAwsCredentialsProvider implements AWSCredentialsProvider {
    * @since 0.1.0
    */
   public DefaultAwsCredentialsProvider(
-      @Value("${aws.accessKey:none}") String awsAccessKey,
-      @Value("${aws.secretKey:none}") String awsSecretKey) {
+      @Value("${aws.credentials.accesskey:none}") String awsAccessKey,
+      @Value("${aws.credentials.secretkey:none}") String awsSecretKey) {
     this.accessKey = awsAccessKey;
     this.secretKey = awsSecretKey;
   }

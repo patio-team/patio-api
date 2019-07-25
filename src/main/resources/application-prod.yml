@@ -16,9 +16,15 @@
 # along with DWBH.  If not, see <https://www.gnu.org/licenses/>
 #
 
+locale: ${DWBH_LOCALE}
+
 micronaut:
   application:
     name: dwbh-api
+  executors:
+    scheduled:
+      type: scheduled
+      core-pool-size: 10
 
 datasources:
   default:
@@ -38,13 +44,27 @@ graphql:
   path: /graphql
 
 aws:
-  sourceemail: ${DWBH_AWS_SOURCE_EMAIL}
-  region: ${DWBH_AWS_REGION}
-  accessKey: ${DWBH_ACCESS_KEY}
-  secretKey: ${DWBH_SECRET_KEY}
+  credentials:
+    accessKey: ${DWBH_AWS_ACCESS_KEY}
+    secretKey: ${DWBH_AWS_SECRET_KEY}
+  mail:
+    sourceemail: ${DWBH_AWS_EMAIL_SOURCE}
+    region: ${DWBH_AWS_EMAIL_REGION}
+    enabled: ${DWBH_AWS_EMAIL_ENABLED}
 
 crypto:
   password: SHA-256
   jwt:
     secret: ${DWBH_JWT_SECRET}
     days: ${DWBH_JWT_DAYS}
+    algorithm: ${DWBH_JWT_ALGO}
+    issuer: ${DWBH_JWT_ISSUER}
+
+# to resolve application links (e.g. mails)
+urlresolver:
+  host: https://mydomain.com
+
+templates:
+  cached: false
+  encoding: UTF-8
+  path: /templates

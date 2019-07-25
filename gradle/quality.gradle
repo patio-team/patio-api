@@ -81,6 +81,7 @@ spotbugs {
 spotbugsMain {
     reports.xml.enabled = false
     reports.html.enabled = true
+    excludeFilter = file("$rootProject.projectDir/etc/spotbugs/exclude.xml")
 }
 
 /**

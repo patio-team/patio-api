@@ -16,6 +16,6 @@
 -- along with DWBH.  If not, see <https://www.gnu.org/licenses/>
 --
 
-INSERT INTO groups (id, name, voting_time, voting_days) VALUES ('d64db962-3455-11e9-b210-d663bd873d93','Fantastic Four', time with time zone '14:48:12.146512+01:00', '{"MONDAY"}');
+INSERT INTO groups (id, name, voting_time, voting_days) VALUES ('d64db962-3455-11e9-b210-d663bd873d93','Fantastic Four', time with time zone '14:48:12.146512+02:00', '{"MONDAY"}');
 INSERT INTO users (id, name, email, password, otp) VALUES ('486590a3-fcc1-4657-a9ed-5f0f95dadea6','Sue Storm', 'sstorm@email.com', 'password', '');
 INSERT INTO voting (id, group_id, created_at, created_by) VALUES ('ffad4562-4971-11e9-98cd-d663bd873d93', 'd64db962-3455-11e9-b210-d663bd873d93', '2019-01-20', '486590a3-fcc1-4657-a9ed-5f0f95dadea6');
