@@ -63,4 +63,15 @@ public class UserService {
   public User getUser(UUID id) {
     return userRepository.getUser(id);
   }
+
+  /**
+   * Listing users by their ids. It's mainly used for batching purposes in GraphQL calls
+   *
+   * @param ids {@link User}s ids
+   * @return a list of {@link User} instances
+   * @since 0.1.0
+   */
+  public List<User> listUsersByIds(List<UUID> ids) {
+    return userRepository.listUsersByIds(ids);
+  }
 }

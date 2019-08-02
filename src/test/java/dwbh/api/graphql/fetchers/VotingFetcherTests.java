@@ -23,6 +23,7 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyListOf;
 
 import dwbh.api.domain.Group;
 import dwbh.api.domain.User;
@@ -31,17 +32,26 @@ import dwbh.api.domain.Voting;
 import dwbh.api.domain.input.CreateVoteInput;
 import dwbh.api.domain.input.CreateVotingInput;
 import dwbh.api.domain.input.ListVotingsGroupInput;
+import dwbh.api.graphql.dataloader.DataLoaderRegistryFactory;
+import dwbh.api.graphql.dataloader.UserBatchLoader;
 import dwbh.api.graphql.fetchers.utils.FetcherTestUtils;
+import dwbh.api.services.UserService;
 import dwbh.api.services.VotingService;
 import dwbh.api.util.Result;
 import graphql.execution.DataFetcherResult;
+import graphql.schema.DataFetchingEnvironment;
+import io.micronaut.core.async.publisher.Publishers;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import org.dataloader.DataLoader;
+import org.dataloader.DataLoaderOptions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import reactor.test.StepVerifier;
 
 /**
  * Tests {@link VotingFetcher} class
@@ -214,5 +224,39 @@ class VotingFetcherTests {
 
     // then: check certain assertions should be met
     assertThat("the votes are found", result.getData(), is(votes));
+  }
+
+  @Test
+  void testGetVoteCreatedBy() {
+    // given: a mocked user service
+    User randomUser = random(User.class);
+    UserService mockedService = Mockito.mock(UserService.class);
+    Mockito.when(mockedService.listUsersByIds(anyListOf(UUID.class)))
+        .thenReturn(List.of(randomUser));
+
+    // and: a mocked environment
+    Vote vote = Vote.newBuilder().with(v -> v.setCreatedBy(randomUser)).build();
+    DataLoader<UUID, User> dataLoader =
+        DataLoader.newDataLoader(
+            new UserBatchLoader(mockedService),
+            // IMPORTANT! for testing setBatchingEnabled(false) otherwise
+            // data loader execution won't complete
+            DataLoaderOptions.newOptions().setBatchingEnabled(false));
+
+    DataFetchingEnvironment mockedEnvironment =
+        FetcherTestUtils.create()
+            .dataLoader(DataLoaderRegistryFactory.DL_USERS_BY_IDS, dataLoader)
+            .source(vote)
+            .build();
+
+    // when: retrieving a user by using the data loader
+    VotingFetcher fetcher = new VotingFetcher(null);
+    CompletableFuture<User> completableFuture = fetcher.getVoteCreatedBy(mockedEnvironment);
+
+    // then: we should get the expected user
+    StepVerifier.create(Publishers.fromCompletableFuture(completableFuture))
+        .expectNextMatches(user -> user.getId().equals(randomUser.getId()))
+        .expectComplete()
+        .verify();
   }
 }

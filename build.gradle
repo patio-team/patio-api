@@ -46,7 +46,7 @@ dependencies {
     compile "io.micronaut:micronaut-runtime"
     compile "io.micronaut:micronaut-http-client"
     compile "io.micronaut:micronaut-http-server-netty"
-    compile "io.micronaut.graphql:micronaut-graphql:1.0.0.RC1"
+    compile "io.micronaut.graphql:micronaut-graphql:1.1.0"
     compileOnly "io.micronaut:micronaut-inject-java"
     runtime "ch.qos.logback:logback-classic:1.2.3"
 
@@ -75,6 +75,7 @@ dependencies {
     testCompile "org.testcontainers:junit-jupiter:1.10.6"
     testCompile "org.testcontainers:postgresql:1.10.6"
     testCompile 'io.github.benas:random-beans:3.7.0'
+    testCompile 'io.projectreactor:reactor-test:3.2.11.RELEASE'
 
     testAnnotationProcessor "io.micronaut:micronaut-inject-java"
     testAnnotationProcessor "io.micronaut:micronaut-validation"

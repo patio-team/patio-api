@@ -35,7 +35,7 @@ import org.mockito.Mockito;
  *
  * @since 0.1.0
  */
-class UserFetcherTests {
+public class UserFetcherTests {
 
   @Test
   void testListUsers() {

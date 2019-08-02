@@ -18,15 +18,21 @@
 package dwbh.api.graphql.fetchers;
 
 import dwbh.api.domain.Group;
+import dwbh.api.domain.User;
 import dwbh.api.domain.Vote;
 import dwbh.api.domain.Voting;
 import dwbh.api.domain.input.*;
 import dwbh.api.graphql.ResultUtils;
+import dwbh.api.graphql.dataloader.DataLoaderRegistryFactory;
 import dwbh.api.services.VotingService;
 import graphql.execution.DataFetcherResult;
 import graphql.schema.DataFetchingEnvironment;
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import javax.inject.Singleton;
+import org.dataloader.DataLoader;
 
 /**
  * All related GraphQL operations over the {@link Group} domain
@@ -125,5 +131,23 @@ public class VotingFetcher {
   public DataFetcherResult<List<Vote>> listUserVotesInGroup(DataFetchingEnvironment env) {
     UserVotesInGroupInput input = VotingFetcherUtils.userVotesInput(env);
     return ResultUtils.render(service.listUserVotesInGroup(input));
+  }
+
+  /**
+   * Fetches the {@link User} who created a given vote
+   *
+   * @param env GraphQL execution environment
+   * @return the user who matches the createdBy id from a given {@link Vote}
+   * @since 0.1.0
+   */
+  public CompletableFuture<User> getVoteCreatedBy(DataFetchingEnvironment env) {
+    Vote vote = env.getSource();
+    DataLoader<UUID, User> userDataLoader =
+        env.getDataLoader(DataLoaderRegistryFactory.DL_USERS_BY_IDS);
+
+    return Optional.ofNullable(vote.getCreatedBy())
+        .map(User::getId)
+        .map(userDataLoader::load)
+        .orElse(null);
   }
 }

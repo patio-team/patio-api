@@ -39,12 +39,14 @@ type UserProfile {
     id: ID
     name: String
     email: String
+    hash: String
     groups: [Group]
 }
 
 type User {
     id: ID
     name: String
+    hash: String
 }
 
 type Voting {

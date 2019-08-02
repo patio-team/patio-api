@@ -18,6 +18,7 @@
 package dwbh.api.repositories.internal;
 
 import dwbh.api.domain.Group;
+import dwbh.api.domain.User;
 import dwbh.api.domain.Vote;
 import dwbh.api.domain.Voting;
 import dwbh.api.repositories.VotingRepository;
@@ -97,6 +98,7 @@ public class JooqVotingRepository implements VotingRepository {
             .returning(
                 VotingTableHelper.VOTING_ID,
                 VoteTableHelper.CREATED_AT,
+                VoteTableHelper.CREATED_BY_ID,
                 VoteTableHelper.COMMENT,
                 VoteTableHelper.SCORE)
             .fetchOne();
@@ -243,6 +245,12 @@ public class JooqVotingRepository implements VotingRepository {
     return Vote.newBuilder()
         .with(vote -> vote.setId(record.get(VoteTableHelper.VOTE_ID)))
         .with(vote -> vote.setCreatedAtDateTime(record.get(VoteTableHelper.CREATED_AT)))
+        .with(
+            vote ->
+                vote.setCreatedBy(
+                    User.builder()
+                        .with(u -> u.setId(record.get(VoteTableHelper.CREATED_BY_ID)))
+                        .build()))
         .with(vote -> vote.setComment(record.get(VoteTableHelper.COMMENT)))
         .with(vote -> vote.setScore(record.get(VoteTableHelper.SCORE)))
         .build();
@@ -263,6 +271,7 @@ public class JooqVotingRepository implements VotingRepository {
         .select(
             DSL.field("vote.id", UUID.class).as("id"),
             DSL.field("vote.created_at", OffsetDateTime.class).as("created_at"),
+            DSL.field("vote.created_by", UUID.class).as("created_by"),
             DSL.field(VoteTableHelper.COMMENT),
             DSL.field(VoteTableHelper.SCORE))
         .from(TablesHelper.VOTE_TABLE)

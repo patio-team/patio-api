@@ -18,7 +18,9 @@
 package dwbh.api.domain;
 
 import dwbh.api.util.Builder;
+import java.util.Optional;
 import java.util.UUID;
+import org.apache.commons.codec.digest.DigestUtils;
 
 /**
  * Represents the users of dwbh
@@ -125,6 +127,20 @@ public final class User {
    */
   public UUID getId() {
     return id;
+  }
+
+  /**
+   * Generates a user's md5 hash which can be used for third party services such as Gravatar.
+   *
+   * @return gets a md5 hash from the user's email
+   * @since 0.1.0
+   */
+  public String getHash() {
+    return Optional.ofNullable(this.email)
+        .map(String::trim)
+        .map(String::toLowerCase)
+        .map(DigestUtils::md5Hex)
+        .orElse("");
   }
 
   /**

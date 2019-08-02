@@ -17,20 +17,26 @@
  */
 package dwbh.api.graphql;
 
-import dwbh.api.domain.User;
 import dwbh.api.services.SecurityService;
-import io.micronaut.configuration.graphql.GraphQLContextBuilder;
+import graphql.ExecutionInput;
+import io.micronaut.configuration.graphql.GraphQLExecutionInputCustomizer;
+import io.micronaut.context.annotation.Primary;
+import io.micronaut.core.async.publisher.Publishers;
 import io.micronaut.http.HttpRequest;
 import java.util.Optional;
 import javax.inject.Singleton;
+import org.dataloader.DataLoaderRegistry;
+import org.reactivestreams.Publisher;
 
 /**
- * Resolves {@link User} from the content of the authorization header
+ * Customizes {@link ExecutionInput} by adding information about security (e.g. authenticated user)
+ * and registered data loaders (e.g. required for proper batching)
  *
  * @since 0.1.0
  */
+@Primary
 @Singleton
-public class ContextBuilder implements GraphQLContextBuilder {
+public class ExecutionInputCustomizer implements GraphQLExecutionInputCustomizer {
 
   private static final String JWT_PREFIX = "JWT ";
   private static final String EMPTY = "";
@@ -41,24 +47,20 @@ public class ContextBuilder implements GraphQLContextBuilder {
    * @since 0.1.0
    */
   private final transient SecurityService securityService;
+
+  private final transient DataLoaderRegistry dataLoaderRegistry;
+
   /**
-   * Initializes the builder with the security service
+   * Initializes the execution input customizer with security and data loading information
    *
-   * @param securityService service responsible to check security constraints
+   * @param securityService required to inject authenticated user information to context
+   * @param dataLoaderRegistry required to access registered data loaders
    * @since 0.1.0
    */
-  public ContextBuilder(SecurityService securityService) {
+  public ExecutionInputCustomizer(
+      SecurityService securityService, DataLoaderRegistry dataLoaderRegistry) {
     this.securityService = securityService;
-  }
-
-  @Override
-  public Object build(HttpRequest httpRequest) {
-    return httpRequest
-        .getHeaders()
-        .getAuthorization()
-        .flatMap(this::extractToken)
-        .flatMap(this::resolveUser)
-        .orElseGet(Context::new);
+    this.dataLoaderRegistry = dataLoaderRegistry;
   }
 
   private Optional<String> extractToken(String authorization) {
@@ -74,5 +76,28 @@ public class ContextBuilder implements GraphQLContextBuilder {
               context.setAuthenticatedUser(user);
               return context;
             });
+  }
+
+  @Override
+  public Publisher<ExecutionInput> customize(
+      ExecutionInput executionInput, HttpRequest httpRequest) {
+    Context context =
+        httpRequest
+            .getHeaders()
+            .getAuthorization()
+            .flatMap(this::extractToken)
+            .flatMap(this::resolveUser)
+            .orElseGet(Context::new);
+
+    ExecutionInput input =
+        ExecutionInput.newExecutionInput()
+            .context(context)
+            .query(executionInput.getQuery())
+            .operationName(executionInput.getOperationName())
+            .variables(executionInput.getVariables())
+            .dataLoaderRegistry(this.dataLoaderRegistry)
+            .build();
+
+    return Publishers.just(input);
   }
 }
