@@ -20,9 +20,16 @@ package dwbh.api.graphql.fetchers.utils;
 import dwbh.api.domain.User;
 import dwbh.api.graphql.Context;
 import graphql.schema.DataFetchingEnvironment;
+import java.util.HashMap;
 import java.util.Map;
+import org.dataloader.DataLoader;
 import org.mockito.Mockito;
 
+/**
+ * Contains functions that may be of some help when dealing with data fetchers
+ *
+ * @since 0.1.0
+ */
 public abstract class FetcherTestUtils {
 
   /**
@@ -52,5 +59,108 @@ public abstract class FetcherTestUtils {
     arguments.forEach((k, v) -> Mockito.when(mockedEnvironment.getArgument(k)).thenReturn(v));
 
     return mockedEnvironment;
+  }
+
+  /**
+   * Creates an instance of {@link MockedEnvironmentBuilder} to build an instance of {@link
+   * DataFetchingEnvironment}
+   *
+   * @return an instance of {@link MockedEnvironmentBuilder}
+   * @since 0.1.0
+   */
+  public static MockedEnvironmentBuilder create() {
+    return new MockedEnvironmentBuilder();
+  }
+
+  /**
+   * Builds an instance of {@link DataFetchingEnvironment}
+   *
+   * @since 0.1.0
+   */
+  public static class MockedEnvironmentBuilder {
+
+    private User authenticatedUser;
+    private DataFetchingEnvironment environment = Mockito.mock(DataFetchingEnvironment.class);
+    private Object source;
+    private Map<String, DataLoader> dataLoaderMap = new HashMap<>();
+    private Map<String, Object> arguments = new HashMap<>();
+
+    /**
+     * Adds an authenticated user to the GraphQL context
+     *
+     * @param user instance of {@link User}
+     * @return the current builder instance
+     * @since 0.1.0
+     */
+    public MockedEnvironmentBuilder authenticatedUser(User user) {
+      this.authenticatedUser = user;
+      return this;
+    }
+
+    /**
+     * Adds a new {@link DataLoader} to the GraphQL environment by a key
+     *
+     * @param key to be able to locate the data loader afterwards
+     * @param dataLoader instance of {@link DataLoader}
+     * @return the current builder instance
+     * @since 0.1.0
+     */
+    public MockedEnvironmentBuilder dataLoader(String key, DataLoader dataLoader) {
+      this.dataLoaderMap.put(key, dataLoader);
+      return this;
+    }
+
+    /**
+     * Adds a query's argument value
+     *
+     * @param key to be able to locate the argument afterwards
+     * @param value argument's value
+     * @return the current builder instance
+     * @since 0.1.0
+     */
+    public MockedEnvironmentBuilder argument(String key, Object value) {
+      this.arguments.put(key, value);
+      return this;
+    }
+
+    /**
+     * Adds a fetch environment source
+     *
+     * @param source instance of the source object
+     * @return the current builder instance
+     * @since 0.1.0
+     */
+    public MockedEnvironmentBuilder source(Object source) {
+      this.source = source;
+      return this;
+    }
+
+    /**
+     * Returns the {@link DataFetchingEnvironment} instance built
+     *
+     * @return an instance of {@link DataFetchingEnvironment}
+     * @since 0.1.0
+     */
+    public DataFetchingEnvironment build() {
+      // and a mocked context
+      var mockedContext = Mockito.mock(Context.class);
+
+      // mocking context behavior to return the authenticatedUser
+      Mockito.when(mockedContext.getAuthenticatedUser()).thenReturn(authenticatedUser);
+
+      // mocking environment behavior to return the context
+      Mockito.when(environment.getContext()).thenReturn(mockedContext);
+
+      // mocking environment behavior to return the arguments
+      arguments.forEach((k, v) -> Mockito.when(environment.getArgument(k)).thenReturn(v));
+
+      // mocking environment source
+      Mockito.when(environment.getSource()).thenReturn(this.source);
+
+      // mocking data loaders retrieval
+      dataLoaderMap.forEach((k, v) -> Mockito.when(environment.getDataLoader(k)).thenReturn(v));
+
+      return environment;
+    }
   }
 }

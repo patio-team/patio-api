@@ -40,7 +40,8 @@ public class AuthenticationCheckTests {
   @Test
   void testQueryAllowedBecauseDirective() {
     // when: executing a query with no context (therefore with no user)
-    var input = ExecutionInput.newExecutionInput().query("{ sayHi }").context(null).build();
+    var input =
+        ExecutionInput.newExecutionInput().query("{ sayHi }").context((Object) null).build();
     var result = createGraphQL().execute(input);
     Map<String, ?> payload = result.getData();
 
@@ -66,7 +67,11 @@ public class AuthenticationCheckTests {
   @Test
   void testQueryForbiddenBecauseMissingUser() {
     // when: executing a query with no context user
-    var input = ExecutionInput.newExecutionInput().query("{ sayHiAuthenticated }").build();
+    var input =
+        ExecutionInput.newExecutionInput()
+            .context((Object) null)
+            .query("{ sayHiAuthenticated }")
+            .build();
     var result = createGraphQL().execute(input);
     var errors = result.getErrors();
     var badCredentials = errors.get(0);

@@ -17,26 +17,26 @@
  */
 package dwbh.api.graphql;
 
-import static junit.framework.TestCase.assertNotNull;
-import static junit.framework.TestCase.assertNull;
-
 import dwbh.api.domain.User;
 import dwbh.api.services.SecurityService;
+import graphql.ExecutionInput;
 import io.micronaut.http.HttpHeaders;
 import io.micronaut.http.HttpRequest;
 import java.util.Optional;
+import org.dataloader.DataLoaderRegistry;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import reactor.test.StepVerifier;
 
 /**
  * Tests the creation of the GraphQL {@link Context}
  *
  * @since 0.1.0
  */
-class ContextBuilderTests {
+class ExecutionInputCustomizerTests {
 
   @Test
-  void testCreateContextWithUser() {
+  void testCustomizeExecutionInputWithUser() {
     // given: a request authorization header
     var httpRequest = Mockito.mock(HttpRequest.class);
     var httpHeaders = Mockito.mock(HttpHeaders.class);
@@ -49,16 +49,25 @@ class ContextBuilderTests {
     Mockito.when(mockedService.findUserByToken(Mockito.anyString()))
         .thenReturn(User.builder().build());
 
-    // when: building a context from a given token
-    var builder = new ContextBuilder(mockedService);
-    var context = (Context) builder.build(httpRequest);
+    // when: customizing a given ExecutionInput
+    var builder = new ExecutionInputCustomizer(mockedService, new DataLoaderRegistry());
+    var sourceExecutionInput = ExecutionInput.newExecutionInput().build();
+    var customizedExecutionInput = builder.customize(sourceExecutionInput, httpRequest);
 
     // then: it should be able to build a context with a user
-    assertNotNull("context should contain a user", context.getAuthenticatedUser());
+    StepVerifier.create(customizedExecutionInput)
+        .expectNextMatches(
+            executionInput -> {
+              Context context = (Context) executionInput.getContext();
+
+              return context.getAuthenticatedUser() != null;
+            })
+        .expectComplete()
+        .verify();
   }
 
   @Test
-  void testCreateContextWithNoToken() {
+  void testCustomizeExecutionInputWithNoToken() {
     // given: a request authorization header with NO TOKEN
     var httpRequest = Mockito.mock(HttpRequest.class);
     var httpHeaders = Mockito.mock(HttpHeaders.class);
@@ -67,10 +76,19 @@ class ContextBuilderTests {
     Mockito.when(httpHeaders.getAuthorization()).thenReturn(Optional.empty());
 
     // and: a builder with no service (no necessary)
-    var builder = new ContextBuilder(null);
-    var context = (Context) builder.build(httpRequest);
+    var builder = new ExecutionInputCustomizer(null, new DataLoaderRegistry());
+    var sourceExecutionInput = ExecutionInput.newExecutionInput().build();
+    var customizedExecutionInput = builder.customize(sourceExecutionInput, httpRequest);
 
-    // then: it should be able to build a context with a user
-    assertNull("context should contain a user", context.getAuthenticatedUser());
+    // then: it should be able to build a context with no user
+    StepVerifier.create(customizedExecutionInput)
+        .expectNextMatches(
+            executionInput -> {
+              Context context = (Context) executionInput.getContext();
+
+              return context.getAuthenticatedUser() == null;
+            })
+        .expectComplete()
+        .verify();
   }
 }

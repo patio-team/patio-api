@@ -57,6 +57,20 @@ public class UserRepository {
   }
 
   /**
+   * Retrieves all {@link User} instances matching the ids passed as parameter
+   *
+   * @param ids {@link User} ids
+   * @return {@link User} instances matching ids passed as parameter
+   * @since 0.1.0
+   */
+  public List<User> listUsersByIds(List<UUID> ids) {
+    return context
+        .selectFrom(TablesHelper.USERS_TABLE)
+        .where(UsersTableHelper.ID.in(ids.toArray(new UUID[0])))
+        .fetch(UserRepository::toUser);
+  }
+
+  /**
    * Get a specific user
    *
    * @param userId user identifier

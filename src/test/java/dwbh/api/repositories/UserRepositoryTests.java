@@ -17,6 +17,8 @@
  */
 package dwbh.api.repositories;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.contains;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import dwbh.api.domain.User;
@@ -24,6 +26,7 @@ import dwbh.api.fixtures.Fixtures;
 import io.micronaut.test.annotation.MicronautTest;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import javax.inject.Inject;
 import org.flywaydb.core.Flyway;
 import org.junit.jupiter.api.AfterEach;
@@ -72,6 +75,26 @@ class UserRepositoryTests {
 
     // then: check there're the expected number of users
     assertEquals(userList.size(), 5);
+  }
+
+  @Test
+  void testListUsersByIds() {
+    // given: a pre-loaded fixtures
+    fixtures.load(UserRepositoryTests.class, "testListUsersByIds.sql");
+
+    // and: two selected user ids
+    UUID sue = UUID.fromString("486590a3-fcc1-4657-a9ed-5f0f95dadea6");
+    UUID tony = UUID.fromString("3465094c-5545-4007-a7bc-da2b1a88d9dc");
+
+    // when: asking for the list of specific users
+    List<User> userList = repository.listUsersByIds(List.of(sue, tony));
+
+    // then: check there're the expected number of users
+    assertEquals(userList.size(), 2);
+
+    // and: list of users contains both selected user ids
+    assertThat(
+        userList.stream().map(User::getId).collect(Collectors.toList()), contains(sue, tony));
   }
 
   @Test

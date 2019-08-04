@@ -22,9 +22,11 @@ import static io.github.benas.randombeans.api.EnhancedRandom.randomListOf;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyListOf;
 
 import dwbh.api.domain.User;
 import dwbh.api.repositories.UserRepository;
+import java.util.List;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -48,6 +50,21 @@ public class UserServiceTests {
 
     // then: we should build the expected number of users
     assertEquals(4, userList.size());
+  }
+
+  @Test
+  void testListUsersByIds() {
+    // given: a mocked user repository
+    var userRepository = Mockito.mock(UserRepository.class);
+    Mockito.when(userRepository.listUsersByIds(anyListOf(UUID.class)))
+        .thenReturn(randomListOf(1, User.class));
+
+    // when: invoking service listUsersByIds with some ids()
+    var userService = new UserService(userRepository);
+    var userList = userService.listUsersByIds(List.of(UUID.randomUUID()));
+
+    // then: we should build the expected number of users
+    assertEquals(1, userList.size());
   }
 
   @Test
