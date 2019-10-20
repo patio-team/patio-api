@@ -146,4 +146,12 @@ public interface VotingRepository {
    */
   List<Vote> listUserVotesInGroup(
       UUID userId, UUID groupId, OffsetDateTime startDateTime, OffsetDateTime endDateTime);
+
+  /**
+   * Fetches groups having voting scheduled for today which haven't voted today already
+   *
+   * @return a list of {@link UUID} of groups that have to vote yet
+   * @since 0.1.0
+   */
+  List<UUID> listGroupsToCreateVotingFrom();
 }

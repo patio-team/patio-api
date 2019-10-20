@@ -49,21 +49,26 @@ public class AwsSesMailService implements EmailService {
 
   private final String sourceEmail;
 
+  private final boolean emailEnabled;
+
   private final AWSCredentialsProvider credentialsProvider;
 
   /**
    * Initializes email service
    *
    * @param credentialsProvider authentication credentials
+   * @param emailEnabled whether sending emails should be enabled or not
    * @param awsRegion aws region
    * @param sourceEmail source email
    * @since 0.1.0
    */
   public AwsSesMailService(
       AWSCredentialsProvider credentialsProvider,
-      @Value("${aws.region:none}") String awsRegion,
-      @Value("${aws.sourceEmail:none}") String sourceEmail) {
+      @Value("${aws.mail.enabled}") boolean emailEnabled,
+      @Value("${aws.mail.region:none}") String awsRegion,
+      @Value("${aws.mail.sourceemail:none}") String sourceEmail) {
     this.credentialsProvider = credentialsProvider;
+    this.emailEnabled = emailEnabled;
     this.awsRegion = awsRegion;
     this.sourceEmail = sourceEmail;
   }
@@ -82,6 +87,14 @@ public class AwsSesMailService implements EmailService {
 
   @Override
   public void send(Email email) {
+    if (this.emailEnabled) {
+      sendEmail(email);
+    } else {
+      LOG.info("Sending email is disabled");
+    }
+  }
+
+  private void sendEmail(Email email) {
     Destination destination = new Destination().withToAddresses(email.getRecipient());
     if (email.getCc() != null) {
       destination = destination.withCcAddresses(email.getCc());

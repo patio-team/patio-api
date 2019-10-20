@@ -423,4 +423,17 @@ public class JooqVotingRepositoryTests {
             OffsetDateTime.parse("2019-01-20T00:00:00Z"),
             0));
   }
+
+  @Test
+  @DisplayName("List groups that require to create a voting for")
+  void testListGroupsToCreateVotingFrom() {
+    // setup: loading fixtures
+    fixtures.load(JooqVotingRepositoryTests.class, "listGroupsToCreateVotingFront.sql");
+
+    // when: listing groups eligible for voting now
+    List<UUID> groupsToCreateVoting = repository.listGroupsToCreateVotingFrom();
+
+    // then: we should get the expected number of votings
+    assertEquals(1, groupsToCreateVoting.size());
+  }
 }

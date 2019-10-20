@@ -17,6 +17,9 @@
  */
 package dwbh.api.repositories.internal;
 
+import static dwbh.api.util.TimeUtils.tomorrowFrom;
+import static dwbh.api.util.TimeUtils.yesterdayFrom;
+
 import dwbh.api.domain.Group;
 import dwbh.api.domain.User;
 import dwbh.api.domain.Vote;
@@ -27,11 +30,13 @@ import dwbh.api.repositories.internal.TablesHelper.VoteTableHelper;
 import dwbh.api.repositories.internal.TablesHelper.VotingTableHelper;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.DayOfWeek;
 import java.time.OffsetDateTime;
 import java.time.OffsetTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import javax.inject.Singleton;
 import org.jooq.*;
 import org.jooq.impl.DSL;
@@ -71,6 +76,7 @@ public class JooqVotingRepository implements VotingRepository {
                 VotingTableHelper.CREATED_AT)
             .values(id, groupId, createdBy, when)
             .returning(
+                VotingTableHelper.GROUP_ID,
                 VotingTableHelper.VOTING_ID,
                 VotingTableHelper.CREATED_AT,
                 VotingTableHelper.AVERAGE)
@@ -191,11 +197,14 @@ public class JooqVotingRepository implements VotingRepository {
       UUID groupId, OffsetDateTime startDate, OffsetDateTime endDate) {
     return context
         .select(
-            VotingTableHelper.VOTING_ID, VotingTableHelper.CREATED_AT, VotingTableHelper.AVERAGE)
-        .from(TablesHelper.VOTING_TABLE)
-        .where(VotingTableHelper.GROUP_ID.eq(groupId))
-        .and(VotingTableHelper.CREATED_AT.between(startDate, endDate))
-        .fetch(JooqVotingRepository::toVoting);
+            VotingTableHelper.VOTING_ID,
+            VotingTableHelper.CREATED_AT,
+            VotingTableHelper.AVERAGE,
+            VotingTableHelper.GROUP_ID)
+        .from(TablesHelper.VOTING_TABLE).where(VotingTableHelper.GROUP_ID.eq(groupId))
+        .and(VotingTableHelper.CREATED_AT.between(startDate, endDate)).fetch().stream()
+        .map(JooqVotingRepository::toVoting)
+        .collect(Collectors.toList());
   }
 
   private static boolean hasExpired(OffsetDateTime createdAt) {
@@ -212,7 +221,8 @@ public class JooqVotingRepository implements VotingRepository {
             .returning(
                 VotingTableHelper.VOTING_ID,
                 VotingTableHelper.CREATED_AT,
-                VotingTableHelper.AVERAGE)
+                VotingTableHelper.AVERAGE,
+                VotingTableHelper.GROUP_ID)
             .fetchOne();
 
     return toVoting(record);
@@ -238,6 +248,7 @@ public class JooqVotingRepository implements VotingRepository {
         .with(voting -> voting.setId(record.get(VotingTableHelper.VOTING_ID)))
         .with(voting -> voting.setCreatedAtDateTime(record.get(VotingTableHelper.CREATED_AT)))
         .with(voting -> voting.setAverage(record.get(VotingTableHelper.AVERAGE)))
+        .with(voting -> voting.setGroupId(record.get(VotingTableHelper.GROUP_ID)))
         .build();
   }
 
@@ -281,5 +292,36 @@ public class JooqVotingRepository implements VotingRepository {
         .and(VotingTableHelper.GROUP_ID.eq(groupId))
         .and(DSL.field("vote.created_at").between(startDateTime, endDateTime))
         .fetch(JooqVotingRepository::toVote);
+  }
+
+  @Override
+  public List<UUID> listGroupsToCreateVotingFrom() {
+    OffsetDateTime now = OffsetDateTime.now();
+    DayOfWeek dayOfWeek = now.getDayOfWeek();
+    OffsetTime votingTime = now.toOffsetTime();
+
+    var votingIsEligible =
+        GroupsTableHelper.DAYS_OF_WEEK
+            .contains(new String[] {dayOfWeek.toString()})
+            .and(GroupsTableHelper.TIME.lessOrEqual(votingTime));
+
+    var todayGroups =
+        context
+            .select(GroupsTableHelper.ID)
+            .from(TablesHelper.GROUPS_TABLE)
+            .where(votingIsEligible);
+
+    var happenedToday =
+        VotingTableHelper.CREATED_AT.between(yesterdayFrom(now, true), tomorrowFrom(now, true));
+
+    var todayVotings =
+        context
+            .select(VotingTableHelper.GROUP_ID)
+            .from(TablesHelper.VOTING_TABLE)
+            .where(happenedToday);
+
+    return todayGroups.exceptAll(todayVotings).stream()
+        .map(record -> record.get(GroupsTableHelper.ID))
+        .collect(Collectors.toList());
   }
 }

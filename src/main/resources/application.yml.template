@@ -16,6 +16,8 @@
 # along with DWBH.  If not, see <https://www.gnu.org/licenses/>
 #
 
+locale: en
+
 micronaut:
   application:
     name: dwbh-api
@@ -41,12 +43,26 @@ graphql:
   path: /graphql
 
 aws:
-  sourceemail: noreply@dwbh.com
-  region: eu-west-1
-  accessKey: XXX
-  secretKey: YYY
+  credentials:
+    accessKey: XXX
+    secretKey: YYY
+  mail:
+    enabled: false
+    sourceemail: noreply@dwbh.com
+    region: eu-west-1
 
 crypto:
   jwt:
-    secret: mysupersecret
+    secret: secret
     days: 7
+    algorithm: HS256
+    issuer: http://localhost:8000/auth/realms/dwbh
+
+# to resolve application links (e.g. mails)
+urlresolver:
+  host: https://mydomain.com
+
+templates:
+  cached: false
+  encoding: UTF-8
+  path: /templates
