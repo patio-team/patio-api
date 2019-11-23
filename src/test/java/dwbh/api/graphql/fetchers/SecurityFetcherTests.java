@@ -26,6 +26,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 
 import dwbh.api.domain.Login;
+import dwbh.api.domain.input.LoginInput;
 import dwbh.api.graphql.I18nGraphQLError;
 import dwbh.api.services.SecurityService;
 import dwbh.api.util.Result;
@@ -44,7 +45,8 @@ public class SecurityFetcherTests {
   void testLoginSuccess() {
     // given: mocking service SUCCESSFUL call
     var securityService = Mockito.mock(SecurityService.class);
-    Mockito.when(securityService.login(any())).thenReturn(Result.result(random(Login.class)));
+    Mockito.when(securityService.login(any(LoginInput.class)))
+        .thenReturn(Result.result(random(Login.class)));
 
     // when: the fetcher is invoked for login query
     var securityFetcher = new SecurityFetcher(securityService);
@@ -66,7 +68,8 @@ public class SecurityFetcherTests {
 
     // and: mocking service FAILING call
     var securityService = Mockito.mock(SecurityService.class);
-    Mockito.when(securityService.login(any())).thenReturn(Result.error(code, message));
+    Mockito.when(securityService.login(any(LoginInput.class)))
+        .thenReturn(Result.error(code, message));
 
     // when: the fetcher is invoked for login query
     var securityFetcher = new SecurityFetcher(securityService);

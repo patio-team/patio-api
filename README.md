@@ -124,12 +124,137 @@ This project uses [Spotbugs](https://github.com/spotbugs) as tool for spotting p
 
 ### Running dev environment
 
+#### Running services
+
 When working on development we'll need a PostgreSQL database and sometimes the front end. There's a
 `docker-compose` file to bootstrap both systems and make them work with the current back development.
 
 Go  to **your project's** `etc/docker` (dwbh-api/etc/docker) folder and execute:
 
 `docker-compose up -d`
+
+#### Configuration
+
+Before running the API you may want to configure some properties. By default the application 
+looks for the configuration file `application.yml`. That file doesn't exists by default, but there's
+the `application.yml.template` that you can copy to `application.yml` and change whatever you want there.
+
+When in production environment, there's the `application-prod.yml` that uses environment variables to
+complete configuration properties values. 
+
+##### Database
+
+Configuration file:
+
+```yaml
+datasources:
+  default:
+    url: ${DWBH_JDBC_URL}
+    username: ${DWBH_JDBC_USER}
+    password: ${DWBH_JDBC_PASSWORD}
+    driverClassName: ${DWBH_JDBC_DRIVER}
+```
+
+And environment variables
+
+| Name                       | Description                 | Default value                                                 |
+|:---------------------------|:----------------------------|:--------------------------------------------------------------|
+| DWBH_JDBC_URL              | JDBC url                    | jdbc:postgresql://localhost:5432/dwbh                         |
+| DWBH_JDBC_USER             | JDBC username               | dwbh                                                          |
+| DWBH_JDBC_PASSWORD         | JDBC password               | dwbh                                                          |
+| DWBH_JDBC_DRIVER           | JDBC driver                 | org.postgresql.Driver                                         |
+
+##### AWS integration
+
+Configuration file section:
+
+```yaml
+aws:
+  credentials:
+    accessKey: ${DWBH_AWS_ACCESS_KEY}
+    secretKey: ${DWBH_AWS_SECRET_KEY}
+  mail:
+    sourceemail: ${DWBH_AWS_EMAIL_SOURCE}
+    region: ${DWBH_AWS_EMAIL_REGION}
+    enabled: ${DWBH_AWS_EMAIL_ENABLED}
+```
+
+And environment variables:
+
+| Name                       | Description                 | Default value                                                 |
+|:---------------------------|:----------------------------|:--------------------------------------------------------------|
+| DWBH_ACCESS_KEY            | AWS access key              |                                                               |
+| DWBH_SECRET_KEY            | AWS secret key              |                                                               |
+| DWBH_AWS_EMAIL_SOURCE      | AWS source email            |                                                               |
+| DWBH_AWS_EMAIL_REGION      | AWS region                  |                                                               |
+| DWBH_AWS_EMAIL_ENABLED     | Enable AWS mailing          |                                                               |
+
+##### JWT
+
+Configuration file section:
+
+```yaml 
+crypto:
+  password: SHA-256
+  jwt:
+    secret: ${DWBH_JWT_SECRET}
+    days: ${DWBH_JWT_DAYS}
+    algorithm: ${DWBH_JWT_ALGO}
+    issuer: ${DWBH_JWT_ISSUER}
+```
+
+And environment variables:
+
+| Name                       | Description                 | Default value                                                 |
+|:---------------------------|:----------------------------|:--------------------------------------------------------------|
+| DWBH_JWT_SECRET            | JWT secret                  | mysupersecret                                                 |
+| DWBH_JWT_ALGO              | JWT signature algorithm     | HS256                                                         |
+| DWBH_JWT_ISSUER            | JWT issuer claim            | dwbh                                                          |
+| DWBH_JWT_DAYS              | JWT days before out of date | 7                                                             |
+
+##### GOOGLE-OAUTH2
+
+Configuration file section:
+
+```yaml
+oauth2:
+  apikey: ${DWBH_OAUTH2_KEY}
+  apisecret: ${DWBH_OAUTH2_SECRET}
+  callback: ${DWBH_OAUTH2_CALLBACK}
+```
+
+Google Oauth2 settings are required if you want front end to be authenticated using Google authentication.
+
+| Name                       | Description                 | Default value                                                 |
+|:---------------------------|:----------------------------|:--------------------------------------------------------------|
+| DWBH_OAUTH2_KEY            | Oauth2 client id            |                                                               |
+| DWBH_OAUTH2_SECRET         | Oauth2 client secret        |                                                               |
+| DWBH_OAUTH2_CALLBACK       | Oauth2 callback URL         |                                                               |
+
+`DWBH_OAUTH2_CALLBACK` must match frontend `VUE_APP_REDIRECT_URI` variable.
+
+##### DEFAULT USER
+
+Configuration file section:
+
+```yaml
+duser:
+  enabled: ${DWBH_DUSER_ENABLED}
+  name: ${DWBH_DUSER_NAME}
+  email: ${DWBH_DUSER_EMAIL}
+  password: ${DWBH_DUSER_PASSWORD}
+```
+
+In case you'd like to start the instance with a default user you can use the following environment variables:
+
+| Name                       | Description                 | Default value                                                 |
+|:---------------------------|:----------------------------|:--------------------------------------------------------------|
+| DWBH_DUSER_ENABLED            | Whether or not to insert default user            | false   |
+| DWBH_DUSER_NAME            | Default user's name            |    |
+| DWBH_DUSER_EMAIL            | Default user's email            |    |
+| DWBH_DUSER_PASSWORD            | Default user's plain text password            |    | 
+
+#### Running app
 
 Both the database and the front end will be installed and bootstrapped. Now you can execute:
 
@@ -206,13 +331,9 @@ on this project are:
 
 Please see [CONTRIBUTING.md](CONTRIBUTING.md) for contribution guidelines.
 
-## Versioning
-
-TODO
-
 ## License
 
-TODO
+https://www.gnu.org/licenses/gpl-3.0.html
 
 ## Acknowledgments
 

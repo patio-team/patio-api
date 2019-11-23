@@ -22,6 +22,7 @@ import static dwbh.api.services.internal.FunctionsUtils.safely;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
+import dwbh.api.domain.Tokens;
 import dwbh.api.domain.User;
 import dwbh.api.services.CryptoService;
 import java.time.OffsetDateTime;
@@ -54,7 +55,7 @@ public class Auth0CryptoService implements CryptoService {
   }
 
   @Override
-  public String createToken(User user) {
+  public Tokens createTokens(User user) {
     var issuer = configuration.getIssuer();
     var algorithm = configuration.getAlgorithm();
     var daysToExpire = configuration.getDaysToExpire();
@@ -63,24 +64,32 @@ public class Auth0CryptoService implements CryptoService {
     var currentDate = Date.from(now.toInstant());
     var expirationDate = Date.from(now.plusDays(daysToExpire).toInstant());
 
-    return JWT.create()
-        .withIssuer(issuer)
-        .withSubject(user.getEmail())
-        .withNotBefore(currentDate)
-        .withIssuedAt(currentDate)
-        .withExpiresAt(expirationDate)
-        .sign(algorithm);
+    String authenticationToken =
+        JWT.create()
+            .withIssuer(issuer)
+            .withSubject(user.getEmail())
+            .withClaim("name", user.getName())
+            .withNotBefore(currentDate)
+            .withIssuedAt(currentDate)
+            .withExpiresAt(expirationDate)
+            .sign(algorithm);
+
+    return Tokens.builder().with(t -> t.setAuthenticationToken(authenticationToken)).build();
   }
 
   @Override
-  public Optional<String> verifyToken(String token) {
+  public Optional<DecodedJWT> verifyToken(String token) {
     var algorithm = configuration.getAlgorithm();
     var issuer = configuration.getIssuer();
     var verifier = JWT.require(algorithm).withIssuer(issuer).build();
 
     return Optional.ofNullable(token)
-        .flatMap(safely(verifier::verify, (th) -> LOGGER.error(th.getMessage())))
-        .map(DecodedJWT::getSubject);
+        .flatMap(safely(verifier::verify, (th) -> LOGGER.error(th.getMessage())));
+  }
+
+  @Override
+  public Optional<DecodedJWT> decode(String token) {
+    return Optional.ofNullable(token).map(JWT::decode);
   }
 
   @Override

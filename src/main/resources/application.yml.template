@@ -58,6 +58,12 @@ crypto:
     algorithm: HS256
     issuer: http://localhost:8000/auth/realms/dwbh
 
+duser:
+  enabled: false
+  name: Johny Cash
+  email: johnny@cash.com
+  password: johnycashpassword
+
 # to resolve application links (e.g. mails)
 urlresolver:
   host: https://mydomain.com

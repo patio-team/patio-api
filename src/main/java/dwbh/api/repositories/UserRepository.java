@@ -17,10 +17,13 @@
  */
 package dwbh.api.repositories;
 
+import static dwbh.api.util.JooqUtils.getValueSafely;
+
 import dwbh.api.domain.User;
 import dwbh.api.repositories.internal.TablesHelper;
 import dwbh.api.repositories.internal.TablesHelper.UsersTableHelper;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import javax.inject.Singleton;
 import org.jooq.DSLContext;
@@ -53,7 +56,10 @@ public class UserRepository {
    * @since 0.1.0
    */
   public List<User> listUsers() {
-    return context.selectFrom(TablesHelper.USERS_TABLE).fetch(UserRepository::toUser);
+    return context
+        .selectFrom(TablesHelper.USERS_TABLE)
+        .orderBy(UsersTableHelper.EMAIL)
+        .fetch(UserRepository::toUser);
   }
 
   /**
@@ -67,7 +73,45 @@ public class UserRepository {
     return context
         .selectFrom(TablesHelper.USERS_TABLE)
         .where(UsersTableHelper.ID.in(ids.toArray(new UUID[0])))
+        .orderBy(UsersTableHelper.EMAIL)
         .fetch(UserRepository::toUser);
+  }
+
+  /**
+   * Creates a user from an email
+   *
+   * @param user an instance of {@link User} with the information you want to persist
+   * @return an instance of type {@link User}
+   * @since 0.1.0
+   */
+  public User createUser(User user) {
+    return context
+        .insertInto(TablesHelper.USERS_TABLE)
+        .columns(
+            UsersTableHelper.ID,
+            UsersTableHelper.NAME,
+            UsersTableHelper.EMAIL,
+            UsersTableHelper.PASSWORD)
+        .values(UUID.randomUUID(), user.getName(), user.getEmail(), user.getPassword())
+        .returning(UsersTableHelper.ID, UsersTableHelper.NAME, UsersTableHelper.EMAIL)
+        .fetchOne()
+        .map(UserRepository::toUser);
+  }
+
+  /**
+   * Tries to find a given user by its email. If it can't be found it will create a new user by
+   * using its email
+   *
+   * @param user an instance of {@link User} with the information to find a user from database or to
+   *     create it in case it hasn't been found in the database
+   * @return an instance of a found user or a new entry of a user
+   * @since 0.1.0
+   */
+  public User findOrCreateUser(User user) {
+    return Optional.ofNullable(user)
+        .map(User::getEmail)
+        .map(this::findByEmail)
+        .orElseGet(() -> this.createUser(user));
   }
 
   /**
@@ -123,11 +167,11 @@ public class UserRepository {
    * @since 0.1.0
    */
   public static User toUser(Record record) {
-    String name = record.get(TablesHelper.UsersTableHelper.NAME);
-    String email = record.get(TablesHelper.UsersTableHelper.EMAIL);
-    String password = record.get(TablesHelper.UsersTableHelper.PASSWORD);
-    String otp = record.get(TablesHelper.UsersTableHelper.OTP);
-    UUID id = record.get(TablesHelper.UsersTableHelper.ID);
+    UUID id = getValueSafely(record, UsersTableHelper.ID);
+    String name = getValueSafely(record, UsersTableHelper.NAME);
+    String email = getValueSafely(record, UsersTableHelper.EMAIL);
+    String password = getValueSafely(record, UsersTableHelper.PASSWORD);
+    String otp = getValueSafely(record, UsersTableHelper.OTP);
 
     return User.builder()
         .with(user -> user.setName(name))

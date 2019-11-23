@@ -17,11 +17,15 @@
  */
 package dwbh.api.services.internal;
 
+import com.auth0.jwt.interfaces.DecodedJWT;
 import dwbh.api.domain.Login;
+import dwbh.api.domain.Tokens;
 import dwbh.api.domain.User;
 import dwbh.api.domain.input.LoginInput;
 import dwbh.api.repositories.UserRepository;
 import dwbh.api.services.CryptoService;
+import dwbh.api.services.GoogleUserService;
+import dwbh.api.services.OauthService;
 import dwbh.api.services.SecurityService;
 import dwbh.api.util.ErrorConstants;
 import dwbh.api.util.Result;
@@ -37,23 +41,46 @@ import javax.inject.Singleton;
 public class DefaultSecurityService implements SecurityService {
 
   private final transient CryptoService cryptoService;
+  private final transient OauthService oauthService;
   private final transient UserRepository userRepository;
+  private final transient GoogleUserService googleUserService;
 
   /**
    * Initializes security service with cryptographic service and user database access
    *
    * @param cryptoService service used to handle JWT tokens
+   * @param googleUserService service to get user information from Google
+   * @param oauthService service to interact with an oauth2 provider
    * @param userRepository service used to check user data constraints
    * @since 0.1.0
    */
-  public DefaultSecurityService(CryptoService cryptoService, UserRepository userRepository) {
+  public DefaultSecurityService(
+      CryptoService cryptoService,
+      GoogleUserService googleUserService,
+      OauthService oauthService,
+      UserRepository userRepository) {
     this.cryptoService = cryptoService;
+    this.googleUserService = googleUserService;
+    this.oauthService = oauthService;
     this.userRepository = userRepository;
   }
 
   @Override
-  public User findUserByToken(String token) {
-    return cryptoService.verifyToken(token).map(userRepository::findByEmail).orElse(null);
+  public Optional<User> resolveUser(String token) {
+    return cryptoService
+        .verifyToken(token)
+        .map(this::extractUserFrom)
+        .map(userRepository::findOrCreateUser);
+  }
+
+  private User extractUserFrom(DecodedJWT decodedJWT) {
+    String name = decodedJWT.getClaim("name").asString();
+    String email = decodedJWT.getSubject();
+
+    return User.builder()
+        .with(user -> user.setName(name))
+        .with(user -> user.setEmail(email))
+        .build();
   }
 
   @Override
@@ -62,9 +89,35 @@ public class DefaultSecurityService implements SecurityService {
 
     return Optional.ofNullable(user)
         .filter(user1 -> cryptoService.verifyWithHash(input.getPassword(), user1.getPassword()))
-        .map(cryptoService::createToken)
-        .map(token -> new Login(token, user))
+        .flatMap(this::getLoginFromUser)
         .map(Result::result)
         .orElse(Result.error(ErrorConstants.BAD_CREDENTIALS));
+  }
+
+  @Override
+  public Result<Login> login(String code) {
+    return Optional.ofNullable(code)
+        .flatMap(oauthService::getAccessToken)
+        .flatMap(googleUserService::loadFromAccessToken)
+        .map(userRepository::findOrCreateUser)
+        .flatMap(this::getLoginFromUser)
+        .map(Result::result)
+        .orElse(Result.error(ErrorConstants.BAD_CREDENTIALS));
+  }
+
+  @Override
+  public Result<Login> refresh(String refreshToken) {
+    return cryptoService
+        .verifyToken(refreshToken)
+        .map(this::extractUserFrom)
+        .flatMap(this::getLoginFromUser)
+        .map(Result::result)
+        .orElse(Result.error(ErrorConstants.BAD_CREDENTIALS));
+  }
+
+  private Optional<Login> getLoginFromUser(User user) {
+    Tokens tokens = cryptoService.createTokens(user);
+
+    return Optional.of(new Login(tokens, user));
   }
 }

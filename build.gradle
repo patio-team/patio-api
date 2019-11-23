@@ -34,7 +34,7 @@ repositories {
 
 dependencyManagement {
     imports {
-        mavenBom 'io.micronaut:micronaut-bom:1.0.4'
+        mavenBom 'io.micronaut:micronaut-bom:1.2.0'
     }
 }
 
@@ -50,19 +50,28 @@ dependencies {
     compileOnly "io.micronaut:micronaut-inject-java"
     runtime "ch.qos.logback:logback-classic:1.2.3"
 
+    // database
     runtime 'io.micronaut.configuration:micronaut-jdbc-hikari'
     runtime 'org.postgresql:postgresql:42.2.5'
     compile 'io.micronaut.configuration:micronaut-flyway:1.0.0.RC3'
     compile 'org.jooq:jooq:3.11.9'
     compile 'org.jooq:jooq-meta:3.11.9'
 
+    // graphql scalars
     compile 'com.graphql-java:graphql-java-extended-scalars:1.0'
+
+    // authentication
     compile "com.auth0:java-jwt:3.7.0"
+    compile 'com.github.scribejava:scribejava-apis:6.9.0'
+    compile 'com.github.scribejava:scribejava-core:6.9.0'
+    compile 'com.google.apis:google-api-services-oauth2:v1-rev155-1.25.0'
     compile 'org.springframework.security:spring-security-crypto:5.1.5.RELEASE'
 
+    // mailing
     compile 'com.amazonaws:aws-java-sdk-ses:1.11.285'
     compile 'de.neuland-bfi:jade4j:1.2.7'
 
+    // test
     testCompile "io.micronaut.test:micronaut-test-junit5:1.0.2"
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.3.1'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.3.1'

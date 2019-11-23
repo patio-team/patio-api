@@ -21,6 +21,8 @@ import static io.github.benas.randombeans.api.EnhancedRandom.random;
 import static org.junit.Assert.*;
 
 import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.interfaces.DecodedJWT;
+import dwbh.api.domain.Tokens;
 import dwbh.api.domain.User;
 import dwbh.api.services.CryptoService;
 import java.util.Optional;
@@ -54,13 +56,13 @@ public class Auth0CryptoServiceTests {
     var user = random(User.class);
 
     // when: generating the token
-    String token = cryptoService.createToken(user);
+    Tokens tokens = cryptoService.createTokens(user);
 
     // and: verifying the token back
-    String subject = cryptoService.verifyToken(token).get();
+    DecodedJWT decodedJWT = cryptoService.verifyToken(tokens.getAuthenticationToken()).get();
 
     // we should build the expected values
-    assertEquals(subject, user.getEmail());
+    assertEquals(decodedJWT.getSubject(), user.getEmail());
   }
 
   @Test
@@ -70,7 +72,7 @@ public class Auth0CryptoServiceTests {
     var cryptoService = new Auth0CryptoService(configuration);
 
     // when: verifying the token
-    Optional<String> subject = cryptoService.verifyToken("a");
+    Optional<DecodedJWT> subject = cryptoService.verifyToken("a");
 
     // we should build the expected values
     assertFalse(subject.isPresent());
@@ -84,10 +86,11 @@ public class Auth0CryptoServiceTests {
     var user = random(User.class);
 
     // when: generating the token
-    String token = cryptoService.createToken(user);
+    Tokens tokens = cryptoService.createTokens(user);
 
     // and: verifying a corrupt token
-    Optional<String> subject = cryptoService.verifyToken(token.substring(1));
+    Optional<DecodedJWT> subject =
+        cryptoService.verifyToken(tokens.getAuthenticationToken().substring(1));
 
     // we should not build the user's subject
     assertFalse(subject.isPresent());

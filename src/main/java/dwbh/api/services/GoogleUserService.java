@@ -15,44 +15,24 @@
  * You should have received a copy of the GNU General Public License
  * along with DWBH.  If not, see <https://www.gnu.org/licenses/>
  */
-package dwbh.api.domain;
+package dwbh.api.services;
+
+import dwbh.api.domain.User;
+import java.util.Optional;
 
 /**
- * Information delivered when a used authenticates successfully in the system
+ * Service to access user's Google basic information
  *
  * @since 0.1.0
  */
-public class Login {
-  private final Tokens tokens;
-  private final User user;
+public interface GoogleUserService {
 
   /**
-   * Initializes a login instance
+   * Loads a given's user information from a previously acquired access token
    *
-   * @param tokens the user's tokens
-   * @param user the user's general information
+   * @param accessToken Google's access token
+   * @return a basic {@link User}'s information
    * @since 0.1.0
    */
-  public Login(Tokens tokens, User user) {
-    this.tokens = tokens;
-    this.user = user;
-  }
-
-  /**
-   * Returns the user's tokens
-   *
-   * @return the generated tokens for user
-   * @since 0.1.0
-   */
-  public Tokens getTokens() {
-    return tokens;
-  }
-
-  /**
-   * @return the user's information
-   * @since 0.1.0
-   */
-  public User getUser() {
-    return user;
-  }
+  Optional<User> loadFromAccessToken(String accessToken);
 }

@@ -43,8 +43,8 @@ public class SecurityConfiguration {
    * @since 0.1.0
    */
   public SecurityConfiguration(
-      @Value("${micronaut.application.name}") String issuer,
-      @Value("${crypto.jwt.days}") int daysToExpire,
+      @Value("${crypto.jwt.issuer:none}") String issuer,
+      @Value("${crypto.jwt.days:none}") int daysToExpire,
       Algorithm algorithm) {
     this.issuer = issuer;
     this.algorithm = algorithm;

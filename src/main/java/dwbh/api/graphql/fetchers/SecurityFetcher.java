@@ -59,4 +59,19 @@ public class SecurityFetcher {
 
     return ResultUtils.render(login);
   }
+
+  /**
+   * Fetcher responsible to handle user's login using an Oauth2 authorization code
+   *
+   * @param environment GraphQL execution environment
+   * @return an instance of {@link DataFetcherResult} because it could return errors
+   * @since 0.1.0
+   */
+  public DataFetcherResult<Login> loginOauth2(DataFetchingEnvironment environment) {
+    String authorizationCode = environment.getArgument("authorizationCode");
+
+    Result<Login> login = securityService.login(authorizationCode);
+
+    return ResultUtils.render(login);
+  }
 }

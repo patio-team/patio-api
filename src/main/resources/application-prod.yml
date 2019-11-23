@@ -25,6 +25,9 @@ micronaut:
     scheduled:
       type: scheduled
       core-pool-size: 10
+  server:
+    cors:
+      enabled: true
 
 datasources:
   default:
@@ -59,6 +62,17 @@ crypto:
     days: ${DWBH_JWT_DAYS}
     algorithm: ${DWBH_JWT_ALGO}
     issuer: ${DWBH_JWT_ISSUER}
+
+oauth2:
+  apikey: ${DWBH_OAUTH2_KEY}
+  apisecret: ${DWBH_OAUTH2_SECRET}
+  callback: ${DWBH_OAUTH2_CALLBACK}
+
+duser:
+  enabled: ${DWBH_DUSER_ENABLED}
+  name: ${DWBH_DUSER_NAME}
+  email: ${DWBH_DUSER_EMAIL}
+  password: ${DWBH_DUSER_PASSWORD}
 
 # to resolve application links (e.g. mails)
 urlresolver:
