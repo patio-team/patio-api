@@ -48,8 +48,8 @@ graphql:
 
 aws:
   credentials:
-    accessKey: ${DWBH_AWS_ACCESS_KEY}
-    secretKey: ${DWBH_AWS_SECRET_KEY}
+    accesskey: ${DWBH_AWS_ACCESS_KEY}
+    secretkey: ${DWBH_AWS_SECRET_KEY}
   mail:
     sourceemail: ${DWBH_AWS_EMAIL_SOURCE}
     region: ${DWBH_AWS_EMAIL_REGION}
