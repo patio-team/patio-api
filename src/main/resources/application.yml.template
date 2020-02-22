@@ -44,8 +44,8 @@ graphql:
 
 aws:
   credentials:
-    accessKey: XXX
-    secretKey: YYY
+    accesskey: XXX
+    secretkey: YYY
   mail:
     enabled: false
     sourceemail: noreply@dwbh.com
