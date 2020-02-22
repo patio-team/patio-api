@@ -58,7 +58,7 @@ public class UserRepository {
   public List<User> listUsers() {
     return context
         .selectFrom(TablesHelper.USERS_TABLE)
-        .orderBy(UsersTableHelper.EMAIL)
+        .orderBy(UsersTableHelper.ID)
         .fetch(UserRepository::toUser);
   }
 
@@ -73,7 +73,7 @@ public class UserRepository {
     return context
         .selectFrom(TablesHelper.USERS_TABLE)
         .where(UsersTableHelper.ID.in(ids.toArray(new UUID[0])))
-        .orderBy(UsersTableHelper.EMAIL)
+        .orderBy(UsersTableHelper.ID)
         .fetch(UserRepository::toUser);
   }
 

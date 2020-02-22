@@ -164,6 +164,7 @@ public class JooqVotingRepository implements VotingRepository {
             .selectFrom(TablesHelper.VOTE_TABLE)
             .where(VoteTableHelper.CREATED_BY_ID.eq(userId))
             .and(VoteTableHelper.VOTING_ID.eq(votingId))
+            .orderBy(VoteTableHelper.CREATED_BY_ID)
             .fetchOne(JooqVotingRepository::toVote);
   }
 
@@ -272,6 +273,7 @@ public class JooqVotingRepository implements VotingRepository {
     return context
         .selectFrom(TablesHelper.VOTE_TABLE)
         .where(VoteTableHelper.VOTING_ID.eq(votingId))
+        .orderBy(VoteTableHelper.CREATED_BY_ID)
         .fetch(JooqVotingRepository::toVote);
   }
 
@@ -291,6 +293,7 @@ public class JooqVotingRepository implements VotingRepository {
         .where(DSL.field("vote.created_by").eq(userId))
         .and(VotingTableHelper.GROUP_ID.eq(groupId))
         .and(DSL.field("vote.created_at").between(startDateTime, endDateTime))
+        .orderBy(VoteTableHelper.CREATED_BY_ID)
         .fetch(JooqVotingRepository::toVote);
   }
 
