@@ -58,6 +58,11 @@ crypto:
     algorithm: HS256
     issuer: http://localhost:8000/auth/realms/dwbh
 
+oauth2:
+  apikey: oauth2apikey
+  apisecret: oauth2apisecret
+  callback: oauth2callbackuri
+
 duser:
   enabled: false
   name: Johny Cash

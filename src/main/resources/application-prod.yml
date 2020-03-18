@@ -76,7 +76,7 @@ duser:
 
 # to resolve application links (e.g. mails)
 urlresolver:
-  host: https://mydomain.com
+  host: ${DWBH_HOST}
 
 templates:
   cached: false
