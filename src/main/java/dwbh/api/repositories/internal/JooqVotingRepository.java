@@ -17,9 +17,6 @@
  */
 package dwbh.api.repositories.internal;
 
-import static dwbh.api.util.TimeUtils.tomorrowFrom;
-import static dwbh.api.util.TimeUtils.yesterdayFrom;
-
 import dwbh.api.domain.Group;
 import dwbh.api.domain.User;
 import dwbh.api.domain.Vote;
@@ -33,6 +30,7 @@ import java.math.RoundingMode;
 import java.time.DayOfWeek;
 import java.time.OffsetDateTime;
 import java.time.OffsetTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -314,8 +312,7 @@ public class JooqVotingRepository implements VotingRepository {
             .from(TablesHelper.GROUPS_TABLE)
             .where(votingIsEligible);
 
-    var happenedToday =
-        VotingTableHelper.CREATED_AT.between(yesterdayFrom(now, true), tomorrowFrom(now, true));
+    var happenedToday = VotingTableHelper.CREATED_AT.between(now.truncatedTo(ChronoUnit.DAYS), now);
 
     var todayVotings =
         context

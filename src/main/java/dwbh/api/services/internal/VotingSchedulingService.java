@@ -95,6 +95,7 @@ public class VotingSchedulingService implements VotingScheduling {
   @Override
   @Scheduled(fixedRate = "30s", initialDelay = "30s")
   public void scheduleVoting() {
+    LOG.info("checking voting creation");
     votingRepository.listGroupsToCreateVotingFrom().stream()
         .map(this::createVoting)
         .forEach(this::notifyMembers);
