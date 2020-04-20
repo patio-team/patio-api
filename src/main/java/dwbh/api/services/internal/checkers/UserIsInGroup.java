@@ -21,6 +21,7 @@ import static dwbh.api.util.Check.checkIsTrue;
 
 import dwbh.api.domain.UserGroup;
 import dwbh.api.repositories.UserGroupRepository;
+import dwbh.api.repositories.internal.JooqUserGroupRepository;
 import dwbh.api.util.Check;
 import dwbh.api.util.ErrorConstants;
 import dwbh.api.util.Result;
@@ -38,7 +39,7 @@ public class UserIsInGroup {
   /**
    * Constructor receiving access to the underlying datastore
    *
-   * @param repository an instance of {@link UserGroupRepository}
+   * @param repository an instance of {@link JooqUserGroupRepository}
    * @since 0.1.0
    */
   public UserIsInGroup(UserGroupRepository repository) {

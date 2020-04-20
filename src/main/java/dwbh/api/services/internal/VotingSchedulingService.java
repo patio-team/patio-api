@@ -27,7 +27,6 @@ import dwbh.api.repositories.UserGroupRepository;
 import dwbh.api.repositories.VotingRepository;
 import dwbh.api.services.EmailService;
 import dwbh.api.services.VotingScheduling;
-import dwbh.api.services.VotingService;
 import dwbh.api.services.internal.templates.JadeTemplateService;
 import dwbh.api.services.internal.templates.URLResolverService;
 import io.micronaut.scheduling.annotation.Scheduled;
@@ -63,8 +62,8 @@ public class VotingSchedulingService implements VotingScheduling {
   private final transient URLResolverService urlResolverService;
 
   /**
-   * Requires the {@link VotingService} to get group voting information and {@link EmailService} to
-   * be able to send notification to group members
+   * Requires the {@link DefaultVotingService} to get group voting information and {@link
+   * EmailService} to be able to send notification to group members
    *
    * @param groupRepository to be able to get group details
    * @param userGroupRepository to be able to list all groups and group's members

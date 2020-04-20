@@ -31,7 +31,7 @@ import dwbh.api.domain.Group;
 import dwbh.api.domain.User;
 import dwbh.api.graphql.I18nGraphQLError;
 import dwbh.api.graphql.fetchers.utils.FetcherTestUtils;
-import dwbh.api.services.UserGroupService;
+import dwbh.api.services.internal.DefaultUserGroupService;
 import dwbh.api.util.Result;
 import java.util.List;
 import java.util.Map;
@@ -54,7 +54,7 @@ class UserGroupFetcherTests {
     User user = random(User.class);
 
     // and: a mocking service
-    var mockedService = Mockito.mock(UserGroupService.class);
+    var mockedService = Mockito.mock(DefaultUserGroupService.class);
 
     // and: mocking service's behavior
     Mockito.when(mockedService.addUserToGroup(any())).thenReturn(Result.result(true));
@@ -88,7 +88,7 @@ class UserGroupFetcherTests {
     User user = random(User.class);
 
     // and: a mocking service
-    var mockedService = Mockito.mock(UserGroupService.class);
+    var mockedService = Mockito.mock(DefaultUserGroupService.class);
 
     // and: mocking service's behavior
     Mockito.when(mockedService.addUserToGroup(any())).thenReturn(Result.error(code, message));
@@ -119,7 +119,7 @@ class UserGroupFetcherTests {
     User user = random(User.class);
 
     // and: a mocking service
-    var mockedService = Mockito.mock(UserGroupService.class);
+    var mockedService = Mockito.mock(DefaultUserGroupService.class);
 
     // and: mocking service's behavior
     Mockito.when(mockedService.isAdmin(any(), any())).thenReturn(true);
@@ -145,7 +145,7 @@ class UserGroupFetcherTests {
     User user = random(User.class);
 
     // and: a mocked service
-    var mockedService = Mockito.mock(UserGroupService.class);
+    var mockedService = Mockito.mock(DefaultUserGroupService.class);
 
     // and: a mocked environment
     var mockedEnvironment = FetcherTestUtils.generateMockedEnvironment(user, Map.of());
@@ -173,7 +173,7 @@ class UserGroupFetcherTests {
     User user = random(User.class);
 
     // and: a mocking service
-    var mockedService = Mockito.mock(UserGroupService.class);
+    var mockedService = Mockito.mock(DefaultUserGroupService.class);
 
     // and: mocking service's behavior
     Mockito.when(mockedService.leaveGroup(any())).thenReturn(Result.result(true));

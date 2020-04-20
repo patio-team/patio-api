@@ -20,6 +20,7 @@ package dwbh.api.graphql.fetchers;
 import dwbh.api.domain.User;
 import dwbh.api.graphql.Context;
 import dwbh.api.services.UserService;
+import dwbh.api.services.internal.DefaultUserService;
 import graphql.schema.DataFetchingEnvironment;
 import java.util.List;
 import java.util.UUID;
@@ -43,7 +44,7 @@ public class UserFetcher {
   /**
    * Constructor initializing the access to the business logic
    *
-   * @param service instance of {@link UserService}
+   * @param service instance of {@link DefaultUserService}
    * @since 0.1.0
    */
   public UserFetcher(UserService service) {

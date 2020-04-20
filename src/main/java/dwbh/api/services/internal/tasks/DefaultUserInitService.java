@@ -19,6 +19,7 @@ package dwbh.api.services.internal.tasks;
 
 import dwbh.api.domain.User;
 import dwbh.api.repositories.UserRepository;
+import dwbh.api.repositories.internal.JooqUserRepository;
 import io.micronaut.context.annotation.Value;
 import io.micronaut.retry.annotation.Retryable;
 import io.micronaut.scheduling.annotation.Scheduled;
@@ -46,7 +47,7 @@ public class DefaultUserInitService {
   private final transient UserRepository userRepository;
 
   /**
-   * Loads user properties and an instance of {@link UserRepository}
+   * Loads user properties and an instance of {@link JooqUserRepository}
    *
    * @param loadUser whether to load default user or not
    * @param name user's name

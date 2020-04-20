@@ -26,9 +26,9 @@ import dwbh.api.domain.Email;
 import dwbh.api.domain.Group;
 import dwbh.api.domain.User;
 import dwbh.api.domain.Voting;
-import dwbh.api.repositories.GroupRepository;
-import dwbh.api.repositories.UserGroupRepository;
 import dwbh.api.repositories.VotingRepository;
+import dwbh.api.repositories.internal.JooqGroupRepository;
+import dwbh.api.repositories.internal.JooqUserGroupRepository;
 import dwbh.api.services.EmailService;
 import dwbh.api.services.internal.templates.JadeTemplateService;
 import dwbh.api.services.internal.templates.URLResolverService;
@@ -45,8 +45,8 @@ public class VotingSchedulingServiceTests {
   @Test
   void testNotifyNewVotingToMembers() {
     // given: mocked services
-    var groupRepository = Mockito.mock(GroupRepository.class);
-    var userGroupRepository = Mockito.mock(UserGroupRepository.class);
+    var groupRepository = Mockito.mock(JooqGroupRepository.class);
+    var userGroupRepository = Mockito.mock(JooqUserGroupRepository.class);
     var votingRepository = Mockito.mock(VotingRepository.class);
     var emailService = Mockito.mock(EmailService.class);
     var templateService = Mockito.mock(JadeTemplateService.class);
