@@ -24,7 +24,7 @@ import static org.hamcrest.Matchers.is;
 
 import dwbh.api.domain.User;
 import dwbh.api.graphql.fetchers.utils.FetcherTestUtils;
-import dwbh.api.services.UserService;
+import dwbh.api.services.internal.DefaultUserService;
 import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
@@ -40,7 +40,7 @@ public class UserFetcherTests {
   @Test
   void testListUsers() {
     // given: a mocking service
-    var mockedService = Mockito.mock(UserService.class);
+    var mockedService = Mockito.mock(DefaultUserService.class);
 
     // and: mocking service's behavior
     Mockito.when(mockedService.listUsers()).thenReturn(randomListOf(2, User.class));
@@ -58,7 +58,7 @@ public class UserFetcherTests {
     // given: an user
     User user = random(User.class);
     // and: a mocking service
-    var mockedService = Mockito.mock(UserService.class);
+    var mockedService = Mockito.mock(DefaultUserService.class);
 
     // and: mocking service's behavior
     Mockito.when(mockedService.getUser(user.getId())).thenReturn(user);

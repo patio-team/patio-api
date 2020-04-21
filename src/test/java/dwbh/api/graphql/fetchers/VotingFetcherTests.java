@@ -36,7 +36,8 @@ import dwbh.api.graphql.dataloader.DataLoaderRegistryFactory;
 import dwbh.api.graphql.dataloader.UserBatchLoader;
 import dwbh.api.graphql.fetchers.utils.FetcherTestUtils;
 import dwbh.api.services.UserService;
-import dwbh.api.services.VotingService;
+import dwbh.api.services.internal.DefaultUserService;
+import dwbh.api.services.internal.DefaultVotingService;
 import dwbh.api.util.Result;
 import graphql.execution.DataFetcherResult;
 import graphql.schema.DataFetchingEnvironment;
@@ -67,7 +68,7 @@ class VotingFetcherTests {
     var votingId = UUID.randomUUID();
 
     // and: mocked services
-    var mockedService = Mockito.mock(VotingService.class);
+    var mockedService = Mockito.mock(DefaultVotingService.class);
     Mockito.when(mockedService.createVoting(any(CreateVotingInput.class)))
         .thenReturn(Result.result(random(Voting.class)));
 
@@ -97,7 +98,7 @@ class VotingFetcherTests {
         FetcherTestUtils.generateMockedEnvironment(
             authenticatedUser, Map.of("votingId", votingId, "anonymous", false));
 
-    var mockedService = Mockito.mock(VotingService.class);
+    var mockedService = Mockito.mock(DefaultVotingService.class);
     Mockito.when(mockedService.createVote(any(CreateVoteInput.class)))
         .thenReturn(Result.result(Vote.newBuilder().build()));
 
@@ -118,7 +119,7 @@ class VotingFetcherTests {
     var endDate = OffsetDateTime.parse("2019-01-25T00:00:00Z");
 
     // and: mocked service
-    var mockedService = Mockito.mock(VotingService.class);
+    var mockedService = Mockito.mock(DefaultVotingService.class);
     Mockito.when(mockedService.listVotingsGroup(any(ListVotingsGroupInput.class)))
         .thenReturn(List.of(random(Voting.class)));
 
@@ -145,7 +146,7 @@ class VotingFetcherTests {
     User user = random(User.class);
 
     // and: a mocking service
-    var mockedService = Mockito.mock(VotingService.class);
+    var mockedService = Mockito.mock(DefaultVotingService.class);
 
     // and: mocking service's behavior
     Mockito.when(mockedService.getVoting(any())).thenReturn(Result.result(voting));
@@ -169,7 +170,7 @@ class VotingFetcherTests {
     var voting = random(Voting.class);
 
     // and: mocked service
-    var mockedService = Mockito.mock(VotingService.class);
+    var mockedService = Mockito.mock(DefaultVotingService.class);
     Mockito.when(mockedService.listVotesVoting(any())).thenReturn(List.of(random(Vote.class)));
 
     // and: mocked environment
@@ -199,7 +200,7 @@ class VotingFetcherTests {
     User currentUser = random(User.class);
 
     // and: a mocking service
-    var mockedService = Mockito.mock(VotingService.class);
+    var mockedService = Mockito.mock(DefaultVotingService.class);
 
     // and: mocking service's behavior
     Mockito.when(mockedService.listUserVotesInGroup(any())).thenReturn(Result.result(votes));
@@ -230,7 +231,7 @@ class VotingFetcherTests {
   void testGetVoteCreatedBy() {
     // given: a mocked user service
     User randomUser = random(User.class);
-    UserService mockedService = Mockito.mock(UserService.class);
+    UserService mockedService = Mockito.mock(DefaultUserService.class);
     Mockito.when(mockedService.listUsersByIds(anyListOf(UUID.class)))
         .thenReturn(List.of(randomUser));
 

@@ -18,134 +18,45 @@
 package dwbh.api.repositories;
 
 import dwbh.api.domain.Group;
-import dwbh.api.repositories.internal.DayOfWeekConverter;
-import dwbh.api.repositories.internal.TablesHelper;
-import dwbh.api.repositories.internal.TablesHelper.GroupsTableHelper;
 import java.time.DayOfWeek;
 import java.time.OffsetTime;
 import java.util.List;
 import java.util.UUID;
-import javax.inject.Singleton;
-import org.jooq.DSLContext;
-import org.jooq.Record;
 
-/**
- * Repository regarding database operations over {@link Group}
- *
- * @since 0.1.0
- */
-@Singleton
-public class GroupRepository {
-
-  private final transient DSLContext context;
+/** All database actions related to {@link Group} entity */
+public interface GroupRepository {
 
   /**
-   * Initializes the repository by setting the JOOQ {@link DSLContext}
+   * Lists all groups
    *
-   * @param context JOOQ DSL context ({@link DSLContext}
-   * @since 0.1.0
+   * @return a list of {@link Group}
    */
-  public GroupRepository(DSLContext context) {
-    this.context = context;
-  }
+  List<Group> listGroups();
 
   /**
-   * Lists all available groups
+   * Finds a {@link Group} by its id
    *
-   * @return a list of available groups
-   * @since 0.1.0
+   * @param groupId group id
+   * @return an instance of a {@link Group}
    */
-  public List<Group> listGroups() {
-    return context.selectFrom(TablesHelper.GROUPS_TABLE).fetch(GroupRepository::toGroup);
-  }
+  Group getGroup(UUID groupId);
 
   /**
-   * Get a specific group
+   * Inserts a new {@link Group} or updates the {@link Group} with the groupId passed as parameter
    *
-   * @param groupId group identifier
-   * @return The requested {@link Group}
-   * @since 0.1.0
+   * @param groupId id of the group to update
+   * @param name name of the group
+   * @param visibleMemberList whether the group allows members to see the member list
+   * @param anonymousVote whether the group allows anonymous votes
+   * @param daysOfWeek the days of the week when users can vote
+   * @param time moment of the day when the voting happens
+   * @return an instance of a new {@link Group} or the updated {@link Group} instance
    */
-  public Group getGroup(UUID groupId) {
-    return (Group)
-        context
-            .selectFrom(TablesHelper.GROUPS_TABLE)
-            .where(TablesHelper.GroupsTableHelper.ID.eq(groupId))
-            .fetchOne(GroupRepository::toGroup);
-  }
-
-  /**
-   * Creates or Updates a group
-   *
-   * @param groupId group's id
-   * @param name group's name
-   * @param visibleMemberList indicates if the group allows the members to see the member list
-   * @param anonymousVote indicates if the group allows anonymous votes
-   * @param daysOfWeek days of the week when reminders are sent
-   * @param time moment of the day when reminders are sent
-   * @return The created or updated {@link Group}
-   * @since 0.1.0
-   */
-  public Group upsertGroup(
+  Group upsertGroup(
       UUID groupId,
       String name,
       boolean visibleMemberList,
       boolean anonymousVote,
       List<DayOfWeek> daysOfWeek,
-      OffsetTime time) {
-
-    context
-        .insertInto(
-            TablesHelper.GROUPS_TABLE,
-            GroupsTableHelper.ID,
-            GroupsTableHelper.NAME,
-            GroupsTableHelper.VISIBLE_MEMBER_LIST,
-            GroupsTableHelper.ANONYMOUS_VOTE,
-            GroupsTableHelper.TIME,
-            GroupsTableHelper.DAYS_OF_WEEK)
-        .values(groupId, name, visibleMemberList, anonymousVote, time, daysOfWeek)
-        .onConflict(GroupsTableHelper.ID)
-        .doUpdate()
-        .set(GroupsTableHelper.NAME, name)
-        .set(GroupsTableHelper.VISIBLE_MEMBER_LIST, visibleMemberList)
-        .set(GroupsTableHelper.ANONYMOUS_VOTE, anonymousVote)
-        .set(GroupsTableHelper.TIME, time)
-        .set(GroupsTableHelper.DAYS_OF_WEEK, daysOfWeek)
-        .execute();
-
-    return Group.builder()
-        .with(group -> group.setName(name))
-        .with(group -> group.setId(groupId))
-        .with(group -> group.setVisibleMemberList(visibleMemberList))
-        .with(group -> group.setAnonymousVote(anonymousVote))
-        .with(group -> group.setVotingDays(daysOfWeek))
-        .with(group -> group.setVotingTime(time))
-        .build();
-  }
-
-  /**
-   * Extract the fields from a {@link Record} to create a new {@link Group} instance
-   *
-   * @param record The Record
-   * @return The new instance of {@link Group}
-   * @since 0.1.0
-   */
-  public static Group toGroup(Record record) {
-    String name = record.get(GroupsTableHelper.NAME);
-    UUID id = record.get(GroupsTableHelper.ID);
-    boolean visibleMemberList = record.get(GroupsTableHelper.VISIBLE_MEMBER_LIST);
-    boolean anonymousVote = record.get(GroupsTableHelper.ANONYMOUS_VOTE);
-    List<DayOfWeek> dayOfWeeks =
-        record.get(GroupsTableHelper.DAYS_OF_WEEK, new DayOfWeekConverter());
-    OffsetTime offsetTime = record.get(GroupsTableHelper.TIME);
-
-    return Group.builder()
-        .with(group -> group.setName(name))
-        .with(group -> group.setId(id))
-        .with(group -> group.setVisibleMemberList(visibleMemberList))
-        .with(group -> group.setAnonymousVote(anonymousVote))
-        .with(group -> group.setVotingDays(dayOfWeeks))
-        .with(group -> group.setVotingTime(offsetTime))
-        .build();
-  }
+      OffsetTime time);
 }

@@ -17,41 +17,23 @@
  */
 package dwbh.api.services;
 
-import dwbh.api.domain.Group;
 import dwbh.api.domain.Vote;
 import dwbh.api.domain.Voting;
-import dwbh.api.domain.input.*;
-import dwbh.api.repositories.UserGroupRepository;
-import dwbh.api.repositories.VotingRepository;
-import dwbh.api.services.internal.checkers.*;
+import dwbh.api.domain.input.CreateVoteInput;
+import dwbh.api.domain.input.CreateVotingInput;
+import dwbh.api.domain.input.GetVotingInput;
+import dwbh.api.domain.input.ListVotingsGroupInput;
+import dwbh.api.domain.input.UserVotesInGroupInput;
 import dwbh.api.util.Result;
-import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
-import javax.inject.Singleton;
 
 /**
- * Business logic regarding {@link Group} domain
+ * Business logic contracts regarding voting
  *
  * @since 0.1.0
  */
-@Singleton
-public class VotingService {
-
-  private final transient VotingRepository votingRepository;
-  private final transient UserGroupRepository userGroupRepository;
-
-  /**
-   * Initializes service by using the database repositories
-   *
-   * @param votingRepository an instance of {@link VotingRepository}
-   * @param userGroupRepository an instance of {@link UserGroupRepository}
-   * @since 0.1.0
-   */
-  public VotingService(VotingRepository votingRepository, UserGroupRepository userGroupRepository) {
-    this.votingRepository = votingRepository;
-    this.userGroupRepository = userGroupRepository;
-  }
+public interface VotingService {
 
   /**
    * Creates a new voting for the current day for the group identified
@@ -60,18 +42,7 @@ public class VotingService {
    * @return an instance of type {@link Voting}
    * @since 0.1.0
    */
-  public Result<Voting> createVoting(CreateVotingInput input) {
-    UserIsInGroup userIsInGroup = new UserIsInGroup(userGroupRepository);
-
-    return Result.<Voting>create()
-        .thenCheck(() -> userIsInGroup.check(input.getUserId(), input.getGroupId()))
-        .then(() -> createVotingIfSuccess(input));
-  }
-
-  private Voting createVotingIfSuccess(CreateVotingInput input) {
-    return votingRepository.createVoting(
-        input.getUserId(), input.getGroupId(), OffsetDateTime.now());
-  }
+  Result<Voting> createVoting(CreateVotingInput input);
 
   /**
    * Creates a new vote for the user in the specified voting if the user is allowed to do so,
@@ -81,42 +52,7 @@ public class VotingService {
    * @return a result with the created {@link Vote} or an {@link Error}
    * @since 0.1.0
    */
-  public Result<Vote> createVote(CreateVoteInput input) {
-    Group group = votingRepository.findGroupByUserAndVoting(input.getUserId(), input.getVotingId());
-
-    VoteScoreBoundaries voteScoreBoundaries = new VoteScoreBoundaries();
-    UserOnlyVotedOnce userOnlyVotedOnce = new UserOnlyVotedOnce(votingRepository);
-    VotingHasExpired votingHasExpired = new VotingHasExpired(votingRepository);
-    NotNull notNull = new NotNull();
-    VoteAnonymousAllowedInGroup anonymousAllowed = new VoteAnonymousAllowedInGroup();
-
-    return Result.<Vote>create()
-        .thenCheck(() -> voteScoreBoundaries.check(input.getScore()))
-        .thenCheck(() -> userOnlyVotedOnce.check(input))
-        .thenCheck(() -> votingHasExpired.check(input.getVotingId()))
-        .thenCheck(() -> notNull.check(group))
-        .thenCheck(() -> anonymousAllowed.check(input.isAnonymous(), group.isAnonymousVote()))
-        .then(() -> createVoteIfSuccess(input));
-  }
-
-  private Vote createVoteIfSuccess(CreateVoteInput input) {
-    UUID userId = input.isAnonymous() ? null : input.getUserId();
-    Vote createdVote =
-        votingRepository.createVote(
-            userId,
-            input.getVotingId(),
-            OffsetDateTime.now(),
-            input.getComment(),
-            input.getScore());
-    updateVotingAverage(input.getVotingId());
-
-    return createdVote;
-  }
-
-  private void updateVotingAverage(UUID votingId) {
-    Integer average = votingRepository.calculateVoteAverage(votingId);
-    votingRepository.updateVotingAverage(votingId, average);
-  }
+  Result<Vote> createVote(CreateVoteInput input);
 
   /**
    * Gets the votings that belongs to a group
@@ -126,10 +62,8 @@ public class VotingService {
    * @return a list of {@link Voting} instances
    * @since 0.1.0
    */
-  public List<Voting> listVotingsGroup(ListVotingsGroupInput input) {
-    return votingRepository.listVotingsGroup(
-        input.getGroupId(), input.getStartDate(), input.getEndDate());
-  }
+  List<Voting> listVotingsGroup(ListVotingsGroupInput input);
+
   /**
    * Gets the votes that belongs to a voting
    *
@@ -137,9 +71,7 @@ public class VotingService {
    * @return a list of {@link Vote} instances
    * @since 0.1.0
    */
-  public List<Vote> listVotesVoting(UUID votingId) {
-    return votingRepository.listVotesVoting(votingId);
-  }
+  List<Vote> listVotesVoting(UUID votingId);
 
   /**
    * Get a specific voting
@@ -148,16 +80,7 @@ public class VotingService {
    * @return The requested {@link Voting}
    * @since 0.1.0
    */
-  public Result<Voting> getVoting(GetVotingInput input) {
-    VotingExists votingExists = new VotingExists(votingRepository);
-
-    return Result.<Voting>create()
-        .thenCheck(() -> votingExists.check(input.getCurrentUserId(), input.getVotingId()))
-        .then(
-            () ->
-                votingRepository.findVotingByUserAndVoting(
-                    input.getCurrentUserId(), input.getVotingId()));
-  }
+  Result<Voting> getVoting(GetVotingInput input);
 
   /**
    * Fetches the votes that belongs to an user in a group between two dates. The current user and
@@ -167,16 +90,5 @@ public class VotingService {
    * @return a result with a list of {@link Vote} or an {@link Error}
    * @since 0.1.0
    */
-  public Result<List<Vote>> listUserVotesInGroup(UserVotesInGroupInput input) {
-    UserIsInGroup userIsInGroup = new UserIsInGroup(userGroupRepository);
-    return Result.<List<Vote>>create()
-        .thenCheck(() -> userIsInGroup.check(input.getCurrentUserId(), input.getGroupId()))
-        .thenCheck(() -> userIsInGroup.check(input.getUserId(), input.getGroupId()))
-        .then(() -> listUserVotesInGroupIfSuccess(input));
-  }
-
-  private List<Vote> listUserVotesInGroupIfSuccess(UserVotesInGroupInput input) {
-    return votingRepository.listUserVotesInGroup(
-        input.getUserId(), input.getGroupId(), input.getStartDateTime(), input.getEndDateTime());
-  }
+  Result<List<Vote>> listUserVotesInGroup(UserVotesInGroupInput input);
 }

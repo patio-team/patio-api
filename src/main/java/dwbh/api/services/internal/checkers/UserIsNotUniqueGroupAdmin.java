@@ -21,6 +21,7 @@ import static dwbh.api.util.Check.checkIsFalse;
 
 import dwbh.api.domain.UserGroup;
 import dwbh.api.repositories.UserGroupRepository;
+import dwbh.api.repositories.internal.JooqUserGroupRepository;
 import dwbh.api.util.Check;
 import dwbh.api.util.ErrorConstants;
 import dwbh.api.util.Result;
@@ -39,7 +40,7 @@ public class UserIsNotUniqueGroupAdmin {
   /**
    * Constructor receiving access to the underlying data store
    *
-   * @param repository an instance of {@link UserGroupRepository}
+   * @param repository an instance of {@link JooqUserGroupRepository}
    * @since 0.1.0
    */
   public UserIsNotUniqueGroupAdmin(UserGroupRepository repository) {

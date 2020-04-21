@@ -27,7 +27,7 @@ import static org.mockito.ArgumentMatchers.any;
 import dwbh.api.domain.Group;
 import dwbh.api.domain.User;
 import dwbh.api.graphql.fetchers.utils.FetcherTestUtils;
-import dwbh.api.services.GroupService;
+import dwbh.api.services.internal.DefaultGroupService;
 import dwbh.api.util.Result;
 import graphql.execution.DataFetcherResult;
 import java.util.List;
@@ -45,7 +45,7 @@ class GroupFetcherTests {
   @Test
   void testListGroups() {
     // given: a mocking service
-    var mockedService = Mockito.mock(GroupService.class);
+    var mockedService = Mockito.mock(DefaultGroupService.class);
 
     // and: mocking service's behavior
     Mockito.when(mockedService.listGroups()).thenReturn(randomListOf(2, Group.class));
@@ -67,7 +67,7 @@ class GroupFetcherTests {
     var mockedEnvironment = FetcherTestUtils.generateMockedEnvironment(user, Map.of());
 
     // and: a mockedservice
-    var mockedService = Mockito.mock(GroupService.class);
+    var mockedService = Mockito.mock(DefaultGroupService.class);
 
     // and: mocked service's behavior
     Mockito.when(mockedService.listGroupsUser(any())).thenReturn(randomListOf(2, Group.class));
@@ -89,7 +89,7 @@ class GroupFetcherTests {
     User user = random(User.class);
 
     // and: a mocking service
-    var mockedService = Mockito.mock(GroupService.class);
+    var mockedService = Mockito.mock(DefaultGroupService.class);
 
     // and: mocking service's behavior
     Mockito.when(mockedService.createGroup(any())).thenReturn(group);
@@ -132,7 +132,7 @@ class GroupFetcherTests {
     User user = random(User.class);
 
     // and: a mocking service
-    var mockedService = Mockito.mock(GroupService.class);
+    var mockedService = Mockito.mock(DefaultGroupService.class);
 
     // and: mocking service's behavior
     Mockito.when(mockedService.getGroup(any())).thenReturn(Result.result(group));
@@ -158,7 +158,7 @@ class GroupFetcherTests {
     User user = random(User.class);
 
     // and: a mocking service
-    var mockedService = Mockito.mock(GroupService.class);
+    var mockedService = Mockito.mock(DefaultGroupService.class);
 
     // and: mocking service's behavior
     Mockito.when(mockedService.updateGroup(any())).thenReturn(Result.result(group));

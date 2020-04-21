@@ -18,30 +18,15 @@
 package dwbh.api.services;
 
 import dwbh.api.domain.User;
-import dwbh.api.repositories.UserRepository;
 import java.util.List;
 import java.util.UUID;
-import javax.inject.Singleton;
 
 /**
- * Business logic regarding {@link User} domain
+ * Business logic contracts regarding {@link User}
  *
  * @since 0.1.0
  */
-@Singleton
-public class UserService {
-
-  private final transient UserRepository userRepository;
-
-  /**
-   * Initializes service by using the database repositories
-   *
-   * @param userRepository an instance of {@link UserRepository}
-   * @since 0.1.0
-   */
-  public UserService(UserRepository userRepository) {
-    this.userRepository = userRepository;
-  }
+public interface UserService {
 
   /**
    * Fetches the list of available users in the system
@@ -49,9 +34,7 @@ public class UserService {
    * @return a list of {@link User} instances
    * @since 0.1.0
    */
-  public List<User> listUsers() {
-    return userRepository.listUsers();
-  }
+  List<User> listUsers();
 
   /**
    * Get the specified user
@@ -60,9 +43,7 @@ public class UserService {
    * @return The requested {@link User}
    * @since 0.1.0
    */
-  public User getUser(UUID id) {
-    return userRepository.getUser(id);
-  }
+  User getUser(UUID id);
 
   /**
    * Listing users by their ids. It's mainly used for batching purposes in GraphQL calls
@@ -71,7 +52,5 @@ public class UserService {
    * @return a list of {@link User} instances
    * @since 0.1.0
    */
-  public List<User> listUsersByIds(List<UUID> ids) {
-    return userRepository.listUsersByIds(ids);
-  }
+  List<User> listUsersByIds(List<UUID> ids);
 }

@@ -15,40 +15,48 @@
  * You should have received a copy of the GNU General Public License
  * along with DWBH.  If not, see <https://www.gnu.org/licenses/>
  */
-package dwbh.api.graphql.dataloader;
+package dwbh.api.services.internal;
 
 import dwbh.api.domain.User;
+import dwbh.api.repositories.UserRepository;
+import dwbh.api.repositories.internal.JooqUserRepository;
 import dwbh.api.services.UserService;
-import dwbh.api.services.internal.DefaultUserService;
 import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionStage;
 import javax.inject.Singleton;
-import org.dataloader.BatchLoader;
 
 /**
- * Loads a list of {@link User} by their ids
+ * Business logic regarding {@link User} domain
  *
  * @since 0.1.0
  */
 @Singleton
-public class UserBatchLoader implements BatchLoader<UUID, User> {
+public class DefaultUserService implements UserService {
 
-  private final transient UserService userService;
+  private final transient UserRepository userRepository;
 
   /**
-   * Initializes the data loader with a {@link DefaultUserService}
+   * Initializes service by using the database repositories
    *
-   * @param userService required to retrieve users
+   * @param userRepository an instance of {@link JooqUserRepository}
    * @since 0.1.0
    */
-  public UserBatchLoader(UserService userService) {
-    this.userService = userService;
+  public DefaultUserService(UserRepository userRepository) {
+    this.userRepository = userRepository;
   }
 
   @Override
-  public CompletionStage<List<User>> load(List<UUID> keys) {
-    return CompletableFuture.supplyAsync(() -> userService.listUsersByIds(keys));
+  public List<User> listUsers() {
+    return userRepository.listUsers();
+  }
+
+  @Override
+  public User getUser(UUID id) {
+    return userRepository.getUser(id);
+  }
+
+  @Override
+  public List<User> listUsersByIds(List<UUID> ids) {
+    return userRepository.listUsersByIds(ids);
   }
 }

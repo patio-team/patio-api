@@ -25,8 +25,9 @@ import static org.mockito.Mockito.*;
 
 import dwbh.api.domain.*;
 import dwbh.api.domain.input.*;
-import dwbh.api.repositories.UserGroupRepository;
 import dwbh.api.repositories.VotingRepository;
+import dwbh.api.repositories.internal.JooqUserGroupRepository;
+import dwbh.api.services.internal.DefaultVotingService;
 import dwbh.api.util.ErrorConstants;
 import dwbh.api.util.Result;
 import java.time.OffsetDateTime;
@@ -42,7 +43,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mockito;
 
 /**
- * Tests {@link VotingService}
+ * Tests {@link DefaultVotingService}
  *
  * @since 0.1.0
  */
@@ -61,7 +62,7 @@ public class VotingServiceTests {
     Mockito.when(votingRepository.createVoting(any(), any(), any()))
         .thenReturn(random(Voting.class));
 
-    var userGroupRepository = mock(UserGroupRepository.class);
+    var userGroupRepository = mock(JooqUserGroupRepository.class);
     Mockito.when(userGroupRepository.getUserGroup(any(), any()))
         .thenReturn(
             UserGroup.builder()
@@ -71,7 +72,7 @@ public class VotingServiceTests {
                 .build());
 
     // when: invoking the service
-    var votingService = new VotingService(votingRepository, userGroupRepository);
+    var votingService = new DefaultVotingService(votingRepository, userGroupRepository);
     var votingInput =
         CreateVotingInput.newBuilder().withUserId(user.getId()).withGroupId(group.getId()).build();
     var votingResult = votingService.createVoting(votingInput);
@@ -97,11 +98,11 @@ public class VotingServiceTests {
     Mockito.when(votingRepository.createVoting(any(), any(), any()))
         .thenReturn(random(Voting.class));
 
-    var userGroupRepository = mock(UserGroupRepository.class);
+    var userGroupRepository = mock(JooqUserGroupRepository.class);
     Mockito.when(userGroupRepository.getUserGroup(any(), any())).thenReturn(null);
 
     // when: invoking the service
-    var votingService = new VotingService(votingRepository, userGroupRepository);
+    var votingService = new DefaultVotingService(votingRepository, userGroupRepository);
     var votingInput =
         CreateVotingInput.newBuilder().withUserId(user.getId()).withGroupId(group.getId()).build();
     var votingResult = votingService.createVoting(votingInput);
@@ -133,7 +134,7 @@ public class VotingServiceTests {
             .build();
 
     // and: mocked repository calls
-    var userGroupRepository = Mockito.mock(UserGroupRepository.class);
+    var userGroupRepository = Mockito.mock(JooqUserGroupRepository.class);
     var votingRepository = Mockito.mock(VotingRepository.class);
 
     Mockito.when(votingRepository.findVoteByUserAndVoting(any(), any())).thenReturn(null);
@@ -145,7 +146,7 @@ public class VotingServiceTests {
         .thenReturn(Vote.newBuilder().build());
 
     // when: invoking the vote creation
-    var votingService = new VotingService(votingRepository, userGroupRepository);
+    var votingService = new DefaultVotingService(votingRepository, userGroupRepository);
     Result<Vote> vote = votingService.createVote(input);
 
     // then: vote has been created
@@ -173,14 +174,14 @@ public class VotingServiceTests {
             .build();
 
     // and: mocked repository calls
-    var userGroupRepository = Mockito.mock(UserGroupRepository.class);
+    var userGroupRepository = Mockito.mock(JooqUserGroupRepository.class);
     var votingRepository = Mockito.mock(VotingRepository.class);
 
     Mockito.when(votingRepository.findVoteByUserAndVoting(any(), any()))
         .thenReturn(Vote.newBuilder().build());
 
     // when: invoking the vote creation
-    var votingService = new VotingService(votingRepository, userGroupRepository);
+    var votingService = new DefaultVotingService(votingRepository, userGroupRepository);
     Result<Vote> vote = votingService.createVote(input);
 
     // then: vote can't be created
@@ -209,14 +210,14 @@ public class VotingServiceTests {
             .build();
 
     // and: mocked repository calls
-    var userGroupRepository = Mockito.mock(UserGroupRepository.class);
+    var userGroupRepository = Mockito.mock(JooqUserGroupRepository.class);
     var votingRepository = Mockito.mock(VotingRepository.class);
 
     Mockito.when(votingRepository.findVoteByUserAndVoting(any(), any())).thenReturn(null);
     Mockito.when(votingRepository.hasExpired(any())).thenReturn(true);
 
     // when: invoking the vote creation
-    var votingService = new VotingService(votingRepository, userGroupRepository);
+    var votingService = new DefaultVotingService(votingRepository, userGroupRepository);
     Result<Vote> vote = votingService.createVote(input);
 
     // then: vote can't be created
@@ -245,7 +246,7 @@ public class VotingServiceTests {
             .build();
 
     // and: mocked repository calls
-    var userGroupRepository = Mockito.mock(UserGroupRepository.class);
+    var userGroupRepository = Mockito.mock(JooqUserGroupRepository.class);
     var votingRepository = Mockito.mock(VotingRepository.class);
 
     Mockito.when(votingRepository.findVoteByUserAndVoting(any(), any())).thenReturn(null);
@@ -253,7 +254,7 @@ public class VotingServiceTests {
     Mockito.when(votingRepository.findGroupByUserAndVoting(any(), any())).thenReturn(null);
 
     // when: invoking the vote creation
-    var votingService = new VotingService(votingRepository, userGroupRepository);
+    var votingService = new DefaultVotingService(votingRepository, userGroupRepository);
     Result<Vote> vote = votingService.createVote(input);
 
     // then: vote can't be created
@@ -282,14 +283,14 @@ public class VotingServiceTests {
             .build();
 
     // and: mocked repository calls
-    var userGroupRepository = Mockito.mock(UserGroupRepository.class);
+    var userGroupRepository = Mockito.mock(JooqUserGroupRepository.class);
     var votingRepository = Mockito.mock(VotingRepository.class);
 
     Mockito.when(votingRepository.createVote(any(), any(), any(), any(), any()))
         .thenReturn(Vote.newBuilder().build());
 
     // when: invoking the vote creation
-    var votingService = new VotingService(votingRepository, userGroupRepository);
+    var votingService = new DefaultVotingService(votingRepository, userGroupRepository);
     Result<Vote> vote = votingService.createVote(input);
 
     // then: vote can't be created
@@ -323,7 +324,7 @@ public class VotingServiceTests {
             .build();
 
     // and: mocked repository calls
-    var userGroupRepository = Mockito.mock(UserGroupRepository.class);
+    var userGroupRepository = Mockito.mock(JooqUserGroupRepository.class);
     var votingRepository = Mockito.mock(VotingRepository.class);
 
     Mockito.when(votingRepository.findGroupByUserAndVoting(any(), any()))
@@ -333,7 +334,7 @@ public class VotingServiceTests {
         .thenReturn(Vote.newBuilder().build());
 
     // when: invoking the vote creation
-    var votingService = new VotingService(votingRepository, userGroupRepository);
+    var votingService = new DefaultVotingService(votingRepository, userGroupRepository);
     Result<Vote> vote = votingService.createVote(input);
 
     // then:
@@ -367,7 +368,7 @@ public class VotingServiceTests {
         .thenReturn(List.of(random(Voting.class), random(Voting.class), random(Voting.class)));
 
     // when: invoking the voting listing
-    var votingService = new VotingService(votingRepository, null);
+    var votingService = new DefaultVotingService(votingRepository, null);
     List<Voting> votings = votingService.listVotingsGroup(input);
 
     // then: the votings are returned
@@ -382,7 +383,7 @@ public class VotingServiceTests {
         .thenReturn(random(Voting.class));
 
     // when: getting a voting by id
-    var votingService = new VotingService(votingRepository, null);
+    var votingService = new DefaultVotingService(votingRepository, null);
     var input =
         GetVotingInput.newBuilder()
             .withCurrentUserId(UUID.randomUUID())
@@ -401,7 +402,7 @@ public class VotingServiceTests {
     Mockito.when(votingRepository.findVotingByUserAndVoting(any(), any())).thenReturn(null);
 
     // when: getting a voting by id
-    var votingService = new VotingService(votingRepository, null);
+    var votingService = new DefaultVotingService(votingRepository, null);
     var input =
         GetVotingInput.newBuilder()
             .withCurrentUserId(UUID.randomUUID())
@@ -430,7 +431,7 @@ public class VotingServiceTests {
                 Vote.newBuilder().build(), Vote.newBuilder().build(), Vote.newBuilder().build()));
 
     // when: invoking the vote listing
-    var votingService = new VotingService(votingRepository, null);
+    var votingService = new DefaultVotingService(votingRepository, null);
     List<Vote> votes = votingService.listVotesVoting(votingId);
 
     // then: the votes are returned
@@ -448,7 +449,7 @@ public class VotingServiceTests {
     var endDateTime = OffsetDateTime.now();
 
     // and: mocked userGroupRepository
-    var userGroupRepository = mock(UserGroupRepository.class);
+    var userGroupRepository = mock(JooqUserGroupRepository.class);
     Mockito.when(userGroupRepository.getUserGroup(currentUserId, groupId))
         .thenReturn(
             UserGroup.builder()
@@ -480,7 +481,7 @@ public class VotingServiceTests {
             .build();
 
     // when: invoking the vote listing
-    var votingService = new VotingService(votingRepository, userGroupRepository);
+    var votingService = new DefaultVotingService(votingRepository, userGroupRepository);
     Result<List<Vote>> votes = votingService.listUserVotesInGroup(input);
 
     // then: the votes are returned
@@ -499,7 +500,7 @@ public class VotingServiceTests {
     var endDateTime = OffsetDateTime.now();
 
     // and: mocked userGroupRepository
-    var userGroupRepository = mock(UserGroupRepository.class);
+    var userGroupRepository = mock(JooqUserGroupRepository.class);
     Mockito.when(userGroupRepository.getUserGroup(userId, groupId))
         .thenReturn(
             UserGroup.builder()
@@ -525,7 +526,7 @@ public class VotingServiceTests {
             .build();
 
     // when: invoking the vote listing
-    var votingService = new VotingService(votingRepository, userGroupRepository);
+    var votingService = new DefaultVotingService(votingRepository, userGroupRepository);
     Result<List<Vote>> votes = votingService.listUserVotesInGroup(input);
 
     // then: votes can't be retrieved
@@ -548,7 +549,7 @@ public class VotingServiceTests {
     var endDateTime = OffsetDateTime.now();
 
     // and: mocked userGroupRepository
-    var userGroupRepository = mock(UserGroupRepository.class);
+    var userGroupRepository = mock(JooqUserGroupRepository.class);
     Mockito.when(userGroupRepository.getUserGroup(currentUserId, groupId))
         .thenReturn(
             UserGroup.builder()
@@ -574,7 +575,7 @@ public class VotingServiceTests {
             .build();
 
     // when: invoking the vote listing
-    var votingService = new VotingService(votingRepository, userGroupRepository);
+    var votingService = new DefaultVotingService(votingRepository, userGroupRepository);
     Result<List<Vote>> votes = votingService.listUserVotesInGroup(input);
 
     // then: votes can't be retrieved

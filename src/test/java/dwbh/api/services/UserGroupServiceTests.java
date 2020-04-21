@@ -32,9 +32,11 @@ import dwbh.api.domain.UserGroup;
 import dwbh.api.domain.input.AddUserToGroupInput;
 import dwbh.api.domain.input.LeaveGroupInput;
 import dwbh.api.domain.input.ListUsersGroupInput;
-import dwbh.api.repositories.GroupRepository;
-import dwbh.api.repositories.UserGroupRepository;
-import dwbh.api.repositories.UserRepository;
+import dwbh.api.repositories.internal.JooqGroupRepository;
+import dwbh.api.repositories.internal.JooqUserGroupRepository;
+import dwbh.api.repositories.internal.JooqUserRepository;
+import dwbh.api.services.internal.DefaultGroupService;
+import dwbh.api.services.internal.DefaultUserGroupService;
 import dwbh.api.util.ErrorConstants;
 import java.util.List;
 import java.util.UUID;
@@ -47,7 +49,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mockito;
 
 /**
- * Tests {@link GroupService}
+ * Tests {@link DefaultGroupService}
  *
  * @since 0.1.0
  */
@@ -63,16 +65,16 @@ public class UserGroupServiceTests {
     var group = random(Group.class);
 
     // and: a mocked group repository
-    var groupRepository = Mockito.mock(GroupRepository.class);
+    var groupRepository = Mockito.mock(JooqGroupRepository.class);
     Mockito.when(groupRepository.getGroup(group.getId())).thenReturn(group);
 
     // and: a mocked user repository
-    var userRepository = Mockito.mock(UserRepository.class);
+    var userRepository = Mockito.mock(JooqUserRepository.class);
     Mockito.when(userRepository.getUser(currentUser.getId())).thenReturn(currentUser);
     Mockito.when(userRepository.getUserByEmail(user.getEmail())).thenReturn(user);
 
     // and: a mocked usergroup repository
-    var userGroupRepository = Mockito.mock(UserGroupRepository.class);
+    var userGroupRepository = Mockito.mock(JooqUserGroupRepository.class);
 
     // and: the user doesn't belong to the group
     Mockito.when(userGroupRepository.getUserGroup(user.getId(), group.getId())).thenReturn(null);
@@ -92,7 +94,7 @@ public class UserGroupServiceTests {
 
     // when: adding the user to the group
     var userGroupService =
-        new UserGroupService(groupRepository, userRepository, userGroupRepository);
+        new DefaultUserGroupService(groupRepository, userRepository, userGroupRepository);
     var result = userGroupService.addUserToGroup(addUserToGroupInput);
 
     // then: we should build it
@@ -113,16 +115,16 @@ public class UserGroupServiceTests {
     var group = random(Group.class);
 
     // and: a mocked group repository
-    var groupRepository = Mockito.mock(GroupRepository.class);
+    var groupRepository = Mockito.mock(JooqGroupRepository.class);
     Mockito.when(groupRepository.getGroup(group.getId())).thenReturn(group);
 
     // and: a mocked user repository
-    var userRepository = Mockito.mock(UserRepository.class);
+    var userRepository = Mockito.mock(JooqUserRepository.class);
     Mockito.when(userRepository.getUser(currentUser.getId())).thenReturn(currentUser);
     Mockito.when(userRepository.getUserByEmail(user.getEmail())).thenReturn(user);
 
     // and: a mocked usergroup repository
-    var userGroupRepository = Mockito.mock(UserGroupRepository.class);
+    var userGroupRepository = Mockito.mock(JooqUserGroupRepository.class);
 
     // and: the user doesn't belong to the group
     Mockito.when(userGroupRepository.getUserGroup(user.getId(), group.getId())).thenReturn(null);
@@ -142,7 +144,7 @@ public class UserGroupServiceTests {
 
     // when: adding the user to the group
     var userGroupService =
-        new UserGroupService(groupRepository, userRepository, userGroupRepository);
+        new DefaultUserGroupService(groupRepository, userRepository, userGroupRepository);
 
     var result = userGroupService.addUserToGroup(addUserToGroupInput);
 
@@ -165,18 +167,18 @@ public class UserGroupServiceTests {
     var group = random(Group.class);
 
     // and: a mocked group repository
-    var groupRepository = Mockito.mock(GroupRepository.class);
+    var groupRepository = Mockito.mock(JooqGroupRepository.class);
 
     // and: the group does't exists on db
     Mockito.when(groupRepository.getGroup(group.getId())).thenReturn(null);
 
     // and: a mocked user repository
-    var userRepository = Mockito.mock(UserRepository.class);
+    var userRepository = Mockito.mock(JooqUserRepository.class);
     Mockito.when(userRepository.getUser(currentUser.getId())).thenReturn(currentUser);
     Mockito.when(userRepository.getUserByEmail(user.getEmail())).thenReturn(user);
 
     // and: a mocked usergroup repository
-    var userGroupRepository = Mockito.mock(UserGroupRepository.class);
+    var userGroupRepository = Mockito.mock(JooqUserGroupRepository.class);
 
     // and: the user doesn't belong to the group
     Mockito.when(userGroupRepository.getUserGroup(user.getId(), group.getId())).thenReturn(null);
@@ -196,7 +198,7 @@ public class UserGroupServiceTests {
 
     // when: adding the user to the group
     var userGroupService =
-        new UserGroupService(groupRepository, userRepository, userGroupRepository);
+        new DefaultUserGroupService(groupRepository, userRepository, userGroupRepository);
 
     var result = userGroupService.addUserToGroup(addUserToGroupInput);
 
@@ -219,18 +221,18 @@ public class UserGroupServiceTests {
     var group = random(Group.class);
 
     // and: a mocked group repository
-    var groupRepository = Mockito.mock(GroupRepository.class);
+    var groupRepository = Mockito.mock(JooqGroupRepository.class);
     Mockito.when(groupRepository.getGroup(group.getId())).thenReturn(group);
 
     // and: a mocked user repository
-    var userRepository = Mockito.mock(UserRepository.class);
+    var userRepository = Mockito.mock(JooqUserRepository.class);
     Mockito.when(userRepository.getUser(currentUser.getId())).thenReturn(currentUser);
 
     // and: the user does't exists on db
     Mockito.when(userRepository.getUser(user.getId())).thenReturn(null);
 
     // and: a mocked usergroup repository
-    var userGroupRepository = Mockito.mock(UserGroupRepository.class);
+    var userGroupRepository = Mockito.mock(JooqUserGroupRepository.class);
 
     // and: the user doesn't belong to the group
     Mockito.when(userGroupRepository.getUserGroup(user.getId(), group.getId())).thenReturn(null);
@@ -250,7 +252,7 @@ public class UserGroupServiceTests {
 
     // when: adding the user to the group
     var userGroupService =
-        new UserGroupService(groupRepository, userRepository, userGroupRepository);
+        new DefaultUserGroupService(groupRepository, userRepository, userGroupRepository);
 
     var result = userGroupService.addUserToGroup(addUserToGroupInput);
 
@@ -273,16 +275,16 @@ public class UserGroupServiceTests {
     var group = random(Group.class);
 
     // and: a mocked group repository
-    var groupRepository = Mockito.mock(GroupRepository.class);
+    var groupRepository = Mockito.mock(JooqGroupRepository.class);
     Mockito.when(groupRepository.getGroup(group.getId())).thenReturn(group);
 
     // and: a mocked user repository
-    var userRepository = Mockito.mock(UserRepository.class);
+    var userRepository = Mockito.mock(JooqUserRepository.class);
     Mockito.when(userRepository.getUser(currentUser.getId())).thenReturn(currentUser);
     Mockito.when(userRepository.getUserByEmail(user.getEmail())).thenReturn(user);
 
     // and: a mocked usergroup repository
-    var userGroupRepository = Mockito.mock(UserGroupRepository.class);
+    var userGroupRepository = Mockito.mock(JooqUserGroupRepository.class);
 
     // and: the user already belong to the group
     Mockito.when(userGroupRepository.getUserGroup(user.getId(), group.getId()))
@@ -308,7 +310,7 @@ public class UserGroupServiceTests {
 
     // when: adding the user to the group
     var userGroupService =
-        new UserGroupService(groupRepository, userRepository, userGroupRepository);
+        new DefaultUserGroupService(groupRepository, userRepository, userGroupRepository);
 
     var result = userGroupService.addUserToGroup(addUserToGroupInput);
 
@@ -330,7 +332,7 @@ public class UserGroupServiceTests {
     var group = Group.builder().with(g -> g.setVisibleMemberList(true)).build();
 
     // given: a mocked user repository
-    var userGroupRepository = Mockito.mock(UserGroupRepository.class);
+    var userGroupRepository = Mockito.mock(JooqUserGroupRepository.class);
     Mockito.when(userGroupRepository.listUsersGroup(any())).thenReturn(randomListOf(5, User.class));
     Mockito.when(userGroupRepository.getUserGroup(any(), any()))
         .thenReturn(
@@ -341,7 +343,7 @@ public class UserGroupServiceTests {
                 .build());
 
     // when: getting a list of users by group
-    var userGroupService = new UserGroupService(null, null, userGroupRepository);
+    var userGroupService = new DefaultUserGroupService(null, null, userGroupRepository);
     var input = new ListUsersGroupInput(user.getId(), group.getId(), group.isVisibleMemberList());
     var usersByGroup = userGroupService.listUsersGroup(input);
 
@@ -361,7 +363,7 @@ public class UserGroupServiceTests {
     var group = Group.builder().with(g -> g.setVisibleMemberList(false)).build();
 
     // given: a mocked user repository
-    var userGroupRepository = Mockito.mock(UserGroupRepository.class);
+    var userGroupRepository = Mockito.mock(JooqUserGroupRepository.class);
     Mockito.when(userGroupRepository.listUsersGroup(any())).thenReturn(randomListOf(5, User.class));
     Mockito.when(userGroupRepository.getUserGroup(any(), any()))
         .thenReturn(
@@ -372,7 +374,7 @@ public class UserGroupServiceTests {
                 .build());
 
     // when: getting a list of users by group
-    var userGroupService = new UserGroupService(null, null, userGroupRepository);
+    var userGroupService = new DefaultUserGroupService(null, null, userGroupRepository);
     var input = new ListUsersGroupInput(user.getId(), group.getId(), group.isVisibleMemberList());
     var usersByGroup = userGroupService.listUsersGroup(input);
 
@@ -392,7 +394,7 @@ public class UserGroupServiceTests {
     var group = Group.builder().with(g -> g.setVisibleMemberList(false)).build();
 
     // given: a mocked user repository
-    var userGroupRepository = Mockito.mock(UserGroupRepository.class);
+    var userGroupRepository = Mockito.mock(JooqUserGroupRepository.class);
     Mockito.when(userGroupRepository.getUserGroup(any(), any()))
         .thenReturn(
             UserGroup.builder()
@@ -402,7 +404,7 @@ public class UserGroupServiceTests {
                 .build());
 
     // when: getting a list of users by group
-    var userGroupService = new UserGroupService(null, null, userGroupRepository);
+    var userGroupService = new DefaultUserGroupService(null, null, userGroupRepository);
     var input = new ListUsersGroupInput(user.getId(), group.getId(), group.isVisibleMemberList());
     var usersByGroup = userGroupService.listUsersGroup(input);
 
@@ -422,11 +424,11 @@ public class UserGroupServiceTests {
     var group = Group.builder().with(g -> g.setVisibleMemberList(true)).build();
 
     // given: a mocked user repository
-    var userGroupRepository = Mockito.mock(UserGroupRepository.class);
+    var userGroupRepository = Mockito.mock(JooqUserGroupRepository.class);
     Mockito.when(userGroupRepository.getUserGroup(any(), any())).thenReturn(null);
 
     // when: getting a list of users by group
-    var userGroupService = new UserGroupService(null, null, userGroupRepository);
+    var userGroupService = new DefaultUserGroupService(null, null, userGroupRepository);
     var input = new ListUsersGroupInput(user.getId(), group.getId(), group.isVisibleMemberList());
     var usersByGroup = userGroupService.listUsersGroup(input);
 
@@ -446,7 +448,7 @@ public class UserGroupServiceTests {
     var group = random(Group.class);
 
     // and: a mocked usergroup repository
-    var userGroupRepository = Mockito.mock(UserGroupRepository.class);
+    var userGroupRepository = Mockito.mock(JooqUserGroupRepository.class);
     Mockito.when(userGroupRepository.getUserGroup(currentUser.getId(), group.getId()))
         .thenReturn(random(UserGroup.class));
     Mockito.when(userGroupRepository.listAdminsGroup(group.getId())).thenReturn(List.of());
@@ -459,7 +461,7 @@ public class UserGroupServiceTests {
             .build();
 
     // when: calling to leaveGroup
-    var userGroupService = new UserGroupService(null, null, userGroupRepository);
+    var userGroupService = new DefaultUserGroupService(null, null, userGroupRepository);
     var result = userGroupService.leaveGroup(leaveGroupInput);
 
     // then: we should build a success
@@ -480,7 +482,7 @@ public class UserGroupServiceTests {
     var group = random(Group.class);
 
     // and: a mocked usergroup repository
-    var userGroupRepository = Mockito.mock(UserGroupRepository.class);
+    var userGroupRepository = Mockito.mock(JooqUserGroupRepository.class);
     Mockito.when(userGroupRepository.getUserGroup(currentUser.getId(), group.getId()))
         .thenReturn(random(UserGroup.class));
     Mockito.when(userGroupRepository.listAdminsGroup(group.getId()))
@@ -501,7 +503,7 @@ public class UserGroupServiceTests {
             .build();
 
     // when: calling to leaveGroup
-    var userGroupService = new UserGroupService(null, null, userGroupRepository);
+    var userGroupService = new DefaultUserGroupService(null, null, userGroupRepository);
     var result = userGroupService.leaveGroup(leaveGroupInput);
 
     // then: we should build a success
@@ -522,7 +524,7 @@ public class UserGroupServiceTests {
     var group = random(Group.class);
 
     // and: a mocked usergroup repository
-    var userGroupRepository = Mockito.mock(UserGroupRepository.class);
+    var userGroupRepository = Mockito.mock(JooqUserGroupRepository.class);
     Mockito.when(userGroupRepository.getUserGroup(currentUser.getId(), group.getId()))
         .thenReturn(random(UserGroup.class));
     Mockito.when(userGroupRepository.listAdminsGroup(group.getId()))
@@ -542,7 +544,7 @@ public class UserGroupServiceTests {
             .build();
 
     // when: calling to leaveGroup
-    var userGroupService = new UserGroupService(null, null, userGroupRepository);
+    var userGroupService = new DefaultUserGroupService(null, null, userGroupRepository);
     var result = userGroupService.leaveGroup(leaveGroupInput);
 
     // then: we should build a success
@@ -562,7 +564,7 @@ public class UserGroupServiceTests {
     var group = random(Group.class);
 
     // and: a mocked usergroup repository
-    var userGroupRepository = Mockito.mock(UserGroupRepository.class);
+    var userGroupRepository = Mockito.mock(JooqUserGroupRepository.class);
     Mockito.when(userGroupRepository.getUserGroup(currentUser.getId(), group.getId()))
         .thenReturn(null);
 
@@ -574,7 +576,7 @@ public class UserGroupServiceTests {
             .build();
 
     // when: calling to leaveGroup
-    var userGroupService = new UserGroupService(null, null, userGroupRepository);
+    var userGroupService = new DefaultUserGroupService(null, null, userGroupRepository);
     var result = userGroupService.leaveGroup(leaveGroupInput);
 
     // then: we should build a failure
@@ -595,7 +597,7 @@ public class UserGroupServiceTests {
     var group = random(Group.class);
 
     // and: a mocked usergroup repository
-    var userGroupRepository = Mockito.mock(UserGroupRepository.class);
+    var userGroupRepository = Mockito.mock(JooqUserGroupRepository.class);
     Mockito.when(userGroupRepository.getUserGroup(currentUser.getId(), group.getId()))
         .thenReturn(random(UserGroup.class));
     Mockito.when(userGroupRepository.listAdminsGroup(group.getId()))
@@ -615,7 +617,7 @@ public class UserGroupServiceTests {
             .build();
 
     // when: calling to leaveGroup
-    var userGroupService = new UserGroupService(null, null, userGroupRepository);
+    var userGroupService = new DefaultUserGroupService(null, null, userGroupRepository);
     var result = userGroupService.leaveGroup(leaveGroupInput);
 
     // then: we should build a failure
@@ -630,11 +632,11 @@ public class UserGroupServiceTests {
   @ParameterizedTest(name = "Check whether a user is a group admin or not [{index}]")
   @MethodSource("testIsAdminSource")
   void testIsAdmin(UserGroup userGroup, boolean expected) {
-    var repository = Mockito.mock(UserGroupRepository.class);
+    var repository = Mockito.mock(JooqUserGroupRepository.class);
     Mockito.when(repository.getUserGroup(any(), any())).thenReturn(userGroup);
 
     // when: asking if the user is admin
-    var service = new UserGroupService(null, null, repository);
+    var service = new DefaultUserGroupService(null, null, repository);
     var isAdmin = service.isAdmin(UUID.randomUUID(), UUID.randomUUID());
 
     // then: we should get the expected result

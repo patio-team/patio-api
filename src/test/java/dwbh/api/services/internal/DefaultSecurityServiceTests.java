@@ -28,7 +28,7 @@ import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import dwbh.api.domain.User;
 import dwbh.api.domain.input.LoginInput;
-import dwbh.api.repositories.UserRepository;
+import dwbh.api.repositories.internal.JooqUserRepository;
 import dwbh.api.services.CryptoService;
 import dwbh.api.util.ErrorConstants;
 import java.util.Optional;
@@ -57,7 +57,7 @@ public class DefaultSecurityServiceTests {
     Mockito.when(decodedJWT.getSubject()).thenReturn(null);
     Mockito.when(cryptoService.verifyToken(any())).thenReturn(Optional.of(decodedJWT));
 
-    var userRepository = Mockito.mock(UserRepository.class);
+    var userRepository = Mockito.mock(JooqUserRepository.class);
     var providedUser = random(User.class);
     Mockito.when(userRepository.findOrCreateUser(any())).thenReturn(providedUser);
 
@@ -81,7 +81,7 @@ public class DefaultSecurityServiceTests {
     Mockito.when(decodedJWT.getClaim("email")).thenReturn(claim);
     Mockito.when(cryptoService.verifyToken(any())).thenReturn(Optional.of(decodedJWT));
 
-    var userRepository = Mockito.mock(UserRepository.class);
+    var userRepository = Mockito.mock(JooqUserRepository.class);
 
     // when: executing security service with a wrong token
     var securityService = new DefaultSecurityService(cryptoService, null, null, userRepository);
@@ -99,7 +99,7 @@ public class DefaultSecurityServiceTests {
     var plainPassword = "password";
 
     // and: a repository returning a specific user
-    var userRepository = Mockito.mock(UserRepository.class);
+    var userRepository = Mockito.mock(JooqUserRepository.class);
     var storedUser = random(User.class);
     storedUser.setPassword(cryptoService.hash(plainPassword));
     Mockito.when(userRepository.findByEmail(any())).thenReturn(storedUser);
@@ -125,7 +125,7 @@ public class DefaultSecurityServiceTests {
     var cryptoService = new Auth0CryptoService(configuration);
 
     // and: a repository returning a specific user
-    var userRepository = Mockito.mock(UserRepository.class);
+    var userRepository = Mockito.mock(JooqUserRepository.class);
     Mockito.when(userRepository.findByEmail(any())).thenReturn(null);
 
     // when: executing the security service with good credentials

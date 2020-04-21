@@ -22,6 +22,7 @@ import static dwbh.api.util.ErrorConstants.NOT_ALLOWED;
 
 import dwbh.api.domain.UserGroup;
 import dwbh.api.repositories.UserGroupRepository;
+import dwbh.api.repositories.internal.JooqUserGroupRepository;
 import dwbh.api.util.Check;
 import dwbh.api.util.Result;
 import java.util.UUID;
@@ -38,7 +39,7 @@ public class UserCanSeeGroupMembers {
   /**
    * Constructor receiving a repository to access the underlying datastore
    *
-   * @param repository an instance of {@link UserGroupRepository}
+   * @param repository an instance of {@link JooqUserGroupRepository}
    * @since 0.1.0
    */
   public UserCanSeeGroupMembers(UserGroupRepository repository) {
