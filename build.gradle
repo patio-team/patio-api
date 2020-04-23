@@ -34,7 +34,7 @@ repositories {
 
 dependencyManagement {
     imports {
-        mavenBom 'io.micronaut:micronaut-bom:1.2.0'
+        mavenBom 'io.micronaut:micronaut-bom:1.3.4'
     }
 }
 
@@ -53,9 +53,9 @@ dependencies {
     // database
     runtime 'io.micronaut.configuration:micronaut-jdbc-hikari'
     runtime 'org.postgresql:postgresql:42.2.5'
-    compile 'io.micronaut.configuration:micronaut-flyway:1.0.0.RC3'
-    compile 'org.jooq:jooq:3.11.9'
-    compile 'org.jooq:jooq-meta:3.11.9'
+    compile 'io.micronaut.configuration:micronaut-flyway:1.2.0'
+    compile 'org.jooq:jooq:3.13.1'
+    compile 'org.jooq:jooq-meta:3.13.1'
 
     // graphql scalars
     compile 'com.graphql-java:graphql-java-extended-scalars:1.0'
