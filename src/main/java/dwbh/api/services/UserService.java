@@ -19,6 +19,7 @@ package dwbh.api.services;
 
 import dwbh.api.domain.User;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 /**
@@ -34,7 +35,7 @@ public interface UserService {
    * @return a list of {@link User} instances
    * @since 0.1.0
    */
-  List<User> listUsers();
+  Iterable<User> listUsers();
 
   /**
    * Get the specified user
@@ -43,7 +44,7 @@ public interface UserService {
    * @return The requested {@link User}
    * @since 0.1.0
    */
-  User getUser(UUID id);
+  Optional<User> getUser(UUID id);
 
   /**
    * Listing users by their ids. It's mainly used for batching purposes in GraphQL calls
@@ -52,5 +53,5 @@ public interface UserService {
    * @return a list of {@link User} instances
    * @since 0.1.0
    */
-  List<User> listUsersByIds(List<UUID> ids);
+  Iterable<User> listUsersByIds(List<UUID> ids);
 }

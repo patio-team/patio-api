@@ -19,14 +19,14 @@ package dwbh.api.services.internal.checkers;
 
 import static dwbh.api.util.Check.checkIsFalse;
 
+import dwbh.api.domain.Group;
 import dwbh.api.domain.UserGroup;
-import dwbh.api.repositories.UserGroupRepository;
-import dwbh.api.repositories.internal.JooqUserGroupRepository;
 import dwbh.api.util.Check;
 import dwbh.api.util.ErrorConstants;
 import dwbh.api.util.Result;
-import java.util.List;
-import java.util.UUID;
+import java.util.Collection;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Checks that a given user is not the unique admin in a group
@@ -35,29 +35,26 @@ import java.util.UUID;
  */
 public class UserIsNotUniqueGroupAdmin {
 
-  private final transient UserGroupRepository repository;
-
-  /**
-   * Constructor receiving access to the underlying data store
-   *
-   * @param repository an instance of {@link JooqUserGroupRepository}
-   * @since 0.1.0
-   */
-  public UserIsNotUniqueGroupAdmin(UserGroupRepository repository) {
-    this.repository = repository;
-  }
-
   /**
    * Checks that a given user is not the only admin in a group
    *
-   * @param userId the user's id
-   * @param groupId the group's id
+   * @param userGroup the user-group relationship to check
    * @return a failing {@link Result} if the user is the only admin in a group
    * @since 0.1.0
    */
-  public Check check(UUID userId, UUID groupId) {
-    List<UserGroup> admins = repository.listAdminsGroup(groupId);
-    boolean isUniqueAdmin = admins.size() == 1 && admins.get(0).getUserId().equals(userId);
+  public Check check(Optional<UserGroup> userGroup) {
+    var allGroupUserStream =
+        userGroup.map(UserGroup::getGroup).map(Group::getUsers).stream()
+            .flatMap(Collection::stream);
+    var adminUserList =
+        allGroupUserStream
+            .filter(UserGroup::isAdmin)
+            .map(UserGroup::getUser)
+            .collect(Collectors.toList());
+
+    long adminUserCount = adminUserList.size();
+    boolean isUserAdmin = userGroup.map(UserGroup::isAdmin).orElse(false);
+    boolean isUniqueAdmin = adminUserCount == 1 && isUserAdmin;
 
     return checkIsFalse(isUniqueAdmin, ErrorConstants.UNIQUE_ADMIN);
   }

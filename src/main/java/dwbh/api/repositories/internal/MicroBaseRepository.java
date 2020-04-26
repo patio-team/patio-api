@@ -15,32 +15,30 @@
  * You should have received a copy of the GNU General Public License
  * along with DWBH.  If not, see <https://www.gnu.org/licenses/>
  */
-package dwbh.api.fixtures;
+package dwbh.api.repositories.internal;
 
-import io.micronaut.context.annotation.Bean;
-import io.micronaut.context.annotation.Factory;
-import javax.inject.Singleton;
-import org.jooq.DSLContext;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 
-/**
- * Responsible to create a singleton instance of {@link Fixtures} type to use in database related
- * tests
- *
- * @since 0.1.0
- * @see Fixtures
- */
-@Factory
-public class FixturesFactory {
+/** Base repository to access {@link EntityManager} */
+/* default */ class MicroBaseRepository {
+  @PersistenceContext private final transient EntityManager entityManager;
 
   /**
-   * Creates a singleton instance of a {@link Fixtures} type
+   * Initializes repository with {@link EntityManager}
    *
-   * @param dslContext to execute queries
-   * @return an instance of {@link Fixtures}
+   * @param entityManager persistence {@link EntityManager} instance
    */
-  @Bean
-  @Singleton
-  public Fixtures create(DSLContext dslContext) {
-    return new Fixtures(dslContext);
+  /* default */ MicroBaseRepository(EntityManager entityManager) {
+    this.entityManager = entityManager;
+  }
+
+  /**
+   * Returns the current {@link EntityManager}
+   *
+   * @return an {@link EntityManager}
+   */
+  /* default */ EntityManager getEntityManager() {
+    return entityManager;
   }
 }

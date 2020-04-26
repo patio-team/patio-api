@@ -27,7 +27,15 @@
         </encoder>
     </appender>
 
-    <logger name="org.jooq.tools.LoggerListener" level="INFO"/>
+    <!--
+    UNCOMMENT FOR EXPOSE ERRORS COMING FROM DEPENDENCY INJECTION
+    <logger name="io.micronaut.context.condition" level="DEBUG" />
+    -->
+    <!--
+    UNCOMMENT FOR EXPOSING SQL QUERIES AND QUERY PARAMETERS
+    <logger name="org.hibernate.SQL" level="ALL" />
+    <logger name="org.hibernate.type.descriptor.sql" level="TRACE" />
+    -->
     <logger name="dwbh.api" level="INFO" />
 
     <root level="info">

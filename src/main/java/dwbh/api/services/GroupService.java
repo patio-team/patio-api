@@ -37,7 +37,7 @@ public interface GroupService {
    * @return a list of {@link Group} instances
    * @since 0.1.0
    */
-  List<Group> listGroups();
+  Iterable<Group> listGroups();
 
   /**
    * Fetches the list of groups in which an user is a member

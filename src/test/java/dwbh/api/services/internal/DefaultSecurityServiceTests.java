@@ -28,7 +28,7 @@ import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import dwbh.api.domain.User;
 import dwbh.api.domain.input.LoginInput;
-import dwbh.api.repositories.internal.JooqUserRepository;
+import dwbh.api.repositories.UserRepository;
 import dwbh.api.services.CryptoService;
 import dwbh.api.util.ErrorConstants;
 import java.util.Optional;
@@ -57,16 +57,16 @@ public class DefaultSecurityServiceTests {
     Mockito.when(decodedJWT.getSubject()).thenReturn(null);
     Mockito.when(cryptoService.verifyToken(any())).thenReturn(Optional.of(decodedJWT));
 
-    var userRepository = Mockito.mock(JooqUserRepository.class);
-    var providedUser = random(User.class);
-    Mockito.when(userRepository.findOrCreateUser(any())).thenReturn(providedUser);
+    var userRepository = Mockito.mock(UserRepository.class);
+    var providedUser = Optional.of(random(User.class));
+    Mockito.when(userRepository.findByEmailOrCreate(any())).thenReturn(providedUser);
 
     // when: executing security service with a good token
     var securityService = new DefaultSecurityService(cryptoService, null, null, userRepository);
     var user = securityService.resolveUser("good_token");
 
     // then: we should build the information of the matching user
-    assertEquals(providedUser.getName(), user.get().getName());
+    assertEquals(providedUser.get().getName(), user.get().getName());
   }
 
   @Test
@@ -81,7 +81,7 @@ public class DefaultSecurityServiceTests {
     Mockito.when(decodedJWT.getClaim("email")).thenReturn(claim);
     Mockito.when(cryptoService.verifyToken(any())).thenReturn(Optional.of(decodedJWT));
 
-    var userRepository = Mockito.mock(JooqUserRepository.class);
+    var userRepository = Mockito.mock(UserRepository.class);
 
     // when: executing security service with a wrong token
     var securityService = new DefaultSecurityService(cryptoService, null, null, userRepository);
@@ -99,14 +99,14 @@ public class DefaultSecurityServiceTests {
     var plainPassword = "password";
 
     // and: a repository returning a specific user
-    var userRepository = Mockito.mock(JooqUserRepository.class);
-    var storedUser = random(User.class);
-    storedUser.setPassword(cryptoService.hash(plainPassword));
+    var userRepository = Mockito.mock(UserRepository.class);
+    var storedUser = Optional.of(random(User.class));
+    storedUser.get().setPassword(cryptoService.hash(plainPassword));
     Mockito.when(userRepository.findByEmail(any())).thenReturn(storedUser);
 
     // when: executing the security service with good credentials
     var securityService = new DefaultSecurityService(cryptoService, null, null, userRepository);
-    var result = securityService.login(new LoginInput(storedUser.getEmail(), plainPassword));
+    var result = securityService.login(new LoginInput(storedUser.get().getEmail(), plainPassword));
 
     // then: we should build a token that matches the user stored in database
     var resultUser = result.getSuccess().getUser();
@@ -115,7 +115,7 @@ public class DefaultSecurityServiceTests {
 
     assertNotNull(resultUser);
     assertNotNull(result);
-    assertEquals(resultEmail.getSubject(), storedUser.getEmail());
+    assertEquals(resultEmail.getSubject(), storedUser.get().getEmail());
   }
 
   @Test
@@ -125,8 +125,8 @@ public class DefaultSecurityServiceTests {
     var cryptoService = new Auth0CryptoService(configuration);
 
     // and: a repository returning a specific user
-    var userRepository = Mockito.mock(JooqUserRepository.class);
-    Mockito.when(userRepository.findByEmail(any())).thenReturn(null);
+    var userRepository = Mockito.mock(UserRepository.class);
+    Mockito.when(userRepository.findByEmail(any())).thenReturn(Optional.empty());
 
     // when: executing the security service with good credentials
     var securityService = new DefaultSecurityService(cryptoService, null, null, userRepository);

@@ -17,35 +17,31 @@
  */
 package dwbh.api.repositories;
 
+import dwbh.api.domain.Group;
 import dwbh.api.domain.User;
+import io.micronaut.data.repository.PageableRepository;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 /** All database actions related to {@link User} entity */
-public interface UserRepository {
+public interface UserRepository extends PageableRepository<User, UUID> {
 
   /**
-   * Lists all users
-   *
-   * @return a list of {@link User} instances
-   */
-  List<User> listUsers();
-
-  /**
-   * Gets a list of {@link User} instances by their ids
+   * Gets a list of {@link User} instances by their ids sorted by these ids
    *
    * @param ids list of ids of the {@link User} instances to get
    * @return a list of {@link User} instances
    */
-  List<User> listUsersByIds(List<UUID> ids);
+  Iterable<User> findAllByIdInListOrderById(List<UUID> ids);
 
   /**
-   * Persist an instance of {@link User}
+   * Finds all users of a given {@link Group}
    *
-   * @param user an instance of {@link User} to be persisted
-   * @return the instance of the {@link User} persisted
+   * @param group the {@link Group} the users belong to
+   * @return a list of groups users {@link User}
    */
-  User createUser(User user);
+  Iterable<User> findAllByGroup(Group group);
 
   /**
    * Tries to find a given user in the database and if it's not there, then the {@link User} is
@@ -54,29 +50,13 @@ public interface UserRepository {
    * @param user instance of the user to find/persist
    * @return the persisted instance of {@link User}
    */
-  User findOrCreateUser(User user);
-
-  /**
-   * Gets a persisted {@link User} by its id
-   *
-   * @param userId user's id
-   * @return the persisted {@link User} instance
-   */
-  User getUser(UUID userId);
+  Optional<User> findByEmailOrCreate(User user);
 
   /**
    * Gets a persisted {@link User} by its email
    *
    * @param email the user's email
-   * @return the persisted {@link User} instance
+   * @return and {@link Optional} of the {@link User}
    */
-  User getUserByEmail(String email);
-
-  /**
-   * Gets a persisted {@link User} by its email
-   *
-   * @param email the user's email
-   * @return the persisted {@link User} instance
-   */
-  User findByEmail(String email);
+  Optional<User> findByEmail(String email);
 }

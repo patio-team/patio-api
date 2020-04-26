@@ -18,45 +18,37 @@
 package dwbh.api.repositories;
 
 import dwbh.api.domain.Group;
-import java.time.DayOfWeek;
+import io.micronaut.data.annotation.Query;
+import io.micronaut.data.repository.PageableRepository;
+import java.time.OffsetDateTime;
 import java.time.OffsetTime;
-import java.util.List;
 import java.util.UUID;
+import java.util.stream.Stream;
 
 /** All database actions related to {@link Group} entity */
-public interface GroupRepository {
+public interface GroupRepository extends PageableRepository<Group, UUID> {
 
   /**
-   * Lists all groups
+   * Finds all groups for a specific voting day having voting time before or at a specific time
    *
-   * @return a list of {@link Group}
+   * @param day day of the week
+   * @param time time after or at it's voting voting time
+   * @return a {@link Stream} of {@link Group}
    */
-  List<Group> listGroups();
+  @Query(
+      value = "SELECT * FROM groups WHERE :day=ANY(voting_days) AND voting_time <= :time",
+      nativeQuery = true)
+  Stream<Group> findAllByDayOfWeekAndVotingTimeLessEq(String day, OffsetTime time);
 
   /**
-   * Finds a {@link Group} by its id
+   * Finds all groups having a voting between two dates
    *
-   * @param groupId group id
-   * @return an instance of a {@link Group}
+   * @param fromDateTime lower bound of type {@link OffsetDateTime}
+   * @param toDateTime upper bound of type {@link OffsetDateTime}
+   * @return a {@link Stream} of the {@link Group} having a voting between these two moments
    */
-  Group getGroup(UUID groupId);
-
-  /**
-   * Inserts a new {@link Group} or updates the {@link Group} with the groupId passed as parameter
-   *
-   * @param groupId id of the group to update
-   * @param name name of the group
-   * @param visibleMemberList whether the group allows members to see the member list
-   * @param anonymousVote whether the group allows anonymous votes
-   * @param daysOfWeek the days of the week when users can vote
-   * @param time moment of the day when the voting happens
-   * @return an instance of a new {@link Group} or the updated {@link Group} instance
-   */
-  Group upsertGroup(
-      UUID groupId,
-      String name,
-      boolean visibleMemberList,
-      boolean anonymousVote,
-      List<DayOfWeek> daysOfWeek,
-      OffsetTime time);
+  @Query(
+      "SELECT v.group FROM Voting v WHERE v.createdAtDateTime BETWEEN :fromDateTime AND :toDateTime")
+  Stream<Group> findAllByVotingCreatedAtDateTimeBetween(
+      OffsetDateTime fromDateTime, OffsetDateTime toDateTime);
 }

@@ -19,12 +19,15 @@ package dwbh.api.services.internal.checkers;
 
 import static dwbh.api.util.Check.checkIsTrue;
 
+import dwbh.api.domain.User;
 import dwbh.api.domain.Vote;
-import dwbh.api.domain.input.CreateVoteInput;
-import dwbh.api.repositories.VotingRepository;
+import dwbh.api.domain.Voting;
+import dwbh.api.repositories.VoteRepository;
 import dwbh.api.util.Check;
 import dwbh.api.util.ErrorConstants;
+import dwbh.api.util.OptionalUtils;
 import dwbh.api.util.Result;
+import java.util.Optional;
 
 /**
  * Checks that a given user has not voted already.
@@ -33,28 +36,30 @@ import dwbh.api.util.Result;
  */
 public class UserOnlyVotedOnce {
 
-  private final transient VotingRepository repository;
+  private final transient VoteRepository repository;
 
   /**
    * Constructor receiving the required repository to be able to query the underlying datastore
    *
-   * @param repository an instance of {@link VotingRepository}
+   * @param repository an instance of {@link VoteRepository}
    * @since 0.1.0
    */
-  public UserOnlyVotedOnce(VotingRepository repository) {
+  public UserOnlyVotedOnce(VoteRepository repository) {
     this.repository = repository;
   }
 
   /**
-   * Checks that the user has not voted already
+   * Checks that the user has not voted already or it's an anonymous user
    *
-   * @param input contains information about the user and group
+   * @param user the user that could have created the vote
+   * @param voting the voting the vote belongs to
    * @return a failing {@link Result} if the user already voted
    * @since 0.1.0
    */
-  public Check check(CreateVoteInput input) {
-    Vote vote = repository.findVoteByUserAndVoting(input.getUserId(), input.getVotingId());
+  public Check check(Optional<User> user, Optional<Voting> voting) {
+    Optional<Vote> voteFound =
+        OptionalUtils.combine(user, voting).flatmapInto(repository::findByCreatedByAndVoting);
 
-    return checkIsTrue(vote == null, ErrorConstants.USER_ALREADY_VOTE);
+    return checkIsTrue(user.isEmpty() || voteFound.isEmpty(), ErrorConstants.USER_ALREADY_VOTE);
   }
 }

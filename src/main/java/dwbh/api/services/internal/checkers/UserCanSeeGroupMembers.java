@@ -21,10 +21,11 @@ import static dwbh.api.util.Check.checkIsTrue;
 import static dwbh.api.util.ErrorConstants.NOT_ALLOWED;
 
 import dwbh.api.domain.UserGroup;
+import dwbh.api.domain.UserGroupKey;
 import dwbh.api.repositories.UserGroupRepository;
-import dwbh.api.repositories.internal.JooqUserGroupRepository;
 import dwbh.api.util.Check;
 import dwbh.api.util.Result;
+import java.util.Optional;
 import java.util.UUID;
 
 /**
@@ -39,7 +40,7 @@ public class UserCanSeeGroupMembers {
   /**
    * Constructor receiving a repository to access the underlying datastore
    *
-   * @param repository an instance of {@link JooqUserGroupRepository}
+   * @param repository an instance of {@link UserGroupRepository}
    * @since 0.1.0
    */
   public UserCanSeeGroupMembers(UserGroupRepository repository) {
@@ -57,9 +58,8 @@ public class UserCanSeeGroupMembers {
    * @since 0.1.0
    */
   public Check check(UUID userId, UUID groupId, boolean isVisibleMemberList) {
-    UserGroup userGroup = repository.getUserGroup(userId, groupId);
-
-    return checkIsTrue(
-        userGroup != null && (userGroup.isAdmin() || isVisibleMemberList), NOT_ALLOWED);
+    Optional<UserGroup> userGroup = repository.findById(new UserGroupKey(userId, groupId));
+    boolean isAdmin = userGroup.map(UserGroup::isAdmin).orElse(false);
+    return checkIsTrue(isAdmin || isVisibleMemberList, NOT_ALLOWED);
   }
 }

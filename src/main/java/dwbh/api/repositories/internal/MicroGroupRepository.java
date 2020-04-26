@@ -15,11 +15,23 @@
  * You should have received a copy of the GNU General Public License
  * along with DWBH.  If not, see <https://www.gnu.org/licenses/>
  */
-package dwbh.api.repositories;
+package dwbh.api.repositories.internal;
 
-import dwbh.api.domain.UserGroup;
-import dwbh.api.domain.UserGroupKey;
-import io.micronaut.data.repository.PageableRepository;
+import dwbh.api.domain.Group;
+import dwbh.api.repositories.GroupRepository;
+import io.micronaut.data.annotation.Repository;
+import javax.persistence.EntityManager;
 
-/** All database actions related to {@link UserGroup} entity */
-public interface UserGroupRepository extends PageableRepository<UserGroup, UserGroupKey> {}
+/** Persistence implementation access for {@link Group} */
+@Repository
+public abstract class MicroGroupRepository extends MicroBaseRepository implements GroupRepository {
+
+  /**
+   * Initializes repository with {@link EntityManager}
+   *
+   * @param entityManager persistence {@link EntityManager} instance
+   */
+  public MicroGroupRepository(EntityManager entityManager) {
+    super(entityManager);
+  }
+}

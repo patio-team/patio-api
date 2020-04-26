@@ -18,20 +18,27 @@
 package dwbh.api.services.internal;
 
 import dwbh.api.domain.Group;
+import dwbh.api.domain.User;
+import dwbh.api.domain.UserGroup;
 import dwbh.api.domain.input.GetGroupInput;
 import dwbh.api.domain.input.UpsertGroupInput;
 import dwbh.api.repositories.GroupRepository;
 import dwbh.api.repositories.UserGroupRepository;
-import dwbh.api.repositories.internal.JooqGroupRepository;
-import dwbh.api.repositories.internal.JooqUserGroupRepository;
+import dwbh.api.repositories.UserRepository;
 import dwbh.api.services.GroupService;
-import dwbh.api.services.internal.checkers.NotNull;
+import dwbh.api.services.internal.checkers.NotPresent;
 import dwbh.api.services.internal.checkers.UserIsGroupAdmin;
 import dwbh.api.services.internal.checkers.UserIsInGroup;
+import dwbh.api.util.Builder;
+import dwbh.api.util.OptionalUtils;
 import dwbh.api.util.Result;
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import javax.inject.Singleton;
+import javax.transaction.Transactional;
 
 /**
  * Business logic regarding {@link Group} domain
@@ -39,48 +46,69 @@ import javax.inject.Singleton;
  * @since 0.1.0
  */
 @Singleton
+@Transactional
 public class DefaultGroupService implements GroupService {
 
   private final transient GroupRepository groupRepository;
   private final transient UserGroupRepository userGroupRepository;
+  private final transient UserRepository userRepository;
 
   /**
    * Initializes service by using the database repositories
    *
-   * @param groupRepository an instance of {@link JooqGroupRepository}
-   * @param userGroupRepository an instance of {@link JooqUserGroupRepository}
+   * @param groupRepository an instance of {@link GroupRepository}
+   * @param userRepository an instance of {@link UserRepository}
+   * @param userGroupRepository an instance of {@link UserGroupRepository}
    * @since 0.1.0
    */
   public DefaultGroupService(
-      GroupRepository groupRepository, UserGroupRepository userGroupRepository) {
+      GroupRepository groupRepository,
+      UserRepository userRepository,
+      UserGroupRepository userGroupRepository) {
     this.groupRepository = groupRepository;
+    this.userRepository = userRepository;
     this.userGroupRepository = userGroupRepository;
   }
 
   @Override
-  public List<Group> listGroups() {
-    return groupRepository.listGroups();
+  public Iterable<Group> listGroups() {
+    return groupRepository.findAll();
   }
 
   @Override
   public List<Group> listGroupsUser(UUID userId) {
-    return userGroupRepository.listGroupsUser(userId);
+    return userRepository.findById(userId).stream()
+        .map(User::getGroups)
+        .flatMap(Set::stream)
+        .map(UserGroup::getGroup)
+        .collect(Collectors.toList());
   }
 
   @Override
-  public Group createGroup(UpsertGroupInput createGroupInput) {
-    UUID id = UUID.randomUUID();
-    Group group =
-        groupRepository.upsertGroup(
-            id,
-            createGroupInput.getName(),
-            createGroupInput.isAnonymousVote(),
-            createGroupInput.isVisibleMemberList(),
-            createGroupInput.getVotingDays(),
-            createGroupInput.getVotingTime());
+  public Group createGroup(UpsertGroupInput input) {
+    Group groupToSave =
+        Group.builder()
+            .with(g -> g.setName(input.getName()))
+            .with(g -> g.setAnonymousVote(input.isAnonymousVote()))
+            .with(g -> g.setVisibleMemberList(input.isVisibleMemberList()))
+            .with(g -> g.setVotingDays(input.getVotingDays()))
+            .with(g -> g.setVotingTime(input.getVotingTime()))
+            .build();
 
-    userGroupRepository.addUserToGroup(createGroupInput.getCurrentUserId(), group.getId(), true);
-    return group;
+    Optional<User> user = userRepository.findById(input.getCurrentUserId());
+    Optional<Group> group = Optional.of(groupRepository.save(groupToSave));
+
+    return OptionalUtils.combine(user, group)
+        .into(this::createUserGroupAdmin)
+        .map(userGroupRepository::save)
+        .map(UserGroup::getGroup)
+        .orElse(null);
+  }
+
+  private UserGroup createUserGroupAdmin(User user, Group group) {
+    UserGroup userGroup = new UserGroup(user, group);
+    userGroup.setAdmin(true);
+    return userGroup;
   }
 
   @Override
@@ -92,26 +120,31 @@ public class DefaultGroupService implements GroupService {
         .then(() -> updateGroupIfSuccess(input));
   }
 
-  private Group updateGroupIfSuccess(UpsertGroupInput updateGroupInput) {
-    return groupRepository.upsertGroup(
-        updateGroupInput.getGroupId(),
-        updateGroupInput.getName(),
-        updateGroupInput.isVisibleMemberList(),
-        updateGroupInput.isAnonymousVote(),
-        updateGroupInput.getVotingDays(),
-        updateGroupInput.getVotingTime());
+  private Group updateGroupIfSuccess(UpsertGroupInput input) {
+    return groupRepository
+        .findById(input.getGroupId())
+        .map(g -> Builder.build(() -> g))
+        .map(b -> b.with(g -> g.setName(input.getName())))
+        .map(b -> b.with(g -> g.setVisibleMemberList(input.isVisibleMemberList())))
+        .map(b -> b.with(g -> g.setAnonymousVote(input.isAnonymousVote())))
+        .map(b -> b.with(g -> g.setVotingDays(input.getVotingDays())))
+        .map(b -> b.with(g -> g.setVotingTime(input.getVotingTime())))
+        .map(Builder::build)
+        .map(groupRepository::update)
+        .orElse(null);
   }
 
   @Override
   public Result<Group> getGroup(GetGroupInput input) {
-    Group group = groupRepository.getGroup(input.getGroupId());
+    Optional<Group> group = groupRepository.findById(input.getGroupId());
+    Optional<User> currentUser = userRepository.findById(input.getCurrentUserId());
 
-    NotNull notNull = new NotNull();
-    UserIsInGroup userIsInGroup = new UserIsInGroup(userGroupRepository);
+    NotPresent notPresent = new NotPresent();
+    UserIsInGroup userIsInGroup = new UserIsInGroup();
 
     return Result.<Group>create()
-        .thenCheck(() -> notNull.check(group))
-        .thenCheck(() -> userIsInGroup.check(input.getCurrentUserId(), input.getGroupId()))
-        .then(() -> group);
+        .thenCheck(() -> notPresent.check(group))
+        .thenCheck(() -> userIsInGroup.check(currentUser, group))
+        .then(() -> group.get());
   }
 }

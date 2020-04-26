@@ -24,7 +24,9 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import org.jooq.DSLContext;
+import java.sql.SQLException;
+import javax.inject.Singleton;
+import javax.sql.DataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,29 +35,20 @@ import org.slf4j.LoggerFactory;
  *
  * @since 0.1.0
  */
+@Singleton
 public class Fixtures {
 
   private static final Logger LOG = LoggerFactory.getLogger(Fixtures.class);
-  private final DSLContext context;
+  private final transient DataSource dataSource;
 
   /**
    * Initializes the fixtures
    *
-   * @param context Jooq context to execute database queries
+   * @param
    * @since 0.1.0
-   * @see DSLContext
    */
-  public Fixtures(DSLContext context) {
-    this.context = context;
-  }
-
-  /**
-   * Returns the current {@link DSLContext} instance
-   *
-   * @return an instance of {@link DSLContext}
-   */
-  public DSLContext getContext() {
-    return this.context;
+  public Fixtures(DataSource dataSource) {
+    this.dataSource = dataSource;
   }
 
   /**
@@ -67,10 +60,23 @@ public class Fixtures {
    */
   public void load(Class locator, String sqlFilename) {
     try {
+      var connection = dataSource.getConnection();
       var sqlArray = getStatements(locator, sqlFilename);
+      var statement = connection.createStatement();
 
-      context.batch(sqlArray).execute();
-    } catch (URISyntaxException | IOException exception) {
+      try {
+
+        for (String query : sqlArray) {
+          statement.addBatch(query);
+        }
+
+        statement.executeBatch();
+      } finally {
+        statement.close();
+        connection.close();
+      }
+
+    } catch (URISyntaxException | IOException | SQLException exception) {
       LOG.error(exception.getMessage(), exception);
     }
   }

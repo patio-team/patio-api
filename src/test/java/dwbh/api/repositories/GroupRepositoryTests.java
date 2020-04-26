@@ -17,15 +17,16 @@
  */
 package dwbh.api.repositories;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import dwbh.api.domain.Group;
+import dwbh.api.domain.User;
 import dwbh.api.fixtures.Fixtures;
 import io.micronaut.test.annotation.MicronautTest;
-import java.time.DayOfWeek;
+import java.time.OffsetDateTime;
 import java.time.OffsetTime;
-import java.util.List;
 import java.util.UUID;
+import java.util.function.Predicate;
 import javax.inject.Inject;
 import org.flywaydb.core.Flyway;
 import org.junit.jupiter.api.AfterEach;
@@ -36,13 +37,13 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 /**
- * Tests DATABASE integration regarding {@link Group} persistence
+ * Tests DATABASE integration regarding {@link User} persistence
  *
  * @since 0.1.0
  */
 @MicronautTest
 @Testcontainers
-class GroupRepositoryTests {
+public class GroupRepositoryTests {
 
   @Container
   @SuppressWarnings("unused")
@@ -65,77 +66,41 @@ class GroupRepositoryTests {
   }
 
   @Test
-  void testListGroups() {
-    // given: a pre-loaded fixtures
-    fixtures.load(GroupRepositoryTests.class, "testListGroups.sql");
+  void testFindAllByDayOfWeekAndVotingTimeLessEq() {
+    // given: a set of fixtures
+    fixtures.load(GroupRepositoryTests.class, "testFindAllByDayOfWeekAndVotingTimeLessEq.sql");
 
-    // when: asking for the list of groups
-    List<Group> groupList = repository.listGroups();
+    // and: some expected ids
+    UUID votingToday1 = UUID.fromString("d64db962-3455-11e9-b210-d663bd873d93");
 
-    // then: check there're the expected number of groups
-    assertEquals(groupList.size(), 4);
+    // when: looking for groups having voting a specific date and before or at a given time
+    OffsetDateTime dateTime = OffsetDateTime.parse("2020-05-04T10:15:30+01:00");
+    OffsetTime nowTime = OffsetTime.parse("11:15:30+01:00");
+    String dayOfWeek = dateTime.getDayOfWeek().toString();
+
+    var groupStream = repository.findAllByDayOfWeekAndVotingTimeLessEq(dayOfWeek, nowTime);
+    var idStream = groupStream.map(Group::getId);
+
+    // then: we should get groups voting the expected date before or at the given time
+    assertTrue(idStream.anyMatch(thisUUID(votingToday1)));
   }
 
   @Test
-  void testGetGroup() {
-    // given: a pre-loaded fixtures
-    fixtures.load(GroupRepositoryTests.class, "testListGroups.sql");
+  void testFindAllByVotingCreatedAtBetween() {
+    // given: a set of fixtures
+    fixtures.load(GroupRepositoryTests.class, "testFindAllByVotingCreatedAtBetween.sql");
 
-    // when: asking for a group
-    Group group = repository.getGroup(UUID.fromString("dedc6675-ab79-495e-9245-1fc20545eb83"));
+    UUID expectedGroupId = UUID.fromString("d64db962-3455-11e9-b210-d663bd873d93");
+    OffsetDateTime from = OffsetDateTime.parse("2020-05-04T00:00:00+01:00");
+    OffsetDateTime to = OffsetDateTime.parse("2020-05-04T10:15:30+01:00");
 
-    // then: check the group is retrieved
-    assertEquals(group.getName(), "Avengers");
+    var votedAlreadyStream = repository.findAllByVotingCreatedAtDateTimeBetween(from, to);
+    var idStream = votedAlreadyStream.map(Group::getId);
+
+    assertTrue(idStream.anyMatch(thisUUID(expectedGroupId)));
   }
 
-  @Test
-  void testCreateGroup() {
-    // when: creating a group
-    UUID idGroup = UUID.randomUUID();
-    Group group =
-        repository.upsertGroup(
-            idGroup,
-            "Avengers",
-            true,
-            true,
-            List.of(DayOfWeek.MONDAY, DayOfWeek.SUNDAY),
-            OffsetTime.now());
-
-    // then: check the group is retrieved
-    assertEquals(group.getName(), "Avengers");
-
-    // and: the group exist on the database
-    Group group2 = repository.getGroup(group.getId());
-    assertEquals(group.getName(), group2.getName());
-  }
-
-  @Test
-  void testUpdateGroup() {
-    // given: a pre-loaded fixtures
-    fixtures.load(GroupRepositoryTests.class, "testUpdateGroup.sql");
-
-    // and: new values
-    var groupId = UUID.fromString("53f11bb6-45db-11e9-b210-d663bd873d93");
-    var name = "XForce";
-    var visibleMemberList = true;
-    var anonymousVote = true;
-    var votingDays = List.of(DayOfWeek.MONDAY, DayOfWeek.SUNDAY);
-    var votingTime = OffsetTime.now();
-
-    // when: updating a group
-    Group group =
-        repository.upsertGroup(
-            groupId, name, visibleMemberList, anonymousVote, votingDays, votingTime);
-
-    // then: check the group is retrieved
-    assertEquals(group.getName(), name);
-    assertEquals(group.isVisibleMemberList(), visibleMemberList);
-    assertEquals(group.isAnonymousVote(), anonymousVote);
-    assertEquals(group.getVotingDays(), votingDays);
-    assertEquals(group.getVotingTime(), votingTime);
-
-    // and: the group exist on the database
-    Group group2 = repository.getGroup(group.getId());
-    assertEquals(group.getName(), group2.getName());
+  private Predicate<UUID> thisUUID(UUID uuid) {
+    return uuid::equals;
   }
 }

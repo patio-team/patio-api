@@ -15,11 +15,25 @@
  * You should have received a copy of the GNU General Public License
  * along with DWBH.  If not, see <https://www.gnu.org/licenses/>
  */
-package dwbh.api.repositories;
+package dwbh.api.repositories.internal;
 
-import dwbh.api.domain.UserGroup;
-import dwbh.api.domain.UserGroupKey;
-import io.micronaut.data.repository.PageableRepository;
+import dwbh.api.domain.Vote;
+import dwbh.api.domain.Voting;
+import dwbh.api.repositories.VotingRepository;
+import io.micronaut.data.annotation.Repository;
+import javax.persistence.EntityManager;
 
-/** All database actions related to {@link UserGroup} entity */
-public interface UserGroupRepository extends PageableRepository<UserGroup, UserGroupKey> {}
+/** Persistence implementation access for {@link Voting} and {@link Vote} */
+@Repository
+public abstract class MicroVotingRepository extends MicroBaseRepository
+    implements VotingRepository {
+
+  /**
+   * Initializes repository with {@link EntityManager}
+   *
+   * @param entityManager persistence {@link EntityManager} instance
+   */
+  public MicroVotingRepository(EntityManager entityManager) {
+    super(entityManager);
+  }
+}
