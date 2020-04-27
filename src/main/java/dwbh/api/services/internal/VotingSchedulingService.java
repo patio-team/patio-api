@@ -29,14 +29,19 @@ import dwbh.api.services.EmailService;
 import dwbh.api.services.VotingScheduling;
 import dwbh.api.services.internal.templates.JadeTemplateService;
 import dwbh.api.services.internal.templates.URLResolverService;
+import io.micronaut.context.annotation.Value;
 import io.micronaut.scheduling.annotation.Scheduled;
+import java.text.DateFormat;
 import java.text.MessageFormat;
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
-import java.time.format.DateTimeFormatter;
-import java.time.format.FormatStyle;
+import java.time.format.TextStyle;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.UUID;
 import javax.inject.Singleton;
@@ -52,6 +57,7 @@ import org.slf4j.LoggerFactory;
 public class VotingSchedulingService implements VotingScheduling {
 
   private static final Logger LOG = LoggerFactory.getLogger(VotingSchedulingService.class);
+  private static final Locale DEFAULT_LOCALE = Locale.ENGLISH;
 
   private final transient GroupRepository groupRepository;
   private final transient UserGroupRepository userGroupRepository;
@@ -60,6 +66,7 @@ public class VotingSchedulingService implements VotingScheduling {
   private final transient JadeTemplateService jadeTemplateService;
   private final transient ResourceBundle resourceBundle;
   private final transient URLResolverService urlResolverService;
+  private final transient Locale locale;
 
   /**
    * Requires the {@link DefaultVotingService} to get group voting information and {@link
@@ -72,6 +79,7 @@ public class VotingSchedulingService implements VotingScheduling {
    * @param jadeTemplateService service to render email template
    * @param resourceBundle bundle to get i18n messages from
    * @param urlResolverService to resolve possible link urls for emails
+   * @param locale from configuration to internationalize dates
    * @since 0.1.0
    */
   public VotingSchedulingService(
@@ -81,7 +89,8 @@ public class VotingSchedulingService implements VotingScheduling {
       EmailService emailService,
       JadeTemplateService jadeTemplateService,
       ResourceBundle resourceBundle,
-      URLResolverService urlResolverService) {
+      URLResolverService urlResolverService,
+      @Value("${locale}") Optional<String> locale) {
     this.groupRepository = groupRepository;
     this.userGroupRepository = userGroupRepository;
     this.votingRepository = votingRepository;
@@ -89,6 +98,8 @@ public class VotingSchedulingService implements VotingScheduling {
     this.jadeTemplateService = jadeTemplateService;
     this.resourceBundle = resourceBundle;
     this.urlResolverService = urlResolverService;
+    this.locale =
+        locale.map((String localeFromConf) -> new Locale(localeFromConf)).orElse(DEFAULT_LOCALE);
   }
 
   @Override
@@ -149,8 +160,19 @@ public class VotingSchedulingService implements VotingScheduling {
     return urlResolverService.resolve("/groups/{0}/votings/{1}/vote", groupId, votingId);
   }
 
+  private String getDayOfTheWeek() {
+    LocalDate today = LocalDate.now();
+    DayOfWeek dayOfWeek = today.getDayOfWeek();
+
+    return dayOfWeek.getDisplayName(TextStyle.FULL, this.locale);
+  }
+
   private String getTodayAsString() {
-    return LocalDate.now().format(DateTimeFormatter.ofLocalizedDate(FormatStyle.SHORT));
+    String dayOfTheWeek = this.getDayOfTheWeek();
+    DateFormat formatter = DateFormat.getDateInstance(DateFormat.SHORT, this.locale);
+    String today = formatter.format(new Date());
+
+    return String.format("%s, %s", dayOfTheWeek, today);
   }
 
   private String formatMessage(String message, Object... values) {
