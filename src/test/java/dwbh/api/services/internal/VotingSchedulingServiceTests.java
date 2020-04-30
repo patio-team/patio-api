@@ -34,13 +34,17 @@ import dwbh.api.services.internal.templates.JadeTemplateService;
 import dwbh.api.services.internal.templates.URLResolverService;
 import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 public class VotingSchedulingServiceTests {
+
+  private static final Locale LOCALE = new Locale("es", "ES");
 
   @Test
   void testNotifyNewVotingToMembers() {
@@ -50,7 +54,7 @@ public class VotingSchedulingServiceTests {
     var votingRepository = Mockito.mock(VotingRepository.class);
     var emailService = Mockito.mock(EmailService.class);
     var templateService = Mockito.mock(JadeTemplateService.class);
-    var resourceBundle = ResourceBundle.getBundle("messages");
+    var resourceBundle = ResourceBundle.getBundle("messages", LOCALE);
     var urlResolverService = Mockito.mock(URLResolverService.class);
 
     // and: mocking behaviors
@@ -76,7 +80,8 @@ public class VotingSchedulingServiceTests {
             emailService,
             templateService,
             resourceBundle,
-            urlResolverService);
+            urlResolverService,
+            Optional.of("es"));
 
     // when: executing scheduling task
     schedulingService.scheduleVoting();
