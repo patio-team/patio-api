@@ -18,6 +18,7 @@
 package dwbh.api.services.internal;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.isNotNull;
 import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -32,19 +33,17 @@ import dwbh.api.repositories.internal.JooqUserGroupRepository;
 import dwbh.api.services.EmailService;
 import dwbh.api.services.internal.templates.JadeTemplateService;
 import dwbh.api.services.internal.templates.URLResolverService;
+import io.micronaut.context.MessageSource;
 import java.time.OffsetDateTime;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
-import java.util.ResourceBundle;
 import java.util.UUID;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 public class VotingSchedulingServiceTests {
-
-  private static final Locale LOCALE = new Locale("es", "ES");
 
   @Test
   void testNotifyNewVotingToMembers() {
@@ -54,8 +53,8 @@ public class VotingSchedulingServiceTests {
     var votingRepository = Mockito.mock(VotingRepository.class);
     var emailService = Mockito.mock(EmailService.class);
     var templateService = Mockito.mock(JadeTemplateService.class);
-    var resourceBundle = ResourceBundle.getBundle("messages", LOCALE);
     var urlResolverService = Mockito.mock(URLResolverService.class);
+    var messageSource = Mockito.mock(MessageSource.class);
 
     // and: mocking behaviors
     Mockito.when(votingRepository.listGroupsToCreateVotingFrom())
@@ -67,9 +66,18 @@ public class VotingSchedulingServiceTests {
             Voting.newBuilder().with(voting -> voting.setGroupId(UUID.randomUUID())).build());
 
     Mockito.when(userGroupRepository.listUsersGroup(any(UUID.class)))
-        .thenReturn(List.of(User.builder().build()));
+        .thenReturn(List.of(User.builder().with(user -> user.setName("user")).build()));
 
-    Mockito.when(groupRepository.getGroup(any(UUID.class))).thenReturn(Group.builder().build());
+    Mockito.when(groupRepository.getGroup(any(UUID.class)))
+        .thenReturn(Group.builder().with(user -> user.setName("group")).build());
+
+    Mockito.when(
+            messageSource.getMessage(any(String.class), any(MessageSource.MessageContext.class)))
+        .thenReturn(Optional.of(RandomStringUtils.randomAlphanumeric(12)));
+
+    Mockito.when(
+            messageSource.interpolate(any(String.class), any(MessageSource.MessageContext.class)))
+        .thenReturn(RandomStringUtils.randomAlphanumeric(12));
 
     // and: creating an instance of scheduling service
     var schedulingService =
@@ -79,8 +87,8 @@ public class VotingSchedulingServiceTests {
             votingRepository,
             emailService,
             templateService,
-            resourceBundle,
             urlResolverService,
+            messageSource,
             Optional.of("es"));
 
     // when: executing scheduling task
@@ -104,5 +112,13 @@ public class VotingSchedulingServiceTests {
 
     // and: renders a body for each email
     verify(templateService, times(2)).render(any(String.class), any(Map.class));
+
+    // and: with content taken from messages.properties (four calls per email: subject, greetings,
+    // template and thanks)
+    verify(messageSource, times(8))
+        .getMessage(isNotNull(), any(MessageSource.MessageContext.class));
+
+    verify(messageSource, times(8))
+        .interpolate(isNotNull(), any(MessageSource.MessageContext.class));
   }
 }

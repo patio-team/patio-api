@@ -29,10 +29,10 @@ import dwbh.api.services.EmailService;
 import dwbh.api.services.VotingScheduling;
 import dwbh.api.services.internal.templates.JadeTemplateService;
 import dwbh.api.services.internal.templates.URLResolverService;
+import io.micronaut.context.MessageSource;
 import io.micronaut.context.annotation.Value;
 import io.micronaut.scheduling.annotation.Scheduled;
 import java.text.DateFormat;
-import java.text.MessageFormat;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
@@ -42,7 +42,6 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
-import java.util.ResourceBundle;
 import java.util.UUID;
 import javax.inject.Singleton;
 import org.slf4j.Logger;
@@ -64,8 +63,8 @@ public class VotingSchedulingService implements VotingScheduling {
   private final transient VotingRepository votingRepository;
   private final transient EmailService emailService;
   private final transient JadeTemplateService jadeTemplateService;
-  private final transient ResourceBundle resourceBundle;
   private final transient URLResolverService urlResolverService;
+  private final transient MessageSource messageSource;
   private final transient Locale locale;
 
   /**
@@ -77,8 +76,8 @@ public class VotingSchedulingService implements VotingScheduling {
    * @param votingRepository to be able to create a new {@link dwbh.api.domain.Voting}
    * @param emailService to be able to send notifications to group members
    * @param jadeTemplateService service to render email template
-   * @param resourceBundle bundle to get i18n messages from
    * @param urlResolverService to resolve possible link urls for emails
+   * @param messageSource bundle to get i18n messages from
    * @param locale from configuration to internationalize dates
    * @since 0.1.0
    */
@@ -88,16 +87,16 @@ public class VotingSchedulingService implements VotingScheduling {
       VotingRepository votingRepository,
       EmailService emailService,
       JadeTemplateService jadeTemplateService,
-      ResourceBundle resourceBundle,
       URLResolverService urlResolverService,
+      MessageSource messageSource,
       @Value("${locale}") Optional<String> locale) {
     this.groupRepository = groupRepository;
     this.userGroupRepository = userGroupRepository;
     this.votingRepository = votingRepository;
     this.emailService = emailService;
     this.jadeTemplateService = jadeTemplateService;
-    this.resourceBundle = resourceBundle;
     this.urlResolverService = urlResolverService;
+    this.messageSource = messageSource;
     this.locale =
         locale.map((String localeFromConf) -> new Locale(localeFromConf)).orElse(DEFAULT_LOCALE);
   }
@@ -134,10 +133,16 @@ public class VotingSchedulingService implements VotingScheduling {
 
   @SuppressWarnings("PMD.UseConcurrentHashMap")
   private Email createEmail(User user, Group group, Voting voting) {
-    String subject = this.formatMessage("voting.subject", this.getTodayAsString(), group.getName());
-    String greetings = this.formatMessage("voting.greetings", user.getName());
-    String template = this.resourceBundle.getString("voting.template");
-    String thanks = this.resourceBundle.getString("voting.thanks");
+    Map<String, Object> votingSubjectVars =
+        Map.of(
+            "today", this.getTodayAsString(),
+            "groupName", group.getName());
+    Map<String, Object> votingGreetingVars = Map.of("username", user.getName());
+
+    String subject = this.getMessage("voting.subject", votingSubjectVars);
+    String greetings = this.getMessage("voting.greetings", votingGreetingVars);
+    String template = this.getMessage("voting.template");
+    String thanks = this.getMessage("voting.thanks");
 
     Map<String, Object> model = new HashMap<>();
 
@@ -175,10 +180,21 @@ public class VotingSchedulingService implements VotingScheduling {
     return String.format("%s, %s", dayOfTheWeek, today);
   }
 
-  private String formatMessage(String message, Object... values) {
-    // TODO: this should be substituted with micronaut 1.2.x MessageSource
-    String template = this.resourceBundle.getString(message);
+  private String getMessage(String key, Map<String, Object> variables) {
+    MessageSource.MessageContext context = MessageSource.MessageContext.of(this.locale, variables);
 
-    return MessageFormat.format(template, values);
+    return getInterpolatedMessage(key, context);
+  }
+
+  private String getMessage(String key) {
+    MessageSource.MessageContext context = MessageSource.MessageContext.of(this.locale);
+
+    return getInterpolatedMessage(key, context);
+  }
+
+  private String getInterpolatedMessage(String key, MessageSource.MessageContext context) {
+    String template = this.messageSource.getMessage(key, context).orElse("");
+
+    return this.messageSource.interpolate(template, context);
   }
 }
