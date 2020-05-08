@@ -20,10 +20,12 @@ package dwbh.api.graphql.dataloader;
 import dwbh.api.domain.User;
 import dwbh.api.services.UserService;
 import dwbh.api.services.internal.DefaultUserService;
+import dwbh.api.util.IterableUtils;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
+import java.util.stream.Collectors;
 import javax.inject.Singleton;
 import org.dataloader.BatchLoader;
 
@@ -49,6 +51,9 @@ public class UserBatchLoader implements BatchLoader<UUID, User> {
 
   @Override
   public CompletionStage<List<User>> load(List<UUID> keys) {
-    return CompletableFuture.supplyAsync(() -> userService.listUsersByIds(keys));
+    List<User> userList =
+        IterableUtils.iterableToStream(userService.listUsersByIds(keys))
+            .collect(Collectors.toList());
+    return CompletableFuture.supplyAsync(() -> userList);
   }
 }

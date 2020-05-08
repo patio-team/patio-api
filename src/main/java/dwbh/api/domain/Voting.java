@@ -18,24 +18,46 @@
 package dwbh.api.domain;
 
 import dwbh.api.util.Builder;
+import io.micronaut.data.annotation.DateCreated;
 import java.time.OffsetDateTime;
+import java.util.List;
 import java.util.UUID;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
 
 /**
  * Represents the temporal scope when members of a given group can give their vote
  *
  * @since 0.1.0
  */
+@Entity
+@Table(name = "voting")
 public final class Voting {
-  private UUID id;
-  private OffsetDateTime createdAtDateTime;
-  private User createdBy;
-  private UUID groupId;
-  private Integer average;
 
-  private Voting() {
-    /* empty */
-  }
+  @Id @GeneratedValue private UUID id;
+
+  @DateCreated
+  @Column(name = "created_at")
+  private OffsetDateTime createdAtDateTime;
+
+  @ManyToOne
+  @JoinColumn(name = "created_by")
+  private User createdBy;
+
+  @ManyToOne
+  @JoinColumn(name = "group_id")
+  private Group group;
+
+  @OneToMany(mappedBy = "voting")
+  private List<Vote> votes;
+
+  private Integer average;
 
   /**
    * Creates a new fluent builder to build instances of type {@link Voting}
@@ -108,23 +130,23 @@ public final class Voting {
   }
 
   /**
-   * Returns the group id the voting was created for
+   * Returns the group the voting was created for
    *
-   * @return the {@link UUID} the voting was created for
+   * @return the {@link Group} the voting was created for
    * @since 0.1.0
    */
-  public UUID getGroupId() {
-    return groupId;
+  public Group getGroup() {
+    return group;
   }
 
   /**
    * Sets the group the voting was created for
    *
-   * @param groupId the group id the voting was created for
+   * @param group the group the voting was created for
    * @since 0.1.0
    */
-  public void setGroupId(UUID groupId) {
-    this.groupId = groupId;
+  public void setGroup(Group group) {
+    this.group = group;
   }
 
   /**
@@ -145,5 +167,23 @@ public final class Voting {
    */
   public void setAverage(Integer average) {
     this.average = average;
+  }
+
+  /**
+   * Returns all votes which belong to this voting
+   *
+   * @return all the votes of this voting
+   */
+  public List<Vote> getVotes() {
+    return votes;
+  }
+
+  /**
+   * Sets all votes of this voting
+   *
+   * @param votes all votes of this voting
+   */
+  public void setVotes(List<Vote> votes) {
+    this.votes = votes;
   }
 }

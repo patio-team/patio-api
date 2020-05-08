@@ -22,7 +22,7 @@ import dwbh.api.graphql.Context;
 import dwbh.api.services.UserService;
 import dwbh.api.services.internal.DefaultUserService;
 import graphql.schema.DataFetchingEnvironment;
-import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import javax.inject.Singleton;
 
@@ -58,7 +58,7 @@ public class UserFetcher {
    * @return a list of available {@link User}
    * @since 0.1.0
    */
-  public List<User> listUsers(DataFetchingEnvironment env) {
+  public Iterable<User> listUsers(DataFetchingEnvironment env) {
     return service.listUsers();
   }
 
@@ -69,7 +69,7 @@ public class UserFetcher {
    * @return The requested {@link User}
    * @since 0.1.0
    */
-  public User getUser(DataFetchingEnvironment env) {
+  public Optional<User> getUser(DataFetchingEnvironment env) {
     UUID userId = env.getArgument("id");
     return service.getUser(userId);
   }

@@ -31,6 +31,7 @@ import dwbh.api.util.ErrorConstants;
 import dwbh.api.util.Result;
 import java.util.Optional;
 import javax.inject.Singleton;
+import javax.transaction.Transactional;
 
 /**
  * Service responsible to check the security constraints
@@ -38,6 +39,7 @@ import javax.inject.Singleton;
  * @since 0.1.0
  */
 @Singleton
+@Transactional
 public class DefaultSecurityService implements SecurityService {
 
   private final transient CryptoService cryptoService;
@@ -70,7 +72,7 @@ public class DefaultSecurityService implements SecurityService {
     return cryptoService
         .verifyToken(token)
         .map(this::extractUserFrom)
-        .map(userRepository::findOrCreateUser);
+        .flatMap(userRepository::findByEmailOrCreate);
   }
 
   private User extractUserFrom(DecodedJWT decodedJWT) {
@@ -85,10 +87,10 @@ public class DefaultSecurityService implements SecurityService {
 
   @Override
   public Result<Login> login(LoginInput input) {
-    User user = userRepository.findByEmail(input.getEmail());
+    Optional<User> user = userRepository.findByEmail(input.getEmail());
 
-    return Optional.ofNullable(user)
-        .filter(user1 -> cryptoService.verifyWithHash(input.getPassword(), user1.getPassword()))
+    return user.filter(
+            user1 -> cryptoService.verifyWithHash(input.getPassword(), user1.getPassword()))
         .flatMap(this::getLoginFromUser)
         .map(Result::result)
         .orElse(Result.error(ErrorConstants.BAD_CREDENTIALS));
@@ -99,7 +101,7 @@ public class DefaultSecurityService implements SecurityService {
     return Optional.ofNullable(code)
         .flatMap(oauthService::getAccessToken)
         .flatMap(googleUserService::loadFromAccessToken)
-        .map(userRepository::findOrCreateUser)
+        .flatMap(userRepository::findByEmailOrCreate)
         .flatMap(this::getLoginFromUser)
         .map(Result::result)
         .orElse(Result.error(ErrorConstants.BAD_CREDENTIALS));

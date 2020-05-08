@@ -18,19 +18,52 @@
 package dwbh.api.domain;
 
 import dwbh.api.util.Builder;
-import java.util.UUID;
+import javax.persistence.Column;
+import javax.persistence.EmbeddedId;
+import javax.persistence.Entity;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.MapsId;
+import javax.persistence.Table;
 
 /**
  * Represents the relation between users and groups
  *
  * @since 0.1.0
  */
+@Entity
+@Table(name = "users_groups")
 public final class UserGroup {
-  private UUID userId;
-  private UUID groupId;
+
+  @EmbeddedId private UserGroupKey id;
+
+  @ManyToOne
+  @MapsId("user_id")
+  @JoinColumn(name = "user_id")
+  private User user;
+
+  @ManyToOne
+  @MapsId("group_id")
+  @JoinColumn(name = "group_id")
+  private Group group;
+
+  @Column(name = "is_admin")
   private boolean admin;
 
-  private UserGroup() {
+  /**
+   * Creates a new {@link UserGroup} from an {@link User} and a {@link Group}
+   *
+   * @param user an instance of {@link User}
+   * @param group an instance of {@link Group}
+   */
+  public UserGroup(User user, Group group) {
+    this.user = user;
+    this.group = group;
+    this.id = new UserGroupKey(user.getId(), group.getId());
+  }
+
+  /** Default constructor */
+  public UserGroup() {
     /* empty */
   }
 
@@ -45,39 +78,39 @@ public final class UserGroup {
   }
 
   /**
-   * Gets groupId.
+   * Returns the current user
    *
-   * @return Value of groupId.
+   * @return an instance of {@link User}
    */
-  public UUID getGroupId() {
-    return groupId;
+  public User getUser() {
+    return user;
   }
 
   /**
-   * Gets userId.
+   * Sets up the current {@link User}
    *
-   * @return Value of userId.
+   * @param user the current user
    */
-  public UUID getUserId() {
-    return userId;
+  public void setUser(User user) {
+    this.user = user;
   }
 
   /**
-   * Sets new groupId.
+   * Returns the current group
    *
-   * @param groupId New value of groupId.
+   * @return an instance of {@link Group}
    */
-  public void setGroupId(UUID groupId) {
-    this.groupId = groupId;
+  public Group getGroup() {
+    return group;
   }
 
   /**
-   * Sets new userId.
+   * Sets the current group
    *
-   * @param userId New value of userId.
+   * @param group the group to set
    */
-  public void setUserId(UUID userId) {
-    this.userId = userId;
+  public void setGroup(Group group) {
+    this.group = group;
   }
 
   /**
@@ -96,5 +129,23 @@ public final class UserGroup {
    */
   public void setAdmin(boolean admin) {
     this.admin = admin;
+  }
+
+  /**
+   * Returns the user group id
+   *
+   * @return the {@link UserGroup} id
+   */
+  public UserGroupKey getId() {
+    return id;
+  }
+
+  /**
+   * Sets user group's id
+   *
+   * @param id sets {@link UserGroup} id
+   */
+  public void setId(UserGroupKey id) {
+    this.id = id;
   }
 }

@@ -17,30 +17,21 @@
  */
 package dwbh.api.repositories.internal;
 
-import io.micronaut.context.annotation.Factory;
-import javax.inject.Singleton;
-import javax.sql.DataSource;
-import org.jooq.DSLContext;
-import org.jooq.SQLDialect;
-import org.jooq.impl.DefaultDSLContext;
+import dwbh.api.domain.Vote;
+import dwbh.api.repositories.VoteRepository;
+import io.micronaut.data.annotation.Repository;
+import javax.persistence.EntityManager;
 
-/**
- * Factory generating an instance of {@link DSLContext} to access JOOQ DSL
- *
- * @since 0.1.0
- */
-@Factory
-public class JooqContextProvider {
+/** Persistence implementation access for {@link Vote} */
+@Repository
+public abstract class MicroVoteRepository extends MicroBaseRepository implements VoteRepository {
 
   /**
-   * Creates a singleton to access JOOQ DSL
+   * Initializes repository with {@link EntityManager}
    *
-   * @param dataSource required to generated jdbc connection
-   * @return an instance of {@link DSLContext}
-   * @since 0.1.0
+   * @param entityManager persistence {@link EntityManager} instance
    */
-  @Singleton
-  public DSLContext get(DataSource dataSource) {
-    return new DefaultDSLContext(dataSource, SQLDialect.POSTGRES);
+  public MicroVoteRepository(EntityManager entityManager) {
+    super(entityManager);
   }
 }

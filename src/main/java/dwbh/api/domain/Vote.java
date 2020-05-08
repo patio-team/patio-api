@@ -18,25 +18,42 @@
 package dwbh.api.domain;
 
 import dwbh.api.util.Builder;
+import io.micronaut.data.annotation.DateCreated;
 import java.time.OffsetDateTime;
 import java.util.UUID;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
 
 /**
  * Represents a given user's vote
  *
  * @since 0.1.0
  */
+@Entity
+@Table(name = "vote")
 public final class Vote {
-  private transient UUID id;
-  private transient Voting voting;
-  private transient User createdBy;
-  private transient OffsetDateTime createdAtDateTime;
-  private transient String comment;
-  private transient Integer score;
 
-  private Vote() {
-    /* empty */
-  }
+  @Id @GeneratedValue private UUID id;
+
+  @ManyToOne
+  @JoinColumn(name = "voting_id")
+  private Voting voting;
+
+  @ManyToOne
+  @JoinColumn(name = "created_by")
+  private User createdBy;
+
+  @DateCreated
+  @Column(name = "created_at")
+  private OffsetDateTime createdAtDateTime;
+
+  private String comment;
+  private Integer score;
 
   /**
    * A builder to build an instance of type {@link Vote}

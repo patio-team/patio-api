@@ -21,6 +21,7 @@ import static io.github.benas.randombeans.api.EnhancedRandom.random;
 import static io.github.benas.randombeans.api.EnhancedRandom.randomListOf;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.iterableWithSize;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 
@@ -52,10 +53,10 @@ class GroupFetcherTests {
 
     // when: fetching group list invoking the service
     GroupFetcher fetchers = new GroupFetcher(mockedService);
-    List<Group> groupList = fetchers.listGroups(null);
+    Iterable<Group> groupList = fetchers.listGroups(null);
 
     // then: check certain assertions should be met
-    assertThat("there're only a certain values of groups", groupList.size(), is(2));
+    assertThat("there're only a certain values of groups", groupList, iterableWithSize(2));
   }
 
   @Test

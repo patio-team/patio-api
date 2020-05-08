@@ -23,7 +23,6 @@ import dwbh.api.domain.input.AddUserToGroupInput;
 import dwbh.api.domain.input.LeaveGroupInput;
 import dwbh.api.domain.input.ListUsersGroupInput;
 import dwbh.api.util.Result;
-import java.util.List;
 import java.util.UUID;
 
 /**
@@ -50,7 +49,7 @@ public interface UserGroupService {
    * @return a list of {@link User} instances
    * @since 0.1.0
    */
-  List<User> listUsersGroup(ListUsersGroupInput input);
+  Iterable<User> listUsersGroup(ListUsersGroupInput input);
 
   /**
    * Make the current user leave the specified group

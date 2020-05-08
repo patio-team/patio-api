@@ -21,9 +21,7 @@ import dwbh.api.domain.Email;
 import dwbh.api.domain.Group;
 import dwbh.api.domain.User;
 import dwbh.api.domain.Voting;
-import dwbh.api.domain.input.CreateVotingInput;
 import dwbh.api.repositories.GroupRepository;
-import dwbh.api.repositories.UserGroupRepository;
 import dwbh.api.repositories.VotingRepository;
 import dwbh.api.services.EmailService;
 import dwbh.api.services.VotingScheduling;
@@ -36,14 +34,21 @@ import java.text.DateFormat;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
+import java.time.OffsetTime;
 import java.time.format.TextStyle;
+import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.inject.Singleton;
+import javax.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,7 +64,6 @@ public class VotingSchedulingService implements VotingScheduling {
   private static final Locale DEFAULT_LOCALE = Locale.ENGLISH;
 
   private final transient GroupRepository groupRepository;
-  private final transient UserGroupRepository userGroupRepository;
   private final transient VotingRepository votingRepository;
   private final transient EmailService emailService;
   private final transient JadeTemplateService jadeTemplateService;
@@ -72,7 +76,6 @@ public class VotingSchedulingService implements VotingScheduling {
    * EmailService} to be able to send notification to group members
    *
    * @param groupRepository to be able to get group details
-   * @param userGroupRepository to be able to list all groups and group's members
    * @param votingRepository to be able to create a new {@link dwbh.api.domain.Voting}
    * @param emailService to be able to send notifications to group members
    * @param jadeTemplateService service to render email template
@@ -83,7 +86,6 @@ public class VotingSchedulingService implements VotingScheduling {
    */
   public VotingSchedulingService(
       GroupRepository groupRepository,
-      UserGroupRepository userGroupRepository,
       VotingRepository votingRepository,
       EmailService emailService,
       JadeTemplateService jadeTemplateService,
@@ -91,43 +93,64 @@ public class VotingSchedulingService implements VotingScheduling {
       MessageSource messageSource,
       @Value("${locale}") Optional<String> locale) {
     this.groupRepository = groupRepository;
-    this.userGroupRepository = userGroupRepository;
     this.votingRepository = votingRepository;
     this.emailService = emailService;
     this.jadeTemplateService = jadeTemplateService;
     this.urlResolverService = urlResolverService;
     this.messageSource = messageSource;
-    this.locale =
-        locale.map((String localeFromConf) -> new Locale(localeFromConf)).orElse(DEFAULT_LOCALE);
+    this.locale = locale.map(Locale::new).orElse(DEFAULT_LOCALE);
   }
 
   @Override
   @Scheduled(fixedRate = "30s", initialDelay = "30s")
   public void scheduleVoting() {
-    LOG.info("checking voting creation");
-    votingRepository.listGroupsToCreateVotingFrom().stream()
-        .map(this::createVoting)
-        .forEach(this::notifyMembers);
+    checkVoting();
   }
 
-  private Voting createVoting(UUID groupId) {
-    LOG.info(String.format("creating new voting for group %s", groupId));
+  @Transactional
+  /* default */ void checkVoting() {
+    LOG.info("checking voting creation");
+    this.findAllToCreateVotingFrom().map(this::createVoting).forEach(this::notifyMembers);
+  }
 
-    CreateVotingInput input = CreateVotingInput.newBuilder().withGroupId(groupId).build();
-    Voting voting = votingRepository.createVoting(null, input.getGroupId(), OffsetDateTime.now());
+  private Stream<Group> findAllToCreateVotingFrom() {
+    OffsetDateTime now = OffsetDateTime.now();
+    DayOfWeek dayOfWeek = now.getDayOfWeek();
+    OffsetTime votingTime = now.toOffsetTime();
 
-    LOG.info(String.format("created voting %s", voting.getId()));
+    Stream<Group> eligible =
+        groupRepository.findAllByDayOfWeekAndVotingTimeLessEq(dayOfWeek.toString(), votingTime);
+
+    List<Group> closed =
+        groupRepository
+            .findAllByVotingCreatedAtDateTimeBetween(now.truncatedTo(ChronoUnit.DAYS), now)
+            .collect(Collectors.toList());
+
+    return eligible.filter(Predicate.not(closed::contains));
+  }
+
+  private Voting createVoting(Group group) {
+    LOG.info(String.format("creating new voting for group %s", group.getId()));
+
+    Voting voting =
+        Voting.newBuilder()
+            .with(v -> v.setGroup(group))
+            .with(v -> v.setCreatedAtDateTime(OffsetDateTime.now()))
+            .build();
+
+    Voting savedVoting = votingRepository.save(voting);
+
+    LOG.info(String.format("created voting %s", savedVoting.getId()));
     return voting;
   }
 
   private void notifyMembers(Voting voting) {
-    UUID groupId = voting.getGroupId();
-    Group group = this.groupRepository.getGroup(groupId);
+    Group group = voting.getGroup();
 
-    LOG.info(String.format("notifying members or group %s", groupId));
+    LOG.info(String.format("notifying members or group %s", group.getId()));
 
-    userGroupRepository.listUsersGroup(groupId).stream()
-        .map(user -> createEmail(user, group, voting))
+    group.getUsers().stream()
+        .map(ug -> createEmail(ug.getUser(), ug.getGroup(), voting))
         .forEach(emailService::send);
   }
 

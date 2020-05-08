@@ -17,14 +17,15 @@
  */
 package dwbh.api.services.internal.checkers;
 
-import static dwbh.api.util.Check.checkIsFalse;
+import static dwbh.api.util.Check.checkIsTrue;
 
 import dwbh.api.domain.UserGroup;
+import dwbh.api.domain.UserGroupKey;
 import dwbh.api.repositories.UserGroupRepository;
-import dwbh.api.repositories.internal.JooqUserGroupRepository;
 import dwbh.api.util.Check;
 import dwbh.api.util.ErrorConstants;
 import dwbh.api.util.Result;
+import java.util.Optional;
 import java.util.UUID;
 
 /**
@@ -39,7 +40,7 @@ public class UserIsNotInGroup {
   /**
    * Constructor receiving access to the underlying data store
    *
-   * @param repository an instance of {@link JooqUserGroupRepository}
+   * @param repository an instance of {@link UserGroupRepository}
    * @since 0.1.0
    */
   public UserIsNotInGroup(UserGroupRepository repository) {
@@ -55,9 +56,8 @@ public class UserIsNotInGroup {
    * @since 0.1.0
    */
   public Check check(UUID userId, UUID groupId) {
-    UserGroup currentUserGroup = repository.getUserGroup(userId, groupId);
-    boolean isInGroup = currentUserGroup != null;
+    Optional<UserGroup> userGroup = repository.findById(new UserGroupKey(userId, groupId));
 
-    return checkIsFalse(isInGroup, ErrorConstants.USER_ALREADY_ON_GROUP);
+    return checkIsTrue(userGroup.isEmpty(), ErrorConstants.USER_ALREADY_ON_GROUP);
   }
 }

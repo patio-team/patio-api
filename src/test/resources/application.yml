@@ -16,25 +16,39 @@
 # along with DWBH.  If not, see <https://www.gnu.org/licenses/>
 #
 
+locale: es
+
 micronaut:
   application:
     name: dwbh-api
-
+---
 datasources:
   default:
     url: jdbc:tc:postgresql:10-alpine://localhost/dwbh
     username: dwbh
     password: dwbh
     driverClassName: org.testcontainers.jdbc.ContainerDatabaseDriver
-
-graphql:
-  enabled: true
-  path: /graphql
+jpa:
+  default:
+    properties:
+      hibernate:
+        show_sql: true
+        dialect: org.hibernate.dialect.PostgreSQL95Dialect
 
 flyway:
   datasources:
     default:
       locations: classpath:migrations
+
+graphql:
+  enabled: true
+  path: /graphql
+
+duser:
+  enabled: false
+  name: unknown
+  email: unknown
+  password: unknown
 
 email:
   voting:

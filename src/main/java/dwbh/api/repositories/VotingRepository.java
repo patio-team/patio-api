@@ -18,11 +18,14 @@
 package dwbh.api.repositories;
 
 import dwbh.api.domain.Group;
-import dwbh.api.domain.Vote;
+import dwbh.api.domain.User;
 import dwbh.api.domain.Voting;
+import io.micronaut.data.annotation.Query;
+import io.micronaut.data.repository.PageableRepository;
 import java.time.OffsetDateTime;
-import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Stream;
 
 /**
  * Handles database operations over {@link Voting} instances
@@ -30,128 +33,38 @@ import java.util.UUID;
  * @since 0.1.0
  */
 @SuppressWarnings({"PMD.TooManyMethods"})
-public interface VotingRepository {
+public interface VotingRepository extends PageableRepository<Voting, UUID> {
 
   /**
-   * Creates a new {@link Voting} spanning for the day
+   * Finds a {@link Voting} by id of the voting and a given {@link User} who is supposed to belong
+   * to that {@link Voting}
    *
-   * @param createdBy the user who creates this voting
-   * @param groupId the group this voting belongs
-   * @param when the moment the voting has been created
-   * @return the created {@link Voting} instance
-   * @since 0.1.0
+   * @param votingId the id of the {@link Voting}
+   * @param user the user who created it
+   * @return the {@link Voting} instance
    */
-  Voting createVoting(UUID createdBy, UUID groupId, OffsetDateTime when);
-
-  /**
-   * Updates a {@link Voting} average value
-   *
-   * @param votingId the id of the {@link Voting} to update
-   * @param average the new average
-   * @return the updated {@link Voting} instance
-   * @since 0.1.0
-   */
-  Voting updateVotingAverage(UUID votingId, Integer average);
-
-  /**
-   * Calculates the average score of all the {@link Vote} that belongs to a {@link Voting}
-   *
-   * @param votingId the id of the {@link Voting} to update
-   * @return the average
-   * @since 0.1.0
-   */
-  Integer calculateVoteAverage(UUID votingId);
-
-  /**
-   * Creates a new user's {@link Vote} for a given {@link Voting}
-   *
-   * @param createdBy who's voting
-   * @param voting the voting this vote belongs to
-   * @param when when the vote has been produced
-   * @param comment extra vote's comment
-   * @param score the score of the vote
-   * @return the created {@link Vote} instance
-   * @since 0.1.0
-   */
-  Vote createVote(UUID createdBy, UUID voting, OffsetDateTime when, String comment, Integer score);
-
-  /**
-   * Finds the group of the voting id passed as parameter
-   *
-   * @param userId the user trying to vote
-   * @param votingId id of the voting
-   * @return an instance of {@link Group} if it's found or null otherwise
-   * @since 0.1.0
-   */
-  Group findGroupByUserAndVoting(UUID userId, UUID votingId);
-
-  /**
-   * Finds the voting id passed as parameter, if the user belongs to the group of the voting
-   *
-   * @param userId the id of the user
-   * @param votingId id of the voting
-   * @return an instance of {@link Voting} if it's found or null otherwise
-   * @since 0.1.0
-   */
-  Voting findVotingByUserAndVoting(UUID userId, UUID votingId);
-
-  /**
-   * Finds the vote of an user on a voting
-   *
-   * @param userId id of the user
-   * @param votingId id of the voting
-   * @return an instance of {@link Vote} if it's found or null otherwise
-   * @since 0.1.0
-   */
-  Vote findVoteByUserAndVoting(UUID userId, UUID votingId);
+  @Query(
+      "SELECT v FROM Voting v JOIN v.group g1, UserGroup ug WHERE ug.group = g1 AND ug.user = :user AND v.id = :votingId ")
+  Optional<Voting> findByIdAndVotingUser(UUID votingId, User user);
 
   /**
    * Lists votings on a group, from startDate to endDate
    *
-   * @param groupId group identifier
+   * @param group group identifier
    * @param startDate the date from which the votings are wanted
    * @param endDate the date to which the votings are wanted
    * @return a list of votings that belongs to a group
    * @since 0.1.0
    */
-  List<Voting> listVotingsGroup(UUID groupId, OffsetDateTime startDate, OffsetDateTime endDate);
+  Stream<Voting> findAllByGroupAndCreatedAtDateTimeBetween(
+      Group group, OffsetDateTime startDate, OffsetDateTime endDate);
 
   /**
-   * Lists votes on a voting
+   * Finds the vote average from a {@link Voting}
    *
-   * @param votingId voting identifier
-   * @return a list of votings that belongs to a group
-   * @since 0.1.0
+   * @param voting voting to get the average vote
+   * @return the average value of the voting's scores
    */
-  List<Vote> listVotesVoting(UUID votingId);
-
-  /**
-   * BaseService whether the voting slot has expired or not
-   *
-   * @param votingId the id of the voting slot
-   * @return true if the voting slot has expired, false otherwise
-   * @since 0.1.0
-   */
-  boolean hasExpired(UUID votingId);
-
-  /**
-   * Fetches the votes that belongs to an user in a group between two dates
-   *
-   * @param userId user identifier
-   * @param groupId group identifier
-   * @param startDateTime the date from which the votes are wanted
-   * @param endDateTime the date to which the votes are wanted
-   * @return a list of votes
-   * @since 0.1.0
-   */
-  List<Vote> listUserVotesInGroup(
-      UUID userId, UUID groupId, OffsetDateTime startDateTime, OffsetDateTime endDateTime);
-
-  /**
-   * Fetches groups having voting scheduled for today which haven't voted today already
-   *
-   * @return a list of {@link UUID} of groups that have to vote yet
-   * @since 0.1.0
-   */
-  List<UUID> listGroupsToCreateVotingFrom();
+  @Query("SELECT AVG(v.score) FROM Vote v WHERE v.voting = :voting")
+  Integer findVoteAverage(Voting voting);
 }

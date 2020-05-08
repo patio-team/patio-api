@@ -20,7 +20,7 @@ package dwbh.api.graphql.fetchers;
 import static io.github.benas.randombeans.api.EnhancedRandom.random;
 import static io.github.benas.randombeans.api.EnhancedRandom.randomListOf;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.iterableWithSize;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -33,7 +33,6 @@ import dwbh.api.graphql.I18nGraphQLError;
 import dwbh.api.graphql.fetchers.utils.FetcherTestUtils;
 import dwbh.api.services.internal.DefaultUserGroupService;
 import dwbh.api.util.Result;
-import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -158,10 +157,10 @@ class UserGroupFetcherTests {
 
     // when: fetching user list invoking the service
     UserGroupFetcher fetchers = new UserGroupFetcher(mockedService);
-    List<User> userList = fetchers.listUsersGroup(mockedEnvironment);
+    Iterable<User> userList = fetchers.listUsersGroup(mockedEnvironment);
 
     // then: check certain assertions should be met
-    assertThat("there're only a certain number of users", userList.size(), is(2));
+    assertThat("there're only a certain number of users", userList, iterableWithSize(2));
   }
 
   @Test

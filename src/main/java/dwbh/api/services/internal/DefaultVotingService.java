@@ -17,20 +17,41 @@
  */
 package dwbh.api.services.internal;
 
+import static dwbh.api.util.OptionalUtils.combine;
+
 import dwbh.api.domain.Group;
+import dwbh.api.domain.User;
+import dwbh.api.domain.UserGroup;
+import dwbh.api.domain.UserGroupKey;
 import dwbh.api.domain.Vote;
 import dwbh.api.domain.Voting;
-import dwbh.api.domain.input.*;
+import dwbh.api.domain.input.CreateVoteInput;
+import dwbh.api.domain.input.CreateVotingInput;
+import dwbh.api.domain.input.GetVotingInput;
+import dwbh.api.domain.input.ListVotingsGroupInput;
+import dwbh.api.domain.input.UserVotesInGroupInput;
+import dwbh.api.repositories.GroupRepository;
 import dwbh.api.repositories.UserGroupRepository;
+import dwbh.api.repositories.UserRepository;
+import dwbh.api.repositories.VoteRepository;
 import dwbh.api.repositories.VotingRepository;
-import dwbh.api.repositories.internal.JooqUserGroupRepository;
 import dwbh.api.services.VotingService;
-import dwbh.api.services.internal.checkers.*;
+import dwbh.api.services.internal.checkers.NotPresent;
+import dwbh.api.services.internal.checkers.UserIsInGroup;
+import dwbh.api.services.internal.checkers.UserOnlyVotedOnce;
+import dwbh.api.services.internal.checkers.VoteAnonymousAllowedInGroup;
+import dwbh.api.services.internal.checkers.VoteScoreBoundaries;
+import dwbh.api.services.internal.checkers.VotingHasExpired;
+import dwbh.api.util.ErrorConstants;
 import dwbh.api.util.Result;
 import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
 import javax.inject.Singleton;
+import javax.transaction.Transactional;
 
 /**
  * Business logic regarding {@link Group} domain
@@ -38,110 +59,169 @@ import javax.inject.Singleton;
  * @since 0.1.0
  */
 @Singleton
+@Transactional
 public class DefaultVotingService implements VotingService {
 
   private final transient VotingRepository votingRepository;
+  private final transient VoteRepository voteRepository;
   private final transient UserGroupRepository userGroupRepository;
+  private final transient UserRepository userRepository;
+  private final transient GroupRepository groupRepository;
 
   /**
    * Initializes service by using the database repositories
    *
    * @param votingRepository an instance of {@link VotingRepository}
-   * @param userGroupRepository an instance of {@link JooqUserGroupRepository}
+   * @param voteRepository an instance of {@link VoteRepository}
+   * @param userGroupRepository an instance of {@link UserGroupRepository}
+   * @param userRepository an instance of {@link UserRepository}
+   * @param groupRepository an instance of {@link GroupRepository}
    * @since 0.1.0
    */
   public DefaultVotingService(
-      VotingRepository votingRepository, UserGroupRepository userGroupRepository) {
+      VotingRepository votingRepository,
+      VoteRepository voteRepository,
+      UserGroupRepository userGroupRepository,
+      UserRepository userRepository,
+      GroupRepository groupRepository) {
     this.votingRepository = votingRepository;
+    this.voteRepository = voteRepository;
     this.userGroupRepository = userGroupRepository;
+    this.userRepository = userRepository;
+    this.groupRepository = groupRepository;
   }
 
   @Override
   public Result<Voting> createVoting(CreateVotingInput input) {
-    UserIsInGroup userIsInGroup = new UserIsInGroup(userGroupRepository);
+    var userGroupKey = new UserGroupKey(input.getUserId(), input.getGroupId());
+    var userGroupOptional = userGroupRepository.findById(userGroupKey);
+
+    NotPresent notPresent = new NotPresent();
 
     return Result.<Voting>create()
-        .thenCheck(() -> userIsInGroup.check(input.getUserId(), input.getGroupId()))
-        .then(() -> createVotingIfSuccess(input));
+        .thenCheck(() -> notPresent.check(userGroupOptional, ErrorConstants.USER_NOT_IN_GROUP))
+        .then(() -> createVotingIfSuccess(userGroupOptional));
   }
 
-  private Voting createVotingIfSuccess(CreateVotingInput input) {
-    return votingRepository.createVoting(
-        input.getUserId(), input.getGroupId(), OffsetDateTime.now());
+  private Voting createVotingIfSuccess(Optional<UserGroup> userGroup) {
+    Optional<Voting> voting =
+        userGroup.map(
+            (UserGroup ug) -> {
+              return Voting.newBuilder()
+                  .with(v -> v.setGroup(ug.getGroup()))
+                  .with(v -> v.setCreatedBy(ug.getUser()))
+                  .with(v -> v.setCreatedAtDateTime(OffsetDateTime.now()))
+                  .build();
+            });
+
+    return voting.map(votingRepository::save).orElse(null);
   }
 
   @Override
   public Result<Vote> createVote(CreateVoteInput input) {
-    Group group = votingRepository.findGroupByUserAndVoting(input.getUserId(), input.getVotingId());
+    Optional<User> user = userRepository.findById(input.getUserId());
+    Optional<Voting> voting = votingRepository.findById(input.getVotingId());
+    Optional<Group> group = voting.map(Voting::getGroup);
+    Boolean isGroupAnonymous = group.map(Group::isAnonymousVote).orElse(false);
 
-    VoteScoreBoundaries voteScoreBoundaries = new VoteScoreBoundaries();
-    UserOnlyVotedOnce userOnlyVotedOnce = new UserOnlyVotedOnce(votingRepository);
-    VotingHasExpired votingHasExpired = new VotingHasExpired(votingRepository);
-    NotNull notNull = new NotNull();
-    VoteAnonymousAllowedInGroup anonymousAllowed = new VoteAnonymousAllowedInGroup();
+    var voteScoreBoundaries = new VoteScoreBoundaries();
+    var userOnlyVotedOnce = new UserOnlyVotedOnce(voteRepository);
+    var votingHasExpired = new VotingHasExpired();
+    var notPresent = new NotPresent();
+    var userIsInGroup = new UserIsInGroup();
+    var anonymousAllowed = new VoteAnonymousAllowedInGroup();
 
     return Result.<Vote>create()
         .thenCheck(() -> voteScoreBoundaries.check(input.getScore()))
-        .thenCheck(() -> userOnlyVotedOnce.check(input))
-        .thenCheck(() -> votingHasExpired.check(input.getVotingId()))
-        .thenCheck(() -> notNull.check(group))
-        .thenCheck(() -> anonymousAllowed.check(input.isAnonymous(), group.isAnonymousVote()))
-        .then(() -> createVoteIfSuccess(input));
+        .thenCheck(() -> userOnlyVotedOnce.check(user, voting))
+        .thenCheck(() -> votingHasExpired.check(voting))
+        .thenCheck(() -> notPresent.check(group))
+        .thenCheck(() -> userIsInGroup.check(user, group))
+        .thenCheck(() -> anonymousAllowed.check(input.isAnonymous(), isGroupAnonymous))
+        .then(createVote(voting, user, input))
+        .sideEffect(v -> updateVotingAverage(v.getVoting()));
   }
 
-  private Vote createVoteIfSuccess(CreateVoteInput input) {
-    UUID userId = input.isAnonymous() ? null : input.getUserId();
-    Vote createdVote =
-        votingRepository.createVote(
-            userId,
-            input.getVotingId(),
-            OffsetDateTime.now(),
-            input.getComment(),
-            input.getScore());
-    updateVotingAverage(input.getVotingId());
-
-    return createdVote;
+  private Supplier<Vote> createVote(
+      Optional<Voting> voting, Optional<User> user, CreateVoteInput input) {
+    return () ->
+        voting
+            .map(
+                (Voting slot) ->
+                    Vote.newBuilder()
+                        .with(v -> v.setVoting(slot))
+                        .with(v -> v.setCreatedBy(user.orElse(null)))
+                        .with(v -> v.setComment(input.getComment()))
+                        .with(v -> v.setScore(input.getScore()))
+                        .build())
+            .map(voteRepository::save)
+            .orElse(null);
   }
 
-  private void updateVotingAverage(UUID votingId) {
-    Integer average = votingRepository.calculateVoteAverage(votingId);
-    votingRepository.updateVotingAverage(votingId, average);
+  private void updateVotingAverage(Voting voting) {
+    voting.setAverage(voteRepository.findAvgScoreByVoting(voting));
+    votingRepository.update(voting);
   }
 
   @Override
   public List<Voting> listVotingsGroup(ListVotingsGroupInput input) {
-    return votingRepository.listVotingsGroup(
-        input.getGroupId(), input.getStartDate(), input.getEndDate());
+    Optional<Group> group = groupRepository.findById(input.getGroupId());
+    OffsetDateTime fromDate = input.getStartDate();
+    OffsetDateTime toDate = input.getEndDate();
+
+    return group.stream()
+        .flatMap(
+            g -> votingRepository.findAllByGroupAndCreatedAtDateTimeBetween(g, fromDate, toDate))
+        .collect(Collectors.toList());
   }
 
   @Override
   public List<Vote> listVotesVoting(UUID votingId) {
-    return votingRepository.listVotesVoting(votingId);
+    return voteRepository.findAllByVotingOrderByUser(votingId).collect(Collectors.toList());
   }
 
   @Override
   public Result<Voting> getVoting(GetVotingInput input) {
-    VotingExists votingExists = new VotingExists(votingRepository);
+    Optional<User> user = userRepository.findById(input.getCurrentUserId());
+    Optional<UUID> votingId = votingRepository.findById(input.getVotingId()).map(Voting::getId);
+    Optional<Voting> votingFound =
+        combine(votingId, user).flatmapInto(votingRepository::findByIdAndVotingUser);
+
+    NotPresent notPresent = new NotPresent();
 
     return Result.<Voting>create()
-        .thenCheck(() -> votingExists.check(input.getCurrentUserId(), input.getVotingId()))
-        .then(
-            () ->
-                votingRepository.findVotingByUserAndVoting(
-                    input.getCurrentUserId(), input.getVotingId()));
+        .thenCheck(() -> notPresent.check(votingFound))
+        .then(votingFound::get);
   }
 
   @Override
   public Result<List<Vote>> listUserVotesInGroup(UserVotesInGroupInput input) {
-    UserIsInGroup userIsInGroup = new UserIsInGroup(userGroupRepository);
+    Optional<User> currentUser = userRepository.findById(input.getCurrentUserId());
+    Optional<User> user = userRepository.findById(input.getUserId());
+    Optional<Group> group = groupRepository.findById(input.getGroupId());
+
+    UserIsInGroup userIsInGroup = new UserIsInGroup();
+
     return Result.<List<Vote>>create()
-        .thenCheck(() -> userIsInGroup.check(input.getCurrentUserId(), input.getGroupId()))
-        .thenCheck(() -> userIsInGroup.check(input.getUserId(), input.getGroupId()))
+        .thenCheck(() -> userIsInGroup.check(currentUser, group))
+        .thenCheck(() -> userIsInGroup.check(user, group))
         .then(() -> listUserVotesInGroupIfSuccess(input));
   }
 
   private List<Vote> listUserVotesInGroupIfSuccess(UserVotesInGroupInput input) {
-    return votingRepository.listUserVotesInGroup(
-        input.getUserId(), input.getGroupId(), input.getStartDateTime(), input.getEndDateTime());
+    Optional<User> user = userRepository.findById(input.getUserId());
+    Optional<Group> group = groupRepository.findById(input.getGroupId());
+    OffsetDateTime fromDate = input.getStartDateTime();
+    OffsetDateTime toDate = input.getEndDateTime();
+
+    return combine(user, group)
+        .into(
+            (u, g) -> {
+              return voteRepository.findAllByUserAndGroupAndCreatedAtBetween(
+                  u, g, fromDate, toDate);
+            })
+        .stream()
+        .flatMap(voteStream -> voteStream)
+        .collect(Collectors.toList());
   }
 }

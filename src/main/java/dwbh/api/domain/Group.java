@@ -17,28 +17,55 @@
  */
 package dwbh.api.domain;
 
+import com.vladmihalcea.hibernate.type.array.ListArrayType;
 import dwbh.api.util.Builder;
 import java.time.DayOfWeek;
 import java.time.OffsetTime;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
+import org.hibernate.annotations.Parameter;
+import org.hibernate.annotations.Type;
+import org.hibernate.annotations.TypeDef;
 
 /**
  * Represents the different groups a user could belong to
  *
  * @since 0.1.0
  */
+@Entity
+@Table(name = "groups")
+@TypeDef(name = "list-array", typeClass = ListArrayType.class)
 public final class Group {
+
+  @Column(name = "name")
   private String name;
-  private UUID id;
+
+  @Id @GeneratedValue private UUID id;
+
+  @Column(name = "visible_member_list")
   private boolean visibleMemberList;
+
+  @Column(name = "anonymous_vote")
   private boolean anonymousVote;
+
+  @Type(
+      type = "com.vladmihalcea.hibernate.type.array.ListArrayType",
+      parameters = {@Parameter(name = ListArrayType.SQL_ARRAY_TYPE, value = "text")})
+  @Column(name = "voting_days", columnDefinition = "text[]")
   private List<DayOfWeek> votingDays;
+
+  @Column(name = "voting_time")
   private OffsetTime votingTime;
 
-  private Group() {
-    /* empty */
-  }
+  @OneToMany(mappedBy = "group")
+  private Set<UserGroup> users;
 
   /**
    * Creates a new {@link Group} builder
@@ -168,5 +195,13 @@ public final class Group {
    */
   public void setVotingTime(OffsetTime votingTime) {
     this.votingTime = votingTime;
+  }
+
+  public Set<UserGroup> getUsers() {
+    return users;
+  }
+
+  public void setUsers(Set<UserGroup> users) {
+    this.users = users;
   }
 }

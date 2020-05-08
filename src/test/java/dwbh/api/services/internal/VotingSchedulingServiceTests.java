@@ -17,27 +17,30 @@
  */
 package dwbh.api.services.internal;
 
+import static io.github.benas.randombeans.api.EnhancedRandom.randomListOf;
+import static io.github.benas.randombeans.api.EnhancedRandom.randomSetOf;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.isNotNull;
-import static org.mockito.ArgumentMatchers.isNull;
+import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import dwbh.api.domain.Email;
 import dwbh.api.domain.Group;
 import dwbh.api.domain.User;
+import dwbh.api.domain.UserGroup;
 import dwbh.api.domain.Voting;
+import dwbh.api.repositories.GroupRepository;
+import dwbh.api.repositories.UserRepository;
 import dwbh.api.repositories.VotingRepository;
-import dwbh.api.repositories.internal.JooqGroupRepository;
-import dwbh.api.repositories.internal.JooqUserGroupRepository;
 import dwbh.api.services.EmailService;
 import dwbh.api.services.internal.templates.JadeTemplateService;
 import dwbh.api.services.internal.templates.URLResolverService;
 import io.micronaut.context.MessageSource;
-import java.time.OffsetDateTime;
-import java.util.List;
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.Test;
@@ -46,30 +49,33 @@ import org.mockito.Mockito;
 public class VotingSchedulingServiceTests {
 
   @Test
+  @SuppressWarnings("unchecked")
   void testNotifyNewVotingToMembers() {
     // given: mocked services
-    var groupRepository = Mockito.mock(JooqGroupRepository.class);
-    var userGroupRepository = Mockito.mock(JooqUserGroupRepository.class);
+    var groupRepository = Mockito.mock(GroupRepository.class);
     var votingRepository = Mockito.mock(VotingRepository.class);
     var emailService = Mockito.mock(EmailService.class);
     var templateService = Mockito.mock(JadeTemplateService.class);
     var urlResolverService = Mockito.mock(URLResolverService.class);
     var messageSource = Mockito.mock(MessageSource.class);
+    var userRepository = Mockito.mock(UserRepository.class);
 
     // and: mocking behaviors
-    Mockito.when(votingRepository.listGroupsToCreateVotingFrom())
-        .thenReturn(List.of(UUID.randomUUID(), UUID.randomUUID()));
+    var group1Users = randomSetOf(2, UserGroup.class);
+    var group1 =
+        Group.builder().with(g -> g.setName("eligible")).with(g -> g.setUsers(group1Users)).build();
+    var closedVotingGroups = randomListOf(4, Group.class);
+    var groupsVotingToday = new ArrayList<Group>(closedVotingGroups);
+    groupsVotingToday.add(group1);
 
-    Mockito.when(
-            votingRepository.createVoting(isNull(), any(UUID.class), any(OffsetDateTime.class)))
-        .thenReturn(
-            Voting.newBuilder().with(voting -> voting.setGroupId(UUID.randomUUID())).build());
+    Mockito.when(groupRepository.findAllByDayOfWeekAndVotingTimeLessEq(any(), any()))
+        .thenReturn(groupsVotingToday.stream());
 
-    Mockito.when(userGroupRepository.listUsersGroup(any(UUID.class)))
-        .thenReturn(List.of(User.builder().with(user -> user.setName("user")).build()));
+    Mockito.when(groupRepository.findAllByVotingCreatedAtDateTimeBetween(any(), any()))
+        .thenReturn(closedVotingGroups.stream());
 
-    Mockito.when(groupRepository.getGroup(any(UUID.class)))
-        .thenReturn(Group.builder().with(user -> user.setName("group")).build());
+    var voting = Voting.newBuilder().with(v -> v.setGroup(group1)).build();
+    Mockito.when(votingRepository.save(any(Voting.class))).thenReturn(voting);
 
     Mockito.when(
             messageSource.getMessage(any(String.class), any(MessageSource.MessageContext.class)))
@@ -79,11 +85,17 @@ public class VotingSchedulingServiceTests {
             messageSource.interpolate(any(String.class), any(MessageSource.MessageContext.class)))
         .thenReturn(RandomStringUtils.randomAlphanumeric(12));
 
+    Mockito.when(userRepository.findById(any())).thenReturn(Optional.of(User.builder().build()));
+
+    User user = User.builder().with(u -> u.setName("john")).build();
+    UserGroup userGroup = new UserGroup(user, group1);
+    Group mockedGroup = Group.builder().with(g -> g.setUsers(Set.of(userGroup))).build();
+    Mockito.when(groupRepository.findById(any(UUID.class))).thenReturn(Optional.of(mockedGroup));
+
     // and: creating an instance of scheduling service
     var schedulingService =
         new VotingSchedulingService(
             groupRepository,
-            userGroupRepository,
             votingRepository,
             emailService,
             templateService,
@@ -95,20 +107,15 @@ public class VotingSchedulingServiceTests {
     schedulingService.scheduleVoting();
 
     // then: it lists the groups that should be notified
-    verify(votingRepository, times(1)).listGroupsToCreateVotingFrom();
+    verify(groupRepository, times(1)).findAllByVotingCreatedAtDateTimeBetween(any(), any());
 
-    // and: it creates a voting entry for each of them
-    verify(votingRepository, times(2))
-        .createVoting(isNull(), any(UUID.class), any(OffsetDateTime.class));
+    verify(groupRepository, times(1)).findAllByDayOfWeekAndVotingTimeLessEq(any(), any());
 
     // and: takes each group details
-    verify(groupRepository, times(2)).getGroup(any(UUID.class));
-
-    // and: lists users of each group who need to be notified
-    verify(userGroupRepository, times(2)).listUsersGroup(any(UUID.class));
+    verify(votingRepository, times(1)).save(any());
 
     // and: sends an email for each user
-    verify(emailService, times(2)).send(any(Email.class));
+    verify(emailService, atLeast(2)).send(any(Email.class));
 
     // and: renders a body for each email
     verify(templateService, times(2)).render(any(String.class), any(Map.class));
@@ -120,5 +127,7 @@ public class VotingSchedulingServiceTests {
 
     verify(messageSource, times(8))
         .interpolate(isNotNull(), any(MessageSource.MessageContext.class));
+
+    verify(templateService, atLeast(2)).render(any(String.class), any(Map.class));
   }
 }

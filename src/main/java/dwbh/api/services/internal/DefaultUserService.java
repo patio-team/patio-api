@@ -19,11 +19,12 @@ package dwbh.api.services.internal;
 
 import dwbh.api.domain.User;
 import dwbh.api.repositories.UserRepository;
-import dwbh.api.repositories.internal.JooqUserRepository;
 import dwbh.api.services.UserService;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import javax.inject.Singleton;
+import javax.transaction.Transactional;
 
 /**
  * Business logic regarding {@link User} domain
@@ -31,6 +32,7 @@ import javax.inject.Singleton;
  * @since 0.1.0
  */
 @Singleton
+@Transactional
 public class DefaultUserService implements UserService {
 
   private final transient UserRepository userRepository;
@@ -38,7 +40,7 @@ public class DefaultUserService implements UserService {
   /**
    * Initializes service by using the database repositories
    *
-   * @param userRepository an instance of {@link JooqUserRepository}
+   * @param userRepository an instance of {@link UserRepository}
    * @since 0.1.0
    */
   public DefaultUserService(UserRepository userRepository) {
@@ -46,17 +48,17 @@ public class DefaultUserService implements UserService {
   }
 
   @Override
-  public List<User> listUsers() {
-    return userRepository.listUsers();
+  public Iterable<User> listUsers() {
+    return userRepository.findAll();
   }
 
   @Override
-  public User getUser(UUID id) {
-    return userRepository.getUser(id);
+  public Optional<User> getUser(UUID id) {
+    return userRepository.findById(id);
   }
 
   @Override
-  public List<User> listUsersByIds(List<UUID> ids) {
-    return userRepository.listUsersByIds(ids);
+  public Iterable<User> listUsersByIds(List<UUID> ids) {
+    return userRepository.findAllByIdInListOrderById(ids);
   }
 }

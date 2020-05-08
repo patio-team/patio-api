@@ -61,7 +61,7 @@ public class GroupFetcher {
    * @return a list of available {@link Group}
    * @since 0.1.0
    */
-  public List<Group> listGroups(DataFetchingEnvironment env) {
+  public Iterable<Group> listGroups(DataFetchingEnvironment env) {
     return service.listGroups();
   }
 

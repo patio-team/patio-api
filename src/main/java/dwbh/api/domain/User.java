@@ -19,7 +19,13 @@ package dwbh.api.domain;
 
 import dwbh.api.util.Builder;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
 import org.apache.commons.codec.digest.DigestUtils;
 
 /**
@@ -27,16 +33,19 @@ import org.apache.commons.codec.digest.DigestUtils;
  *
  * @since 0.1.0
  */
+@Entity
+@Table(name = "users")
 public final class User {
-  private UUID id;
+
+  @Id @GeneratedValue private UUID id;
   private String name;
   private String email;
+
   private String password;
   private String otp;
 
-  private User() {
-    /* empty */
-  }
+  @OneToMany(mappedBy = "user")
+  private Set<UserGroup> groups;
 
   /**
    * Creates a builder to create instances of type {@link User}
@@ -150,5 +159,13 @@ public final class User {
    */
   public void setId(UUID id) {
     this.id = id;
+  }
+
+  public Set<UserGroup> getGroups() {
+    return groups;
+  }
+
+  public void setGroups(Set<UserGroup> groups) {
+    this.groups = groups;
   }
 }

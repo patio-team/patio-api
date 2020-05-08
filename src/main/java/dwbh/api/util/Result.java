@@ -19,6 +19,8 @@ package dwbh.api.util;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 /**
@@ -28,6 +30,7 @@ import java.util.function.Supplier;
  *
  * @since 0.1.0
  */
+@SuppressWarnings("PMD.TooManyMethods")
 public class Result<T> {
 
   private final T success;
@@ -150,6 +153,30 @@ public class Result<T> {
    */
   public Result<T> then(Supplier<T> supplier) {
     return this.isSuccess() ? Result.result(supplier.get()) : this;
+  }
+
+  /**
+   * Transform a successful {@link Result} payload
+   *
+   * @param <B> the type of the transforming function result
+   * @param func function transforming a successful {@link Result} payload
+   * @return a result with a transformed success {@link Result} or the failing {@link Result}
+   *     unmodified
+   */
+  public <B> Result<B> map(Function<T, B> func) {
+    return this.isSuccess() ? Result.result(func.apply(success)) : new Result<B>(null, errorList);
+  }
+
+  /**
+   * Produces a side effect when there's a successful {@link Result}
+   *
+   * @param sideEffectSuccess side effect function to process a success {@link Result}
+   * @return the current {@link Result} value
+   */
+  public Result<T> sideEffect(Consumer<T> sideEffectSuccess) {
+    Optional.ofNullable(sideEffectSuccess)
+        .ifPresent(fn -> Optional.ofNullable(this.success).ifPresent(fn));
+    return this;
   }
 
   /**

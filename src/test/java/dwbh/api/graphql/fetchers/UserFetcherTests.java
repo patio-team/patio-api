@@ -21,12 +21,13 @@ import static io.github.benas.randombeans.api.EnhancedRandom.random;
 import static io.github.benas.randombeans.api.EnhancedRandom.randomListOf;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.iterableWithSize;
 
 import dwbh.api.domain.User;
 import dwbh.api.graphql.fetchers.utils.FetcherTestUtils;
 import dwbh.api.services.internal.DefaultUserService;
-import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -47,10 +48,10 @@ public class UserFetcherTests {
 
     // when: fetching user list invoking the service
     UserFetcher fetchers = new UserFetcher(mockedService);
-    List<User> userList = fetchers.listUsers(null);
+    Iterable<User> userList = fetchers.listUsers(null);
 
     // then: check certain assertions should be met
-    assertThat("there're only a certain number of users", userList.size(), is(2));
+    assertThat("there're only a certain number of users", userList, iterableWithSize(2));
   }
 
   @Test
@@ -61,7 +62,7 @@ public class UserFetcherTests {
     var mockedService = Mockito.mock(DefaultUserService.class);
 
     // and: mocking service's behavior
-    Mockito.when(mockedService.getUser(user.getId())).thenReturn(user);
+    Mockito.when(mockedService.getUser(user.getId())).thenReturn(Optional.of(user));
 
     // and: a mocked environment
     var mockedEnvironment =
@@ -69,10 +70,10 @@ public class UserFetcherTests {
 
     // when: fetching build user invoking the service
     UserFetcher fetchers = new UserFetcher(mockedService);
-    User result = fetchers.getUser(mockedEnvironment);
+    Optional<User> result = fetchers.getUser(mockedEnvironment);
 
     // then: check certain assertions should be met
-    assertThat("the user is found", result, is(user));
+    assertThat("the user is found", result.get(), is(user));
   }
 
   @Test

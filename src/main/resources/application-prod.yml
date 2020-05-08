@@ -28,14 +28,19 @@ micronaut:
   server:
     cors:
       enabled: true
-
+---
 datasources:
   default:
     url: ${DWBH_JDBC_URL}
     username: ${DWBH_JDBC_USER}
     password: ${DWBH_JDBC_PASSWORD}
     driverClassName: ${DWBH_JDBC_DRIVER}
-
+jpa:
+  default:
+    properties:
+      hibernate:
+        show_sql: false
+#        dialect: org.hibernate.dialect.PostgreSQL95Dialect
 
 flyway:
   datasources:

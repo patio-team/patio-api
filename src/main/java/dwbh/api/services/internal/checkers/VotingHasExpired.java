@@ -20,10 +20,11 @@ package dwbh.api.services.internal.checkers;
 import static dwbh.api.util.Check.checkIsFalse;
 import static dwbh.api.util.ErrorConstants.VOTING_HAS_EXPIRED;
 
-import dwbh.api.repositories.VotingRepository;
+import dwbh.api.domain.Voting;
 import dwbh.api.util.Check;
 import dwbh.api.util.Result;
-import java.util.UUID;
+import java.time.OffsetDateTime;
+import java.util.Optional;
 
 /**
  * Checks whether a voting has expired or not
@@ -32,25 +33,19 @@ import java.util.UUID;
  */
 public class VotingHasExpired {
 
-  private final transient VotingRepository repository;
-
-  /**
-   * Constructor receiving access to the underlying data store
-   *
-   * @param repository an instance of {@link VotingRepository}
-   * @since 0.1.0
-   */
-  public VotingHasExpired(VotingRepository repository) {
-    this.repository = repository;
-  }
-
   /**
    * Checks if the voting has expired or not
    *
-   * @param votingId the voting's id
+   * @param voting the voting
    * @return a failing {@link Result} if the voting has expired
    */
-  public Check check(UUID votingId) {
-    return checkIsFalse(repository.hasExpired(votingId), VOTING_HAS_EXPIRED);
+  public Check check(Optional<Voting> voting) {
+    boolean hasExpired =
+        voting
+            .map(Voting::getCreatedAtDateTime)
+            .map(createdAt -> createdAt.plusDays(1).isBefore(OffsetDateTime.now()))
+            .orElse(true);
+
+    return checkIsFalse(hasExpired, VOTING_HAS_EXPIRED);
   }
 }

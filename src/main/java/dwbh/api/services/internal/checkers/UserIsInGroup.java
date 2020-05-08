@@ -19,13 +19,14 @@ package dwbh.api.services.internal.checkers;
 
 import static dwbh.api.util.Check.checkIsTrue;
 
+import dwbh.api.domain.Group;
+import dwbh.api.domain.User;
 import dwbh.api.domain.UserGroup;
-import dwbh.api.repositories.UserGroupRepository;
-import dwbh.api.repositories.internal.JooqUserGroupRepository;
 import dwbh.api.util.Check;
 import dwbh.api.util.ErrorConstants;
 import dwbh.api.util.Result;
-import java.util.UUID;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Checks if a given user belongs to a given group
@@ -34,30 +35,22 @@ import java.util.UUID;
  */
 public class UserIsInGroup {
 
-  private final transient UserGroupRepository repository;
-
-  /**
-   * Constructor receiving access to the underlying datastore
-   *
-   * @param repository an instance of {@link JooqUserGroupRepository}
-   * @since 0.1.0
-   */
-  public UserIsInGroup(UserGroupRepository repository) {
-    this.repository = repository;
-  }
-
   /**
    * Checks whether a user belongs to a group or not
    *
-   * @param userId the user's id
-   * @param groupId the group's id
+   * @param user user belonging to a group
+   * @param group group of the user
    * @return a failing {@link Result} if the user doesn't belong to the group
    * @since 0.1.0
    */
-  public Check check(UUID userId, UUID groupId) {
-    UserGroup currentUserGroup = repository.getUserGroup(userId, groupId);
-    boolean isInGroup = currentUserGroup != null;
+  public Check check(Optional<User> user, Optional<Group> group) {
+    var userGroups =
+        user.stream()
+            .flatMap(u -> u.getGroups().stream())
+            .map(UserGroup::getGroup)
+            .collect(Collectors.toSet());
+    var userIsInGroup = group.map(userGroups::contains).orElse(false);
 
-    return checkIsTrue(isInGroup, ErrorConstants.USER_NOT_IN_GROUP);
+    return checkIsTrue(userIsInGroup, ErrorConstants.USER_NOT_IN_GROUP);
   }
 }

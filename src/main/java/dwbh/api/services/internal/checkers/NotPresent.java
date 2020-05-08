@@ -19,43 +19,40 @@ package dwbh.api.services.internal.checkers;
 
 import static dwbh.api.util.Check.checkIsTrue;
 
-import dwbh.api.domain.Voting;
-import dwbh.api.repositories.VotingRepository;
 import dwbh.api.util.Check;
+import dwbh.api.util.Error;
 import dwbh.api.util.ErrorConstants;
-import dwbh.api.util.Result;
-import java.util.UUID;
+import java.util.Optional;
 
 /**
- * Checks whether a given voting exists or not
+ * This checker expects the argument passed to be present, otherwise it will return a failing {@link
+ * Check}
  *
  * @since 0.1.0
  */
-public class VotingExists {
-
-  private final transient VotingRepository repository;
-
+public class NotPresent {
   /**
-   * Constructor receiving access to the underlying data store
+   * Checks that the argument passed as parameter is not null. Otherwise will build a failing {@link
+   * Check} containing an error {@link ErrorConstants#NOT_FOUND}
    *
-   * @param repository an instance of {@link VotingRepository}
+   * @param object the object checked
+   * @return a failing {@link Check} if the object is not present
    * @since 0.1.0
    */
-  public VotingExists(VotingRepository repository) {
-    this.repository = repository;
+  public Check check(Optional object) {
+    return check(object, ErrorConstants.NOT_FOUND);
   }
 
   /**
-   * Checks whether a given voting which a user belongs to exists or not
+   * Checks that the argument passed as parameter is not null. Otherwise will build a failing {@link
+   * Check} containing an error
    *
-   * @param userId the user's id
-   * @param votingId the voting's id
-   * @return a failing {@link Result} if the voting doesn't exist
+   * @param object the object to check
+   * @param error error to show when check didn't pass
+   * @return a failing {@link Check} if the object is not present
    * @since 0.1.0
    */
-  public Check check(UUID userId, UUID votingId) {
-    Voting voting = repository.findVotingByUserAndVoting(userId, votingId);
-
-    return checkIsTrue(voting != null, ErrorConstants.NOT_FOUND);
+  public Check check(Optional object, Error error) {
+    return checkIsTrue(object.isPresent(), error);
   }
 }

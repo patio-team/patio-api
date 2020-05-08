@@ -15,11 +15,26 @@
  * You should have received a copy of the GNU General Public License
  * along with DWBH.  If not, see <https://www.gnu.org/licenses/>
  */
-package dwbh.api.repositories;
+package dwbh.api.util;
 
-import dwbh.api.domain.UserGroup;
-import dwbh.api.domain.UserGroupKey;
-import io.micronaut.data.repository.PageableRepository;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
-/** All database actions related to {@link UserGroup} entity */
-public interface UserGroupRepository extends PageableRepository<UserGroup, UserGroupKey> {}
+/** Functions to handle {@link Iterable} instances */
+public final class IterableUtils {
+
+  private IterableUtils() {
+    /* empty */
+  }
+
+  /**
+   * Transforms an {@link Iterable} to {@link Stream}
+   *
+   * @param <T> type of the elements of the iterable
+   * @param iterable instance of type {@link Iterable} to transform
+   * @return an instance of type {@link Stream}
+   */
+  public static <T> Stream<T> iterableToStream(Iterable<T> iterable) {
+    return StreamSupport.stream(iterable.spliterator(), false);
+  }
+}
