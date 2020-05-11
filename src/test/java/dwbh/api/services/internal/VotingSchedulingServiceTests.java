@@ -17,10 +17,10 @@
  */
 package dwbh.api.services.internal;
 
+import static io.github.benas.randombeans.api.EnhancedRandom.random;
 import static io.github.benas.randombeans.api.EnhancedRandom.randomListOf;
 import static io.github.benas.randombeans.api.EnhancedRandom.randomSetOf;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.isNotNull;
 import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -34,15 +34,11 @@ import dwbh.api.repositories.GroupRepository;
 import dwbh.api.repositories.UserRepository;
 import dwbh.api.repositories.VotingRepository;
 import dwbh.api.services.EmailService;
-import dwbh.api.services.internal.templates.JadeTemplateService;
 import dwbh.api.services.internal.templates.URLResolverService;
-import io.micronaut.context.MessageSource;
 import java.util.ArrayList;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
-import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -54,10 +50,9 @@ public class VotingSchedulingServiceTests {
     // given: mocked services
     var groupRepository = Mockito.mock(GroupRepository.class);
     var votingRepository = Mockito.mock(VotingRepository.class);
+    var emailComposerService = Mockito.mock(EmailComposerService.class);
     var emailService = Mockito.mock(EmailService.class);
-    var templateService = Mockito.mock(JadeTemplateService.class);
     var urlResolverService = Mockito.mock(URLResolverService.class);
-    var messageSource = Mockito.mock(MessageSource.class);
     var userRepository = Mockito.mock(UserRepository.class);
 
     // and: mocking behaviors
@@ -77,16 +72,11 @@ public class VotingSchedulingServiceTests {
     var voting = Voting.newBuilder().with(v -> v.setGroup(group1)).build();
     Mockito.when(votingRepository.save(any(Voting.class))).thenReturn(voting);
 
-    Mockito.when(
-            messageSource.getMessage(any(String.class), any(MessageSource.MessageContext.class)))
-        .thenReturn(Optional.of(RandomStringUtils.randomAlphanumeric(12)));
-
-    Mockito.when(
-            messageSource.interpolate(any(String.class), any(MessageSource.MessageContext.class)))
-        .thenReturn(RandomStringUtils.randomAlphanumeric(12));
+    Mockito.when(emailComposerService.composeEmail(any(), any(), any(), any()))
+        .thenReturn(random(Email.class));
+    Mockito.when(emailComposerService.getTodayMessage()).thenReturn(random(String.class));
 
     Mockito.when(userRepository.findById(any())).thenReturn(Optional.of(User.builder().build()));
-
     User user = User.builder().with(u -> u.setName("john")).build();
     UserGroup userGroup = new UserGroup(user, group1);
     Group mockedGroup = Group.builder().with(g -> g.setUsers(Set.of(userGroup))).build();
@@ -95,13 +85,12 @@ public class VotingSchedulingServiceTests {
     // and: creating an instance of scheduling service
     var schedulingService =
         new VotingSchedulingService(
+            "/groups/{0}/votings/{1}/vote",
             groupRepository,
             votingRepository,
+            emailComposerService,
             emailService,
-            templateService,
-            urlResolverService,
-            messageSource,
-            Optional.of("es"));
+            urlResolverService);
 
     // when: executing scheduling task
     schedulingService.scheduleVoting();
@@ -114,20 +103,12 @@ public class VotingSchedulingServiceTests {
     // and: takes each group details
     verify(votingRepository, times(1)).save(any());
 
+    // and: composes an email for each user
+    verify(emailComposerService, atLeast(4)).getMessage(any());
+    verify(emailComposerService, atLeast(4)).getMessage(any(), any());
+    verify(emailComposerService, atLeast(2)).composeEmail(any(), any(), any(), any());
+
     // and: sends an email for each user
     verify(emailService, atLeast(2)).send(any(Email.class));
-
-    // and: renders a body for each email
-    verify(templateService, times(2)).render(any(String.class), any(Map.class));
-
-    // and: with content taken from messages.properties (four calls per email: subject, greetings,
-    // template and thanks)
-    verify(messageSource, times(8))
-        .getMessage(isNotNull(), any(MessageSource.MessageContext.class));
-
-    verify(messageSource, times(8))
-        .interpolate(isNotNull(), any(MessageSource.MessageContext.class));
-
-    verify(templateService, atLeast(2)).render(any(String.class), any(Map.class));
   }
 }

@@ -35,6 +35,7 @@ public class FetcherProvider {
   private GroupFetcher groupFetcher;
   private VotingFetcher votingFetcher;
   private UserFetcher userFetcher;
+  private ResetPasswordFetcher resetPasswordFetcher;
   private UserGroupFetcher userGroupFetcher;
   private SecurityFetcher securityFetcher;
 
@@ -141,5 +142,26 @@ public class FetcherProvider {
   @Inject
   public void setSecurityFetcher(SecurityFetcher securityFetcher) {
     this.securityFetcher = securityFetcher;
+  }
+
+  /**
+   * Returns an instance of {@link ResetPasswordFetcher}
+   *
+   * @return an instance of {@link ResetPasswordFetcher}
+   * @since 0.1.0
+   */
+  public ResetPasswordFetcher getResetPasswordFetcher() {
+    return resetPasswordFetcher;
+  }
+
+  /**
+   * Sets the instance responsible to handle user password requests
+   *
+   * @param resetPasswordFetcher instance of {@link ResetPasswordFetcher}
+   * @since 0.1.0
+   */
+  @Inject
+  public void setResetPasswordFetcher(ResetPasswordFetcher resetPasswordFetcher) {
+    this.resetPasswordFetcher = resetPasswordFetcher;
   }
 }

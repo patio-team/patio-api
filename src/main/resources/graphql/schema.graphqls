@@ -107,6 +107,9 @@ type Query {
 
 # registered mutations
 type Mutation {
+    # request to initiate the process to reset the password for a user
+    resetPassword(email: String!): Boolean
+
     # creates a new voting slot
     createVoting(groupId: ID): Voting
 

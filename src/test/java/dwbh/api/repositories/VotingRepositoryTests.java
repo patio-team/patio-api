@@ -43,7 +43,7 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 /**
- * Tests DATABASE integration regarding {@link Voting} persistence
+ * Tests DATABASE integration regarding {@link Voting} persistence.
  *
  * @since 0.1.0
  */
