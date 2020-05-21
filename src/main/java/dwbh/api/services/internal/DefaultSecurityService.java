@@ -21,17 +21,23 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 import dwbh.api.domain.Login;
 import dwbh.api.domain.Tokens;
 import dwbh.api.domain.User;
+import dwbh.api.domain.input.ChangePasswordInput;
 import dwbh.api.domain.input.LoginInput;
 import dwbh.api.repositories.UserRepository;
 import dwbh.api.services.CryptoService;
 import dwbh.api.services.GoogleUserService;
 import dwbh.api.services.OauthService;
 import dwbh.api.services.SecurityService;
+import dwbh.api.services.internal.checkers.NotPresent;
+import dwbh.api.services.internal.checkers.PasswordIsBlank;
+import dwbh.api.services.internal.checkers.SamePassword;
 import dwbh.api.util.ErrorConstants;
 import dwbh.api.util.Result;
 import java.util.Optional;
 import javax.inject.Singleton;
 import javax.transaction.Transactional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Service responsible to check the security constraints
@@ -41,6 +47,8 @@ import javax.transaction.Transactional;
 @Singleton
 @Transactional
 public class DefaultSecurityService implements SecurityService {
+
+  private static final Logger LOG = LoggerFactory.getLogger(DefaultSecurityService.class);
 
   private final transient CryptoService cryptoService;
   private final transient OauthService oauthService;
@@ -86,7 +94,7 @@ public class DefaultSecurityService implements SecurityService {
   }
 
   @Override
-  public Result<Login> login(LoginInput input) {
+  public Result<Login> loginByCredentials(LoginInput input) {
     Optional<User> user = userRepository.findByEmail(input.getEmail());
 
     return user.filter(
@@ -97,11 +105,21 @@ public class DefaultSecurityService implements SecurityService {
   }
 
   @Override
-  public Result<Login> login(String code) {
+  public Result<Login> loginByOauth2(String code) {
     return Optional.ofNullable(code)
         .flatMap(oauthService::getAccessToken)
         .flatMap(googleUserService::loadFromAccessToken)
         .flatMap(userRepository::findByEmailOrCreate)
+        .flatMap(this::getLoginFromUser)
+        .map(Result::result)
+        .orElse(Result.error(ErrorConstants.BAD_CREDENTIALS));
+  }
+
+  @Override
+  public Result<Login> loginByOtp(String otpCode) {
+    return Optional.ofNullable(otpCode)
+        .flatMap(userRepository::findByOtp)
+        .flatMap(this::clearOtpForUser)
         .flatMap(this::getLoginFromUser)
         .map(Result::result)
         .orElse(Result.error(ErrorConstants.BAD_CREDENTIALS));
@@ -117,9 +135,38 @@ public class DefaultSecurityService implements SecurityService {
         .orElse(Result.error(ErrorConstants.BAD_CREDENTIALS));
   }
 
+  @Override
+  public Result<Boolean> changePassword(ChangePasswordInput input) {
+    Optional<User> user = userRepository.findById(input.getUserId());
+    Optional<String> newPassword = Optional.of(input.getPassword());
+
+    NotPresent notPresent = new NotPresent();
+    PasswordIsBlank passwordIsBlank = new PasswordIsBlank();
+    SamePassword samePassword = new SamePassword(cryptoService);
+
+    LOG.info(String.format("User %s is attempting to set a new password", input.getUserId()));
+
+    return Result.<Boolean>create()
+        .thenCheck(() -> notPresent.check(user))
+        .thenCheck(() -> passwordIsBlank.check(newPassword.get()))
+        .thenCheck(() -> samePassword.check(user.get(), newPassword.get()))
+        .then(() -> updatePasswordIfSuccess(user.get(), input.getPassword()));
+  }
+
   private Optional<Login> getLoginFromUser(User user) {
     Tokens tokens = cryptoService.createTokens(user);
 
     return Optional.of(new Login(tokens, user));
+  }
+
+  private Optional<User> clearOtpForUser(User user) {
+    user.setOtp("");
+
+    return Optional.of(userRepository.save(user));
+  }
+
+  private Boolean updatePasswordIfSuccess(User user, String password) {
+    user.setPassword(cryptoService.hash(password));
+    return Optional.of(user).map(userRepository::save).isPresent();
   }
 }

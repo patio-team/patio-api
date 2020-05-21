@@ -19,6 +19,7 @@ package dwbh.api.services;
 
 import dwbh.api.domain.Login;
 import dwbh.api.domain.User;
+import dwbh.api.domain.input.ChangePasswordInput;
 import dwbh.api.domain.input.LoginInput;
 import dwbh.api.util.Result;
 import java.util.Optional;
@@ -50,7 +51,7 @@ public interface SecurityService {
    * @return an instance of {@link Result} ({@link Login} | {@link Error})
    * @since 0.1.0
    */
-  Result<Login> login(LoginInput input);
+  Result<Login> loginByCredentials(LoginInput input);
 
   /**
    * When using oauth2 authorization code, this service will make use of the configured oauth2
@@ -61,7 +62,17 @@ public interface SecurityService {
    * @return an instance of {@link Result} ({@link Login} | {@link Error})
    * @since 0.1.0
    */
-  Result<Login> login(String code);
+  Result<Login> loginByOauth2(String code);
+
+  /**
+   * Validates the {@link User} who possesses the provided OTP (one-time password). If so, the app
+   * will return an instance of {@link Login}.
+   *
+   * @param otpCode a valid OTP code
+   * @return an instance of {@link Result} ({@link Login} | {@link Error})
+   * @since 0.1.0
+   */
+  Result<Login> loginByOtp(String otpCode);
 
   /**
    * When the authentication token's expired this function will allow the client to make use of the
@@ -72,4 +83,12 @@ public interface SecurityService {
    * @since 0.1.0
    */
   Result<Login> refresh(String refreshToken);
+
+  /**
+   * Changes the password for the given {@link User}
+   *
+   * @param changePasswordInput an instance of {@link ChangePasswordInput}
+   * @return the {@link Result} with either a success or an error list
+   */
+  Result<Boolean> changePassword(ChangePasswordInput changePasswordInput);
 }

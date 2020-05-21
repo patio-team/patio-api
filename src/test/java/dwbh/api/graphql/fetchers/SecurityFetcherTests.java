@@ -26,11 +26,15 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 
 import dwbh.api.domain.Login;
+import dwbh.api.domain.Tokens;
+import dwbh.api.domain.User;
 import dwbh.api.domain.input.LoginInput;
 import dwbh.api.graphql.I18nGraphQLError;
+import dwbh.api.graphql.fetchers.utils.FetcherTestUtils;
 import dwbh.api.services.SecurityService;
 import dwbh.api.util.Result;
 import graphql.schema.DataFetchingEnvironment;
+import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -42,16 +46,16 @@ import org.mockito.Mockito;
 public class SecurityFetcherTests {
 
   @Test
-  void testLoginSuccess() {
+  void testLoginByCredentialsSuccess() {
     // given: mocking service SUCCESSFUL call
     var securityService = Mockito.mock(SecurityService.class);
-    Mockito.when(securityService.login(any(LoginInput.class)))
+    Mockito.when(securityService.loginByCredentials(any(LoginInput.class)))
         .thenReturn(Result.result(random(Login.class)));
 
     // when: the fetcher is invoked for login query
     var securityFetcher = new SecurityFetcher(securityService);
     var fetchingEnvironment = Mockito.mock(DataFetchingEnvironment.class);
-    var result = securityFetcher.login(fetchingEnvironment);
+    var result = securityFetcher.loginByCredentials(fetchingEnvironment);
 
     // then: there should be no errors
     assertTrue(result.getErrors().isEmpty());
@@ -61,20 +65,134 @@ public class SecurityFetcherTests {
   }
 
   @Test
-  void testLoginFailure() {
+  void testLoginByCredentialsFailure() {
     // given: failure code and message
     var code = "error.code";
     var message = "friendly message";
 
     // and: mocking service FAILING call
     var securityService = Mockito.mock(SecurityService.class);
-    Mockito.when(securityService.login(any(LoginInput.class)))
+    Mockito.when(securityService.loginByCredentials(any(LoginInput.class)))
         .thenReturn(Result.error(code, message));
 
     // when: the fetcher is invoked for login query
     var securityFetcher = new SecurityFetcher(securityService);
     var fetchingEnvironment = Mockito.mock(DataFetchingEnvironment.class);
-    var result = securityFetcher.login(fetchingEnvironment);
+    var result = securityFetcher.loginByCredentials(fetchingEnvironment);
+
+    // then: there should be errors
+    assertFalse(result.getErrors().isEmpty());
+
+    I18nGraphQLError error = (I18nGraphQLError) result.getErrors().get(0);
+    assertEquals(code, error.getCode());
+    assertEquals(message, error.getMessage());
+
+    // and: a login payload should be missing
+    assertNull(result.getData());
+  }
+
+  @Test
+  void testLoginByOtpSuccess() {
+    // given: a user with an otp
+    var otp = random(String.class);
+    var user = User.builder().with(u -> u.setOtp(otp)).build();
+
+    // and: mocking the service with a SUCCESSFUL Login response
+    var securityService = Mockito.mock(SecurityService.class);
+    var login = new Login(random(Tokens.class), user);
+    Mockito.when(securityService.loginByOtp(otp)).thenReturn(Result.result(login));
+
+    // and: a correct parameter from the environment
+    var mockedEnvironment =
+        FetcherTestUtils.generateMockedEnvironment(null, Map.of("otpCode", otp));
+
+    // when: the fetcher is invoked for login by otp query
+    var securityFetcher = new SecurityFetcher(securityService);
+    var result = securityFetcher.loginByOtp(mockedEnvironment);
+
+    // then: there should be no errors
+    assertTrue(result.getErrors().isEmpty());
+
+    // and: a login payload should be returned
+    assertNotNull(result.getData());
+  }
+
+  @Test
+  void testLoginByOtpFailure() {
+    // given: any otp code
+    var otpCode = random(String.class);
+
+    // and: a failure code and message
+    var code = "error.code";
+    var message = "friendly message";
+
+    // and: mocking the service to FAILURE with an error
+    var securityService = Mockito.mock(SecurityService.class);
+    Mockito.when(securityService.loginByOtp(otpCode)).thenReturn(Result.error(code, message));
+
+    // and: a correct parameter received from the environment
+    var mockedEnvironment =
+        FetcherTestUtils.generateMockedEnvironment(null, Map.of("otpCode", otpCode));
+
+    // when: the fetcher is invoked for login query
+    var securityFetcher = new SecurityFetcher(securityService);
+    var result = securityFetcher.loginByOtp(mockedEnvironment);
+
+    // then: there should be errors
+    assertFalse(result.getErrors().isEmpty());
+
+    I18nGraphQLError error = (I18nGraphQLError) result.getErrors().get(0);
+    assertEquals(code, error.getCode());
+    assertEquals(message, error.getMessage());
+
+    // and: a login payload should be missing
+    assertNull(result.getData());
+  }
+
+  @Test
+  void testChangingPasswordSuccess() {
+    // given: a user
+    var user = random(User.class);
+
+    // and: mocking the service with a SUCCESSFUL response
+    var securityService = Mockito.mock(SecurityService.class);
+    Mockito.when(securityService.changePassword(any())).thenReturn(Result.result(true));
+
+    // and: a correct parameter from the environment
+    var mockedEnvironment =
+        FetcherTestUtils.generateMockedEnvironment(user, Map.of("password", random(String.class)));
+
+    // when: the fetcher is invoked for changing the password by otp mutation
+    var securityFetcher = new SecurityFetcher(securityService);
+    var result = securityFetcher.changePassword(mockedEnvironment);
+
+    // then: there should be no errors
+    assertTrue(result.getErrors().isEmpty());
+
+    // and: a login payload should be returned
+    assertNotNull(result.getData());
+  }
+
+  @Test
+  void testChangingPasswordFailure() {
+    // given: a user
+    var user = random(User.class);
+
+    // and: a failure code and message
+    var code = "error.code";
+    var message = "friendly message";
+
+    // and: mocking the service with a FAILURE response
+    var securityService = Mockito.mock(SecurityService.class);
+    Mockito.when(securityService.changePassword(any())).thenReturn(Result.error(code, message));
+
+    // and: a correct parameter from the environment
+    var mockedEnvironment =
+        FetcherTestUtils.generateMockedEnvironment(user, Map.of("password", random(String.class)));
+
+    // when: the fetcher is invoked for changing the password by otp mutation
+    var securityFetcher = new SecurityFetcher(securityService);
+    var result = securityFetcher.changePassword(mockedEnvironment);
 
     // then: there should be errors
     assertFalse(result.getErrors().isEmpty());

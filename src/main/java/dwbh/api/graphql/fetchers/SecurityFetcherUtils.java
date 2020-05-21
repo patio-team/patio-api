@@ -17,7 +17,10 @@
  */
 package dwbh.api.graphql.fetchers;
 
+import dwbh.api.domain.User;
+import dwbh.api.domain.input.ChangePasswordInput;
 import dwbh.api.domain.input.LoginInput;
+import dwbh.api.graphql.Context;
 import graphql.schema.DataFetchingEnvironment;
 
 /**
@@ -45,5 +48,24 @@ final class SecurityFetcherUtils {
     String password = environment.getArgument("password");
 
     return new LoginInput(email, password);
+  }
+
+  /**
+   * Creates a {@link ChangePasswordInput} from the data coming from the {@link
+   * DataFetchingEnvironment}
+   *
+   * @param environment the GraphQL {@link DataFetchingEnvironment}
+   * @return an instance of {@link ChangePasswordInput}
+   * @since 0.1.0
+   */
+  /* default */ static ChangePasswordInput changePassword(DataFetchingEnvironment environment) {
+    Context ctx = environment.getContext();
+    User currentUser = ctx.getAuthenticatedUser();
+    String password = environment.getArgument("password");
+
+    return ChangePasswordInput.newBuilder()
+        .withUserId(currentUser.getId())
+        .withPassword(password)
+        .build();
   }
 }

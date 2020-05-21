@@ -114,6 +114,22 @@ public final class ErrorConstants {
   public static final Error UNIQUE_ADMIN =
       new Error("API_ERRORS.UNIQUE_ADMIN", "The user is the unique admin of the group");
 
+  /**
+   * Error code used when a user is trying to reuse the exact password it's already defined group
+   *
+   * @since 0.1.0
+   */
+  public static final Error SAME_PASSWORD =
+      new Error("API_ERRORS.PASSWORD_IS_THE_SAME", "The password is the same already defined");
+
+  /**
+   * Error code used when a non-blank string is left blank group
+   *
+   * @since 0.1.0
+   */
+  public static final Error BLANK_PASSWORD =
+      new Error("API_ERRORS.PASSWORD_IS_BLANK", "The password cannot be left blank");
+
   private ErrorConstants() {
     /* empty */
   }

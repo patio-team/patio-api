@@ -18,6 +18,8 @@
 package dwbh.api.graphql.fetchers;
 
 import dwbh.api.domain.Login;
+import dwbh.api.domain.User;
+import dwbh.api.domain.input.ChangePasswordInput;
 import dwbh.api.domain.input.LoginInput;
 import dwbh.api.graphql.ResultUtils;
 import dwbh.api.services.SecurityService;
@@ -53,9 +55,9 @@ public class SecurityFetcher {
    * @return an instance of {@link DataFetcherResult} because it could return errors
    * @since 0.1.0
    */
-  public DataFetcherResult<Login> login(DataFetchingEnvironment environment) {
+  public DataFetcherResult<Login> loginByCredentials(DataFetchingEnvironment environment) {
     LoginInput input = SecurityFetcherUtils.login(environment);
-    Result<Login> login = securityService.login(input);
+    Result<Login> login = securityService.loginByCredentials(input);
 
     return ResultUtils.render(login);
   }
@@ -67,11 +69,39 @@ public class SecurityFetcher {
    * @return an instance of {@link DataFetcherResult} because it could return errors
    * @since 0.1.0
    */
-  public DataFetcherResult<Login> loginOauth2(DataFetchingEnvironment environment) {
+  public DataFetcherResult<Login> loginByOauth2(DataFetchingEnvironment environment) {
     String authorizationCode = environment.getArgument("authorizationCode");
 
-    Result<Login> login = securityService.login(authorizationCode);
+    Result<Login> login = securityService.loginByOauth2(authorizationCode);
 
     return ResultUtils.render(login);
+  }
+
+  /**
+   * Fetcher responsible to handle the user's login using an OTP (one-time password) code
+   *
+   * @param environment GraphQL execution environment
+   * @return an instance of {@link DataFetcherResult} because it could return errors
+   * @since 0.1.0
+   */
+  public DataFetcherResult<Login> loginByOtp(DataFetchingEnvironment environment) {
+    String otpCode = environment.getArgument("otpCode");
+
+    Result<Login> login = securityService.loginByOtp(otpCode);
+
+    return ResultUtils.render(login);
+  }
+
+  /**
+   * Fetcher responsible of changing the password for a {@link User}.
+   *
+   * @param env GraphQL execution environment
+   * @return an instance of {@link DataFetcherResult} because it could return errors
+   * @since 0.1.0
+   */
+  public DataFetcherResult<Boolean> changePassword(DataFetchingEnvironment env) {
+    ChangePasswordInput input = SecurityFetcherUtils.changePassword(env);
+
+    return ResultUtils.render(securityService.changePassword(input));
   }
 }

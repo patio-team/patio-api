@@ -22,11 +22,14 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import dwbh.api.domain.User;
+import dwbh.api.domain.input.ChangePasswordInput;
 import dwbh.api.domain.input.LoginInput;
 import dwbh.api.repositories.UserRepository;
 import dwbh.api.services.CryptoService;
@@ -106,7 +109,9 @@ public class DefaultSecurityServiceTests {
 
     // when: executing the security service with good credentials
     var securityService = new DefaultSecurityService(cryptoService, null, null, userRepository);
-    var result = securityService.login(new LoginInput(storedUser.get().getEmail(), plainPassword));
+    var result =
+        securityService.loginByCredentials(
+            new LoginInput(storedUser.get().getEmail(), plainPassword));
 
     // then: we should build a token that matches the user stored in database
     var resultUser = result.getSuccess().getUser();
@@ -132,7 +137,7 @@ public class DefaultSecurityServiceTests {
     var securityService = new DefaultSecurityService(cryptoService, null, null, userRepository);
 
     var loginInput = random(LoginInput.class);
-    var result = securityService.login(loginInput);
+    var result = securityService.loginByCredentials(loginInput);
 
     // then: we should build an error because of bad credentials
     var errors = result.getErrorList();
@@ -142,5 +147,179 @@ public class DefaultSecurityServiceTests {
     assertEquals(errors.size(), 1);
     assertEquals(badCredentialsError.getCode(), ErrorConstants.BAD_CREDENTIALS.getCode());
     assertEquals(badCredentialsError.getMessage(), ErrorConstants.BAD_CREDENTIALS.getMessage());
+  }
+
+  @Test
+  void testLoginWithValidOtp() {
+    // given: a security configuration
+    var configuration = new SecurityConfiguration("issuer", 1, Algorithm.HMAC256("secret"));
+    var cryptoService = new Auth0CryptoService(configuration);
+    var plainPassword = "password";
+    var otp = "$2a$10$L0gD4";
+
+    // and: a user with an OTP code and password
+    var user =
+        User.builder()
+            .with(user1 -> user1.setOtp(otp))
+            .with(user1 -> user1.setPassword(cryptoService.hash(plainPassword)))
+            .build();
+    var storedUser = Optional.of(user);
+
+    // and: a mocked user repository
+    var userRepository = Mockito.mock(UserRepository.class);
+    Mockito.when(userRepository.findByOtp(otp)).thenReturn(storedUser);
+    Mockito.when(userRepository.save(user)).thenReturn(user);
+
+    // when: executing the security service with the user's otp
+    var securityService = new DefaultSecurityService(cryptoService, null, null, userRepository);
+    var result = securityService.loginByOtp(storedUser.get().getOtp());
+
+    // then: we should build a token that matches the user stored in database
+    var resultUser = result.getSuccess().getUser();
+    var resultToken = result.getSuccess().getTokens().getAuthenticationToken();
+    var resultEmail = cryptoService.verifyToken(resultToken).get();
+
+    assertNotNull(resultUser);
+    assertNotNull(result);
+    assertEquals(resultEmail.getSubject(), storedUser.get().getEmail());
+  }
+
+  @Test
+  void testLoginWithInvalidOtp() {
+    // given: a security configuration
+    var configuration = new SecurityConfiguration("issuer", 1, Algorithm.HMAC256("secret"));
+    var cryptoService = new Auth0CryptoService(configuration);
+    var plainPassword = "password";
+    var otp = "$2a$10$L0gD4";
+
+    // and: another otp
+    var anotherOtp = "not the same otp";
+
+    // and: a user with an OTP code and password
+    var user =
+        User.builder()
+            .with(user1 -> user1.setOtp(otp))
+            .with(user1 -> user1.setPassword(cryptoService.hash(plainPassword)))
+            .build();
+    var storedUser = Optional.of(user);
+
+    // and: a mocked user repository
+    var userRepository = Mockito.mock(UserRepository.class);
+    Mockito.when(userRepository.findByOtp(otp)).thenReturn(storedUser);
+    Mockito.when(userRepository.save(user)).thenReturn(user);
+
+    // when: executing the security service with the user's otp
+    var securityService = new DefaultSecurityService(cryptoService, null, null, userRepository);
+    var result = securityService.loginByOtp(anotherOtp);
+
+    // then: we should build an error because of bad credentials
+    var errors = result.getErrorList();
+    var badCredentialsError = errors.get(0);
+
+    assertNotNull(errors);
+    assertEquals(errors.size(), 1);
+    assertEquals(badCredentialsError.getCode(), ErrorConstants.BAD_CREDENTIALS.getCode());
+    assertEquals(badCredentialsError.getMessage(), ErrorConstants.BAD_CREDENTIALS.getMessage());
+  }
+
+  @Test
+  void testValidPasswordChange() {
+    // given: a mocked crypto security service
+    var cryptoService = Mockito.mock(Auth0CryptoService.class);
+
+    // and: a user who wants to change its previous password
+    var oldPassword = "old password";
+    var user =
+        User.builder().with(user1 -> user1.setPassword(cryptoService.hash(oldPassword))).build();
+    var storedUser = Optional.of(user);
+
+    // and: the new intended password
+    var newPassword = "new password";
+
+    // and: a mocked user repository
+    var userRepository = Mockito.mock(UserRepository.class);
+    Mockito.when(userRepository.findById(user.getId())).thenReturn(storedUser);
+    Mockito.when(userRepository.save(user)).thenReturn(user);
+
+    // when: executing the security service to change her password
+    var securityService = new DefaultSecurityService(cryptoService, null, null, userRepository);
+    var result = securityService.changePassword(new ChangePasswordInput(user.getId(), newPassword));
+
+    // then: the result is correct
+    assertEquals(result.isSuccess(), true);
+
+    // and: the new encrypted password is stored in database
+    verify(cryptoService, times(1)).hash(newPassword);
+    verify(userRepository, times(1)).save(user);
+  }
+
+  @Test
+  void testInvalidPasswordChangeIsTheSame() {
+    // given: a crypto security service
+    var configuration = new SecurityConfiguration("issuer", 1, Algorithm.HMAC256("secret"));
+    var cryptoService = new Auth0CryptoService(configuration);
+
+    // and: a user who wants to change its previous password
+    var oldPassword = "old password";
+    var user =
+        User.builder().with(user1 -> user1.setPassword(cryptoService.hash(oldPassword))).build();
+    var storedUser = Optional.of(user);
+
+    // and: the same intended password
+    var newPassword = oldPassword;
+
+    // and: a mocked user repository
+    var userRepository = Mockito.mock(UserRepository.class);
+    Mockito.when(userRepository.findById(user.getId())).thenReturn(storedUser);
+    Mockito.when(userRepository.save(user)).thenReturn(user);
+
+    // when: executing the security service to change her password
+    var securityService = new DefaultSecurityService(cryptoService, null, null, userRepository);
+    var result = securityService.changePassword(new ChangePasswordInput(user.getId(), newPassword));
+
+    // then: an error is returned because of the same password
+    assertEquals(result.hasErrors(), true);
+
+    var errors = result.getErrorList();
+    var samePasswordError = errors.get(0);
+
+    assertNotNull(errors);
+    assertEquals(errors.size(), 1);
+    assertEquals(samePasswordError.getCode(), ErrorConstants.SAME_PASSWORD.getCode());
+  }
+
+  @Test
+  void testInvalidPasswordChangeIsBlank() {
+    // given: a crypto security service
+    var configuration = new SecurityConfiguration("issuer", 1, Algorithm.HMAC256("secret"));
+    var cryptoService = new Auth0CryptoService(configuration);
+
+    // and: a user who wants to change its previous password
+    var oldPassword = "old password";
+    var user =
+        User.builder().with(user1 -> user1.setPassword(cryptoService.hash(oldPassword))).build();
+    var storedUser = Optional.of(user);
+
+    // and: the new intended password left blank
+    var newPassword = "";
+
+    // and: a mocked user repository
+    var userRepository = Mockito.mock(UserRepository.class);
+    Mockito.when(userRepository.findById(user.getId())).thenReturn(storedUser);
+    Mockito.when(userRepository.save(user)).thenReturn(user);
+
+    // when: executing the security service to change her password
+    var securityService = new DefaultSecurityService(cryptoService, null, null, userRepository);
+    var result = securityService.changePassword(new ChangePasswordInput(user.getId(), newPassword));
+
+    // then: an error is returned because of the same password
+    assertEquals(result.hasErrors(), true);
+
+    var errors = result.getErrorList();
+    var samePasswordError = errors.get(0);
+
+    assertNotNull(errors);
+    assertEquals(errors.size(), 1);
+    assertEquals(samePasswordError.getCode(), ErrorConstants.BLANK_PASSWORD.getCode());
   }
 }
