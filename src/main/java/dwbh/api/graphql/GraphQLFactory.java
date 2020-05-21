@@ -96,6 +96,7 @@ public class GraphQLFactory {
       TypeDefinitionRegistry registry, FetcherProvider fetcherProvider) {
     var groupFetcher = fetcherProvider.getGroupFetcher();
     var userFetcher = fetcherProvider.getUserFetcher();
+    var resetPasswordFetcher = fetcherProvider.getResetPasswordFetcher();
     var userGroupFetcher = fetcherProvider.getUserGroupFetcher();
     var securityFetcher = fetcherProvider.getSecurityFetcher();
     var votingFetcher = fetcherProvider.getVotingFetcher();
@@ -128,6 +129,7 @@ public class GraphQLFactory {
                         .dataFetcher("createGroup", groupFetcher::createGroup)
                         .dataFetcher("updateGroup", groupFetcher::updateGroup)
                         .dataFetcher("addUserToGroup", userGroupFetcher::addUserToGroup)
+                        .dataFetcher("resetPassword", resetPasswordFetcher::resetPassword)
                         .dataFetcher("createVoting", votingFetcher::createVoting)
                         .dataFetcher("createVote", votingFetcher::createVote)
                         .dataFetcher("leaveGroup", userGroupFetcher::leaveGroup))

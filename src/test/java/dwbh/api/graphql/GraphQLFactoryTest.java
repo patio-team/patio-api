@@ -28,6 +28,7 @@ import dwbh.api.domain.Group;
 import dwbh.api.domain.User;
 import dwbh.api.graphql.fetchers.FetcherProvider;
 import dwbh.api.graphql.fetchers.GroupFetcher;
+import dwbh.api.graphql.fetchers.ResetPasswordFetcher;
 import dwbh.api.graphql.fetchers.SecurityFetcher;
 import dwbh.api.graphql.fetchers.UserFetcher;
 import dwbh.api.graphql.fetchers.UserGroupFetcher;
@@ -63,6 +64,9 @@ class GraphQLFactoryTest {
 
     // and: adding security fetcher to fetcher providers
     fetchers.setSecurityFetcher(mock(SecurityFetcher.class));
+
+    // and: adding user password fetcher to fetcher providers
+    fetchers.setResetPasswordFetcher(mock(ResetPasswordFetcher.class));
 
     // when: creating a valid GraphQL engine
     var resolver = new ResourceResolver();
