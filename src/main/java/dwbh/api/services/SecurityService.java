@@ -20,8 +20,8 @@ package dwbh.api.services;
 import dwbh.api.domain.Login;
 import dwbh.api.domain.User;
 import dwbh.api.domain.input.LoginInput;
-import dwbh.api.util.Result;
 import java.util.Optional;
+import patio.common.Result;
 
 /**
  * Service responsible to check the security constraints

@@ -23,8 +23,6 @@ import dwbh.api.domain.Group;
 import dwbh.api.domain.User;
 import dwbh.api.domain.UserGroup;
 import dwbh.api.domain.UserGroupKey;
-import dwbh.api.domain.Vote;
-import dwbh.api.domain.Voting;
 import dwbh.api.domain.input.CreateVoteInput;
 import dwbh.api.domain.input.CreateVotingInput;
 import dwbh.api.domain.input.GetVotingInput;
@@ -33,8 +31,6 @@ import dwbh.api.domain.input.UserVotesInGroupInput;
 import dwbh.api.repositories.GroupRepository;
 import dwbh.api.repositories.UserGroupRepository;
 import dwbh.api.repositories.UserRepository;
-import dwbh.api.repositories.VoteRepository;
-import dwbh.api.repositories.VotingRepository;
 import dwbh.api.services.VotingService;
 import dwbh.api.services.internal.checkers.NotPresent;
 import dwbh.api.services.internal.checkers.UserIsInGroup;
@@ -43,7 +39,6 @@ import dwbh.api.services.internal.checkers.VoteAnonymousAllowedInGroup;
 import dwbh.api.services.internal.checkers.VoteScoreBoundaries;
 import dwbh.api.services.internal.checkers.VotingHasExpired;
 import dwbh.api.util.ErrorConstants;
-import dwbh.api.util.Result;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -52,6 +47,11 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import javax.inject.Singleton;
 import javax.transaction.Transactional;
+import patio.common.Result;
+import patio.voting.adapters.persistence.entities.VoteEntity;
+import patio.voting.adapters.persistence.entities.VotingEntity;
+import patio.voting.adapters.persistence.repositories.VoteRepository;
+import patio.voting.adapters.persistence.repositories.VotingRepository;
 
 /**
  * Business logic regarding {@link Group} domain
@@ -92,22 +92,22 @@ public class DefaultVotingService implements VotingService {
   }
 
   @Override
-  public Result<Voting> createVoting(CreateVotingInput input) {
+  public Result<VotingEntity> createVoting(CreateVotingInput input) {
     var userGroupKey = new UserGroupKey(input.getUserId(), input.getGroupId());
     var userGroupOptional = userGroupRepository.findById(userGroupKey);
 
     NotPresent notPresent = new NotPresent();
 
-    return Result.<Voting>create()
+    return Result.<VotingEntity>create()
         .thenCheck(() -> notPresent.check(userGroupOptional, ErrorConstants.USER_NOT_IN_GROUP))
         .then(() -> createVotingIfSuccess(userGroupOptional));
   }
 
-  private Voting createVotingIfSuccess(Optional<UserGroup> userGroup) {
-    Optional<Voting> voting =
+  private VotingEntity createVotingIfSuccess(Optional<UserGroup> userGroup) {
+    Optional<VotingEntity> voting =
         userGroup.map(
             (UserGroup ug) -> {
-              return Voting.newBuilder()
+              return VotingEntity.newBuilder()
                   .with(v -> v.setGroup(ug.getGroup()))
                   .with(v -> v.setCreatedBy(ug.getUser()))
                   .with(v -> v.setCreatedAtDateTime(OffsetDateTime.now()))
@@ -118,10 +118,10 @@ public class DefaultVotingService implements VotingService {
   }
 
   @Override
-  public Result<Vote> createVote(CreateVoteInput input) {
+  public Result<VoteEntity> createVote(CreateVoteInput input) {
     Optional<User> user = userRepository.findById(input.getUserId());
-    Optional<Voting> voting = votingRepository.findById(input.getVotingId());
-    Optional<Group> group = voting.map(Voting::getGroup);
+    Optional<VotingEntity> voting = votingRepository.findById(input.getVotingId());
+    Optional<Group> group = voting.map(VotingEntity::getGroup);
     Boolean isGroupAnonymous = group.map(Group::isAnonymousVote).orElse(false);
 
     var voteScoreBoundaries = new VoteScoreBoundaries();
@@ -131,7 +131,7 @@ public class DefaultVotingService implements VotingService {
     var userIsInGroup = new UserIsInGroup();
     var anonymousAllowed = new VoteAnonymousAllowedInGroup();
 
-    return Result.<Vote>create()
+    return Result.<VoteEntity>create()
         .thenCheck(() -> voteScoreBoundaries.check(input.getScore()))
         .thenCheck(() -> userOnlyVotedOnce.check(user, voting))
         .thenCheck(() -> votingHasExpired.check(voting))
@@ -142,13 +142,13 @@ public class DefaultVotingService implements VotingService {
         .sideEffect(v -> updateVotingAverage(v.getVoting()));
   }
 
-  private Supplier<Vote> createVote(
-      Optional<Voting> voting, Optional<User> user, CreateVoteInput input) {
+  private Supplier<VoteEntity> createVote(
+      Optional<VotingEntity> voting, Optional<User> user, CreateVoteInput input) {
     return () ->
         voting
             .map(
-                (Voting slot) ->
-                    Vote.newBuilder()
+                (VotingEntity slot) ->
+                    VoteEntity.newBuilder()
                         .with(v -> v.setVoting(slot))
                         .with(v -> v.setCreatedBy(user.orElse(null)))
                         .with(v -> v.setComment(input.getComment()))
@@ -158,13 +158,13 @@ public class DefaultVotingService implements VotingService {
             .orElse(null);
   }
 
-  private void updateVotingAverage(Voting voting) {
+  private void updateVotingAverage(VotingEntity voting) {
     voting.setAverage(voteRepository.findAvgScoreByVoting(voting));
     votingRepository.update(voting);
   }
 
   @Override
-  public List<Voting> listVotingsGroup(ListVotingsGroupInput input) {
+  public List<VotingEntity> listVotingsGroup(ListVotingsGroupInput input) {
     Optional<Group> group = groupRepository.findById(input.getGroupId());
     OffsetDateTime fromDate = input.getStartDate();
     OffsetDateTime toDate = input.getEndDate();
@@ -176,39 +176,40 @@ public class DefaultVotingService implements VotingService {
   }
 
   @Override
-  public List<Vote> listVotesVoting(UUID votingId) {
+  public List<VoteEntity> listVotesVoting(UUID votingId) {
     return voteRepository.findAllByVotingOrderByUser(votingId).collect(Collectors.toList());
   }
 
   @Override
-  public Result<Voting> getVoting(GetVotingInput input) {
+  public Result<VotingEntity> getVoting(GetVotingInput input) {
     Optional<User> user = userRepository.findById(input.getCurrentUserId());
-    Optional<UUID> votingId = votingRepository.findById(input.getVotingId()).map(Voting::getId);
-    Optional<Voting> votingFound =
+    Optional<UUID> votingId =
+        votingRepository.findById(input.getVotingId()).map(VotingEntity::getId);
+    Optional<VotingEntity> votingFound =
         combine(votingId, user).flatmapInto(votingRepository::findByIdAndVotingUser);
 
     NotPresent notPresent = new NotPresent();
 
-    return Result.<Voting>create()
+    return Result.<VotingEntity>create()
         .thenCheck(() -> notPresent.check(votingFound))
         .then(votingFound::get);
   }
 
   @Override
-  public Result<List<Vote>> listUserVotesInGroup(UserVotesInGroupInput input) {
+  public Result<List<VoteEntity>> listUserVotesInGroup(UserVotesInGroupInput input) {
     Optional<User> currentUser = userRepository.findById(input.getCurrentUserId());
     Optional<User> user = userRepository.findById(input.getUserId());
     Optional<Group> group = groupRepository.findById(input.getGroupId());
 
     UserIsInGroup userIsInGroup = new UserIsInGroup();
 
-    return Result.<List<Vote>>create()
+    return Result.<List<VoteEntity>>create()
         .thenCheck(() -> userIsInGroup.check(currentUser, group))
         .thenCheck(() -> userIsInGroup.check(user, group))
         .then(() -> listUserVotesInGroupIfSuccess(input));
   }
 
-  private List<Vote> listUserVotesInGroupIfSuccess(UserVotesInGroupInput input) {
+  private List<VoteEntity> listUserVotesInGroupIfSuccess(UserVotesInGroupInput input) {
     Optional<User> user = userRepository.findById(input.getUserId());
     Optional<Group> group = groupRepository.findById(input.getGroupId());
     OffsetDateTime fromDate = input.getStartDateTime();

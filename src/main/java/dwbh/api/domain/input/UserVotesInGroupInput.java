@@ -17,9 +17,9 @@
  */
 package dwbh.api.domain.input;
 
-import dwbh.api.util.Builder;
 import java.time.OffsetDateTime;
 import java.util.UUID;
+import patio.common.Builder;
 
 /**
  * UserVotesInGroupInput input. It contains the id for a group, for an user, and the dates between

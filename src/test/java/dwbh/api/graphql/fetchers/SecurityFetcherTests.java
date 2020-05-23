@@ -29,10 +29,10 @@ import dwbh.api.domain.Login;
 import dwbh.api.domain.input.LoginInput;
 import dwbh.api.graphql.I18nGraphQLError;
 import dwbh.api.services.SecurityService;
-import dwbh.api.util.Result;
 import graphql.schema.DataFetchingEnvironment;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import patio.common.Result;
 
 /**
  * Tests {@link SecurityFetcher}

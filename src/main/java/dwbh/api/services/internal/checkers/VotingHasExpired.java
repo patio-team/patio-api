@@ -20,11 +20,11 @@ package dwbh.api.services.internal.checkers;
 import static dwbh.api.util.Check.checkIsFalse;
 import static dwbh.api.util.ErrorConstants.VOTING_HAS_EXPIRED;
 
-import dwbh.api.domain.Voting;
 import dwbh.api.util.Check;
-import dwbh.api.util.Result;
 import java.time.OffsetDateTime;
 import java.util.Optional;
+import patio.common.Result;
+import patio.voting.adapters.persistence.entities.VotingEntity;
 
 /**
  * Checks whether a voting has expired or not
@@ -39,10 +39,10 @@ public class VotingHasExpired {
    * @param voting the voting
    * @return a failing {@link Result} if the voting has expired
    */
-  public Check check(Optional<Voting> voting) {
+  public Check check(Optional<VotingEntity> voting) {
     boolean hasExpired =
         voting
-            .map(Voting::getCreatedAtDateTime)
+            .map(VotingEntity::getCreatedAtDateTime)
             .map(createdAt -> createdAt.plusDays(1).isBefore(OffsetDateTime.now()))
             .orElse(true);
 

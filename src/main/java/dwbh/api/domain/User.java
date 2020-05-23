@@ -17,7 +17,6 @@
  */
 package dwbh.api.domain;
 
-import dwbh.api.util.Builder;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -27,6 +26,7 @@ import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import org.apache.commons.codec.digest.DigestUtils;
+import patio.common.Builder;
 
 /**
  * Represents the users of dwbh

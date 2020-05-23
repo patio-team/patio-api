@@ -21,7 +21,7 @@ import static dwbh.api.util.Check.checkIsTrue;
 
 import dwbh.api.util.Check;
 import dwbh.api.util.ErrorConstants;
-import dwbh.api.util.Result;
+import patio.common.Result;
 
 /**
  * Checks that a given vote's score is within the expected values

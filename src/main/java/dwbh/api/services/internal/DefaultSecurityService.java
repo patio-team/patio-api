@@ -28,10 +28,10 @@ import dwbh.api.services.GoogleUserService;
 import dwbh.api.services.OauthService;
 import dwbh.api.services.SecurityService;
 import dwbh.api.util.ErrorConstants;
-import dwbh.api.util.Result;
 import java.util.Optional;
 import javax.inject.Singleton;
 import javax.transaction.Transactional;
+import patio.common.Result;
 
 /**
  * Service responsible to check the security constraints

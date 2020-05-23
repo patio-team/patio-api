@@ -17,7 +17,7 @@
  */
 package dwbh.api.domain;
 
-import dwbh.api.util.Builder;
+import patio.common.Builder;
 
 /**
  * Represents a normal JWT login response with an authentication and a refresh tokens

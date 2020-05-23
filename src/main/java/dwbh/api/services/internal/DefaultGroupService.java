@@ -29,9 +29,7 @@ import dwbh.api.services.GroupService;
 import dwbh.api.services.internal.checkers.NotPresent;
 import dwbh.api.services.internal.checkers.UserIsGroupAdmin;
 import dwbh.api.services.internal.checkers.UserIsInGroup;
-import dwbh.api.util.Builder;
 import dwbh.api.util.OptionalUtils;
-import dwbh.api.util.Result;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -39,6 +37,8 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import javax.inject.Singleton;
 import javax.transaction.Transactional;
+import patio.common.Builder;
+import patio.common.Result;
 
 /**
  * Business logic regarding {@link Group} domain

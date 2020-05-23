@@ -20,9 +20,9 @@ package dwbh.api.services;
 import dwbh.api.domain.Group;
 import dwbh.api.domain.input.GetGroupInput;
 import dwbh.api.domain.input.UpsertGroupInput;
-import dwbh.api.util.Result;
 import java.util.List;
 import java.util.UUID;
+import patio.common.Result;
 
 /**
  * Business logic contracts regarding {@link Group} domain

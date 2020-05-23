@@ -21,10 +21,10 @@ import dwbh.api.domain.Login;
 import dwbh.api.domain.input.LoginInput;
 import dwbh.api.graphql.ResultUtils;
 import dwbh.api.services.SecurityService;
-import dwbh.api.util.Result;
 import graphql.execution.DataFetcherResult;
 import graphql.schema.DataFetchingEnvironment;
 import javax.inject.Singleton;
+import patio.common.Result;
 
 /**
  * Responsible for handling all security related GraphQL queries

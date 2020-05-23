@@ -24,6 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import javax.validation.constraints.NotNull;
 import org.junit.jupiter.api.Test;
+import patio.common.Builder;
 
 public class BuilderTests {
 

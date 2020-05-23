@@ -21,7 +21,7 @@ import static dwbh.api.util.Check.checkIsTrue;
 import static dwbh.api.util.ErrorConstants.VOTE_CANT_BE_ANONYMOUS;
 
 import dwbh.api.util.Check;
-import dwbh.api.util.Result;
+import patio.common.Result;
 
 /**
  * Checker testing whether the anonymous vote is allowed or not

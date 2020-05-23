@@ -35,12 +35,12 @@ import dwbh.api.services.internal.checkers.UserIsInGroup;
 import dwbh.api.services.internal.checkers.UserIsNotInGroup;
 import dwbh.api.services.internal.checkers.UserIsNotUniqueGroupAdmin;
 import dwbh.api.util.OptionalUtils;
-import dwbh.api.util.Result;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import javax.inject.Singleton;
 import javax.transaction.Transactional;
+import patio.common.Result;
 
 /**
  * Business logic regarding {@link UserGroup} domain

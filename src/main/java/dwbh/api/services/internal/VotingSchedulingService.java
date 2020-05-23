@@ -20,9 +20,7 @@ package dwbh.api.services.internal;
 import dwbh.api.domain.Email;
 import dwbh.api.domain.Group;
 import dwbh.api.domain.User;
-import dwbh.api.domain.Voting;
 import dwbh.api.repositories.GroupRepository;
-import dwbh.api.repositories.VotingRepository;
 import dwbh.api.services.EmailService;
 import dwbh.api.services.VotingScheduling;
 import dwbh.api.services.internal.templates.URLResolverService;
@@ -43,6 +41,8 @@ import javax.inject.Singleton;
 import javax.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import patio.voting.adapters.persistence.entities.VotingEntity;
+import patio.voting.adapters.persistence.repositories.VotingRepository;
 
 /**
  * Default implementation to create new voting and send notifications to their members
@@ -67,7 +67,7 @@ public class VotingSchedulingService implements VotingScheduling {
    *
    * @param votingUrl to get the link from configuration
    * @param groupRepository to be able to get group details
-   * @param votingRepository to be able to create a new {@link dwbh.api.domain.Voting}
+   * @param votingRepository to be able to create a new {@link VotingEntity}
    * @param emailComposerService service to compose the {@link Email} notifications
    * @param emailService to be able to send notifications to group members
    * @param urlResolverService to resolve possible link urls for emails
@@ -116,22 +116,22 @@ public class VotingSchedulingService implements VotingScheduling {
     return eligible.filter(Predicate.not(closed::contains));
   }
 
-  private Voting createVoting(Group group) {
+  private VotingEntity createVoting(Group group) {
     LOG.info(String.format("creating new voting for group %s", group.getId()));
 
-    Voting voting =
-        Voting.newBuilder()
+    VotingEntity voting =
+        VotingEntity.newBuilder()
             .with(v -> v.setGroup(group))
             .with(v -> v.setCreatedAtDateTime(OffsetDateTime.now()))
             .build();
 
-    Voting savedVoting = votingRepository.save(voting);
+    VotingEntity savedVoting = votingRepository.save(voting);
 
     LOG.info(String.format("created voting %s", savedVoting.getId()));
     return voting;
   }
 
-  private void notifyMembers(Voting voting) {
+  private void notifyMembers(VotingEntity voting) {
     Group group = voting.getGroup();
 
     LOG.info(String.format("notifying members or group %s", group.getId()));
@@ -142,7 +142,7 @@ public class VotingSchedulingService implements VotingScheduling {
   }
 
   @SuppressWarnings("PMD.UseConcurrentHashMap")
-  private Email composeEmail(User user, Group group, Voting voting) {
+  private Email composeEmail(User user, Group group, VotingEntity voting) {
     String emailBodyTemplate = emailComposerService.getMessage("voting.bodyTemplate");
     String emailRecipient = user.getEmail();
 

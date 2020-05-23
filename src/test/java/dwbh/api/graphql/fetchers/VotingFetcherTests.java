@@ -27,8 +27,6 @@ import static org.mockito.ArgumentMatchers.anyListOf;
 
 import dwbh.api.domain.Group;
 import dwbh.api.domain.User;
-import dwbh.api.domain.Vote;
-import dwbh.api.domain.Voting;
 import dwbh.api.domain.input.CreateVoteInput;
 import dwbh.api.domain.input.CreateVotingInput;
 import dwbh.api.domain.input.ListVotingsGroupInput;
@@ -38,7 +36,6 @@ import dwbh.api.graphql.fetchers.utils.FetcherTestUtils;
 import dwbh.api.services.UserService;
 import dwbh.api.services.internal.DefaultUserService;
 import dwbh.api.services.internal.DefaultVotingService;
-import dwbh.api.util.Result;
 import graphql.execution.DataFetcherResult;
 import graphql.schema.DataFetchingEnvironment;
 import io.micronaut.core.async.publisher.Publishers;
@@ -52,6 +49,9 @@ import org.dataloader.DataLoaderOptions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import patio.common.Result;
+import patio.voting.adapters.persistence.entities.VoteEntity;
+import patio.voting.adapters.persistence.entities.VotingEntity;
 import reactor.test.StepVerifier;
 
 /**
@@ -70,14 +70,14 @@ class VotingFetcherTests {
     // and: mocked services
     var mockedService = Mockito.mock(DefaultVotingService.class);
     Mockito.when(mockedService.createVoting(any(CreateVotingInput.class)))
-        .thenReturn(Result.result(random(Voting.class)));
+        .thenReturn(Result.result(random(VotingEntity.class)));
 
     var mockedEnvironment =
         FetcherTestUtils.generateMockedEnvironment(authenticatedUser, Map.of("votingId", votingId));
 
     // when: invoking the fetcher with correct data
     VotingFetcher fetcher = new VotingFetcher(mockedService);
-    DataFetcherResult<Voting> result = fetcher.createVoting(mockedEnvironment);
+    DataFetcherResult<VotingEntity> result = fetcher.createVoting(mockedEnvironment);
 
     // then: we should build no errors
     assertThat("There is no errors", result.getErrors().size(), is(0));
@@ -100,11 +100,11 @@ class VotingFetcherTests {
 
     var mockedService = Mockito.mock(DefaultVotingService.class);
     Mockito.when(mockedService.createVote(any(CreateVoteInput.class)))
-        .thenReturn(Result.result(Vote.newBuilder().build()));
+        .thenReturn(Result.result(VoteEntity.newBuilder().build()));
 
     // when: invoking vote creation
     VotingFetcher fetcher = new VotingFetcher(mockedService);
-    DataFetcherResult<Vote> vote = fetcher.createVote(mockedEnvironment);
+    DataFetcherResult<VoteEntity> vote = fetcher.createVote(mockedEnvironment);
 
     // then: the vote should have been created successfully
     assertNotNull("The vote should have been created successfully", vote.getData());
@@ -121,7 +121,7 @@ class VotingFetcherTests {
     // and: mocked service
     var mockedService = Mockito.mock(DefaultVotingService.class);
     Mockito.when(mockedService.listVotingsGroup(any(ListVotingsGroupInput.class)))
-        .thenReturn(List.of(random(Voting.class)));
+        .thenReturn(List.of(random(VotingEntity.class)));
 
     // and: mocked environment
     var mockedEnvironment =
@@ -131,7 +131,7 @@ class VotingFetcherTests {
 
     // when: invoking the fetcher with correct data
     VotingFetcher fetcher = new VotingFetcher(mockedService);
-    List<Voting> result = fetcher.listVotingsGroup(mockedEnvironment);
+    List<VotingEntity> result = fetcher.listVotingsGroup(mockedEnvironment);
 
     // then: we should build the successful result
     assertEquals("There are votings", result.size(), 1);
@@ -140,7 +140,7 @@ class VotingFetcherTests {
   @Test
   void testGetVoting() {
     // given: an voting
-    Voting voting = random(Voting.class);
+    VotingEntity voting = random(VotingEntity.class);
 
     // and: an user
     User user = random(User.class);
@@ -157,7 +157,7 @@ class VotingFetcherTests {
 
     // when: fetching build voting invoking the service
     VotingFetcher fetchers = new VotingFetcher(mockedService);
-    DataFetcherResult<Voting> result = fetchers.getVoting(mockedEnvironment);
+    DataFetcherResult<VotingEntity> result = fetchers.getVoting(mockedEnvironment);
 
     // then: check certain assertions should be met
     assertThat("the voting is found", result.getData(), is(voting));
@@ -167,11 +167,12 @@ class VotingFetcherTests {
   void testListVotesVoting() {
     // given: some random data
     var authenticatedUser = random(User.class);
-    var voting = random(Voting.class);
+    var voting = random(VotingEntity.class);
 
     // and: mocked service
     var mockedService = Mockito.mock(DefaultVotingService.class);
-    Mockito.when(mockedService.listVotesVoting(any())).thenReturn(List.of(random(Vote.class)));
+    Mockito.when(mockedService.listVotesVoting(any()))
+        .thenReturn(List.of(random(VoteEntity.class)));
 
     // and: mocked environment
     var mockedEnvironment = FetcherTestUtils.generateMockedEnvironment(authenticatedUser, Map.of());
@@ -179,7 +180,7 @@ class VotingFetcherTests {
 
     // when: invoking the fetcher with correct data
     VotingFetcher fetcher = new VotingFetcher(mockedService);
-    List<Vote> result = fetcher.listVotesVoting(mockedEnvironment);
+    List<VoteEntity> result = fetcher.listVotesVoting(mockedEnvironment);
 
     // then: we should build the successful result
     assertEquals("There are votes", result.size(), 1);
@@ -194,7 +195,8 @@ class VotingFetcherTests {
     var endDate = OffsetDateTime.parse("2019-01-25T00:00:00Z");
 
     // and: some votes
-    List<Vote> votes = List.of(random(Vote.class), random(Vote.class), random(Vote.class));
+    List<VoteEntity> votes =
+        List.of(random(VoteEntity.class), random(VoteEntity.class), random(VoteEntity.class));
 
     // and: an user
     User currentUser = random(User.class);
@@ -221,7 +223,7 @@ class VotingFetcherTests {
 
     // when: fetching get voting invoking the service
     VotingFetcher fetchers = new VotingFetcher(mockedService);
-    DataFetcherResult<List<Vote>> result = fetchers.listUserVotesInGroup(mockedEnvironment);
+    DataFetcherResult<List<VoteEntity>> result = fetchers.listUserVotesInGroup(mockedEnvironment);
 
     // then: check certain assertions should be met
     assertThat("the votes are found", result.getData(), is(votes));
@@ -236,7 +238,7 @@ class VotingFetcherTests {
         .thenReturn(List.of(randomUser));
 
     // and: a mocked environment
-    Vote vote = Vote.newBuilder().with(v -> v.setCreatedBy(randomUser)).build();
+    VoteEntity vote = VoteEntity.newBuilder().with(v -> v.setCreatedBy(randomUser)).build();
     DataLoader<UUID, User> dataLoader =
         DataLoader.newDataLoader(
             new UserBatchLoader(mockedService),

@@ -15,10 +15,13 @@
  * You should have received a copy of the GNU General Public License
  * along with DWBH.  If not, see <https://www.gnu.org/licenses/>
  */
-package dwbh.api.util;
+package patio.common;
 
+import dwbh.api.util.Check;
+import dwbh.api.util.Error;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -32,6 +35,8 @@ import java.util.function.Supplier;
  */
 @SuppressWarnings("PMD.TooManyMethods")
 public class Result<T> {
+
+  private static final Error NULLABLE = new Error("NULLABLE", "current result payload is null");
 
   private final T success;
   private final List<Error> errorList;
@@ -164,7 +169,15 @@ public class Result<T> {
    *     unmodified
    */
   public <B> Result<B> map(Function<T, B> func) {
-    return this.isSuccess() ? Result.result(func.apply(success)) : new Result<B>(null, errorList);
+    return executeIfSuccess(() -> result(func.apply(success)));
+  }
+
+  public <B> Result<B> flatMap(Function<T, Result<B>> func) {
+    return executeIfSuccess(() -> func.apply(success));
+  }
+
+  public static <A> Result<A> from(Optional<A> optional) {
+    return optional.map(Result::result).orElse(Result.error(NULLABLE));
   }
 
   /**
@@ -214,5 +227,35 @@ public class Result<T> {
    */
   public static <T> Result<T> error(String code, String message) {
     return new Result<T>(null, List.of(new Error(code, message)));
+  }
+
+  public static class Combine2<A, B> {
+
+    private final Result<A> result1;
+    private final Result<B> result2;
+
+    public Combine2(Result<A> result1, Result<B> result2) {
+      this.result1 = result1;
+      this.result2 = result2;
+    }
+
+    public <C> Result<C> into(BiFunction<A, B, C> func) {
+      return result1.flatMap(
+          value1 -> result2.flatMap(value2 -> Result.result(func.apply(value1, value2))));
+    }
+
+    public <C> Result<C> intoFlatMap(BiFunction<A, B, Result<C>> func) {
+      return result1.flatMap(value1 -> result2.flatMap(value2 -> func.apply(value1, value2)));
+    }
+  }
+
+  public <A, B> Combine2<A, B> combine(Function<T, Result<A>> func1, Function<T, Result<B>> func2) {
+    return new Combine2<A, B>(
+        executeIfSuccess(() -> func1.apply(this.success)),
+        executeIfSuccess(() -> func2.apply(this.success)));
+  }
+
+  private <O> Result<O> executeIfSuccess(Supplier<Result<O>> func) {
+    return this.isSuccess() ? func.get() : new Result<O>(null, errorList);
   }
 }

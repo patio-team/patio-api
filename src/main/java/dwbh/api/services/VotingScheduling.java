@@ -17,6 +17,8 @@
  */
 package dwbh.api.services;
 
+import patio.voting.adapters.persistence.entities.VotingEntity;
+
 /**
  * Scheduled tasks
  *
@@ -25,8 +27,8 @@ package dwbh.api.services;
 public interface VotingScheduling {
 
   /**
-   * Checks whether a new voting should be created, and if so, creates the new {@link
-   * dwbh.api.domain.Voting} instance and sends a notification to all members of that voting's group
+   * Checks whether a new voting should be created, and if so, creates the new {@link VotingEntity}
+   * instance and sends a notification to all members of that voting's group
    *
    * @since 0.1.0
    */

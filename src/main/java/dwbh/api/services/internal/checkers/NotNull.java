@@ -21,7 +21,7 @@ import static dwbh.api.util.Check.checkIsTrue;
 
 import dwbh.api.util.Check;
 import dwbh.api.util.ErrorConstants;
-import dwbh.api.util.Result;
+import patio.common.Result;
 
 /**
  * This checker expects the argument passed to be not null, otherwise it will return a failing

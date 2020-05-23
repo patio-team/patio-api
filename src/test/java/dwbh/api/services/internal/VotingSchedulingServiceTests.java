@@ -29,10 +29,8 @@ import dwbh.api.domain.Email;
 import dwbh.api.domain.Group;
 import dwbh.api.domain.User;
 import dwbh.api.domain.UserGroup;
-import dwbh.api.domain.Voting;
 import dwbh.api.repositories.GroupRepository;
 import dwbh.api.repositories.UserRepository;
-import dwbh.api.repositories.VotingRepository;
 import dwbh.api.services.EmailService;
 import dwbh.api.services.internal.templates.URLResolverService;
 import java.util.ArrayList;
@@ -41,6 +39,8 @@ import java.util.Set;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import patio.voting.adapters.persistence.entities.VotingEntity;
+import patio.voting.adapters.persistence.repositories.VotingRepository;
 
 public class VotingSchedulingServiceTests {
 
@@ -69,8 +69,8 @@ public class VotingSchedulingServiceTests {
     Mockito.when(groupRepository.findAllByVotingCreatedAtDateTimeBetween(any(), any()))
         .thenReturn(closedVotingGroups.stream());
 
-    var voting = Voting.newBuilder().with(v -> v.setGroup(group1)).build();
-    Mockito.when(votingRepository.save(any(Voting.class))).thenReturn(voting);
+    var voting = VotingEntity.newBuilder().with(v -> v.setGroup(group1)).build();
+    Mockito.when(votingRepository.save(any(VotingEntity.class))).thenReturn(voting);
 
     Mockito.when(emailComposerService.composeEmail(any(), any(), any(), any()))
         .thenReturn(random(Email.class));

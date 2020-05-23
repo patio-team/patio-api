@@ -24,9 +24,9 @@ import dwbh.api.domain.UserGroup;
 import dwbh.api.domain.UserGroupKey;
 import dwbh.api.repositories.UserGroupRepository;
 import dwbh.api.util.Check;
-import dwbh.api.util.Result;
 import java.util.Optional;
 import java.util.UUID;
+import patio.common.Result;
 
 /**
  * Checks if a given user is allowed to see members of a given group

@@ -17,16 +17,16 @@
  */
 package dwbh.api.services;
 
-import dwbh.api.domain.Vote;
-import dwbh.api.domain.Voting;
 import dwbh.api.domain.input.CreateVoteInput;
 import dwbh.api.domain.input.CreateVotingInput;
 import dwbh.api.domain.input.GetVotingInput;
 import dwbh.api.domain.input.ListVotingsGroupInput;
 import dwbh.api.domain.input.UserVotesInGroupInput;
-import dwbh.api.util.Result;
 import java.util.List;
 import java.util.UUID;
+import patio.common.Result;
+import patio.voting.adapters.persistence.entities.VoteEntity;
+import patio.voting.adapters.persistence.entities.VotingEntity;
 
 /**
  * Business logic contracts regarding voting
@@ -39,56 +39,56 @@ public interface VotingService {
    * Creates a new voting for the current day for the group identified
    *
    * @param input group to create the voting for
-   * @return an instance of type {@link Voting}
+   * @return an instance of type {@link VotingEntity}
    * @since 0.1.0
    */
-  Result<Voting> createVoting(CreateVotingInput input);
+  Result<VotingEntity> createVoting(CreateVotingInput input);
 
   /**
    * Creates a new vote for the user in the specified voting if the user is allowed to do so,
    * otherwise the result will return an error
    *
-   * @param input required data to create a new {@link Vote}
-   * @return a result with the created {@link Vote} or an {@link Error}
+   * @param input required data to create a new {@link VoteEntity}
+   * @return a result with the created {@link VoteEntity} or an {@link Error}
    * @since 0.1.0
    */
-  Result<Vote> createVote(CreateVoteInput input);
+  Result<VoteEntity> createVote(CreateVoteInput input);
 
   /**
    * Gets the votings that belongs to a group
    *
    * @param input The {@link ListVotingsGroupInput} with data to obtain the list of votings of a
    *     group
-   * @return a list of {@link Voting} instances
+   * @return a list of {@link VotingEntity} instances
    * @since 0.1.0
    */
-  List<Voting> listVotingsGroup(ListVotingsGroupInput input);
+  List<VotingEntity> listVotingsGroup(ListVotingsGroupInput input);
 
   /**
    * Gets the votes that belongs to a voting
    *
-   * @param votingId The id of the {@link Voting}
-   * @return a list of {@link Vote} instances
+   * @param votingId The id of the {@link VotingEntity}
+   * @return a list of {@link VoteEntity} instances
    * @since 0.1.0
    */
-  List<Vote> listVotesVoting(UUID votingId);
+  List<VoteEntity> listVotesVoting(UUID votingId);
 
   /**
    * Get a specific voting
    *
-   * @param input required data to retrieve a {@link Voting}
-   * @return The requested {@link Voting}
+   * @param input required data to retrieve a {@link VotingEntity}
+   * @return The requested {@link VotingEntity}
    * @since 0.1.0
    */
-  Result<Voting> getVoting(GetVotingInput input);
+  Result<VotingEntity> getVoting(GetVotingInput input);
 
   /**
    * Fetches the votes that belongs to an user in a group between two dates. The current user and
    * the user should be members of the group
    *
-   * @param input required data to retrieve a list of {@link Vote}
-   * @return a result with a list of {@link Vote} or an {@link Error}
+   * @param input required data to retrieve a list of {@link VoteEntity}
+   * @return a result with a list of {@link VoteEntity} or an {@link Error}
    * @since 0.1.0
    */
-  Result<List<Vote>> listUserVotesInGroup(UserVotesInGroupInput input);
+  Result<List<VoteEntity>> listUserVotesInGroup(UserVotesInGroupInput input);
 }

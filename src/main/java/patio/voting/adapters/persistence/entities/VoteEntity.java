@@ -15,9 +15,9 @@
  * You should have received a copy of the GNU General Public License
  * along with DWBH.  If not, see <https://www.gnu.org/licenses/>
  */
-package dwbh.api.domain;
+package patio.voting.adapters.persistence.entities;
 
-import dwbh.api.util.Builder;
+import dwbh.api.domain.User;
 import io.micronaut.data.annotation.DateCreated;
 import java.time.OffsetDateTime;
 import java.util.UUID;
@@ -28,21 +28,22 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import patio.common.Builder;
 
 /**
  * Represents a given user's vote
  *
  * @since 0.1.0
  */
-@Entity
+@Entity(name = "Vote")
 @Table(name = "vote")
-public final class Vote {
+public final class VoteEntity {
 
   @Id @GeneratedValue private UUID id;
 
   @ManyToOne
   @JoinColumn(name = "voting_id")
-  private Voting voting;
+  private VotingEntity voting;
 
   @ManyToOne
   @JoinColumn(name = "created_by")
@@ -56,13 +57,13 @@ public final class Vote {
   private Integer score;
 
   /**
-   * A builder to build an instance of type {@link Vote}
+   * A builder to build an instance of type {@link VoteEntity}
    *
    * @return an instance of {@link Builder}
    * @since 0.1.0
    */
-  public static Builder<Vote> newBuilder() {
-    return Builder.build(Vote::new);
+  public static Builder<VoteEntity> newBuilder() {
+    return Builder.build(VoteEntity::new);
   }
 
   /**
@@ -88,20 +89,20 @@ public final class Vote {
   /**
    * Return vote's voting record
    *
-   * @return an instance of type {@link Voting}
+   * @return an instance of type {@link VotingEntity}
    * @since 0.1.0
    */
-  public Voting getVoting() {
+  public VotingEntity getVoting() {
     return voting;
   }
 
   /**
    * Sets the voting this vote belongs to
    *
-   * @param voting the {@link Voting} this vote belongs to
+   * @param voting the {@link VotingEntity} this vote belongs to
    * @since 0.1.0
    */
-  public void setVoting(Voting voting) {
+  public void setVoting(VotingEntity voting) {
     this.voting = voting;
   }
 

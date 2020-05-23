@@ -15,15 +15,15 @@
  * You should have received a copy of the GNU General Public License
  * along with DWBH.  If not, see <https://www.gnu.org/licenses/>
  */
-package dwbh.api.repositories.internal;
+package patio.voting.adapters.persistence.repositories;
 
-import dwbh.api.domain.Vote;
-import dwbh.api.domain.Voting;
-import dwbh.api.repositories.VotingRepository;
+import dwbh.api.repositories.internal.MicroBaseRepository;
 import io.micronaut.data.annotation.Repository;
 import javax.persistence.EntityManager;
+import patio.voting.adapters.persistence.entities.VoteEntity;
+import patio.voting.adapters.persistence.entities.VotingEntity;
 
-/** Persistence implementation access for {@link Voting} and {@link Vote} */
+/** Persistence implementation access for {@link VotingEntity} and {@link VoteEntity} */
 @Repository
 public abstract class MicroVotingRepository extends MicroBaseRepository
     implements VotingRepository {

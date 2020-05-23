@@ -23,8 +23,6 @@ import static org.hamcrest.Matchers.iterableWithSize;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import dwbh.api.domain.User;
-import dwbh.api.domain.Vote;
-import dwbh.api.domain.Voting;
 import dwbh.api.fixtures.Fixtures;
 import dwbh.api.util.OptionalUtils;
 import io.micronaut.test.annotation.MicronautTest;
@@ -41,9 +39,13 @@ import org.junit.jupiter.api.Test;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import patio.voting.adapters.persistence.entities.VoteEntity;
+import patio.voting.adapters.persistence.entities.VotingEntity;
+import patio.voting.adapters.persistence.repositories.VoteRepository;
+import patio.voting.adapters.persistence.repositories.VotingRepository;
 
 /**
- * Tests DATABASE integration regarding {@link Voting} persistence.
+ * Tests DATABASE integration regarding {@link VotingEntity} persistence.
  *
  * @since 0.1.0
  */
@@ -91,14 +93,14 @@ public class VotingRepositoryTests {
             .collect(Collectors.toList());
 
     // when: asking for the list of users
-    Optional<Voting> voting =
+    Optional<VotingEntity> voting =
         votingRepository.findById(UUID.fromString("7772e35c-5a87-4ba3-ab93-da8a957037fd"));
     Iterable<User> userList1 = userRepository.findAllByIdInListOrderById(ids);
     Iterable<User> userList2 =
         voting.stream()
-            .map(Voting::getId)
+            .map(VotingEntity::getId)
             .flatMap(voteRepository::findAllByVotingOrderByUser)
-            .map(Vote::getCreatedBy)
+            .map(VoteEntity::getCreatedBy)
             .collect(Collectors.toList());
 
     // then: check there're the expected number of users
@@ -121,13 +123,13 @@ public class VotingRepositoryTests {
 
     // and:
     UUID votingID = UUID.fromString("7772e35c-5a87-4ba3-ab93-da8a957037fd");
-    Optional<Voting> voting = votingRepository.findById(votingID);
+    Optional<VotingEntity> voting = votingRepository.findById(votingID);
 
     UUID userID = UUID.fromString("486590a3-fcc1-4657-a9ed-5f0f95dadea6");
     Optional<User> user = userRepository.findById(userID);
 
     // when:
-    Optional<Voting> result =
+    Optional<VotingEntity> result =
         OptionalUtils.combine(voting, user)
             .flatmapInto((v, u) -> votingRepository.findByIdAndVotingUser(v.getId(), u));
 

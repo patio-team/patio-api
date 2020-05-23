@@ -26,10 +26,10 @@ import dwbh.api.domain.input.ListUsersGroupInput;
 import dwbh.api.graphql.Context;
 import dwbh.api.graphql.ResultUtils;
 import dwbh.api.services.UserGroupService;
-import dwbh.api.util.Result;
 import graphql.execution.DataFetcherResult;
 import graphql.schema.DataFetchingEnvironment;
 import javax.inject.Singleton;
+import patio.common.Result;
 
 /**
  * All related GraphQL operations over the {@link UserGroup} domain

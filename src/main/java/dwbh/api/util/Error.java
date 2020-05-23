@@ -57,4 +57,9 @@ public class Error {
   public String getMessage() {
     return message;
   }
+
+  @Override
+  public String toString() {
+    return String.format("%s => %s", code, message);
+  }
 }

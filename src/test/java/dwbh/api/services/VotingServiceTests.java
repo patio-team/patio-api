@@ -27,11 +27,8 @@ import dwbh.api.domain.input.*;
 import dwbh.api.repositories.GroupRepository;
 import dwbh.api.repositories.UserGroupRepository;
 import dwbh.api.repositories.UserRepository;
-import dwbh.api.repositories.VoteRepository;
-import dwbh.api.repositories.VotingRepository;
 import dwbh.api.services.internal.DefaultVotingService;
 import dwbh.api.util.ErrorConstants;
-import dwbh.api.util.Result;
 import java.time.OffsetDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
@@ -45,6 +42,11 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mockito;
+import patio.common.Result;
+import patio.voting.adapters.persistence.entities.VoteEntity;
+import patio.voting.adapters.persistence.entities.VotingEntity;
+import patio.voting.adapters.persistence.repositories.VoteRepository;
+import patio.voting.adapters.persistence.repositories.VotingRepository;
 
 /**
  * Tests {@link DefaultVotingService}
@@ -86,7 +88,7 @@ public class VotingServiceTests {
 
     // and: that the voting repository creation has been invoked
     verify(userGroupRepository, times(1)).findById(any(UserGroupKey.class));
-    verify(votingRepository, times(1)).save(any(Voting.class));
+    verify(votingRepository, times(1)).save(any(VotingEntity.class));
   }
 
   @Test
@@ -101,7 +103,7 @@ public class VotingServiceTests {
             .with(u -> u.setGroups(Set.of(new UserGroup(new User(), group))))
             .build();
     var voting =
-        Voting.newBuilder()
+        VotingEntity.newBuilder()
             .with(v -> v.setId(UUID.randomUUID()))
             .with(v -> v.setGroup(group))
             .with(v -> v.setCreatedAtDateTime(OffsetDateTime.now().minus(5, ChronoUnit.MINUTES)))
@@ -122,13 +124,13 @@ public class VotingServiceTests {
     // and: there're user and voting available
     when(userRepository.findById(any(UUID.class))).thenReturn(Optional.of(user));
     when(votingRepository.findById(any(UUID.class))).thenReturn(Optional.of(voting));
-    when(voteRepository.save(any(Vote.class))).thenReturn(random(Vote.class));
+    when(voteRepository.save(any(VoteEntity.class))).thenReturn(random(VoteEntity.class));
 
     // when: invoking the service
     var votingService =
         new DefaultVotingService(votingRepository, voteRepository, null, userRepository, null);
 
-    Result<Vote> vote = votingService.createVote(input);
+    Result<VoteEntity> vote = votingService.createVote(input);
 
     // then: vote has been created
     assertNotNull(vote.getSuccess(), "Successfully created vote");
@@ -148,7 +150,7 @@ public class VotingServiceTests {
 
     // and: some mocked repositories
     var votingRepository = mock(VotingRepository.class);
-    when(votingRepository.save(any(Voting.class))).thenReturn(random(Voting.class));
+    when(votingRepository.save(any(VotingEntity.class))).thenReturn(random(VotingEntity.class));
 
     var userGroupRepository = mock(UserGroupRepository.class);
     when(userGroupRepository.findById(any())).thenReturn(Optional.empty());
@@ -168,7 +170,7 @@ public class VotingServiceTests {
     assertEquals(ErrorConstants.USER_NOT_IN_GROUP, votingResult.getErrorList().get(0));
 
     // and: that the voting repository creation is NOT invoked
-    verify(votingRepository, times(0)).save(any(Voting.class));
+    verify(votingRepository, times(0)).save(any(VotingEntity.class));
   }
 
   @Test
@@ -189,11 +191,11 @@ public class VotingServiceTests {
     var votingRepository = Mockito.mock(VotingRepository.class);
     var voteRepository = Mockito.mock(VoteRepository.class);
     var userRepository = Mockito.mock(UserRepository.class);
-    var previousVote = Optional.of(Vote.newBuilder().build());
+    var previousVote = Optional.of(VoteEntity.newBuilder().build());
 
     // and: there're user and voting available
     when(userRepository.findById(any(UUID.class))).thenReturn(Optional.of(new User()));
-    when(votingRepository.findById(any(UUID.class))).thenReturn(Optional.of(new Voting()));
+    when(votingRepository.findById(any(UUID.class))).thenReturn(Optional.of(new VotingEntity()));
 
     // and: user voted already in this voting
     when(voteRepository.findByCreatedByAndVoting(any(), any())).thenReturn(previousVote);
@@ -201,7 +203,7 @@ public class VotingServiceTests {
     // when: invoking the vote creation
     var votingService =
         new DefaultVotingService(votingRepository, voteRepository, null, userRepository, null);
-    Result<Vote> vote = votingService.createVote(input);
+    Result<VoteEntity> vote = votingService.createVote(input);
 
     // then: vote can't be created
     assertNull(vote.getSuccess(), "No vote");
@@ -232,7 +234,7 @@ public class VotingServiceTests {
     var voteRepository = Mockito.mock(VoteRepository.class);
     var votingRepository = Mockito.mock(VotingRepository.class);
     var voting =
-        Voting.newBuilder()
+        VotingEntity.newBuilder()
             .with(v -> v.setCreatedAtDateTime(OffsetDateTime.now().minus(2, ChronoUnit.DAYS)))
             .build();
 
@@ -246,7 +248,7 @@ public class VotingServiceTests {
     // when: invoking the vote creation
     var votingService =
         new DefaultVotingService(votingRepository, voteRepository, null, userRepository, null);
-    Result<Vote> vote = votingService.createVote(input);
+    Result<VoteEntity> vote = votingService.createVote(input);
 
     // then: vote can't be created
     assertNull(vote.getSuccess(), "No vote");
@@ -256,7 +258,8 @@ public class VotingServiceTests {
     // and: just two checker has been called an no vote has been created
     verify(userRepository, times(1)).findById(any(UUID.class));
     verify(votingRepository, times(1)).findById(any(UUID.class));
-    verify(voteRepository, times(1)).findByCreatedByAndVoting(any(User.class), any(Voting.class));
+    verify(voteRepository, times(1))
+        .findByCreatedByAndVoting(any(User.class), any(VotingEntity.class));
     verify(votingRepository, times(0)).save(any());
   }
 
@@ -286,7 +289,7 @@ public class VotingServiceTests {
             .with(u -> u.setGroups(Set.of(new UserGroup(new User(), new Group()))))
             .build();
     var voting =
-        Voting.newBuilder()
+        VotingEntity.newBuilder()
             .with(v -> v.setGroup(validGroup))
             .with(v -> v.setCreatedAtDateTime(OffsetDateTime.now().minus(2, ChronoUnit.MINUTES)))
             .build();
@@ -298,7 +301,7 @@ public class VotingServiceTests {
     // when: invoking the vote creation
     var votingService =
         new DefaultVotingService(votingRepository, voteRepository, null, userRepository, null);
-    Result<Vote> vote = votingService.createVote(input);
+    Result<VoteEntity> vote = votingService.createVote(input);
 
     // then: vote can't be created
     assertNull(vote.getSuccess(), "No vote");
@@ -308,7 +311,8 @@ public class VotingServiceTests {
     // and: three checkers has been called an no vote has been created
     verify(userRepository, times(1)).findById(any(UUID.class));
     verify(votingRepository, times(1)).findById(any(UUID.class));
-    verify(voteRepository, times(1)).findByCreatedByAndVoting(any(User.class), any(Voting.class));
+    verify(voteRepository, times(1))
+        .findByCreatedByAndVoting(any(User.class), any(VotingEntity.class));
     verify(votingRepository, times(0)).save(any());
   }
 
@@ -332,12 +336,12 @@ public class VotingServiceTests {
 
     // and: there're user and voting available
     when(userRepository.findById(any(UUID.class))).thenReturn(Optional.of(new User()));
-    when(votingRepository.findById(any(UUID.class))).thenReturn(Optional.of(new Voting()));
+    when(votingRepository.findById(any(UUID.class))).thenReturn(Optional.of(new VotingEntity()));
 
     // when: invoking the vote creation
     var votingService =
         new DefaultVotingService(votingRepository, voteRepository, null, userRepository, null);
-    Result<Vote> vote = votingService.createVote(input);
+    Result<VoteEntity> vote = votingService.createVote(input);
 
     // then: vote can't be created
     assertNull(vote.getSuccess(), "No vote");
@@ -347,7 +351,7 @@ public class VotingServiceTests {
     // and: no database checker has been called an no vote has been created
     verify(userRepository, times(1)).findById(any(UUID.class));
     verify(votingRepository, times(1)).findById(any(UUID.class));
-    verify(voteRepository, times(0)).save(any(Vote.class));
+    verify(voteRepository, times(0)).save(any(VoteEntity.class));
   }
 
   private static Stream<Integer> testCreateVoteFailBecauseInvalidScoreDataProvider() {
@@ -381,7 +385,7 @@ public class VotingServiceTests {
             .with(u -> u.setGroups(Set.of(new UserGroup(new User(), validGroup))))
             .build();
     var voting =
-        Voting.newBuilder()
+        VotingEntity.newBuilder()
             .with(v -> v.setGroup(validGroup))
             .with(v -> v.setCreatedAtDateTime(OffsetDateTime.now().minus(2, ChronoUnit.MINUTES)))
             .build();
@@ -389,12 +393,12 @@ public class VotingServiceTests {
     // and: there're user and voting available
     when(userRepository.findById(any(UUID.class))).thenReturn(Optional.of(user));
     when(votingRepository.findById(any(UUID.class))).thenReturn(Optional.of(voting));
-    when(voteRepository.save(any(Vote.class))).thenReturn(random(Vote.class));
+    when(voteRepository.save(any(VoteEntity.class))).thenReturn(random(VoteEntity.class));
 
     // when: invoking the vote creation
     var votingService =
         new DefaultVotingService(votingRepository, voteRepository, null, userRepository, null);
-    Result<Vote> vote = votingService.createVote(input);
+    Result<VoteEntity> vote = votingService.createVote(input);
 
     // then:
     assertEquals(vote.getErrorList().isEmpty(), correct, "Check is expected result");
@@ -426,12 +430,16 @@ public class VotingServiceTests {
 
     when(groupRepository.findById(any(UUID.class))).thenReturn(Optional.of(new Group()));
     when(votingRepository.findAllByGroupAndCreatedAtDateTimeBetween(any(), any(), any()))
-        .thenReturn(Stream.of(random(Voting.class), random(Voting.class), random(Voting.class)));
+        .thenReturn(
+            Stream.of(
+                random(VotingEntity.class),
+                random(VotingEntity.class),
+                random(VotingEntity.class)));
 
     // when: invoking the voting listing
     var votingService =
         new DefaultVotingService(votingRepository, null, null, null, groupRepository);
-    List<Voting> votings = votingService.listVotingsGroup(input);
+    List<VotingEntity> votings = votingService.listVotingsGroup(input);
 
     // then: the votings are returned
     assertEquals(votings.size(), 3, "Successfully listed votings");
@@ -445,9 +453,10 @@ public class VotingServiceTests {
 
     // and: mocked calls
     when(userRepository.findById(any(UUID.class))).thenReturn(Optional.of(new User()));
-    when(votingRepository.findById(any(UUID.class))).thenReturn(Optional.of(random(Voting.class)));
+    when(votingRepository.findById(any(UUID.class)))
+        .thenReturn(Optional.of(random(VotingEntity.class)));
     when(votingRepository.findByIdAndVotingUser(any(UUID.class), any(User.class)))
-        .thenReturn(Optional.of(new Voting()));
+        .thenReturn(Optional.of(new VotingEntity()));
 
     // when: getting a voting by id
     var votingService =
@@ -457,7 +466,7 @@ public class VotingServiceTests {
             .withCurrentUserId(UUID.randomUUID())
             .withVotingId(UUID.randomUUID())
             .build();
-    Result<Voting> result = votingService.getVoting(input);
+    Result<VotingEntity> result = votingService.getVoting(input);
 
     // then: we should build it
     assertNotNull(result.getSuccess());
@@ -480,7 +489,7 @@ public class VotingServiceTests {
             .withCurrentUserId(UUID.randomUUID())
             .withVotingId(UUID.randomUUID())
             .build();
-    Result<Voting> result = votingService.getVoting(input);
+    Result<VotingEntity> result = votingService.getVoting(input);
 
     // then: we should build an error
     assertNotNull(result.getErrorList());
@@ -493,7 +502,10 @@ public class VotingServiceTests {
   void testListVotesVotingSuccessfully() {
     // given: some mocked data
     var voteList =
-        List.of(Vote.newBuilder().build(), Vote.newBuilder().build(), Vote.newBuilder().build());
+        List.of(
+            VoteEntity.newBuilder().build(),
+            VoteEntity.newBuilder().build(),
+            VoteEntity.newBuilder().build());
 
     // and: mocked repository calls
     var voteRepository = Mockito.mock(VoteRepository.class);

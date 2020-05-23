@@ -22,8 +22,8 @@ import dwbh.api.domain.User;
 import dwbh.api.domain.input.AddUserToGroupInput;
 import dwbh.api.domain.input.LeaveGroupInput;
 import dwbh.api.domain.input.ListUsersGroupInput;
-import dwbh.api.util.Result;
 import java.util.UUID;
+import patio.common.Result;
 
 /**
  * Business logic contracts regarding user groups

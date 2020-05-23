@@ -32,10 +32,10 @@ import dwbh.api.domain.User;
 import dwbh.api.graphql.I18nGraphQLError;
 import dwbh.api.graphql.fetchers.utils.FetcherTestUtils;
 import dwbh.api.services.internal.DefaultUserGroupService;
-import dwbh.api.util.Result;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import patio.common.Result;
 
 /**
  * Tests {@link UserGroupFetcher} class

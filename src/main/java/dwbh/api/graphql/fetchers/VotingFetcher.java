@@ -19,8 +19,6 @@ package dwbh.api.graphql.fetchers;
 
 import dwbh.api.domain.Group;
 import dwbh.api.domain.User;
-import dwbh.api.domain.Vote;
-import dwbh.api.domain.Voting;
 import dwbh.api.domain.input.*;
 import dwbh.api.graphql.ResultUtils;
 import dwbh.api.graphql.dataloader.DataLoaderRegistryFactory;
@@ -33,6 +31,8 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import javax.inject.Singleton;
 import org.dataloader.DataLoader;
+import patio.voting.adapters.persistence.entities.VoteEntity;
+import patio.voting.adapters.persistence.entities.VotingEntity;
 
 /**
  * All related GraphQL operations over the {@link Group} domain
@@ -60,26 +60,26 @@ public class VotingFetcher {
   }
 
   /**
-   * Creates a new {@link Vote}
+   * Creates a new {@link VoteEntity}
    *
    * @param env GraphQL execution environment
-   * @return the info of the {@link Vote} or an error
+   * @return the info of the {@link VoteEntity} or an error
    * @since 0.1.0
    */
-  public DataFetcherResult<Vote> createVote(DataFetchingEnvironment env) {
+  public DataFetcherResult<VoteEntity> createVote(DataFetchingEnvironment env) {
     CreateVoteInput input = VotingFetcherUtils.createVote(env);
 
     return ResultUtils.render(service.createVote(input));
   }
 
   /**
-   * Creates a new {@link Voting} slot
+   * Creates a new {@link VotingEntity} slot
    *
    * @param env GraphQL execution environment
-   * @return the info of the {@link Voting} created or an error
+   * @return the info of the {@link VotingEntity} created or an error
    * @since 0.1.0
    */
-  public DataFetcherResult<Voting> createVoting(DataFetchingEnvironment env) {
+  public DataFetcherResult<VotingEntity> createVoting(DataFetchingEnvironment env) {
     CreateVotingInput input = VotingFetcherUtils.createVoting(env);
 
     return ResultUtils.render(service.createVoting(input));
@@ -89,10 +89,10 @@ public class VotingFetcher {
    * Fetches the votings that belongs to a group
    *
    * @param env GraphQL execution environment
-   * @return a list of available {@link Voting}
+   * @return a list of available {@link VotingEntity}
    * @since 0.1.0
    */
-  public List<Voting> listVotingsGroup(DataFetchingEnvironment env) {
+  public List<VotingEntity> listVotingsGroup(DataFetchingEnvironment env) {
     ListVotingsGroupInput input = VotingFetcherUtils.createListVotingsGroupInput(env);
     return service.listVotingsGroup(input);
   }
@@ -101,10 +101,10 @@ public class VotingFetcher {
    * Get the specified voting
    *
    * @param env GraphQL execution environment
-   * @return The requested {@link Voting}
+   * @return The requested {@link VotingEntity}
    * @since 0.1.0
    */
-  public DataFetcherResult<Voting> getVoting(DataFetchingEnvironment env) {
+  public DataFetcherResult<VotingEntity> getVoting(DataFetchingEnvironment env) {
     GetVotingInput input = VotingFetcherUtils.getVotingInput(env);
     return ResultUtils.render(service.getVoting(input));
   }
@@ -113,11 +113,11 @@ public class VotingFetcher {
    * Fetches the votes that belongs to a voting
    *
    * @param env GraphQL execution environment
-   * @return a list of available {@link Vote}
+   * @return a list of available {@link VoteEntity}
    * @since 0.1.0
    */
-  public List<Vote> listVotesVoting(DataFetchingEnvironment env) {
-    Voting voting = env.getSource();
+  public List<VoteEntity> listVotesVoting(DataFetchingEnvironment env) {
+    VotingEntity voting = env.getSource();
     return service.listVotesVoting(voting.getId());
   }
 
@@ -125,10 +125,10 @@ public class VotingFetcher {
    * Fetches the votes that belongs to an user in a group between two dates
    *
    * @param env GraphQL execution environment
-   * @return a list of available {@link Vote}
+   * @return a list of available {@link VoteEntity}
    * @since 0.1.0
    */
-  public DataFetcherResult<List<Vote>> listUserVotesInGroup(DataFetchingEnvironment env) {
+  public DataFetcherResult<List<VoteEntity>> listUserVotesInGroup(DataFetchingEnvironment env) {
     UserVotesInGroupInput input = VotingFetcherUtils.userVotesInput(env);
     return ResultUtils.render(service.listUserVotesInGroup(input));
   }
@@ -137,11 +137,11 @@ public class VotingFetcher {
    * Fetches the {@link User} who created a given vote
    *
    * @param env GraphQL execution environment
-   * @return the user who matches the createdBy id from a given {@link Vote}
+   * @return the user who matches the createdBy id from a given {@link VoteEntity}
    * @since 0.1.0
    */
   public CompletableFuture<User> getVoteCreatedBy(DataFetchingEnvironment env) {
-    Vote vote = env.getSource();
+    VoteEntity vote = env.getSource();
     DataLoader<UUID, User> userDataLoader =
         env.getDataLoader(DataLoaderRegistryFactory.DL_USERS_BY_IDS);
 

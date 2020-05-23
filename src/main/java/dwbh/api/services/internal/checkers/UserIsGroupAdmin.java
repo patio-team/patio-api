@@ -24,9 +24,9 @@ import dwbh.api.domain.UserGroupKey;
 import dwbh.api.repositories.UserGroupRepository;
 import dwbh.api.util.Check;
 import dwbh.api.util.ErrorConstants;
-import dwbh.api.util.Result;
 import java.util.Optional;
 import java.util.UUID;
+import patio.common.Result;
 
 /**
  * Checks that the user is a given group's admin

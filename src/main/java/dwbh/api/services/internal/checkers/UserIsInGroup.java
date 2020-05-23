@@ -24,9 +24,9 @@ import dwbh.api.domain.User;
 import dwbh.api.domain.UserGroup;
 import dwbh.api.util.Check;
 import dwbh.api.util.ErrorConstants;
-import dwbh.api.util.Result;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import patio.common.Result;
 
 /**
  * Checks if a given user belongs to a given group

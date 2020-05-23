@@ -18,11 +18,11 @@
 package dwbh.api.graphql;
 
 import dwbh.api.util.Error;
-import dwbh.api.util.Result;
 import graphql.GraphQLError;
 import graphql.execution.DataFetcherResult;
 import java.util.List;
 import java.util.stream.Collectors;
+import patio.common.Result;
 
 /**
  * Responsible for converting domain classes {@link Result} and {@link Error} to instances of type

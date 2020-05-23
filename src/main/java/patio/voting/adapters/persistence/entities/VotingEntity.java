@@ -15,9 +15,10 @@
  * You should have received a copy of the GNU General Public License
  * along with DWBH.  If not, see <https://www.gnu.org/licenses/>
  */
-package dwbh.api.domain;
+package patio.voting.adapters.persistence.entities;
 
-import dwbh.api.util.Builder;
+import dwbh.api.domain.Group;
+import dwbh.api.domain.User;
 import io.micronaut.data.annotation.DateCreated;
 import java.time.OffsetDateTime;
 import java.util.List;
@@ -30,15 +31,16 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import patio.common.Builder;
 
 /**
  * Represents the temporal scope when members of a given group can give their vote
  *
  * @since 0.1.0
  */
-@Entity
+@Entity(name = "Voting")
 @Table(name = "voting")
-public final class Voting {
+public final class VotingEntity {
 
   @Id @GeneratedValue private UUID id;
 
@@ -55,18 +57,18 @@ public final class Voting {
   private Group group;
 
   @OneToMany(mappedBy = "voting")
-  private List<Vote> votes;
+  private List<VoteEntity> votes;
 
   private Integer average;
 
   /**
-   * Creates a new fluent builder to build instances of type {@link Voting}
+   * Creates a new fluent builder to build instances of type {@link VotingEntity}
    *
    * @return an instance of the voting builder
    * @since 0.1.0
    */
-  public static Builder<Voting> newBuilder() {
-    return Builder.build(Voting::new);
+  public static Builder<VotingEntity> newBuilder() {
+    return Builder.build(VotingEntity::new);
   }
 
   /**
@@ -174,7 +176,7 @@ public final class Voting {
    *
    * @return all the votes of this voting
    */
-  public List<Vote> getVotes() {
+  public List<VoteEntity> getVotes() {
     return votes;
   }
 
@@ -183,7 +185,7 @@ public final class Voting {
    *
    * @param votes all votes of this voting
    */
-  public void setVotes(List<Vote> votes) {
+  public void setVotes(List<VoteEntity> votes) {
     this.votes = votes;
   }
 }

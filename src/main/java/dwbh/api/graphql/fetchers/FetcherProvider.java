@@ -20,9 +20,9 @@ package dwbh.api.graphql.fetchers;
 import dwbh.api.domain.Group;
 import dwbh.api.domain.User;
 import dwbh.api.domain.UserGroup;
-import dwbh.api.domain.Voting;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import patio.voting.adapters.persistence.entities.VotingEntity;
 
 /**
  * Aggregates all fetchers responsible for handling GraphQL requests
@@ -71,7 +71,7 @@ public class FetcherProvider {
   }
 
   /**
-   * Sets the instance responsible to handle request over {@link Voting}
+   * Sets the instance responsible to handle request over {@link VotingEntity}
    *
    * @param votingFetcher instance of {@link VotingFetcher}
    * @since 0.1.0

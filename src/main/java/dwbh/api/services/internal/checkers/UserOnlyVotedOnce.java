@@ -20,14 +20,14 @@ package dwbh.api.services.internal.checkers;
 import static dwbh.api.util.Check.checkIsTrue;
 
 import dwbh.api.domain.User;
-import dwbh.api.domain.Vote;
-import dwbh.api.domain.Voting;
-import dwbh.api.repositories.VoteRepository;
 import dwbh.api.util.Check;
 import dwbh.api.util.ErrorConstants;
 import dwbh.api.util.OptionalUtils;
-import dwbh.api.util.Result;
 import java.util.Optional;
+import patio.common.Result;
+import patio.voting.adapters.persistence.entities.VoteEntity;
+import patio.voting.adapters.persistence.entities.VotingEntity;
+import patio.voting.adapters.persistence.repositories.VoteRepository;
 
 /**
  * Checks that a given user has not voted already.
@@ -56,8 +56,8 @@ public class UserOnlyVotedOnce {
    * @return a failing {@link Result} if the user already voted
    * @since 0.1.0
    */
-  public Check check(Optional<User> user, Optional<Voting> voting) {
-    Optional<Vote> voteFound =
+  public Check check(Optional<User> user, Optional<VotingEntity> voting) {
+    Optional<VoteEntity> voteFound =
         OptionalUtils.combine(user, voting).flatmapInto(repository::findByCreatedByAndVoting);
 
     return checkIsTrue(user.isEmpty() || voteFound.isEmpty(), ErrorConstants.USER_ALREADY_VOTE);

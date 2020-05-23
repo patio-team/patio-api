@@ -17,11 +17,11 @@
  */
 package dwbh.api.domain;
 
-import dwbh.api.util.Builder;
 import java.util.ArrayList;
 import java.util.List;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import patio.common.Builder;
 
 /**
  * Represents the model of a given email

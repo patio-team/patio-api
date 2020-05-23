@@ -21,7 +21,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
 /** Base repository to access {@link EntityManager} */
-/* default */ class MicroBaseRepository {
+public class MicroBaseRepository {
   @PersistenceContext private final transient EntityManager entityManager;
 
   /**
@@ -29,7 +29,7 @@ import javax.persistence.PersistenceContext;
    *
    * @param entityManager persistence {@link EntityManager} instance
    */
-  /* default */ MicroBaseRepository(EntityManager entityManager) {
+  protected MicroBaseRepository(EntityManager entityManager) {
     this.entityManager = entityManager;
   }
 
@@ -38,7 +38,7 @@ import javax.persistence.PersistenceContext;
    *
    * @return an {@link EntityManager}
    */
-  /* default */ EntityManager getEntityManager() {
+  protected EntityManager getEntityManager() {
     return entityManager;
   }
 }

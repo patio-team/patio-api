@@ -29,12 +29,12 @@ import dwbh.api.domain.Group;
 import dwbh.api.domain.User;
 import dwbh.api.graphql.fetchers.utils.FetcherTestUtils;
 import dwbh.api.services.internal.DefaultGroupService;
-import dwbh.api.util.Result;
 import graphql.execution.DataFetcherResult;
 import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import patio.common.Result;
 
 /**
  * Tests {@link GroupFetcher} class

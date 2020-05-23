@@ -23,10 +23,10 @@ import dwbh.api.domain.Group;
 import dwbh.api.domain.UserGroup;
 import dwbh.api.util.Check;
 import dwbh.api.util.ErrorConstants;
-import dwbh.api.util.Result;
 import java.util.Collection;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import patio.common.Result;
 
 /**
  * Checks that a given user is not the unique admin in a group

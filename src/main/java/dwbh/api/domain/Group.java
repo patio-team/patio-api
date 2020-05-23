@@ -18,7 +18,6 @@
 package dwbh.api.domain;
 
 import com.vladmihalcea.hibernate.type.array.ListArrayType;
-import dwbh.api.util.Builder;
 import java.time.DayOfWeek;
 import java.time.OffsetTime;
 import java.util.List;
@@ -33,6 +32,7 @@ import javax.persistence.Table;
 import org.hibernate.annotations.Parameter;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
+import patio.common.Builder;
 
 /**
  * Represents the different groups a user could belong to
