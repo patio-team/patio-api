@@ -95,9 +95,12 @@ public class AuthenticationCheckTests {
                         .dataFetcher("sayHiAuthenticated", (env) -> "Hi authenticated"))
             .build();
     var registry =
-        GraphQLFactory.loadSchema(
-            new ResourceResolver(), "classpath:dwbh/api/graphql/anonymousallowed_schema.graphql");
-    var schema = new SchemaGenerator().makeExecutableSchema(registry.get(), wiring);
+        new TypeDefinitionRegistryFactory()
+            .load(
+                "classpath:dwbh/api/graphql/anonymousallowed_schema.graphql",
+                new ResourceResolver());
+
+    var schema = new SchemaGenerator().makeExecutableSchema(registry, wiring);
 
     // when: executing the query against the GraphQL engine
     return GraphQL.newGraphQL(schema).instrumentation(new AuthenticationCheck()).build();

@@ -17,24 +17,12 @@
  */
 package dwbh.api.graphql;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
-
-import dwbh.api.graphql.fetchers.FetcherProvider;
 import dwbh.api.graphql.instrumentation.AuthenticationCheck;
-import dwbh.api.graphql.scalars.ScalarsConstants;
 import graphql.GraphQL;
 import graphql.execution.instrumentation.dataloader.DataLoaderDispatcherInstrumentation;
 import graphql.schema.GraphQLSchema;
-import graphql.schema.idl.RuntimeWiring;
-import graphql.schema.idl.SchemaGenerator;
-import graphql.schema.idl.SchemaParser;
-import graphql.schema.idl.TypeDefinitionRegistry;
 import io.micronaut.context.annotation.Bean;
 import io.micronaut.context.annotation.Factory;
-import io.micronaut.core.io.ResourceResolver;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.util.Optional;
 import javax.inject.Singleton;
 
 /**
@@ -45,113 +33,19 @@ import javax.inject.Singleton;
 @Factory
 public class GraphQLFactory {
 
-  private static final String SCHEMA_TYPE_QUERY = "Query";
-  private static final String SCHEMA_TYPE_MUTATION = "Mutation";
-  private static final String SCHEMA_PATH = "classpath:graphql/schema.graphqls";
-
   /**
    * Configures the GraphQL environment mapping fetchers with fields in the schema.
    *
-   * @param resourceResolver used to locate the GraphQL schema
-   * @param fetcherProvider fetchers to operate over domain instances
+   * @param schema the {@link GraphQLSchema}
    * @return an instance of {@link GraphQL}
    * @since 0.1.0
    */
   @Bean
   @Singleton
-  public GraphQL graphQL(ResourceResolver resourceResolver, FetcherProvider fetcherProvider) {
-    return loadSchema(resourceResolver, SCHEMA_PATH)
-        .map(registry -> configureQueryType(registry, fetcherProvider))
-        .map(GraphQL::newGraphQL)
-        .map(builder -> builder.instrumentation(new AuthenticationCheck()))
-        .map(builder -> builder.instrumentation(new DataLoaderDispatcherInstrumentation()))
-        .map(GraphQL.Builder::build)
-        .orElseThrow();
-  }
-
-  /**
-   * Loads a schema definition {@link TypeDefinitionRegistry} with a given resolver and the path of
-   * the schema
-   *
-   * @param resolver an instance of {@link ResourceResolver}
-   * @param schemaPath the path of the schema (e.g. 'classpath:org/bla/schema.graphql')
-   * @return an instance of {@link TypeDefinitionRegistry}
-   * @since 0.1.0
-   */
-  public static Optional<TypeDefinitionRegistry> loadSchema(
-      ResourceResolver resolver, String schemaPath) {
-    var typeRegistry = new TypeDefinitionRegistry();
-    var schemaParser = new SchemaParser();
-    var schemaReader =
-        resolver
-            .getResourceAsStream(schemaPath)
-            .map(inputStream -> new InputStreamReader(inputStream, UTF_8))
-            .map(BufferedReader::new);
-
-    return schemaReader.map(schemaParser::parse).map(typeRegistry::merge);
-  }
-
-  @SuppressWarnings("PMD.DataflowAnomalyAnalysis")
-  private static GraphQLSchema configureQueryType(
-      TypeDefinitionRegistry registry, FetcherProvider fetcherProvider) {
-    var groupFetcher = fetcherProvider.getGroupFetcher();
-    var userFetcher = fetcherProvider.getUserFetcher();
-    var resetPasswordFetcher = fetcherProvider.getResetPasswordFetcher();
-    var userGroupFetcher = fetcherProvider.getUserGroupFetcher();
-    var securityFetcher = fetcherProvider.getSecurityFetcher();
-    var votingFetcher = fetcherProvider.getVotingFetcher();
-
-    var wiring =
-        RuntimeWiring.newRuntimeWiring()
-            .scalar(ScalarsConstants.ID)
-            .scalar(ScalarsConstants.DATE)
-            .scalar(ScalarsConstants.TIME)
-            .scalar(ScalarsConstants.DATE_TIME)
-            .scalar(ScalarsConstants.DAY_OF_WEEK)
-            .type(
-                SCHEMA_TYPE_QUERY,
-                builder ->
-                    builder
-                        .dataFetcher("listGroups", groupFetcher::listGroups)
-                        .dataFetcher("listMyGroups", groupFetcher::listMyGroups)
-                        .dataFetcher("getGroup", groupFetcher::getGroup)
-                        .dataFetcher("listUsers", userFetcher::listUsers)
-                        .dataFetcher("getUser", userFetcher::getUser)
-                        .dataFetcher("listUserVotesInGroup", votingFetcher::listUserVotesInGroup)
-                        .dataFetcher("myProfile", userFetcher::getCurrentUser)
-                        .dataFetcher("getVoting", votingFetcher::getVoting)
-                        .dataFetcher("login", securityFetcher::loginByCredentials)
-                        .dataFetcher("loginOauth2", securityFetcher::loginByOauth2)
-                        .dataFetcher("loginOtp", securityFetcher::loginByOtp))
-            .type(
-                SCHEMA_TYPE_MUTATION,
-                builder ->
-                    builder
-                        .dataFetcher("createGroup", groupFetcher::createGroup)
-                        .dataFetcher("updateGroup", groupFetcher::updateGroup)
-                        .dataFetcher("addUserToGroup", userGroupFetcher::addUserToGroup)
-                        .dataFetcher("resetPassword", resetPasswordFetcher::resetPassword)
-                        .dataFetcher("createVoting", votingFetcher::createVoting)
-                        .dataFetcher("createVote", votingFetcher::createVote)
-                        .dataFetcher("leaveGroup", userGroupFetcher::leaveGroup)
-                        .dataFetcher("changePassword", securityFetcher::changePassword))
-            .type(
-                "Group",
-                builder ->
-                    builder
-                        .dataFetcher("members", userGroupFetcher::listUsersGroup)
-                        .dataFetcher("votings", votingFetcher::listVotingsGroup)
-                        .dataFetcher("isCurrentUserAdmin", userGroupFetcher::isCurrentUserAdmin))
-            .type("Login", builder -> builder.dataFetcher("profile", userFetcher::getCurrentUser))
-            .type(
-                "UserProfile",
-                builder -> builder.dataFetcher("groups", groupFetcher::listGroupsUser))
-            .type("Voting", builder -> builder.dataFetcher("votes", votingFetcher::listVotesVoting))
-            .type(
-                "Vote",
-                builder -> builder.dataFetcher("createdBy", votingFetcher::getVoteCreatedBy))
-            .build();
-
-    return new SchemaGenerator().makeExecutableSchema(registry, wiring);
+  public GraphQL graphQL(GraphQLSchema schema) {
+    return GraphQL.newGraphQL(schema)
+        .instrumentation(new AuthenticationCheck())
+        .instrumentation(new DataLoaderDispatcherInstrumentation())
+        .build();
   }
 }

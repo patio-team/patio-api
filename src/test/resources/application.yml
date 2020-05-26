@@ -43,6 +43,7 @@ flyway:
 graphql:
   enabled: true
   path: /graphql
+  schema: "classpath:graphql/schema.graphqls"
 
 duser:
   enabled: false
