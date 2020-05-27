@@ -56,7 +56,15 @@ public interface UserRepository extends PageableRepository<User, UUID> {
    * Gets a persisted {@link User} by its email
    *
    * @param email the user's email
-   * @return and {@link Optional} of the {@link User}
+   * @return an {@link Optional} of the {@link User}
    */
   Optional<User> findByEmail(String email);
+
+  /**
+   * Gets a persisted {@link User} by its OTP
+   *
+   * @param otpCode the user's OTP code
+   * @return an {@link Optional} of the {@link User}
+   */
+  Optional<User> findByOtp(String otpCode);
 }

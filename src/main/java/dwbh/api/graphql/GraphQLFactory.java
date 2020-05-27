@@ -120,8 +120,9 @@ public class GraphQLFactory {
                         .dataFetcher("listUserVotesInGroup", votingFetcher::listUserVotesInGroup)
                         .dataFetcher("myProfile", userFetcher::getCurrentUser)
                         .dataFetcher("getVoting", votingFetcher::getVoting)
-                        .dataFetcher("login", securityFetcher::login)
-                        .dataFetcher("loginOauth2", securityFetcher::loginOauth2))
+                        .dataFetcher("login", securityFetcher::loginByCredentials)
+                        .dataFetcher("loginOauth2", securityFetcher::loginByOauth2)
+                        .dataFetcher("loginOtp", securityFetcher::loginByOtp))
             .type(
                 SCHEMA_TYPE_MUTATION,
                 builder ->
@@ -132,7 +133,8 @@ public class GraphQLFactory {
                         .dataFetcher("resetPassword", resetPasswordFetcher::resetPassword)
                         .dataFetcher("createVoting", votingFetcher::createVoting)
                         .dataFetcher("createVote", votingFetcher::createVote)
-                        .dataFetcher("leaveGroup", userGroupFetcher::leaveGroup))
+                        .dataFetcher("leaveGroup", userGroupFetcher::leaveGroup)
+                        .dataFetcher("changePassword", securityFetcher::changePassword))
             .type(
                 "Group",
                 builder ->

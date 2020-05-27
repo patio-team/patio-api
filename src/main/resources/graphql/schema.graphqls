@@ -101,6 +101,9 @@ type Query {
     # log in with oauth2 authorization code credentials
     loginOauth2(authorizationCode: String!): Login @anonymousAllowed
 
+    # log in the user who posseses the provided OTP (one-time passowrd)
+    loginOtp(otpCode: String!): Login @anonymousAllowed
+
     # get the current user's profile
     myProfile: UserProfile
 }
@@ -109,6 +112,9 @@ type Query {
 type Mutation {
     # request to initiate the process to reset the password for a user
     resetPassword(email: String!): Boolean
+
+    # change the password for the current user
+    changePassword(password: String!): Boolean
 
     # creates a new voting slot
     createVoting(groupId: ID): Voting
