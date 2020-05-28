@@ -19,58 +19,38 @@ package dwbh.api.graphql;
 
 import static io.github.benas.randombeans.api.EnhancedRandom.randomListOf;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 import dwbh.api.domain.Group;
 import dwbh.api.domain.User;
-import dwbh.api.graphql.fetchers.FetcherProvider;
-import dwbh.api.graphql.fetchers.GroupFetcher;
-import dwbh.api.graphql.fetchers.ResetPasswordFetcher;
-import dwbh.api.graphql.fetchers.SecurityFetcher;
-import dwbh.api.graphql.fetchers.UserFetcher;
-import dwbh.api.graphql.fetchers.UserGroupFetcher;
-import dwbh.api.graphql.fetchers.VotingFetcher;
+import dwbh.api.graphql.providers.CommonScalarProvider;
 import graphql.ExecutionInput;
+import graphql.schema.idl.TypeRuntimeWiring;
 import io.micronaut.core.io.ResourceResolver;
 import java.util.List;
 import java.util.Map;
+import java.util.function.UnaryOperator;
 import org.junit.jupiter.api.Test;
 
 class GraphQLFactoryTest {
 
   @Test
   void testCreateSchema() {
-    // given: the fetcher provider
-    var fetchers = new FetcherProvider();
-
     // and: mocking group fetcher behavior
-    var groupFetcher = mock(GroupFetcher.class);
-    when(groupFetcher.listMyGroups(any())).thenReturn(randomListOf(2, Group.class));
-
-    // and: adding group fetcher to fetcher providers
-    fetchers.setGroupFetcher(groupFetcher);
-
-    // and: adding voting fetcher to fetcher providers
-    fetchers.setVotingFetcher(mock(VotingFetcher.class));
-
-    // and: adding user fetcher to fetcher providers
-    fetchers.setUserFetcher(mock(UserFetcher.class));
-
-    // and: adding user group fetcher to fetcher providers
-    fetchers.setUserGroupFetcher(mock(UserGroupFetcher.class));
-
-    // and: adding security fetcher to fetcher providers
-    fetchers.setSecurityFetcher(mock(SecurityFetcher.class));
-
-    // and: adding user password fetcher to fetcher providers
-    fetchers.setResetPasswordFetcher(mock(ResetPasswordFetcher.class));
+    List<QueryProvider> queryProviders = List.of(this::mockQueryFetcherProvider);
 
     // when: creating a valid GraphQL engine
-    var resolver = new ResourceResolver();
-    var graphQLEngine = new GraphQLFactory().graphQL(resolver, fetchers);
+    var typeRegistry =
+        new TypeDefinitionRegistryFactory()
+            .load("classpath:graphql/schema.graphqls", new ResourceResolver());
+    var schema =
+        new GraphQLSchemaFactory()
+            .getSchema(
+                typeRegistry,
+                queryProviders,
+                List.of(),
+                List.of(),
+                List.of(new CommonScalarProvider()));
+    var graphQLEngine = new GraphQLFactory().graphQL(schema);
 
     // and: querying the schema with an authenticated user
     var context = new Context();
@@ -89,9 +69,8 @@ class GraphQLFactoryTest {
     assertEquals(groupList.size(), 2);
   }
 
-  @Test
-  void testWrongResourcePath() {
-    assertThrows(
-        Throwable.class, () -> new GraphQLFactory().graphQL(any(), mock(FetcherProvider.class)));
+  private UnaryOperator<TypeRuntimeWiring.Builder> mockQueryFetcherProvider() {
+    return (TypeRuntimeWiring.Builder builder) ->
+        builder.dataFetcher("listMyGroups", (env) -> randomListOf(2, Group.class));
   }
 }

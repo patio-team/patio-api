@@ -21,7 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import dwbh.api.graphql.GraphQLFactory;
+import dwbh.api.graphql.TypeDefinitionRegistryFactory;
 import graphql.ExecutionInput;
 import graphql.GraphQL;
 import graphql.GraphQLError;
@@ -167,9 +167,11 @@ public class DayOfWeekTests {
                 builder -> builder.dataFetcher("findDayOfWeek", (env) -> env.getArgument("day")))
             .build();
     var registry =
-        GraphQLFactory.loadSchema(
-            new ResourceResolver(), "classpath:dwbh/api/graphql/scalars/dayofweek_schema.graphql");
-    var schema = new SchemaGenerator().makeExecutableSchema(registry.get(), wiring);
+        new TypeDefinitionRegistryFactory()
+            .load(
+                "classpath:dwbh/api/graphql/scalars/dayofweek_schema.graphql",
+                new ResourceResolver());
+    var schema = new SchemaGenerator().makeExecutableSchema(registry, wiring);
 
     // when: executing the query against the GraphQL engine
     return GraphQL.newGraphQL(schema).build();
