@@ -159,7 +159,7 @@ And environment variables
 
 | Name                       | Description                 | Default value                                                 |
 |:---------------------------|:----------------------------|:--------------------------------------------------------------|
-| DWBH_JDBC_URL              | JDBC url                    | jdbc:postgresql://localhost:5432/dwbh                         |
+| DWBH_JDBC_URL              | JDBC url                    | jdbc:postgresql://localhost:5433/dwbh                         |
 | DWBH_JDBC_USER             | JDBC username               | dwbh                                                          |
 | DWBH_JDBC_PASSWORD         | JDBC password               | dwbh                                                          |
 | DWBH_JDBC_DRIVER           | JDBC driver                 | org.postgresql.Driver                                         |
