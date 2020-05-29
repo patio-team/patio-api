@@ -114,7 +114,7 @@ run.jvmArgs('-noverify', '-XX:TieredStopAtLevel=1')
  *
  * @since 0.1.0
  */
-mainClassName = "dwbh.api.Application"
+mainClassName = "patio.Application"
 
 /**
  * Java compilation configuration

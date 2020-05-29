@@ -20,7 +20,7 @@ locale: en
 
 micronaut:
   application:
-    name: dwbh-api
+    name: patio
   executors:
     scheduled:
       type: scheduled
