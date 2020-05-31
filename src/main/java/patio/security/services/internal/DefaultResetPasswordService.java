@@ -21,7 +21,6 @@ import io.micronaut.context.annotation.Value;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import java.util.UUID;
 import javax.inject.Singleton;
 import javax.transaction.Transactional;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -64,7 +63,7 @@ public class DefaultResetPasswordService implements ResetPasswordService {
    * @param urlResolverService to resolve possible link urls for emails
    */
   public DefaultResetPasswordService(
-      @Value("${front.urls.reset-password:none}") String resetPasswordUrl,
+      @Value("${front.urls.change-password:none}") String resetPasswordUrl,
       UserRepository userRepository,
       Auth0CryptoService auth0CryptoService,
       EmailComposerService emailComposerService,
@@ -114,14 +113,14 @@ public class DefaultResetPasswordService implements ResetPasswordService {
     emailBodyVars.put("subject", emailSubject);
     emailBodyVars.put("greetings", greetingsMessage);
     emailBodyVars.put("main", emailMainMessage);
-    emailBodyVars.put("link", this.getChangePasswordLink(user.getId(), user.getOtp()));
+    emailBodyVars.put("link", this.getChangePasswordLink(user.getOtp()));
     emailBodyVars.put("thanks", thanksMessage);
 
     return emailComposerService.composeEmail(
         emailRecipient, emailSubject, emailBodyTemplate, emailBodyVars);
   }
 
-  private String getChangePasswordLink(UUID userId, String userOTP) {
-    return urlResolverService.resolve(this.resetPasswordUrl, userId, userOTP);
+  private String getChangePasswordLink(String userOTP) {
+    return urlResolverService.resolve(this.resetPasswordUrl, userOTP);
   }
 }

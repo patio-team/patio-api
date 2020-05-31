@@ -18,8 +18,6 @@
 package patio.security.graphql;
 
 import graphql.schema.DataFetchingEnvironment;
-import patio.infrastructure.graphql.Context;
-import patio.user.domain.User;
 
 /**
  * Contains functions to build domain inputs from the underlying {@link DataFetchingEnvironment}
@@ -57,13 +55,9 @@ final class SecurityFetcherUtils {
    * @since 0.1.0
    */
   /* default */ static ChangePasswordInput changePassword(DataFetchingEnvironment environment) {
-    Context ctx = environment.getContext();
-    User currentUser = ctx.getAuthenticatedUser();
+    String otpCode = environment.getArgument("otp");
     String password = environment.getArgument("password");
 
-    return ChangePasswordInput.newBuilder()
-        .withUserId(currentUser.getId())
-        .withPassword(password)
-        .build();
+    return new ChangePasswordInput(otpCode, password);
   }
 }

@@ -114,7 +114,7 @@ type Mutation {
     resetPassword(email: String!): Boolean
 
     # change the password for the current user
-    changePassword(password: String!): Boolean
+    changePassword(password: String!, otp: String!): Boolean
 
     # creates a new voting slot
     createVoting(groupId: ID): Voting

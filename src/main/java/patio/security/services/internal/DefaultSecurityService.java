@@ -23,7 +23,6 @@ import javax.inject.Singleton;
 import javax.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import patio.common.domain.utils.NotPresent;
 import patio.common.domain.utils.Result;
 import patio.infrastructure.utils.ErrorConstants;
 import patio.security.domain.Login;
@@ -135,20 +134,25 @@ public class DefaultSecurityService implements SecurityService {
 
   @Override
   public Result<Boolean> changePassword(ChangePasswordInput input) {
-    Optional<User> user = userRepository.findById(input.getUserId());
-    Optional<String> newPassword = Optional.of(input.getPassword());
+    Optional<User> user =
+        Optional.ofNullable(input.getOtpCode()).flatMap(userRepository::findByOtp);
+    String newPassword = Optional.ofNullable(input.getPassword()).orElse("");
 
-    NotPresent notPresent = new NotPresent();
     PasswordIsBlank passwordIsBlank = new PasswordIsBlank();
     SamePassword samePassword = new SamePassword(cryptoService);
 
-    LOG.info(String.format("User %s is attempting to set a new password", input.getUserId()));
+    user.ifPresent(
+        (u) -> LOG.info(String.format("User %s is attempting to set a new password", u.getId())));
 
-    return Result.<Boolean>create()
-        .thenCheck(() -> notPresent.check(user))
-        .thenCheck(() -> passwordIsBlank.check(newPassword.get()))
-        .thenCheck(() -> samePassword.check(user.get(), newPassword.get()))
-        .then(() -> updatePasswordIfSuccess(user.get(), input.getPassword()));
+    return user.map(
+            u -> {
+              return Result.<Boolean>create()
+                  .thenCheck(() -> passwordIsBlank.check(newPassword))
+                  .thenCheck(() -> samePassword.check(u, newPassword))
+                  .then(() -> updatePasswordIfSuccess(u, input.getPassword()))
+                  .sideEffect((success) -> this.clearOtpForUser(u));
+            })
+        .orElse(Result.result(true));
   }
 
   private Optional<Login> getLoginFromUser(User user) {
