@@ -1,0 +1,76 @@
+name: Continuous deployment in dev
+
+on:
+  push:
+    branches:
+      - development
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    container: "openjdk:11-slim"
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/cache@v1
+        with:
+          path: ~/.gradle/caches
+          key: ${{ runner.os }}-patio-api-gradle-${{ hashFiles('**/*.gradle') }}
+          restore-keys: |
+            ${{ runner.os }}-patio-api-gradle-
+      - uses: actions/cache@v1
+        with:
+          path: ~/.gradle/wrapper
+          key: ${{ runner.os }}-patio-api-wrapper-${{ hashFiles('**/*.gradle') }}
+          restore-keys: |
+            ${{ runner.os }}-patio-api-wrapper-
+      - name: Tests
+        run: ./gradlew test
+      - name: PMD (src/main)
+        run: ./gradlew pmdMain
+      - name: PMD (src/test)
+        run: ./gradlew pmdTest
+      - name: Files have the license header
+        run: ./gradlew license
+      - name: Formatter (Spotless)
+        run: ./gradlew spotlessCheck
+      - name: Spotbugs (Main)
+        run: ./gradlew spotbugsMain
+      - name: Spotbugs (Test)
+        run: ./gradlew spotbugsTest
+
+  docker:
+    needs: check
+    runs-on: ubuntu-latest
+    container: "openjdk:11-slim"
+    steps:
+      - uses: actions/checkout@v2
+      - name: Publish latest image to Docker Hub
+        env:
+          REGISTRY_KEY: ${{ secrets.REGISTRY_KEY }}
+          REGISTRY_USER: ${{ secrets.REGISTRY_USER }}
+        run: ./gradlew --stacktrace dockerPush -PregistryUser=$REGISTRY_USER -PregistryKey=$REGISTRY_KEY
+
+  deploy:
+    needs: docker
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to K8s (dev)
+        uses: steebchen/kubectl@master
+        env:
+          KUBE_CONFIG_DATA: ${{ secrets.KUBE_CONFIG_DATA }}
+        with:
+          args: set image deployment/patio-api patio-api=kaleidosteam/patio-api
+      - name: verify API deployment
+        uses: steebchen/kubectl@master
+        env:
+          KUBE_CONFIG_DATA: ${{ secrets.KUBE_CONFIG_DATA }}
+          KUBECTL_VERSION: "1.15"
+        with:
+          args: rollout restart deployment/patio-api
+      - name: Make front be aware of API changes (Hack)
+        uses: steebchen/kubectl@master
+        env:
+          KUBE_CONFIG_DATA: ${{ secrets.KUBE_CONFIG_DATA }}
+          KUBECTL_VERSION: "1.15"
+        with:
+          args: rollout restart deployment/patio-front
