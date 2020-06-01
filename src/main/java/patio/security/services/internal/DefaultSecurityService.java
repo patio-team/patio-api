@@ -51,6 +51,7 @@ public class DefaultSecurityService implements SecurityService {
   private final transient OauthService oauthService;
   private final transient UserRepository userRepository;
   private final transient GoogleUserService googleUserService;
+  private final transient OtpExpiredForUser otpExpiredForUser;
 
   /**
    * Initializes security service with cryptographic service and user database access
@@ -59,17 +60,20 @@ public class DefaultSecurityService implements SecurityService {
    * @param googleUserService service to get user information from Google
    * @param oauthService service to interact with an oauth2 provider
    * @param userRepository service used to check user data constraints
+   * @param otpExpiredForUser to validate an otp has not expired
    * @since 0.1.0
    */
   public DefaultSecurityService(
       CryptoService cryptoService,
       GoogleUserService googleUserService,
       OauthService oauthService,
-      UserRepository userRepository) {
+      UserRepository userRepository,
+      OtpExpiredForUser otpExpiredForUser) {
     this.cryptoService = cryptoService;
     this.googleUserService = googleUserService;
     this.oauthService = oauthService;
     this.userRepository = userRepository;
+    this.otpExpiredForUser = otpExpiredForUser;
   }
 
   @Override
@@ -147,6 +151,7 @@ public class DefaultSecurityService implements SecurityService {
     return user.map(
             u -> {
               return Result.<Boolean>create()
+                  .thenCheck(() -> this.otpExpiredForUser.check(user))
                   .thenCheck(() -> passwordIsBlank.check(newPassword))
                   .thenCheck(() -> samePassword.check(u, newPassword))
                   .then(() -> updatePasswordIfSuccess(u, input.getPassword()))
@@ -163,6 +168,7 @@ public class DefaultSecurityService implements SecurityService {
 
   private Optional<User> clearOtpForUser(User user) {
     user.setOtp("");
+    user.setOtpCreationDateTime(null);
 
     return Optional.of(userRepository.save(user));
   }

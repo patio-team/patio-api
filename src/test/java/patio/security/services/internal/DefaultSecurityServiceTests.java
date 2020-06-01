@@ -28,6 +28,7 @@ import static org.mockito.Mockito.verify;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.DecodedJWT;
+import java.time.OffsetDateTime;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -64,8 +65,12 @@ public class DefaultSecurityServiceTests {
     var providedUser = Optional.of(random(User.class));
     Mockito.when(userRepository.findByEmailOrCreate(any())).thenReturn(providedUser);
 
+    // and: an otp checker
+    var otpExpiredForUser = Mockito.mock(OtpExpiredForUser.class);
+
     // when: executing security service with a good token
-    var securityService = new DefaultSecurityService(cryptoService, null, null, userRepository);
+    var securityService =
+        new DefaultSecurityService(cryptoService, null, null, userRepository, otpExpiredForUser);
     var user = securityService.resolveUser("good_token");
 
     // then: we should build the information of the matching user
@@ -86,8 +91,12 @@ public class DefaultSecurityServiceTests {
 
     var userRepository = Mockito.mock(UserRepository.class);
 
+    // and: an otp checker
+    var otpExpiredForUser = Mockito.mock(OtpExpiredForUser.class);
+
     // when: executing security service with a wrong token
-    var securityService = new DefaultSecurityService(cryptoService, null, null, userRepository);
+    var securityService =
+        new DefaultSecurityService(cryptoService, null, null, userRepository, otpExpiredForUser);
     var user = securityService.resolveUser("good_token");
 
     // then: we should build NO user
@@ -107,8 +116,12 @@ public class DefaultSecurityServiceTests {
     storedUser.get().setPassword(cryptoService.hash(plainPassword));
     Mockito.when(userRepository.findByEmail(any())).thenReturn(storedUser);
 
+    // and: an otp checker
+    var otpExpiredForUser = Mockito.mock(OtpExpiredForUser.class);
+
     // when: executing the security service with good credentials
-    var securityService = new DefaultSecurityService(cryptoService, null, null, userRepository);
+    var securityService =
+        new DefaultSecurityService(cryptoService, null, null, userRepository, otpExpiredForUser);
     var result =
         securityService.loginByCredentials(
             new LoginInput(storedUser.get().getEmail(), plainPassword));
@@ -133,8 +146,12 @@ public class DefaultSecurityServiceTests {
     var userRepository = Mockito.mock(UserRepository.class);
     Mockito.when(userRepository.findByEmail(any())).thenReturn(Optional.empty());
 
+    // and: an otp checker
+    var otpExpiredForUser = Mockito.mock(OtpExpiredForUser.class);
+
     // when: executing the security service with good credentials
-    var securityService = new DefaultSecurityService(cryptoService, null, null, userRepository);
+    var securityService =
+        new DefaultSecurityService(cryptoService, null, null, userRepository, otpExpiredForUser);
 
     var loginInput = random(LoginInput.class);
     var result = securityService.loginByCredentials(loginInput);
@@ -170,8 +187,12 @@ public class DefaultSecurityServiceTests {
     Mockito.when(userRepository.findByOtp(otp)).thenReturn(storedUser);
     Mockito.when(userRepository.save(user)).thenReturn(user);
 
+    // and: an otp checker
+    var otpExpiredForUser = Mockito.mock(OtpExpiredForUser.class);
+
     // when: executing the security service with the user's otp
-    var securityService = new DefaultSecurityService(cryptoService, null, null, userRepository);
+    var securityService =
+        new DefaultSecurityService(cryptoService, null, null, userRepository, otpExpiredForUser);
     var result = securityService.loginByOtp(storedUser.get().getOtp());
 
     // then: we should build a token that matches the user stored in database
@@ -208,8 +229,12 @@ public class DefaultSecurityServiceTests {
     Mockito.when(userRepository.findByOtp(otp)).thenReturn(storedUser);
     Mockito.when(userRepository.save(user)).thenReturn(user);
 
+    // and: an otp checker
+    var otpExpiredForUser = Mockito.mock(OtpExpiredForUser.class);
+
     // when: executing the security service with the user's otp
-    var securityService = new DefaultSecurityService(cryptoService, null, null, userRepository);
+    var securityService =
+        new DefaultSecurityService(cryptoService, null, null, userRepository, otpExpiredForUser);
     var result = securityService.loginByOtp(anotherOtp);
 
     // then: we should build an error because of bad credentials
@@ -241,15 +266,23 @@ public class DefaultSecurityServiceTests {
     Mockito.when(userRepository.findByOtp("otpCode")).thenReturn(storedUser);
     Mockito.when(userRepository.save(user)).thenReturn(user);
 
+    // and: an otp checker
+    var otpExpiredForUser = Mockito.mock(OtpExpiredForUser.class);
+
     // when: executing the security service to change her password
-    var securityService = new DefaultSecurityService(cryptoService, null, null, userRepository);
+    var securityService =
+        new DefaultSecurityService(cryptoService, null, null, userRepository, otpExpiredForUser);
     var result = securityService.changePassword(new ChangePasswordInput("otpCode", newPassword));
 
     // then: the result is correct
     assertEquals(result.isSuccess(), true);
 
-    // and: the new encrypted password is stored in database and otp has been removed
+    // and: the new encrypted password is stored in database
     verify(cryptoService, times(1)).hash(newPassword);
+
+    // and: otp users fields are cleared from database and persisted
+    assertEquals(user.getOtp(), "");
+    assertEquals(user.getOtpCreationDateTime(), null);
     verify(userRepository, times(2)).save(user);
   }
 
@@ -273,8 +306,12 @@ public class DefaultSecurityServiceTests {
     Mockito.when(userRepository.findByOtp("otpCode")).thenReturn(storedUser);
     Mockito.when(userRepository.save(user)).thenReturn(user);
 
+    // and: an otp checker
+    var otpExpiredForUser = Mockito.mock(OtpExpiredForUser.class);
+
     // when: executing the security service to change her password
-    var securityService = new DefaultSecurityService(cryptoService, null, null, userRepository);
+    var securityService =
+        new DefaultSecurityService(cryptoService, null, null, userRepository, otpExpiredForUser);
     var result = securityService.changePassword(new ChangePasswordInput("otpCode", newPassword));
 
     // then: an error is returned because of the same password
@@ -297,7 +334,11 @@ public class DefaultSecurityServiceTests {
     // and: a user who wants to change its previous password
     var oldPassword = "old password";
     var user =
-        User.builder().with(user1 -> user1.setPassword(cryptoService.hash(oldPassword))).build();
+        User.builder()
+            .with(u -> u.setPassword(cryptoService.hash(oldPassword)))
+            .with(u -> u.setOtp(random(String.class)))
+            .with(u -> u.setOtpCreationDateTime(OffsetDateTime.now()))
+            .build();
     var storedUser = Optional.of(user);
 
     // and: the new intended password left blank
@@ -308,8 +349,12 @@ public class DefaultSecurityServiceTests {
     Mockito.when(userRepository.findByOtp("otpCode")).thenReturn(storedUser);
     Mockito.when(userRepository.save(user)).thenReturn(user);
 
+    // and: an otp checker
+    var otpExpiredForUser = Mockito.mock(OtpExpiredForUser.class);
+
     // when: executing the security service to change her password
-    var securityService = new DefaultSecurityService(cryptoService, null, null, userRepository);
+    var securityService =
+        new DefaultSecurityService(cryptoService, null, null, userRepository, otpExpiredForUser);
     var result = securityService.changePassword(new ChangePasswordInput("otpCode", newPassword));
 
     // then: an error is returned because of the same password
@@ -321,5 +366,43 @@ public class DefaultSecurityServiceTests {
     assertNotNull(errors);
     assertEquals(errors.size(), 1);
     assertEquals(samePasswordError.getCode(), ErrorConstants.BLANK_PASSWORD.getCode());
+  }
+
+  @Test
+  void testInvalidPasswordChangeOtpExpired() {
+    // given: a mocked crypto security service
+    var cryptoService = Mockito.mock(Auth0CryptoService.class);
+
+    // and: a user who wants to change its previous password
+    var oldPassword = "old password";
+    var user =
+        User.builder().with(user1 -> user1.setPassword(cryptoService.hash(oldPassword))).build();
+    var storedUser = Optional.of(user);
+
+    // and: the new intended password
+    var newPassword = "new password";
+
+    // and: a mocked user repository
+    var userRepository = Mockito.mock(UserRepository.class);
+    Mockito.when(userRepository.findByOtp("otpCode")).thenReturn(storedUser);
+    Mockito.when(userRepository.save(user)).thenReturn(user);
+
+    // and: an otp checker that will always fails (expiration time of 0 minutes)
+    var otpExpiredForUser = new OtpExpiredForUser(0);
+
+    // when: executing the security service to change her password
+    var securityService =
+        new DefaultSecurityService(cryptoService, null, null, userRepository, otpExpiredForUser);
+    var result = securityService.changePassword(new ChangePasswordInput("otpCode", newPassword));
+
+    // then: an error is returned because of the same password
+    assertEquals(result.hasErrors(), true);
+
+    var errors = result.getErrorList();
+    var samePasswordError = errors.get(0);
+
+    assertNotNull(errors);
+    assertEquals(errors.size(), 1);
+    assertEquals(samePasswordError.getCode(), ErrorConstants.OTP_EXPIRED_FOR_USER.getCode());
   }
 }

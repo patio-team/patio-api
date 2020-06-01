@@ -69,6 +69,10 @@ crypto:
     algorithm: ${DWBH_JWT_ALGO}
     issuer: ${DWBH_JWT_ISSUER}
 
+otp:
+  expirytime:
+    minutes: 3
+
 oauth2:
   apikey: ${DWBH_OAUTH2_KEY}
   apisecret: ${DWBH_OAUTH2_SECRET}

@@ -132,6 +132,14 @@ public final class ErrorConstants {
   public static final Error BLANK_PASSWORD =
       new Error("API_ERRORS.PASSWORD_IS_BLANK", "The password cannot be left blank");
 
+  /**
+   * Error code used when an otp is expired
+   *
+   * @since 0.1.0
+   */
+  public static final Error OTP_EXPIRED_FOR_USER =
+      new Error("API_ERRORS.OTP_EXPIRED_FOR_USER", "The otp has expired");
+
   private ErrorConstants() {
     /* empty */
   }
