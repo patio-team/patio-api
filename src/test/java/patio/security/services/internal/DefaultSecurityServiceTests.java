@@ -238,19 +238,19 @@ public class DefaultSecurityServiceTests {
 
     // and: a mocked user repository
     var userRepository = Mockito.mock(UserRepository.class);
-    Mockito.when(userRepository.findById(user.getId())).thenReturn(storedUser);
+    Mockito.when(userRepository.findByOtp("otpCode")).thenReturn(storedUser);
     Mockito.when(userRepository.save(user)).thenReturn(user);
 
     // when: executing the security service to change her password
     var securityService = new DefaultSecurityService(cryptoService, null, null, userRepository);
-    var result = securityService.changePassword(new ChangePasswordInput(user.getId(), newPassword));
+    var result = securityService.changePassword(new ChangePasswordInput("otpCode", newPassword));
 
     // then: the result is correct
     assertEquals(result.isSuccess(), true);
 
-    // and: the new encrypted password is stored in database
+    // and: the new encrypted password is stored in database and otp has been removed
     verify(cryptoService, times(1)).hash(newPassword);
-    verify(userRepository, times(1)).save(user);
+    verify(userRepository, times(2)).save(user);
   }
 
   @Test
@@ -270,12 +270,12 @@ public class DefaultSecurityServiceTests {
 
     // and: a mocked user repository
     var userRepository = Mockito.mock(UserRepository.class);
-    Mockito.when(userRepository.findById(user.getId())).thenReturn(storedUser);
+    Mockito.when(userRepository.findByOtp("otpCode")).thenReturn(storedUser);
     Mockito.when(userRepository.save(user)).thenReturn(user);
 
     // when: executing the security service to change her password
     var securityService = new DefaultSecurityService(cryptoService, null, null, userRepository);
-    var result = securityService.changePassword(new ChangePasswordInput(user.getId(), newPassword));
+    var result = securityService.changePassword(new ChangePasswordInput("otpCode", newPassword));
 
     // then: an error is returned because of the same password
     assertEquals(result.hasErrors(), true);
@@ -305,12 +305,12 @@ public class DefaultSecurityServiceTests {
 
     // and: a mocked user repository
     var userRepository = Mockito.mock(UserRepository.class);
-    Mockito.when(userRepository.findById(user.getId())).thenReturn(storedUser);
+    Mockito.when(userRepository.findByOtp("otpCode")).thenReturn(storedUser);
     Mockito.when(userRepository.save(user)).thenReturn(user);
 
     // when: executing the security service to change her password
     var securityService = new DefaultSecurityService(cryptoService, null, null, userRepository);
-    var result = securityService.changePassword(new ChangePasswordInput(user.getId(), newPassword));
+    var result = securityService.changePassword(new ChangePasswordInput("otpCode", newPassword));
 
     // then: an error is returned because of the same password
     assertEquals(result.hasErrors(), true);
