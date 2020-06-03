@@ -59,7 +59,7 @@ public final class Voting {
   @OneToMany(mappedBy = "voting")
   private List<Vote> votes;
 
-  private Integer average;
+  private Float average;
 
   /**
    * Creates a new fluent builder to build instances of type {@link Voting}
@@ -157,7 +157,7 @@ public final class Voting {
    * @return the voting's average
    * @since 0.1.0
    */
-  public Integer getAverage() {
+  public Float getAverage() {
     return average;
   }
 
@@ -167,7 +167,7 @@ public final class Voting {
    * @param average the voting average
    * @since 0.1.0
    */
-  public void setAverage(Integer average) {
+  public void setAverage(Float average) {
     this.average = average;
   }
 
