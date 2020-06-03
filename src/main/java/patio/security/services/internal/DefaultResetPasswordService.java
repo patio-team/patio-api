@@ -18,6 +18,7 @@
 package patio.security.services.internal;
 
 import io.micronaut.context.annotation.Value;
+import java.time.OffsetDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -94,6 +95,7 @@ public class DefaultResetPasswordService implements ResetPasswordService {
 
   private void setOTPForUser(String randomToken, User user) {
     user.setOtp(randomToken);
+    user.setOtpCreationDateTime(OffsetDateTime.now());
     userRepository.save(user);
   }
 

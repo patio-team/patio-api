@@ -20,6 +20,7 @@ package patio.security.services;
 import static io.github.benas.randombeans.api.EnhancedRandom.random;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.verify;
@@ -46,16 +47,21 @@ public class ResetPasswordServiceTests {
   @Test
   void testResetPasswordRequest() {
     // given: a user
-    User user = random(User.class);
-
-    // given: a mocked repositories and services
-    var userRepository = Mockito.mock(UserRepository.class);
-    Mockito.when(userRepository.findByEmail(user.getEmail())).thenReturn(Optional.of(user));
+    var user =
+        User.builder()
+            .with(u -> u.setOtp(""))
+            .with(u -> u.setOtpCreationDateTime(null))
+            .with(u -> u.setName("Peter"))
+            .build();
 
     // and: a new randomly-generated One-time Password (OTP)
     var randomOTP = "$2a$10$ccXSNGubl.ja9eV2Dfrxmhd9t";
     var auth0CryptoService = Mockito.mock(Auth0CryptoService.class);
     Mockito.when(auth0CryptoService.hash(any())).thenReturn(randomOTP);
+
+    // given: mocked repositories and services
+    var userRepository = Mockito.mock(UserRepository.class);
+    Mockito.when(userRepository.findByEmail(user.getEmail())).thenReturn(Optional.of(user));
 
     // and: other mocked services
     var emailComposerService = Mockito.mock(EmailComposerService.class);
@@ -73,11 +79,18 @@ public class ResetPasswordServiceTests {
             urlResolverService);
     defaultResetPasswordService.resetPasswordRequest(user.getEmail());
 
-    // then: we should set an OTP for the user
-    assertThat("The user's OTP is now defined", user.getOtp(), is(randomOTP));
-    verify(emailComposerService, atLeast(1)).composeEmail(any(), any(), any(), any());
+    // then: we should have set an OTP for the user
+    assertThat("The user's otp is now defined", user.getOtp(), is(randomOTP));
+    assertThat(
+        "The user's otpCreationDate is defined",
+        user.getOtpCreationDateTime().toString(),
+        is(not("")));
+
+    // and: user changes are persisted
+    verify(userRepository, atLeast(1)).save(any(User.class));
 
     // and: an password resetting email is generated
+    verify(emailComposerService, atLeast(1)).composeEmail(any(), any(), any(), any());
     Mockito.when(emailComposerService.composeEmail(any(), any(), any(), any()))
         .thenReturn(random(Email.class));
 

@@ -17,9 +17,11 @@
  */
 package patio.user.domain;
 
+import java.time.OffsetDateTime;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -45,6 +47,9 @@ public final class User {
   private String password;
   private String otp;
 
+  @Column(name = "otp_creation_date")
+  private OffsetDateTime otpCreationDateTime;
+
   @OneToMany(mappedBy = "user")
   private Set<UserGroup> groups;
 
@@ -59,39 +64,30 @@ public final class User {
   }
 
   /**
+   * Gets id.
+   *
+   * @return Value of id.
+   */
+  public UUID getId() {
+    return id;
+  }
+
+  /**
+   * Sets new id.
+   *
+   * @param id New value of id.
+   */
+  public void setId(UUID id) {
+    this.id = id;
+  }
+
+  /**
    * Gets name.
    *
    * @return Value of name.
    */
   public String getName() {
     return name;
-  }
-
-  /**
-   * Gets otp.
-   *
-   * @return Value of otp.
-   */
-  public String getOtp() {
-    return otp;
-  }
-
-  /**
-   * Sets new password.
-   *
-   * @param password New value of password.
-   */
-  public void setPassword(String password) {
-    this.password = password;
-  }
-
-  /**
-   * Sets new email.
-   *
-   * @param email New value of email.
-   */
-  public void setEmail(String email) {
-    this.email = email;
   }
 
   /**
@@ -113,12 +109,39 @@ public final class User {
   }
 
   /**
+   * Sets new password.
+   *
+   * @param password New value of password.
+   */
+  public void setPassword(String password) {
+    this.password = password;
+  }
+
+  /**
    * Gets email.
    *
    * @return Value of email.
    */
   public String getEmail() {
     return email;
+  }
+
+  /**
+   * Sets new email.
+   *
+   * @param email New value of email.
+   */
+  public void setEmail(String email) {
+    this.email = email;
+  }
+
+  /**
+   * Gets otp.
+   *
+   * @return Value of otp.
+   */
+  public String getOtp() {
+    return otp;
   }
 
   /**
@@ -131,12 +154,39 @@ public final class User {
   }
 
   /**
-   * Gets id.
+   * Gets the time when the otp was created.
    *
-   * @return Value of id.
+   * @return Otp creation time.
    */
-  public UUID getId() {
-    return id;
+  public OffsetDateTime getOtpCreationDateTime() {
+    return otpCreationDateTime;
+  }
+
+  /**
+   * Sets the {@link OffsetDateTime} when the otp is created.
+   *
+   * @param otpCreationDateTime Otp creation time.
+   */
+  public void setOtpCreationDateTime(OffsetDateTime otpCreationDateTime) {
+    this.otpCreationDateTime = otpCreationDateTime;
+  }
+
+  /**
+   * Gets user's groups
+   *
+   * @return set of UserGroups
+   */
+  public Set<UserGroup> getGroups() {
+    return groups;
+  }
+
+  /**
+   * Sets user's groups
+   *
+   * @param groups set of UserGroups the user belongs to
+   */
+  public void setGroups(Set<UserGroup> groups) {
+    this.groups = groups;
   }
 
   /**
@@ -151,22 +201,5 @@ public final class User {
         .map(String::toLowerCase)
         .map(DigestUtils::md5Hex)
         .orElse("");
-  }
-
-  /**
-   * Sets new id.
-   *
-   * @param id New value of id.
-   */
-  public void setId(UUID id) {
-    this.id = id;
-  }
-
-  public Set<UserGroup> getGroups() {
-    return groups;
-  }
-
-  public void setGroups(Set<UserGroup> groups) {
-    this.groups = groups;
   }
 }

@@ -68,6 +68,10 @@ crypto:
     algorithm: HS256
     issuer: http://localhost:8000/auth/realms/dwbh
 
+otp:
+  expirytime:
+    minutes: 3
+
 oauth2:
   apikey: oauth2apikey
   apisecret: oauth2apisecret
