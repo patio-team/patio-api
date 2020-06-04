@@ -54,7 +54,7 @@ type Voting {
     group: Group,
     createdAtDateTime: DateTime
     createdBy: User
-    average: Int
+    average: Float
     votes: [Vote]
 }
 
