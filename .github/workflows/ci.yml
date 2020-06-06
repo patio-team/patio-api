@@ -1,0 +1,36 @@
+name: API Continuos Integration
+
+on: [push, pull_request]
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    container: "openjdk:11-slim"
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/cache@v1
+        with:
+          path: ~/.gradle/caches
+          key: ${{ runner.os }}-patio-api-gradle-${{ hashFiles('**/*.gradle') }}
+          restore-keys: |
+            ${{ runner.os }}-patio-api-gradle-
+      - uses: actions/cache@v1
+        with:
+          path: ~/.gradle/wrapper
+          key: ${{ runner.os }}-patio-api-wrapper-${{ hashFiles('**/*.gradle') }}
+          restore-keys: |
+            ${{ runner.os }}-patio-api-wrapper-
+      - name: Tests
+        run: ./gradlew test
+      - name: PMD (src/main)
+        run: ./gradlew pmdMain
+      - name: PMD (src/test)
+        run: ./gradlew pmdTest
+      - name: Files have the license header
+        run: ./gradlew license
+      - name: Formatter (Spotless)
+        run: ./gradlew spotlessCheck
+      - name: Spotbugs (Main)
+        run: ./gradlew spotbugsMain
+      - name: Spotbugs (Test)
+        run: ./gradlew spotbugsTest
