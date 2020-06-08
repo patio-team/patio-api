@@ -18,9 +18,14 @@
 package patio.voting.services;
 
 import static io.github.benas.randombeans.api.EnhancedRandom.random;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.time.OffsetDateTime;
 import java.time.temporal.ChronoUnit;
@@ -118,6 +123,8 @@ public class VotingServiceTests {
         CreateVoteInput.newBuilder()
             .withUserId(user.getId())
             .withVotingId(voting.getId())
+            .withHueMood("COVID 19")
+            .withComment("The worst day ever")
             .withScore(1)
             .withAnonymous(false)
             .build();

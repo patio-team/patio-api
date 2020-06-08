@@ -53,6 +53,9 @@ public final class Vote {
   @Column(name = "created_at")
   private OffsetDateTime createdAtDateTime;
 
+  @Column(name = "hue_mood")
+  private String hueMood;
+
   private String comment;
   private Integer score;
 
@@ -144,6 +147,26 @@ public final class Vote {
    */
   public void setCreatedAtDateTime(OffsetDateTime createdAtDateTime) {
     this.createdAtDateTime = createdAtDateTime;
+  }
+
+  /**
+   * Returns any hue mood the user wanted to add about the vote
+   *
+   * @return a simple {@link String} with the comment
+   * @since 0.1.0
+   */
+  public String getHueMood() {
+    return hueMood;
+  }
+
+  /**
+   * Sets any extra hue mood the user may want to add
+   *
+   * @param hueMood a string with any comment
+   * @since 0.1.0
+   */
+  public void setHueMood(String hueMood) {
+    this.hueMood = hueMood;
   }
 
   /**
