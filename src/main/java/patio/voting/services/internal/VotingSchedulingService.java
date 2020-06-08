@@ -19,6 +19,22 @@ package patio.voting.services.internal;
 
 import io.micronaut.context.annotation.Value;
 import io.micronaut.scheduling.annotation.Scheduled;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import patio.group.domain.Group;
+import patio.group.repositories.GroupRepository;
+import patio.infrastructure.email.domain.Email;
+import patio.infrastructure.email.services.EmailService;
+import patio.infrastructure.email.services.internal.EmailComposerService;
+import patio.infrastructure.email.services.internal.templates.URLResolverService;
+import patio.infrastructure.vfs.GeneralProvider;
+import patio.user.domain.User;
+import patio.voting.domain.Voting;
+import patio.voting.repositories.VotingRepository;
+import patio.voting.services.VotingScheduling;
+
+import javax.inject.Singleton;
+import javax.transaction.Transactional;
 import java.time.DayOfWeek;
 import java.time.OffsetDateTime;
 import java.time.OffsetTime;
@@ -30,20 +46,6 @@ import java.util.UUID;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import javax.inject.Singleton;
-import javax.transaction.Transactional;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import patio.group.domain.Group;
-import patio.group.repositories.GroupRepository;
-import patio.infrastructure.email.domain.Email;
-import patio.infrastructure.email.services.EmailService;
-import patio.infrastructure.email.services.internal.EmailComposerService;
-import patio.infrastructure.email.services.internal.templates.URLResolverService;
-import patio.user.domain.User;
-import patio.voting.domain.Voting;
-import patio.voting.repositories.VotingRepository;
-import patio.voting.services.VotingScheduling;
 
 /**
  * Default implementation to create new voting and send notifications to their members
@@ -61,6 +63,7 @@ public class VotingSchedulingService implements VotingScheduling {
   private final transient EmailComposerService emailComposerService;
   private final transient EmailService emailService;
   private final transient URLResolverService urlResolverService;
+  private final transient GeneralProvider generalProvider;
 
   /**
    * Requires the {@link DefaultVotingService} to get group voting information and {@link
@@ -80,24 +83,33 @@ public class VotingSchedulingService implements VotingScheduling {
       VotingRepository votingRepository,
       EmailComposerService emailComposerService,
       EmailService emailService,
-      URLResolverService urlResolverService) {
+      URLResolverService urlResolverService,
+      GeneralProvider generalProvider) {
     this.votingUrl = votingUrl;
     this.groupRepository = groupRepository;
     this.votingRepository = votingRepository;
     this.emailComposerService = emailComposerService;
     this.emailService = emailService;
     this.urlResolverService = urlResolverService;
+    this.generalProvider = generalProvider;
   }
 
   @Override
-  @Scheduled(fixedRate = "30s", initialDelay = "30s")
+  @Scheduled(fixedRate = "30s", initialDelay = "5s")
   public void scheduleVoting() {
+
     checkVoting();
   }
 
   @Transactional
   /* default */ void checkVoting() {
     LOG.info("checking voting creation");
+    var localProvider = this.generalProvider.byType(GeneralProvider.ProviderTypes.local);
+    var defaultProvider = this.generalProvider.byDefault();
+
+    System.out.println(localProvider);
+    System.out.println(defaultProvider);
+
     this.findAllToCreateVotingFrom().map(this::createVoting).forEach(this::notifyMembers);
   }
 
