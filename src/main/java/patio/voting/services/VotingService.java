@@ -24,6 +24,7 @@ import patio.voting.domain.Vote;
 import patio.voting.domain.Voting;
 import patio.voting.graphql.CreateVoteInput;
 import patio.voting.graphql.CreateVotingInput;
+import patio.voting.graphql.GetLastVotingInput;
 import patio.voting.graphql.GetVotingInput;
 import patio.voting.graphql.ListVotingsGroupInput;
 import patio.voting.graphql.UserVotesInGroupInput;
@@ -81,6 +82,15 @@ public interface VotingService {
    * @since 0.1.0
    */
   Result<Voting> getVoting(GetVotingInput input);
+
+  /**
+   * Get the last voting that belongs to a group
+   *
+   * @param input required data to retrieve a {@link Voting}
+   * @return The requested {@link Voting}
+   * @since 0.1.0
+   */
+  Result<Voting> getLastVotingByGroup(GetLastVotingInput input);
 
   /**
    * Fetches the votes that belongs to an user in a group between two dates. The current user and

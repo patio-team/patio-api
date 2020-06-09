@@ -42,6 +42,7 @@ import patio.voting.domain.Vote;
 import patio.voting.domain.Voting;
 import patio.voting.graphql.CreateVoteInput;
 import patio.voting.graphql.CreateVotingInput;
+import patio.voting.graphql.GetLastVotingInput;
 import patio.voting.graphql.GetVotingInput;
 import patio.voting.graphql.ListVotingsGroupInput;
 import patio.voting.graphql.UserVotesInGroupInput;
@@ -187,6 +188,23 @@ public class DefaultVotingService implements VotingService {
     NotPresent notPresent = new NotPresent();
 
     return Result.<Voting>create()
+        .thenCheck(() -> notPresent.check(votingFound))
+        .then(votingFound::get);
+  }
+
+  @Override
+  public Result<Voting> getLastVotingByGroup(GetLastVotingInput input) {
+    Optional<User> user = userRepository.findById(input.getCurrentUserId());
+    Optional<Group> group = groupRepository.findById(input.getGroupId());
+
+    Optional<Voting> votingFound =
+        group.flatMap(votingRepository::findByGroupOrderByCreatedAtDateTimeDesc);
+    var userIsInGroup = new UserIsInGroup();
+    var notPresent = new NotPresent();
+
+    return Result.<Voting>create()
+        .thenCheck(() -> notPresent.check(group))
+        .thenCheck(() -> userIsInGroup.check(user, group))
         .thenCheck(() -> notPresent.check(votingFound))
         .then(votingFound::get);
   }

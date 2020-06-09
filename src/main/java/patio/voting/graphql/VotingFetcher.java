@@ -109,6 +109,18 @@ public class VotingFetcher {
   }
 
   /**
+   * Fetches the last voting that belongs to a group
+   *
+   * @param env GraphQL execution environment
+   * @return The requested {@link Voting}
+   * @since 0.1.0
+   */
+  public DataFetcherResult<Voting> getLastVotingByGroup(DataFetchingEnvironment env) {
+    GetLastVotingInput input = VotingFetcherUtils.getLastVotingInput(env);
+    return ResultUtils.render(service.getLastVotingByGroup(input));
+  }
+
+  /**
    * Fetches the votes that belongs to a voting
    *
    * @param env GraphQL execution environment
