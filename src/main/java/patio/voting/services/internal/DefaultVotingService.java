@@ -148,6 +148,7 @@ public class DefaultVotingService implements VotingService {
                         .with(v -> v.setVoting(slot))
                         .with(v -> v.setCreatedBy(user.orElse(null)))
                         .with(v -> v.setComment(input.getComment()))
+                        .with(v -> v.setHueMood(input.getHueMood()))
                         .with(v -> v.setScore(input.getScore()))
                         .build())
             .map(voteRepository::save)

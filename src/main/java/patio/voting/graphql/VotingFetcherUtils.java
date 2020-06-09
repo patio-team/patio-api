@@ -63,6 +63,7 @@ final class VotingFetcherUtils {
     Context ctx = environment.getContext();
     User user = ctx.getAuthenticatedUser();
     UUID votingId = environment.getArgument("votingId");
+    String hueMood = environment.getArgument("hueMood");
     String comment = environment.getArgument("comment");
     Integer score = environment.getArgument("score");
     boolean anonymous = environment.getArgument("anonymous");
@@ -70,6 +71,7 @@ final class VotingFetcherUtils {
     return CreateVoteInput.newBuilder()
         .withUserId(user.getId())
         .withVotingId(votingId)
+        .withHueMood(hueMood)
         .withComment(comment)
         .withScore(score)
         .withAnonymous(anonymous)

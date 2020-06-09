@@ -27,14 +27,21 @@ import java.util.UUID;
 public class CreateVoteInput {
   private final transient UUID userId;
   private final transient UUID votingId;
+  private final transient String hueMood;
   private final transient String comment;
   private final transient Integer score;
   private final transient boolean anonymous;
 
   private CreateVoteInput(
-      UUID userId, UUID votingId, String comment, Integer score, boolean anonymous) {
+      UUID userId,
+      UUID votingId,
+      String hueMood,
+      String comment,
+      Integer score,
+      boolean anonymous) {
     this.userId = userId;
     this.votingId = votingId;
+    this.hueMood = hueMood;
     this.comment = comment;
     this.score = score;
     this.anonymous = anonymous;
@@ -68,6 +75,16 @@ public class CreateVoteInput {
    */
   public UUID getVotingId() {
     return votingId;
+  }
+
+  /**
+   * Returns the vote's hue mood if the user added it
+   *
+   * @return the vote's hue mood if any
+   * @since 0.1.0
+   */
+  public String getHueMood() {
+    return hueMood;
   }
 
   /**
@@ -107,7 +124,8 @@ public class CreateVoteInput {
    */
   public static class Builder {
 
-    private transient CreateVoteInput input = new CreateVoteInput(null, null, null, null, false);
+    private transient CreateVoteInput input =
+        new CreateVoteInput(null, null, null, null, null, false);
 
     private Builder() {
       /* empty */
@@ -125,6 +143,7 @@ public class CreateVoteInput {
           new CreateVoteInput(
               userId,
               input.getVotingId(),
+              input.getHueMood(),
               input.getComment(),
               input.getScore(),
               input.isAnonymous());
@@ -143,6 +162,25 @@ public class CreateVoteInput {
           new CreateVoteInput(
               input.getUserId(),
               votingId,
+              input.getHueMood(),
+              input.getComment(),
+              input.getScore(),
+              input.isAnonymous());
+      return this;
+    }
+    /**
+     * Adds a hueMood to the vote
+     *
+     * @param hueMood extra comment to the user's vote
+     * @return current builder instance
+     * @since 0.1.0
+     */
+    public Builder withHueMood(String hueMood) {
+      this.input =
+          new CreateVoteInput(
+              input.getUserId(),
+              input.getVotingId(),
+              hueMood,
               input.getComment(),
               input.getScore(),
               input.isAnonymous());
@@ -161,6 +199,7 @@ public class CreateVoteInput {
           new CreateVoteInput(
               input.getUserId(),
               input.getVotingId(),
+              input.getHueMood(),
               comment,
               input.getScore(),
               input.isAnonymous());
@@ -179,6 +218,7 @@ public class CreateVoteInput {
           new CreateVoteInput(
               input.getUserId(),
               input.getVotingId(),
+              input.getHueMood(),
               input.getComment(),
               score,
               input.isAnonymous());
@@ -197,6 +237,7 @@ public class CreateVoteInput {
           new CreateVoteInput(
               input.getUserId(),
               input.getVotingId(),
+              input.getHueMood(),
               input.getComment(),
               input.getScore(),
               anonymous);
