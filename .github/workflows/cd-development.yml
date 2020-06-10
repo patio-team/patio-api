@@ -59,7 +59,7 @@ jobs:
         env:
           KUBE_CONFIG_DATA: ${{ secrets.KUBE_CONFIG_DATA }}
         with:
-          args: set image deployment/patio-api patio-api=kaleidosteam/patio-api
+          args: rollout restart deployment/patio-api
       - name: verify API deployment
         uses: steebchen/kubectl@master
         env:
