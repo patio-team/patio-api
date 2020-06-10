@@ -53,6 +53,7 @@ import patio.voting.domain.Vote;
 import patio.voting.domain.Voting;
 import patio.voting.graphql.CreateVoteInput;
 import patio.voting.graphql.CreateVotingInput;
+import patio.voting.graphql.GetLastVotingInput;
 import patio.voting.graphql.GetVotingInput;
 import patio.voting.graphql.ListVotingsGroupInput;
 import patio.voting.repositories.VoteRepository;
@@ -523,5 +524,115 @@ public class VotingServiceTests {
 
     // and: only one method has been called
     verify(voteRepository, times(1)).findAllByVotingOrderByUser(any(UUID.class));
+  }
+
+  @Test
+  @DisplayName("getLastVotingByGroup: success")
+  void testGetLastVotingSuccessfully() {
+    // given: a user that belong to a group with its last voting
+    var group = random(Group.class);
+    var user =
+        User.builder()
+            .with(u -> u.setName("john"))
+            .with(u -> u.setGroups(Set.of(new UserGroup(new User(), group))))
+            .build();
+    var lastVoting = random(Voting.class);
+
+    // given: some mocked repositories
+    var votingRepository = mock(VotingRepository.class);
+    var userRepository = mock(UserRepository.class);
+    var groupRepository = mock(GroupRepository.class);
+
+    // and: mocked calls
+    when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
+    when(groupRepository.findById(group.getId())).thenReturn(Optional.of(group));
+    when(votingRepository.findByGroupOrderByCreatedAtDateTimeDesc(group))
+        .thenReturn(Optional.of(lastVoting));
+
+    // when: getting the last voting from a group
+    var votingService =
+        new DefaultVotingService(votingRepository, null, null, userRepository, groupRepository);
+    var input =
+        GetLastVotingInput.newBuilder()
+            .with(i -> i.setCurrentUserId(user.getId()))
+            .with(i -> i.setGroupId(group.getId()))
+            .build();
+    Result<Voting> result = votingService.getLastVotingByGroup(input);
+
+    // then: we should build a valid result and return the last voting
+    assertEquals(result.getSuccess(), lastVoting, "Successfully returned the last voting");
+
+    // and: both user and group are recover from db to perform some checks
+    verify(userRepository, times(1)).findById(user.getId());
+    verify(groupRepository, times(1)).findById(group.getId());
+  }
+
+  @Test
+  void testGetLastVotingFailsIfUserNotInGroup() {
+    // given: a user that doesn't belongs to the group
+    var group = random(Group.class);
+    var user =
+        User.builder()
+            .with(u -> u.setName("john"))
+            .with(u -> u.setGroups(Set.of(new UserGroup(new User(), random(Group.class)))))
+            .build();
+
+    // given: some mocked repositories
+    var votingRepository = mock(VotingRepository.class);
+    var userRepository = mock(UserRepository.class);
+    var groupRepository = mock(GroupRepository.class);
+
+    // and: some mocked calls
+    when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
+    when(groupRepository.findById(group.getId())).thenReturn(Optional.of(group));
+
+    // when: getting the last voting from a group
+    var votingService =
+        new DefaultVotingService(votingRepository, null, null, userRepository, groupRepository);
+    var input =
+        GetLastVotingInput.newBuilder()
+            .with(i -> i.setCurrentUserId(user.getId()))
+            .with(i -> i.setGroupId(group.getId()))
+            .build();
+    Result<Voting> result = votingService.getLastVotingByGroup(input);
+
+    // then: we should build an error
+    assertNotNull(result.getErrorList());
+    assertNull(result.getSuccess());
+    assertEquals(ErrorConstants.USER_NOT_IN_GROUP, result.getErrorList().get(0));
+  }
+
+  @Test
+  void testGetLastVotingFailsIfGroupDoesNotExist() {
+    // and: a user that belong to a group
+    var group = random(Group.class);
+    var user =
+        User.builder()
+            .with(u -> u.setName("john"))
+            .with(u -> u.setGroups(Set.of(new UserGroup(new User(), group))))
+            .build();
+
+    // given: some mocked repositories
+    var votingRepository = mock(VotingRepository.class);
+    var userRepository = mock(UserRepository.class);
+    var groupRepository = mock(GroupRepository.class);
+
+    // and: mocked calls
+    when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
+    when(groupRepository.findById(any())).thenReturn(Optional.empty());
+    when(votingRepository.findByGroupOrderByCreatedAtDateTimeDesc(any()))
+        .thenReturn(Optional.empty());
+
+    // when: getting the last voting from a group
+    var votingService =
+        new DefaultVotingService(votingRepository, null, null, userRepository, groupRepository);
+    var input = GetLastVotingInput.newBuilder().with(i -> i.setCurrentUserId(user.getId())).build();
+    Result<Voting> result = votingService.getLastVotingByGroup(input);
+    System.out.println(result.getErrorList().get(0).getMessage());
+
+    // then: we should build an error
+    assertNotNull(result.getErrorList());
+    assertNull(result.getSuccess());
+    assertEquals(ErrorConstants.NOT_FOUND, result.getErrorList().get(0));
   }
 }

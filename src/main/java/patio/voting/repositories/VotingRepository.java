@@ -67,4 +67,12 @@ public interface VotingRepository extends PageableRepository<Voting, UUID> {
    */
   @Query("SELECT AVG(v.score) FROM Vote v WHERE v.voting = :voting")
   Integer findVoteAverage(Voting voting);
+
+  /**
+   * Finds the last voting that belongs to a group
+   *
+   * @param group the group to find the last voting from
+   * @return the last group's voting
+   */
+  Optional<Voting> findByGroupOrderByCreatedAtDateTimeDesc(Group group);
 }

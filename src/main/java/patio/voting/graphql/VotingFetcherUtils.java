@@ -116,6 +116,24 @@ final class VotingFetcherUtils {
   }
 
   /**
+   * Creates a {@link GetLastVotingInput} from the data coming from the {@link
+   * DataFetchingEnvironment}
+   *
+   * @param environment the GraphQL {@link DataFetchingEnvironment}
+   * @return an instance of {@link GetVotingInput}
+   */
+  /* default */ static GetLastVotingInput getLastVotingInput(DataFetchingEnvironment environment) {
+    UUID groupId = environment.getArgument("groupId");
+    Context ctx = environment.getContext();
+    User currentUser = ctx.getAuthenticatedUser();
+
+    return GetLastVotingInput.newBuilder()
+        .with(input -> input.setGroupId(groupId))
+        .with(input -> input.setCurrentUserId(currentUser.getId()))
+        .build();
+  }
+
+  /**
    * Creates a {@link UserVotesInGroupInput} from the data coming from the {@link
    * DataFetchingEnvironment}
    *

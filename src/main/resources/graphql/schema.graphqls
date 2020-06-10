@@ -90,6 +90,9 @@ type Query {
     # get voting by its id
     getVoting(id: ID!): Voting
 
+    # get last voting by group
+    getLastVotingByGroup(groupId: ID!): Voting
+
     # get user by its id
     getUser(id: ID!): User
 
