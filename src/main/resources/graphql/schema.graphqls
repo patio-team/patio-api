@@ -49,13 +49,18 @@ type User {
     hash: String
 }
 
+type VotePaginationResult {
+    data: [Vote]
+    total: Int
+}
+
 type Voting {
     id: ID,
     group: Group,
     createdAtDateTime: DateTime
     createdBy: User
     average: Float
-    votes: [Vote]
+    votes(offset: Int, max: Int): VotePaginationResult
 }
 
 type Vote {

@@ -19,6 +19,8 @@ package patio.voting.services.internal;
 
 import static patio.infrastructure.utils.OptionalUtils.combine;
 
+import io.micronaut.data.model.Page;
+import io.micronaut.data.model.Pageable;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -28,6 +30,8 @@ import java.util.stream.Collectors;
 import javax.inject.Singleton;
 import javax.transaction.Transactional;
 import patio.common.domain.utils.NotPresent;
+import patio.common.domain.utils.PaginationRequest;
+import patio.common.domain.utils.PaginationResult;
 import patio.common.domain.utils.Result;
 import patio.group.domain.Group;
 import patio.group.domain.UserGroup;
@@ -174,8 +178,15 @@ public class DefaultVotingService implements VotingService {
   }
 
   @Override
-  public List<Vote> listVotesVoting(UUID votingId) {
-    return voteRepository.findAllByVotingOrderByUser(votingId).collect(Collectors.toList());
+  public PaginationResult<Vote> listVotesVoting(UUID votingId, PaginationRequest pagination) {
+    var pageable = Pageable.from(pagination.getOffset(), pagination.getMax());
+    var votingOptional = votingRepository.findById(votingId);
+    var page =
+        votingOptional
+            .map(voting -> voteRepository.findByVotingOrderByCreatedBy(voting, pageable))
+            .orElse(Page.empty());
+
+    return PaginationResult.from(page.getContent(), page.getTotalSize());
   }
 
   @Override

@@ -22,6 +22,7 @@ import static org.hamcrest.Matchers.iterableWithSize;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static patio.infrastructure.utils.IterableUtils.iterableToStream;
 
+import io.micronaut.data.model.Pageable;
 import io.micronaut.test.annotation.MicronautTest;
 import java.util.List;
 import java.util.Optional;
@@ -97,8 +98,10 @@ public class VotingRepositoryTests {
     Iterable<User> userList1 = userRepository.findAllByIdInListOrderById(ids);
     Iterable<User> userList2 =
         voting.stream()
-            .map(Voting::getId)
-            .flatMap(voteRepository::findAllByVotingOrderByUser)
+            .flatMap(
+                v ->
+                    voteRepository.findByVotingOrderByCreatedBy(v, Pageable.from(0)).getContent()
+                        .stream())
             .map(Vote::getCreatedBy)
             .collect(Collectors.toList());
 

@@ -18,6 +18,8 @@
 package patio.voting.repositories;
 
 import io.micronaut.data.annotation.Query;
+import io.micronaut.data.model.Page;
+import io.micronaut.data.model.Pageable;
 import io.micronaut.data.repository.PageableRepository;
 import java.time.OffsetDateTime;
 import java.util.Optional;
@@ -69,8 +71,8 @@ public interface VoteRepository extends PageableRepository<Vote, UUID> {
    * Finds all votes of a given voting
    *
    * @param votingId the id of the voting to get the votes from
-   * @return a {@link Stream} of {@link Vote} instances from the given {@link Voting}
+   * @param pageable the information to paginate over the result set
+   * @return a paginated result of {@link Vote} instances from the given {@link Voting}
    */
-  @Query("SELECT v FROM Vote v JOIN v.voting vo WHERE vo.id = :votingId ORDER BY v.createdBy")
-  Stream<Vote> findAllByVotingOrderByUser(UUID votingId);
+  Page<Vote> findByVotingOrderByCreatedBy(Voting votingId, Pageable pageable);
 }

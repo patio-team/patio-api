@@ -19,6 +19,8 @@ package patio.voting.services;
 
 import java.util.List;
 import java.util.UUID;
+import patio.common.domain.utils.PaginationRequest;
+import patio.common.domain.utils.PaginationResult;
 import patio.common.domain.utils.Result;
 import patio.voting.domain.Vote;
 import patio.voting.domain.Voting;
@@ -69,10 +71,11 @@ public interface VotingService {
    * Gets the votes that belongs to a voting
    *
    * @param votingId The id of the {@link Voting}
-   * @return a list of {@link Vote} instances
+   * @param pagination how to paginate over the whole result set
+   * @return a {@link PaginationResult} of {@link Vote} instances
    * @since 0.1.0
    */
-  List<Vote> listVotesVoting(UUID votingId);
+  PaginationResult<Vote> listVotesVoting(UUID votingId, PaginationRequest pagination);
 
   /**
    * Get a specific voting
