@@ -516,7 +516,8 @@ public class VotingServiceTests {
 
     // and: mocked repository calls
     var voteRepository = Mockito.mock(VoteRepository.class);
-    when(voteRepository.findByVotingOrderByCreatedBy(any(Voting.class), any(Pageable.class)))
+    when(voteRepository.findByVotingOrderByCreatedAtDateTimeDesc(
+            any(Voting.class), any(Pageable.class)))
         .thenReturn(Page.of(voteList, Pageable.from(0), voteList.size()));
 
     var votingRepository = Mockito.mock(VotingRepository.class);
@@ -533,7 +534,7 @@ public class VotingServiceTests {
 
     // and: only one method has been called
     verify(voteRepository, times(1))
-        .findByVotingOrderByCreatedBy(any(Voting.class), any(Pageable.class));
+        .findByVotingOrderByCreatedAtDateTimeDesc(any(Voting.class), any(Pageable.class));
   }
 
   @Test

@@ -59,7 +59,7 @@ public class UserServiceTests {
   void testListUsersByIds() {
     // given: a mocked user repository
     var userRepository = Mockito.mock(UserRepository.class);
-    Mockito.when(userRepository.findAllByIdInListOrderById(anyListOf(UUID.class)))
+    Mockito.when(userRepository.findAllByIdInList(anyListOf(UUID.class)))
         .thenReturn(randomListOf(1, User.class));
 
     // when: invoking service listUsersByIds with some ids()

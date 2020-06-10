@@ -74,5 +74,5 @@ public interface VoteRepository extends PageableRepository<Vote, UUID> {
    * @param pageable the information to paginate over the result set
    * @return a paginated result of {@link Vote} instances from the given {@link Voting}
    */
-  Page<Vote> findByVotingOrderByCreatedBy(Voting votingId, Pageable pageable);
+  Page<Vote> findByVotingOrderByCreatedAtDateTimeDesc(Voting votingId, Pageable pageable);
 }

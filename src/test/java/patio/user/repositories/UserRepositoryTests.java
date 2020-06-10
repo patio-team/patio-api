@@ -78,7 +78,7 @@ class UserRepositoryTests {
     UUID tony = UUID.fromString("3465094c-5545-4007-a7bc-da2b1a88d9dc");
 
     // when: asking for the list of specific users
-    Iterable<User> userList = repository.findAllByIdInListOrderById(List.of(sue, tony));
+    Iterable<User> userList = repository.findAllByIdInList(List.of(sue, tony));
     List<UUID> ids = iterableToStream(userList).map(User::getId).collect(Collectors.toList());
 
     // then: check there're the expected number of users

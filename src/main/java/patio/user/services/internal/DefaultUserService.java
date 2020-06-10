@@ -17,9 +17,11 @@
  */
 package patio.user.services.internal;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import javax.inject.Singleton;
 import javax.transaction.Transactional;
 import patio.user.domain.User;
@@ -59,6 +61,10 @@ public class DefaultUserService implements UserService {
 
   @Override
   public Iterable<User> listUsersByIds(List<UUID> ids) {
-    return userRepository.findAllByIdInListOrderById(ids);
+    Comparator<User> comparator = Comparator.comparing((User user) -> ids.indexOf(user.getId()));
+
+    return userRepository.findAllByIdInList(ids).stream()
+        .sorted(comparator)
+        .collect(Collectors.toList());
   }
 }

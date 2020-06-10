@@ -183,7 +183,8 @@ public class DefaultVotingService implements VotingService {
     var votingOptional = votingRepository.findById(votingId);
     var page =
         votingOptional
-            .map(voting -> voteRepository.findByVotingOrderByCreatedBy(voting, pageable))
+            .map(
+                voting -> voteRepository.findByVotingOrderByCreatedAtDateTimeDesc(voting, pageable))
             .orElse(Page.empty());
 
     return PaginationResult.from(page.getContent(), page.getTotalSize());
