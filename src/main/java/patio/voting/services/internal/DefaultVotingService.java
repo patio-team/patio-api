@@ -55,6 +55,7 @@ import patio.voting.graphql.VotingStatsInput;
 import patio.voting.repositories.VoteRepository;
 import patio.voting.repositories.VotingRepository;
 import patio.voting.services.VotingService;
+import patio.voting.services.VotingStatsService;
 
 /**
  * Business logic regarding {@link Group} domain
@@ -64,11 +65,9 @@ import patio.voting.services.VotingService;
 @Singleton
 @Transactional
 public class DefaultVotingService implements VotingService {
-  public static final String MOOD = "mood";
-  public static final String COUNT = "count";
-
   private final transient VotingRepository votingRepository;
   private final transient VoteRepository voteRepository;
+  private final transient VotingStatsService votingStatsService;
   private final transient UserGroupRepository userGroupRepository;
   private final transient UserRepository userRepository;
   private final transient GroupRepository groupRepository;
@@ -78,6 +77,7 @@ public class DefaultVotingService implements VotingService {
    *
    * @param votingRepository an instance of {@link VotingRepository}
    * @param voteRepository an instance of {@link VoteRepository}
+   * @param votingStatsService an instance of {@link VotingStatsService}
    * @param userGroupRepository an instance of {@link UserGroupRepository}
    * @param userRepository an instance of {@link UserRepository}
    * @param groupRepository an instance of {@link GroupRepository}
@@ -86,11 +86,13 @@ public class DefaultVotingService implements VotingService {
   public DefaultVotingService(
       VotingRepository votingRepository,
       VoteRepository voteRepository,
+      VotingStatsService votingStatsService,
       UserGroupRepository userGroupRepository,
       UserRepository userRepository,
       GroupRepository groupRepository) {
     this.votingRepository = votingRepository;
     this.voteRepository = voteRepository;
+    this.votingStatsService = votingStatsService;
     this.userGroupRepository = userGroupRepository;
     this.userRepository = userRepository;
     this.groupRepository = groupRepository;
@@ -144,7 +146,11 @@ public class DefaultVotingService implements VotingService {
         .thenCheck(() -> userIsInGroup.check(user, group))
         .thenCheck(() -> anonymousAllowed.check(input.isAnonymous(), isGroupAnonymous))
         .then(createVote(voting, user, input))
-        .sideEffect(v -> updateVotingAverage(v.getVoting()));
+        .sideEffect(
+            (v) -> {
+              updateVotingAverage(v.getVoting());
+              votingStatsService.updateMovingAverage(v.getVoting());
+            });
   }
 
   private Supplier<Vote> createVote(
@@ -165,7 +171,7 @@ public class DefaultVotingService implements VotingService {
   }
 
   private void updateVotingAverage(Voting voting) {
-    voting.setAverage(voteRepository.findAvgScoreByVoting(voting));
+    voting.getStats().setAverage(voteRepository.findAvgScoreByVoting(voting));
     votingRepository.update(voting);
   }
 
@@ -262,6 +268,8 @@ public class DefaultVotingService implements VotingService {
 
     var voteCountByVoting = optionalVoting.map(voteRepository::getVoteCountByVoting).orElse(0L);
     var voteCountAverage = optionalVoting.map(votingRepository::getAvgVoteCountByVoting).orElse(0L);
+    var votingAverage = optionalVoting.map((voting) -> voting.getStats().getAverage());
+    var votingMovingAverage = optionalVoting.map((voting) -> voting.getStats().getMovingAverage());
 
     Map<String, Object> fakedVotingStats =
         Map.of(
@@ -272,7 +280,11 @@ public class DefaultVotingService implements VotingService {
             "voteCount",
             voteCountByVoting,
             "voteCountAverage",
-            voteCountAverage);
+            voteCountAverage,
+            "average",
+            votingAverage,
+            "movingAverage",
+            votingMovingAverage);
 
     return Result.result(fakedVotingStats);
   }

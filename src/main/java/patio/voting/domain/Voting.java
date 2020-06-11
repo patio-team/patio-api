@@ -21,6 +21,7 @@ import io.micronaut.data.annotation.DateCreated;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -28,6 +29,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import patio.common.domain.utils.Builder;
 import patio.group.domain.Group;
@@ -59,7 +61,9 @@ public final class Voting {
   @OneToMany(mappedBy = "voting")
   private List<Vote> votes;
 
-  private Float average;
+  @OneToOne(cascade = CascadeType.ALL)
+  @JoinColumn(name = "voting_stats_id", referencedColumnName = "id")
+  private VotingStats stats;
 
   /**
    * Creates a new fluent builder to build instances of type {@link Voting}
@@ -152,26 +156,6 @@ public final class Voting {
   }
 
   /**
-   * Returns the voting's average
-   *
-   * @return the voting's average
-   * @since 0.1.0
-   */
-  public Float getAverage() {
-    return average;
-  }
-
-  /**
-   * Sets the voting average
-   *
-   * @param average the voting average
-   * @since 0.1.0
-   */
-  public void setAverage(Float average) {
-    this.average = average;
-  }
-
-  /**
    * Returns all votes which belong to this voting
    *
    * @return all the votes of this voting
@@ -187,5 +171,23 @@ public final class Voting {
    */
   public void setVotes(List<Vote> votes) {
     this.votes = votes;
+  }
+
+  /**
+   * Returns all statistics which belong to this voting
+   *
+   * @return the stats of this voting
+   */
+  public VotingStats getStats() {
+    return stats;
+  }
+
+  /**
+   * Sets the statistics of this voting
+   *
+   * @param votingStats the statistics of this voting
+   */
+  public void setStats(VotingStats votingStats) {
+    this.stats = votingStats;
   }
 }

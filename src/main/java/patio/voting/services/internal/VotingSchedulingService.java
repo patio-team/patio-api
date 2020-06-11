@@ -44,6 +44,7 @@ import patio.user.domain.User;
 import patio.voting.domain.Voting;
 import patio.voting.repositories.VotingRepository;
 import patio.voting.services.VotingScheduling;
+import patio.voting.services.VotingStatsService;
 
 /**
  * Default implementation to create new voting and send notifications to their members
@@ -58,6 +59,7 @@ public class VotingSchedulingService implements VotingScheduling {
   private final transient String votingUrl;
   private final transient GroupRepository groupRepository;
   private final transient VotingRepository votingRepository;
+  private final transient VotingStatsService votingStatsService;
   private final transient EmailComposerService emailComposerService;
   private final transient EmailService emailService;
   private final transient URLResolverService urlResolverService;
@@ -69,6 +71,7 @@ public class VotingSchedulingService implements VotingScheduling {
    * @param votingUrl to get the link from configuration
    * @param groupRepository to be able to get group details
    * @param votingRepository to be able to create a new {@link Voting}
+   * @param votingStatsService to be able to create a new {@link VotingStatsService}
    * @param emailComposerService service to compose the {@link Email} notifications
    * @param emailService to be able to send notifications to group members
    * @param urlResolverService to resolve possible link urls for emails
@@ -78,12 +81,14 @@ public class VotingSchedulingService implements VotingScheduling {
       @Value("${front.urls.voting:none}") String votingUrl,
       GroupRepository groupRepository,
       VotingRepository votingRepository,
+      VotingStatsService votingStatsService,
       EmailComposerService emailComposerService,
       EmailService emailService,
       URLResolverService urlResolverService) {
     this.votingUrl = votingUrl;
     this.groupRepository = groupRepository;
     this.votingRepository = votingRepository;
+    this.votingStatsService = votingStatsService;
     this.emailComposerService = emailComposerService;
     this.emailService = emailService;
     this.urlResolverService = urlResolverService;
@@ -98,7 +103,13 @@ public class VotingSchedulingService implements VotingScheduling {
   @Transactional
   /* default */ void checkVoting() {
     LOG.info("checking voting creation");
-    this.findAllToCreateVotingFrom().map(this::createVoting).forEach(this::notifyMembers);
+    this.findAllToCreateVotingFrom()
+        .map(
+            (group) -> {
+              var voting = this.createVoting(group);
+              return voting;
+            })
+        .forEach(this::notifyMembers);
   }
 
   private Stream<Group> findAllToCreateVotingFrom() {
@@ -127,6 +138,8 @@ public class VotingSchedulingService implements VotingScheduling {
             .build();
 
     Voting savedVoting = votingRepository.save(voting);
+
+    votingStatsService.createVotingStat(savedVoting);
 
     LOG.info(String.format("created voting %s", savedVoting.getId()));
     return voting;

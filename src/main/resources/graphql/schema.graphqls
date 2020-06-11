@@ -60,10 +60,9 @@ type Voting {
     group: Group,
     createdAtDateTime: DateTime
     createdBy: User
-    average: Float
+    stats: VotingStats
     votes(page: Int, max: Int): VotePaginationResult
     didIVote: Boolean
-    stats: VotingStats
 }
 
 type VotingStats {
@@ -71,6 +70,8 @@ type VotingStats {
     maxVoteCountExpected: Int
     voteCount: Int
     voteCountAverage: Float
+    average: Float
+    movingAverage: Float
 }
 
 type VotesByMood {

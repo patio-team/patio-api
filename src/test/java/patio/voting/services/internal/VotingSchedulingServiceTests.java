@@ -42,6 +42,7 @@ import patio.user.domain.User;
 import patio.user.repositories.UserRepository;
 import patio.voting.domain.Voting;
 import patio.voting.repositories.VotingRepository;
+import patio.voting.services.VotingStatsService;
 
 public class VotingSchedulingServiceTests {
 
@@ -51,6 +52,7 @@ public class VotingSchedulingServiceTests {
     // given: mocked services
     var groupRepository = Mockito.mock(GroupRepository.class);
     var votingRepository = Mockito.mock(VotingRepository.class);
+    var votingStatsService = Mockito.mock(VotingStatsService.class);
     var emailComposerService = Mockito.mock(EmailComposerService.class);
     var emailService = Mockito.mock(EmailService.class);
     var urlResolverService = Mockito.mock(URLResolverService.class);
@@ -89,6 +91,7 @@ public class VotingSchedulingServiceTests {
             "/groups/{0}/votings/{1}/vote",
             groupRepository,
             votingRepository,
+            votingStatsService,
             emailComposerService,
             emailService,
             urlResolverService);
@@ -103,6 +106,9 @@ public class VotingSchedulingServiceTests {
 
     // and: takes each group details
     verify(votingRepository, times(1)).save(any());
+
+    // and voting statistics are initialized
+    verify(votingStatsService, times(1)).createVotingStat(any());
 
     // and: composes an email for each user
     verify(emailComposerService, atLeast(4)).getMessage(any());

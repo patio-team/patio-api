@@ -30,7 +30,8 @@ INSERT INTO users_groups (group_id, user_id, is_admin) VALUES ('d64db962-3455-11
 INSERT INTO users_groups (group_id, user_id, is_admin) VALUES ('d64db962-3455-11e9-b210-d663bd873d93','1998c588-d93b-4db6-92e2-a9dbb4cf03b5', 'f');
 INSERT INTO users_groups (group_id, user_id, is_admin) VALUES ('d64db962-3455-11e9-b210-d663bd873d93','3465094c-5545-4007-a7bc-da2b1a88d9dc', 'f');
 
-INSERT INTO voting (id, group_id, created_at, created_by, average) VALUES ('7772e35c-5a87-4ba3-ab93-da8a957037fd', 'd64db962-3455-11e9-b210-d663bd873d93', '2020-05-04T10:15:30+01:00', '486590a3-fcc1-4657-a9ed-5f0f95dadea6', 3);
+INSERT INTO voting (id, group_id, voting_stats_id, created_at, created_by) VALUES ('7772e35c-5a87-4ba3-ab93-da8a957037fd', 'd64db962-3455-11e9-b210-d663bd873d93', 'b3576bc7-2cb4-4680-9445-bda0bc615238', '2020-05-04T10:15:30+01:00', '486590a3-fcc1-4657-a9ed-5f0f95dadea6');
+INSERT INTO voting_stats (id, voting_id, created_at, average) VALUES ('b3576bc7-2cb4-4680-9445-bda0bc615238', '7772e35c-5a87-4ba3-ab93-da8a957037fd', now(), 3);
 INSERT INTO vote (id, voting_id, created_at, created_by, comment, score) VALUES ('c6d28e58-fffa-40be-b84a-2eb62d0c04e9', '7772e35c-5a87-4ba3-ab93-da8a957037fd', now() - interval '5 day', '486590a3-fcc1-4657-a9ed-5f0f95dadea6', 'Ut numquam tempora velit sit.', 3);
 INSERT INTO vote (id, voting_id, created_at, created_by, comment, score) VALUES ('d246d65c-be84-4140-85e1-9cf495523727', '7772e35c-5a87-4ba3-ab93-da8a957037fd', now() - interval '4 day', 'c2a771bc-f8c5-4112-a440-c80fa4c8e382', 'Ut sit labore eius.', 3);
 INSERT INTO vote (id, voting_id, created_at, created_by, comment, score) VALUES ('d246d65c-be84-4140-85e1-9cf495523728', '7772e35c-5a87-4ba3-ab93-da8a957037fd', now() - interval '3 day', '84d48a35-7659-4710-ad13-4c47785a0e9d', 'Ut sit labore eius.', 3);

@@ -19,6 +19,7 @@ package patio.voting.services;
 
 import static io.github.benas.randombeans.api.EnhancedRandom.random;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -94,7 +95,7 @@ public class VotingServiceTests {
 
     // when: invoking the service
     var votingService =
-        new DefaultVotingService(votingRepository, null, userGroupRepository, null, null);
+        new DefaultVotingService(votingRepository, null, null, userGroupRepository, null, null);
     var votingInput =
         CreateVotingInput.newBuilder().withUserId(user.getId()).withGroupId(group.getId()).build();
     var votingResult = votingService.createVoting(votingInput);
@@ -138,6 +139,7 @@ public class VotingServiceTests {
     // and: mocked repository calls
     var userRepository = Mockito.mock(UserRepository.class);
     var votingRepository = Mockito.mock(VotingRepository.class);
+    var votingStatsService = Mockito.mock(VotingStatsService.class);
     var voteRepository = Mockito.mock(VoteRepository.class);
 
     // and: there're user and voting available
@@ -147,12 +149,16 @@ public class VotingServiceTests {
 
     // when: invoking the service
     var votingService =
-        new DefaultVotingService(votingRepository, voteRepository, null, userRepository, null);
+        new DefaultVotingService(
+            votingRepository, voteRepository, votingStatsService, null, userRepository, null);
 
     Result<Vote> vote = votingService.createVote(input);
 
     // then: vote has been created
     assertNotNull(vote.getSuccess(), "Successfully created vote");
+
+    // and voting statistics are updated
+    verify(votingStatsService, times(1)).updateMovingAverage(any());
 
     // and: all checkers have been called plus the creation
     verify(userRepository, times(1)).findById(any());
@@ -168,6 +174,7 @@ public class VotingServiceTests {
     var user = random(User.class);
 
     // and: some mocked repositories
+    var votingStatsService = Mockito.mock(VotingStatsService.class);
     var votingRepository = mock(VotingRepository.class);
     when(votingRepository.save(any(Voting.class))).thenReturn(random(Voting.class));
 
@@ -176,7 +183,8 @@ public class VotingServiceTests {
 
     // when: invoking the service
     var votingService =
-        new DefaultVotingService(votingRepository, null, userGroupRepository, null, null);
+        new DefaultVotingService(
+            votingRepository, null, votingStatsService, userGroupRepository, null, null);
     var votingInput =
         CreateVotingInput.newBuilder().withUserId(user.getId()).withGroupId(group.getId()).build();
     var votingResult = votingService.createVoting(votingInput);
@@ -190,6 +198,9 @@ public class VotingServiceTests {
 
     // and: that the voting repository creation is NOT invoked
     verify(votingRepository, times(0)).save(any(Voting.class));
+
+    // and no voting statistics are updated
+    verify(votingStatsService, times(0)).updateMovingAverage(any());
   }
 
   @Test
@@ -209,6 +220,7 @@ public class VotingServiceTests {
     // and: mocked repository calls
     var votingRepository = Mockito.mock(VotingRepository.class);
     var voteRepository = Mockito.mock(VoteRepository.class);
+    var votingStatsService = Mockito.mock(VotingStatsService.class);
     var userRepository = Mockito.mock(UserRepository.class);
     var previousVote = Optional.of(Vote.newBuilder().build());
 
@@ -221,13 +233,17 @@ public class VotingServiceTests {
 
     // when: invoking the vote creation
     var votingService =
-        new DefaultVotingService(votingRepository, voteRepository, null, userRepository, null);
+        new DefaultVotingService(
+            votingRepository, voteRepository, votingStatsService, null, userRepository, null);
     Result<Vote> vote = votingService.createVote(input);
 
     // then: vote can't be created
     assertNull(vote.getSuccess(), "No vote");
     assertEquals(1, vote.getErrorList().size(), "There is one error");
     assertEquals(ErrorConstants.USER_ALREADY_VOTE.getCode(), vote.getErrorList().get(0).getCode());
+
+    // and no voting statistics are updated
+    verify(votingStatsService, times(0)).updateMovingAverage(any());
 
     // and: just one checker has been called an no vote has been created
     verify(voteRepository, times(1)).findByCreatedByAndVoting(any(), any());
@@ -251,6 +267,7 @@ public class VotingServiceTests {
     // and: mocked repository calls
     var userRepository = Mockito.mock(UserRepository.class);
     var voteRepository = Mockito.mock(VoteRepository.class);
+    var votingStatsService = Mockito.mock(VotingStatsService.class);
     var votingRepository = Mockito.mock(VotingRepository.class);
     var voting =
         Voting.newBuilder()
@@ -266,13 +283,17 @@ public class VotingServiceTests {
 
     // when: invoking the vote creation
     var votingService =
-        new DefaultVotingService(votingRepository, voteRepository, null, userRepository, null);
+        new DefaultVotingService(
+            votingRepository, voteRepository, votingStatsService, null, userRepository, null);
     Result<Vote> vote = votingService.createVote(input);
 
     // then: vote can't be created
     assertNull(vote.getSuccess(), "No vote");
     assertEquals(1, vote.getErrorList().size(), "There is one error");
     assertEquals(ErrorConstants.VOTING_HAS_EXPIRED.getCode(), vote.getErrorList().get(0).getCode());
+
+    // and no voting statistics are updated
+    verify(votingStatsService, times(0)).updateMovingAverage(any());
 
     // and: just two checker has been called an no vote has been created
     verify(userRepository, times(1)).findById(any(UUID.class));
@@ -298,6 +319,7 @@ public class VotingServiceTests {
     // and: mocked repository calls
     var userRepository = Mockito.mock(UserRepository.class);
     var votingRepository = Mockito.mock(VotingRepository.class);
+    var votingStatsService = Mockito.mock(VotingStatsService.class);
     var voteRepository = Mockito.mock(VoteRepository.class);
 
     var validGroup = new Group();
@@ -318,13 +340,17 @@ public class VotingServiceTests {
 
     // when: invoking the vote creation
     var votingService =
-        new DefaultVotingService(votingRepository, voteRepository, null, userRepository, null);
+        new DefaultVotingService(
+            votingRepository, voteRepository, votingStatsService, null, userRepository, null);
     Result<Vote> vote = votingService.createVote(input);
 
     // then: vote can't be created
     assertNull(vote.getSuccess(), "No vote");
     assertEquals(1, vote.getErrorList().size(), "There is one error");
     assertEquals(ErrorConstants.USER_NOT_IN_GROUP.getCode(), vote.getErrorList().get(0).getCode());
+
+    // and no voting statistics are updated
+    verify(votingStatsService, times(0)).updateMovingAverage(any());
 
     // and: three checkers has been called an no vote has been created
     verify(userRepository, times(1)).findById(any(UUID.class));
@@ -349,6 +375,7 @@ public class VotingServiceTests {
     // and: mocked repository calls
     var userRepository = Mockito.mock(UserRepository.class);
     var voteRepository = Mockito.mock(VoteRepository.class);
+    var votingStatsService = Mockito.mock(VotingStatsService.class);
     var votingRepository = Mockito.mock(VotingRepository.class);
 
     // and: there're user and voting available
@@ -357,7 +384,8 @@ public class VotingServiceTests {
 
     // when: invoking the vote creation
     var votingService =
-        new DefaultVotingService(votingRepository, voteRepository, null, userRepository, null);
+        new DefaultVotingService(
+            votingRepository, voteRepository, votingStatsService, null, userRepository, null);
     Result<Vote> vote = votingService.createVote(input);
 
     // then: vote can't be created
@@ -369,6 +397,9 @@ public class VotingServiceTests {
     verify(userRepository, times(1)).findById(any(UUID.class));
     verify(votingRepository, times(1)).findById(any(UUID.class));
     verify(voteRepository, times(0)).save(any(Vote.class));
+
+    // and no voting statistics are updated
+    verify(votingStatsService, times(0)).updateMovingAverage(any());
   }
 
   private static Stream<Integer> testCreateVoteFailBecauseInvalidScoreDataProvider() {
@@ -393,6 +424,7 @@ public class VotingServiceTests {
     // and: mocked repository calls
     var userRepository = Mockito.mock(UserRepository.class);
     var votingRepository = Mockito.mock(VotingRepository.class);
+    var votingStatsService = Mockito.mock(VotingStatsService.class);
     var voteRepository = Mockito.mock(VoteRepository.class);
 
     var validGroup = Group.builder().with(g -> g.setAnonymousVote(groupAnonymous)).build();
@@ -414,7 +446,8 @@ public class VotingServiceTests {
 
     // when: invoking the vote creation
     var votingService =
-        new DefaultVotingService(votingRepository, voteRepository, null, userRepository, null);
+        new DefaultVotingService(
+            votingRepository, voteRepository, votingStatsService, null, userRepository, null);
     Result<Vote> vote = votingService.createVote(input);
 
     // then:
@@ -443,6 +476,7 @@ public class VotingServiceTests {
 
     // and: mocked repository calls
     var votingRepository = Mockito.mock(VotingRepository.class);
+    var votingStatsService = Mockito.mock(VotingStatsService.class);
     var groupRepository = Mockito.mock(GroupRepository.class);
 
     when(groupRepository.findById(any(UUID.class))).thenReturn(Optional.of(new Group()));
@@ -451,7 +485,8 @@ public class VotingServiceTests {
 
     // when: invoking the voting listing
     var votingService =
-        new DefaultVotingService(votingRepository, null, null, null, groupRepository);
+        new DefaultVotingService(
+            votingRepository, null, votingStatsService, null, null, groupRepository);
     List<Voting> votings = votingService.listVotingsGroup(input);
 
     // then: the votings are returned
@@ -462,6 +497,7 @@ public class VotingServiceTests {
   void testGetVoting() {
     // given: a mocked voting repository
     var votingRepository = mock(VotingRepository.class);
+    var votingStatsService = Mockito.mock(VotingStatsService.class);
     var userRepository = mock(UserRepository.class);
 
     // and: mocked calls
@@ -472,7 +508,8 @@ public class VotingServiceTests {
 
     // when: getting a voting by id
     var votingService =
-        new DefaultVotingService(votingRepository, null, null, userRepository, null);
+        new DefaultVotingService(
+            votingRepository, null, votingStatsService, null, userRepository, null);
     var input =
         GetVotingInput.newBuilder()
             .withCurrentUserId(UUID.randomUUID())
@@ -488,6 +525,7 @@ public class VotingServiceTests {
   void testGetVotingFailIfVotingDoesntExists() {
     // given: a mocked voting repository
     var votingRepository = mock(VotingRepository.class);
+    var votingStatsService = Mockito.mock(VotingStatsService.class);
     var userRepository = mock(UserRepository.class);
 
     when(userRepository.findById(any(UUID.class))).thenReturn(Optional.of(new User()));
@@ -495,7 +533,8 @@ public class VotingServiceTests {
 
     // when: getting a voting by id
     var votingService =
-        new DefaultVotingService(votingRepository, null, null, userRepository, null);
+        new DefaultVotingService(
+            votingRepository, null, votingStatsService, null, userRepository, null);
     var input =
         GetVotingInput.newBuilder()
             .withCurrentUserId(UUID.randomUUID())
@@ -525,9 +564,12 @@ public class VotingServiceTests {
     var votingRepository = Mockito.mock(VotingRepository.class);
     when(votingRepository.findById(any(UUID.class))).thenReturn(Optional.of(random(Voting.class)));
 
+    var votingStatsService = Mockito.mock(VotingStatsService.class);
+
     // when: invoking the vote listing
     var votingService =
-        new DefaultVotingService(votingRepository, voteRepository, null, null, null);
+        new DefaultVotingService(
+            votingRepository, voteRepository, votingStatsService, null, null, null);
     var paginatedVotes =
         votingService.listVotesVoting(UUID.randomUUID(), PaginationRequest.from(10, 0));
 
@@ -553,6 +595,7 @@ public class VotingServiceTests {
 
     // given: some mocked repositories
     var votingRepository = mock(VotingRepository.class);
+    var votingStatsService = Mockito.mock(VotingStatsService.class);
     var userRepository = mock(UserRepository.class);
     var groupRepository = mock(GroupRepository.class);
 
@@ -564,7 +607,8 @@ public class VotingServiceTests {
 
     // when: getting the last voting from a group
     var votingService =
-        new DefaultVotingService(votingRepository, null, null, userRepository, groupRepository);
+        new DefaultVotingService(
+            votingRepository, null, votingStatsService, null, userRepository, groupRepository);
     var input =
         GetLastVotingInput.newBuilder()
             .with(i -> i.setCurrentUserId(user.getId()))
@@ -592,6 +636,7 @@ public class VotingServiceTests {
 
     // given: some mocked repositories
     var votingRepository = mock(VotingRepository.class);
+    var votingStatsService = Mockito.mock(VotingStatsService.class);
     var userRepository = mock(UserRepository.class);
     var groupRepository = mock(GroupRepository.class);
 
@@ -601,7 +646,8 @@ public class VotingServiceTests {
 
     // when: getting the last voting from a group
     var votingService =
-        new DefaultVotingService(votingRepository, null, null, userRepository, groupRepository);
+        new DefaultVotingService(
+            votingRepository, null, votingStatsService, null, userRepository, groupRepository);
     var input =
         GetLastVotingInput.newBuilder()
             .with(i -> i.setCurrentUserId(user.getId()))
@@ -627,6 +673,7 @@ public class VotingServiceTests {
 
     // given: some mocked repositories
     var votingRepository = mock(VotingRepository.class);
+    var votingStatsService = Mockito.mock(VotingStatsService.class);
     var userRepository = mock(UserRepository.class);
     var groupRepository = mock(GroupRepository.class);
 
@@ -638,7 +685,8 @@ public class VotingServiceTests {
 
     // when: getting the last voting from a group
     var votingService =
-        new DefaultVotingService(votingRepository, null, null, userRepository, groupRepository);
+        new DefaultVotingService(
+            votingRepository, null, votingStatsService, null, userRepository, groupRepository);
     var input = GetLastVotingInput.newBuilder().with(i -> i.setCurrentUserId(user.getId())).build();
     Result<Voting> result = votingService.getLastVotingByGroup(input);
     System.out.println(result.getErrorList().get(0).getMessage());
@@ -660,10 +708,13 @@ public class VotingServiceTests {
     when(voteRepository.findByCreatedByAndVoting(any(User.class), any(Voting.class)))
         .thenReturn(Optional.ofNullable(vote));
 
+    var votingStatsService = Mockito.mock(VotingStatsService.class);
+
     var user = random(User.class);
     var votingId = UUID.randomUUID();
     var votingService =
-        new DefaultVotingService(votingRepository, voteRepository, null, null, null);
+        new DefaultVotingService(
+            votingRepository, voteRepository, votingStatsService, null, null, null);
 
     Result<Boolean> didUserVote = votingService.didUserVotedInVoting(user, votingId);
 
@@ -686,7 +737,7 @@ public class VotingServiceTests {
     when(voteRepository.getMaxExpectedVoteCountByVoting(any(Voting.class))).thenReturn(16L);
 
     var votingService =
-        new DefaultVotingService(votingRepository, voteRepository, null, null, null);
+        new DefaultVotingService(votingRepository, voteRepository, null, null, null, null);
     var input =
         VotingStatsInput.builder().with(inner -> inner.setVotingId(UUID.randomUUID())).build();
     var result = votingService.getVotingStats(input);
@@ -696,5 +747,7 @@ public class VotingServiceTests {
     assertEquals(stats.get("maxVoteCountExpected"), 16L);
     assertEquals(stats.get("voteCount"), 8L);
     assertEquals(stats.get("voteCountAverage"), 4L);
+    assertNotEquals(stats.get("average"), null);
+    assertNotEquals(stats.get("movingAverage"), null);
   }
 }
