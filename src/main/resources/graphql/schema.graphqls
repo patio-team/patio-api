@@ -60,7 +60,7 @@ type Voting {
     createdAtDateTime: DateTime
     createdBy: User
     average: Float
-    votes(offset: Int, max: Int): VotePaginationResult
+    votes(page: Int, max: Int): VotePaginationResult
 }
 
 type Vote {
@@ -88,6 +88,9 @@ type Login {
 type Query {
     # get groups of the current user
     listMyGroups: [Group]
+
+    # get the favourite group of the user
+    getMyFavouriteGroup: Group
 
     # get group by its id
     getGroup(id: ID!): Group

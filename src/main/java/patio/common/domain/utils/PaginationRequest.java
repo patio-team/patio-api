@@ -25,23 +25,23 @@ package patio.common.domain.utils;
 public final class PaginationRequest {
 
   private final int max;
-  private final int offset;
+  private final int page;
 
-  private PaginationRequest(int max, int offset) {
+  private PaginationRequest(int max, int page) {
     this.max = max;
-    this.offset = offset;
+    this.page = page;
   }
 
   /**
-   * Creates a new instance of {@link PaginationRequest} from an max limit and the offset where the
+   * Creates a new instance of {@link PaginationRequest} from an max limit and the page where the
    * pagination begins
    *
    * @param max the maximum number of elements to show
-   * @param offset where to begin to count the elements to show
+   * @param page where to begin to count the elements to show
    * @return an instance of {@link PaginationRequest}
    */
-  public static PaginationRequest from(int max, int offset) {
-    return new PaginationRequest(max, offset);
+  public static PaginationRequest from(int max, int page) {
+    return new PaginationRequest(max, page);
   }
 
   /**
@@ -58,7 +58,7 @@ public final class PaginationRequest {
    *
    * @return where to start counting the elements to show
    */
-  public int getOffset() {
-    return offset;
+  public int getPage() {
+    return page;
   }
 }

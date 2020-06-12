@@ -179,7 +179,7 @@ public class DefaultVotingService implements VotingService {
 
   @Override
   public PaginationResult<Vote> listVotesVoting(UUID votingId, PaginationRequest pagination) {
-    var pageable = Pageable.from(pagination.getOffset(), pagination.getMax());
+    var pageable = Pageable.from(pagination.getPage(), pagination.getMax());
     var votingOptional = votingRepository.findById(votingId);
     var page =
         votingOptional

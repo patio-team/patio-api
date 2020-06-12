@@ -40,9 +40,9 @@ public final class ArgumentUtils {
    */
   @SuppressWarnings("PMD.ConfusingTernary")
   public static PaginationRequest extractPaginationFrom(DataFetchingEnvironment env) {
-    Integer offset = env.getArgument("offset");
+    Integer page = env.getArgument("page");
     Integer max = env.getArgument("max");
 
-    return PaginationRequest.from(max != null ? max : 20, offset != null ? offset : 0);
+    return PaginationRequest.from(max != null ? max : 20, page != null ? page : 0);
   }
 }

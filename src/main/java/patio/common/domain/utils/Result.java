@@ -215,4 +215,16 @@ public class Result<T> {
   public static <T> Result<T> error(String code, String message) {
     return new Result<T>(null, List.of(new Error(code, message)));
   }
+
+  /**
+   * Creates an {@link Optional} object to a {@link Result}
+   *
+   * @param optional the optional object
+   * @param error the error in case the optional object is empty
+   * @param <A> the type of the {@link Result}
+   * @return an instance of {@link Result} type
+   */
+  public static <A> Result<A> from(Optional<A> optional, Error error) {
+    return optional.map(Result::result).orElse(Result.error(error));
+  }
 }

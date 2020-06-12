@@ -124,4 +124,16 @@ public class GroupFetcher {
     GetGroupInput input = GroupFetcherUtils.getGroupInput(env);
     return ResultUtils.render(service.getGroup(input));
   }
+
+  /**
+   * Returns the user's favourite group
+   *
+   * @param env GraphQL execution environment
+   * @return the user's favourite {@link Group}
+   */
+  public DataFetcherResult<Group> getMyFavouriteGroup(DataFetchingEnvironment env) {
+    Context ctx = env.getContext();
+    User currentUser = ctx.getAuthenticatedUser();
+    return ResultUtils.render(service.getMyFavouriteGroup(currentUser.getId()));
+  }
 }

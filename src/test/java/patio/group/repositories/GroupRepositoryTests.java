@@ -17,11 +17,13 @@
  */
 package patio.group.repositories;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import io.micronaut.test.annotation.MicronautTest;
 import java.time.OffsetDateTime;
 import java.time.OffsetTime;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Predicate;
 import javax.inject.Inject;
@@ -102,5 +104,21 @@ public class GroupRepositoryTests {
 
   private Predicate<UUID> thisUUID(UUID uuid) {
     return uuid::equals;
+  }
+
+  @Test
+  void testFindFavouriteGroup() {
+    // given: a set of fixtures
+    fixtures.load(GroupRepositoryTests.class, "testFindFavouriteGroup.sql");
+
+    UUID userId = UUID.fromString("486590a3-fcc1-4657-a9ed-5f0f95dadea6");
+    UUID expectedGroupId = UUID.fromString("d64db962-3455-11e9-b210-d663bd873d94");
+
+    // when: asking for the user's favourite group
+    Optional<Group> favouriteGroup = repository.findMyFavouriteGroupByUserId(userId);
+
+    // then: we should get the expected group
+    assertTrue(favouriteGroup.isPresent());
+    assertEquals(favouriteGroup.get().getId(), expectedGroupId);
   }
 }
