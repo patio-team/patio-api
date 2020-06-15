@@ -33,7 +33,7 @@ public interface UserRepository extends PageableRepository<User, UUID> {
    * @param ids list of ids of the {@link User} instances to get
    * @return a list of {@link User} instances
    */
-  Iterable<User> findAllByIdInListOrderById(List<UUID> ids);
+  List<User> findAllByIdInList(List<UUID> ids);
 
   /**
    * Finds all users of a given {@link Group}

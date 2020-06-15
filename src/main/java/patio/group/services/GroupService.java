@@ -74,4 +74,13 @@ public interface GroupService {
    * @since 0.1.0
    */
   Result<Group> getGroup(GetGroupInput input);
+
+  /**
+   * Gets the user's favourite {@link Group}
+   *
+   * @param userId the id of the user who wants to get its favourite group
+   * @return a {@link Result} of type {@link Group}
+   * @see Group
+   */
+  Result<Group> getMyFavouriteGroup(UUID userId);
 }

@@ -38,6 +38,8 @@ import org.dataloader.DataLoaderOptions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import patio.common.domain.utils.PaginationRequest;
+import patio.common.domain.utils.PaginationResult;
 import patio.common.domain.utils.Result;
 import patio.group.domain.Group;
 import patio.infrastructure.graphql.dataloader.DataLoaderRegistryFactory;
@@ -172,7 +174,9 @@ class VotingFetcherTests {
 
     // and: mocked service
     var mockedService = Mockito.mock(DefaultVotingService.class);
-    Mockito.when(mockedService.listVotesVoting(any())).thenReturn(List.of(random(Vote.class)));
+    var partialResult = List.of(random(Vote.class));
+    Mockito.when(mockedService.listVotesVoting(any(), any(PaginationRequest.class)))
+        .thenReturn(PaginationResult.from(partialResult, partialResult.size()));
 
     // and: mocked environment
     var mockedEnvironment = FetcherTestUtils.generateMockedEnvironment(authenticatedUser, Map.of());
@@ -180,10 +184,10 @@ class VotingFetcherTests {
 
     // when: invoking the fetcher with correct data
     VotingFetcher fetcher = new VotingFetcher(mockedService);
-    List<Vote> result = fetcher.listVotesVoting(mockedEnvironment);
+    PaginationResult<Vote> result = fetcher.listVotesVoting(mockedEnvironment);
 
     // then: we should build the successful result
-    assertEquals("There are votes", result.size(), 1);
+    assertEquals("There are votes", result.getTotal(), 1);
   }
 
   @Test

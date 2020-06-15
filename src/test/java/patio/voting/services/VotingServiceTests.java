@@ -27,6 +27,8 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import io.micronaut.data.model.Page;
+import io.micronaut.data.model.Pageable;
 import java.time.OffsetDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
@@ -40,6 +42,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mockito;
+import patio.common.domain.utils.PaginationRequest;
 import patio.common.domain.utils.Result;
 import patio.group.domain.Group;
 import patio.group.domain.UserGroup;
@@ -513,17 +516,25 @@ public class VotingServiceTests {
 
     // and: mocked repository calls
     var voteRepository = Mockito.mock(VoteRepository.class);
-    when(voteRepository.findAllByVotingOrderByUser(any(UUID.class))).thenReturn(voteList.stream());
+    when(voteRepository.findByVotingOrderByCreatedAtDateTimeDesc(
+            any(Voting.class), any(Pageable.class)))
+        .thenReturn(Page.of(voteList, Pageable.from(0), voteList.size()));
+
+    var votingRepository = Mockito.mock(VotingRepository.class);
+    when(votingRepository.findById(any(UUID.class))).thenReturn(Optional.of(random(Voting.class)));
 
     // when: invoking the vote listing
-    var votingService = new DefaultVotingService(null, voteRepository, null, null, null);
-    var votingVoteList = votingService.listVotesVoting(UUID.randomUUID());
+    var votingService =
+        new DefaultVotingService(votingRepository, voteRepository, null, null, null);
+    var paginatedVotes =
+        votingService.listVotesVoting(UUID.randomUUID(), PaginationRequest.from(10, 0));
 
     // then: the votes are returned
-    assertEquals(votingVoteList.size(), 3, "Successfully listed votes");
+    assertEquals(paginatedVotes.getTotal(), 3, "Successfully listed votes");
 
     // and: only one method has been called
-    verify(voteRepository, times(1)).findAllByVotingOrderByUser(any(UUID.class));
+    verify(voteRepository, times(1))
+        .findByVotingOrderByCreatedAtDateTimeDesc(any(Voting.class), any(Pageable.class));
   }
 
   @Test

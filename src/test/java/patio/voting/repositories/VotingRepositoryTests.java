@@ -22,7 +22,9 @@ import static org.hamcrest.Matchers.iterableWithSize;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static patio.infrastructure.utils.IterableUtils.iterableToStream;
 
+import io.micronaut.data.model.Pageable;
 import io.micronaut.test.annotation.MicronautTest;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -82,11 +84,11 @@ public class VotingRepositoryTests {
     // and: two selected user ids
     List<UUID> ids =
         List.of(
-                "c2a771bc-f8c5-4112-a440-c80fa4c8e382",
-                "84d48a35-7659-4710-ad13-4c47785a0e9d",
+                "3465094c-5545-4007-a7bc-da2b1a88d9dc",
                 "1998c588-d93b-4db6-92e2-a9dbb4cf03b5",
-                "486590a3-fcc1-4657-a9ed-5f0f95dadea6",
-                "3465094c-5545-4007-a7bc-da2b1a88d9dc")
+                "84d48a35-7659-4710-ad13-4c47785a0e9d",
+                "c2a771bc-f8c5-4112-a440-c80fa4c8e382",
+                "486590a3-fcc1-4657-a9ed-5f0f95dadea6")
             .stream()
             .map(UUID::fromString)
             .collect(Collectors.toList());
@@ -94,11 +96,18 @@ public class VotingRepositoryTests {
     // when: asking for the list of users
     Optional<Voting> voting =
         votingRepository.findById(UUID.fromString("7772e35c-5a87-4ba3-ab93-da8a957037fd"));
-    Iterable<User> userList1 = userRepository.findAllByIdInListOrderById(ids);
-    Iterable<User> userList2 =
+
+    Comparator<User> comparator = Comparator.comparing((User user) -> ids.indexOf(user.getId()));
+    List<User> userList1 =
+        userRepository.findAllByIdInList(ids).stream()
+            .sorted(comparator)
+            .collect(Collectors.toList());
+    List<User> userList2 =
         voting.stream()
-            .map(Voting::getId)
-            .flatMap(voteRepository::findAllByVotingOrderByUser)
+            .flatMap(
+                v ->
+                    voteRepository.findByVotingOrderByCreatedAtDateTimeDesc(v, Pageable.from(0))
+                        .getContent().stream())
             .map(Vote::getCreatedBy)
             .collect(Collectors.toList());
 

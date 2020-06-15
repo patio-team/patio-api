@@ -62,6 +62,7 @@ public class GroupProvider implements QueryProvider, MutationProvider {
         builder
             .dataFetcher("listGroups", groupFetcher::listGroups)
             .dataFetcher("listMyGroups", groupFetcher::listMyGroups)
-            .dataFetcher("getGroup", groupFetcher::getGroup);
+            .dataFetcher("getGroup", groupFetcher::getGroup)
+            .dataFetcher("getMyFavouriteGroup", groupFetcher::getMyFavouriteGroup);
   }
 }

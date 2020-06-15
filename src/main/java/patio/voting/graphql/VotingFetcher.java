@@ -17,6 +17,8 @@
  */
 package patio.voting.graphql;
 
+import static patio.common.graphql.ArgumentUtils.extractPaginationFrom;
+
 import graphql.execution.DataFetcherResult;
 import graphql.schema.DataFetchingEnvironment;
 import java.util.List;
@@ -25,6 +27,8 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import javax.inject.Singleton;
 import org.dataloader.DataLoader;
+import patio.common.domain.utils.PaginationRequest;
+import patio.common.domain.utils.PaginationResult;
 import patio.group.domain.Group;
 import patio.infrastructure.graphql.ResultUtils;
 import patio.infrastructure.graphql.dataloader.DataLoaderRegistryFactory;
@@ -127,9 +131,11 @@ public class VotingFetcher {
    * @return a list of available {@link Vote}
    * @since 0.1.0
    */
-  public List<Vote> listVotesVoting(DataFetchingEnvironment env) {
+  public PaginationResult<Vote> listVotesVoting(DataFetchingEnvironment env) {
     Voting voting = env.getSource();
-    return service.listVotesVoting(voting.getId());
+    PaginationRequest pagination = extractPaginationFrom(env);
+
+    return service.listVotesVoting(voting.getId(), pagination);
   }
 
   /**

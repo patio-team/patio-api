@@ -21,6 +21,7 @@ import io.micronaut.data.annotation.Query;
 import io.micronaut.data.repository.PageableRepository;
 import java.time.OffsetDateTime;
 import java.time.OffsetTime;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Stream;
 import patio.group.domain.Group;
@@ -51,4 +52,14 @@ public interface GroupRepository extends PageableRepository<Group, UUID> {
       "SELECT v.group FROM Voting v WHERE v.createdAtDateTime BETWEEN :fromDateTime AND :toDateTime")
   Stream<Group> findAllByVotingCreatedAtDateTimeBetween(
       OffsetDateTime fromDateTime, OffsetDateTime toDateTime);
+
+  /**
+   * Returns the user's favourite {@link Group}
+   *
+   * @param userId user's identifier
+   * @return its favourite {@link Group}
+   */
+  @Query(
+      "SELECT v.group FROM Voting v JOIN v.group.users u WHERE u.user.id = :userId ORDER BY v.createdAtDateTime DESC")
+  Optional<Group> findMyFavouriteGroupByUserId(UUID userId);
 }

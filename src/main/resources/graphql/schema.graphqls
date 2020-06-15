@@ -49,13 +49,18 @@ type User {
     hash: String
 }
 
+type VotePaginationResult {
+    data: [Vote]
+    total: Int
+}
+
 type Voting {
     id: ID,
     group: Group,
     createdAtDateTime: DateTime
     createdBy: User
     average: Float
-    votes: [Vote]
+    votes(page: Int, max: Int): VotePaginationResult
 }
 
 type Vote {
@@ -83,6 +88,9 @@ type Login {
 type Query {
     # get groups of the current user
     listMyGroups: [Group]
+
+    # get the favourite group of the user
+    getMyFavouriteGroup: Group
 
     # get group by its id
     getGroup(id: ID!): Group
