@@ -61,6 +61,7 @@ type Voting {
     createdBy: User
     average: Float
     votes(page: Int, max: Int): VotePaginationResult
+    didIVote: Boolean
 }
 
 type Vote {

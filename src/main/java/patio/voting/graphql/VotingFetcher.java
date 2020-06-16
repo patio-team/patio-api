@@ -167,4 +167,16 @@ public class VotingFetcher {
         .map(userDataLoader::load)
         .orElse(null);
   }
+
+  /**
+   * Resolves whether the user voted in a given voting or not
+   *
+   * @param env GraphQL execution environment
+   * @return whether the user voted in a given voting or not
+   */
+  public DataFetcherResult<Boolean> didIVote(DataFetchingEnvironment env) {
+    DidIVoteInput input = VotingFetcherUtils.didIVoteInput(env);
+
+    return ResultUtils.render(service.didUserVotedInVoting(input.getUser(), input.getVotingId()));
+  }
 }

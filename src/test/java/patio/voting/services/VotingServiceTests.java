@@ -646,4 +646,30 @@ public class VotingServiceTests {
     assertNull(result.getSuccess());
     assertEquals(ErrorConstants.NOT_FOUND, result.getErrorList().get(0));
   }
+
+  @ParameterizedTest
+  @MethodSource("getDidUserVotedInVotingData")
+  void testDidUserVotedInVoting(Vote vote, Boolean voted) {
+    var votingRepository = mock(VotingRepository.class);
+    when(votingRepository.findById(any(UUID.class)))
+        .thenReturn(Optional.ofNullable(Voting.newBuilder().build()));
+
+    var voteRepository = mock(VoteRepository.class);
+    when(voteRepository.findByCreatedByAndVoting(any(User.class), any(Voting.class)))
+        .thenReturn(Optional.ofNullable(vote));
+
+    var user = random(User.class);
+    var votingId = UUID.randomUUID();
+    var votingService =
+        new DefaultVotingService(votingRepository, voteRepository, null, null, null);
+
+    Result<Boolean> didUserVote = votingService.didUserVotedInVoting(user, votingId);
+
+    assertEquals(didUserVote.getSuccess(), voted);
+  }
+
+  private static Stream<Arguments> getDidUserVotedInVotingData() {
+    return Stream.of(
+        Arguments.of(Vote.newBuilder().build(), Boolean.TRUE), Arguments.of(null, Boolean.FALSE));
+  }
 }

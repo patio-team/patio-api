@@ -22,6 +22,7 @@ import java.util.UUID;
 import patio.common.domain.utils.PaginationRequest;
 import patio.common.domain.utils.PaginationResult;
 import patio.common.domain.utils.Result;
+import patio.user.domain.User;
 import patio.voting.domain.Vote;
 import patio.voting.domain.Voting;
 import patio.voting.graphql.CreateVoteInput;
@@ -104,4 +105,13 @@ public interface VotingService {
    * @since 0.1.0
    */
   Result<List<Vote>> listUserVotesInGroup(UserVotesInGroupInput input);
+
+  /**
+   * Resolves whether the user did vote in a given voting or not
+   *
+   * @param user the {@link User}
+   * @param votingId the voting id we want to check against
+   * @return a {@link Result} containing true if the user voted or false otherwise
+   */
+  Result<Boolean> didUserVotedInVoting(User user, UUID votingId);
 }

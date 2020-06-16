@@ -67,7 +67,12 @@ public class VotingProvider implements QueryProvider, MutationProvider, TypeProv
   public UnaryOperator<RuntimeWiring.Builder> getTypes() {
     return (runtime) ->
         runtime
-            .type("Voting", builder -> builder.dataFetcher("votes", votingFetcher::listVotesVoting))
+            .type(
+                "Voting",
+                builder ->
+                    builder
+                        .dataFetcher("votes", votingFetcher::listVotesVoting)
+                        .dataFetcher("didIVote", votingFetcher::didIVote))
             .type(
                 "Vote",
                 builder -> builder.dataFetcher("createdBy", votingFetcher::getVoteCreatedBy));
