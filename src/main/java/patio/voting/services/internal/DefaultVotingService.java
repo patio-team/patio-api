@@ -235,6 +235,17 @@ public class DefaultVotingService implements VotingService {
         .then(() -> listUserVotesInGroupIfSuccess(input));
   }
 
+  @Override
+  public Result<Boolean> didUserVotedInVoting(User user, UUID votingId) {
+    boolean voted =
+        votingRepository
+            .findById(votingId)
+            .flatMap(voting -> voteRepository.findByCreatedByAndVoting(user, voting))
+            .isPresent();
+
+    return Result.result(voted);
+  }
+
   private List<Vote> listUserVotesInGroupIfSuccess(UserVotesInGroupInput input) {
     Optional<User> user = userRepository.findById(input.getUserId());
     Optional<Group> group = groupRepository.findById(input.getGroupId());
