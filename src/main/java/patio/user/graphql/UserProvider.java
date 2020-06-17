@@ -70,6 +70,9 @@ public class UserProvider implements QueryProvider, MutationProvider, TypeProvid
             .type("Login", builder -> builder.dataFetcher("profile", userFetcher::getCurrentUser))
             .type(
                 "UserProfile",
-                builder -> builder.dataFetcher("groups", groupFetcher::listGroupsUser));
+                builder ->
+                    builder
+                        .dataFetcher("groups", groupFetcher::listGroupsUser)
+                        .dataFetcher("favouriteGroup", groupFetcher::getMyFavouriteGroup));
   }
 }

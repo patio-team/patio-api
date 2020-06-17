@@ -41,6 +41,7 @@ type UserProfile {
     email: String
     hash: String
     groups: [Group]
+    favouriteGroup: Group
 }
 
 type User {
