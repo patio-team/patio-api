@@ -21,14 +21,6 @@ import static patio.infrastructure.utils.OptionalUtils.combine;
 
 import io.micronaut.data.model.Page;
 import io.micronaut.data.model.Pageable;
-import java.time.OffsetDateTime;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
-import java.util.function.Supplier;
-import java.util.stream.Collectors;
-import javax.inject.Singleton;
-import javax.transaction.Transactional;
 import patio.common.domain.utils.NotPresent;
 import patio.common.domain.utils.PaginationRequest;
 import patio.common.domain.utils.PaginationResult;
@@ -44,6 +36,7 @@ import patio.user.domain.User;
 import patio.user.repositories.UserRepository;
 import patio.voting.domain.Vote;
 import patio.voting.domain.Voting;
+import patio.voting.graphql.VotingStatsInput;
 import patio.voting.graphql.CreateVoteInput;
 import patio.voting.graphql.CreateVotingInput;
 import patio.voting.graphql.GetLastVotingInput;
@@ -54,6 +47,17 @@ import patio.voting.repositories.VoteRepository;
 import patio.voting.repositories.VotingRepository;
 import patio.voting.services.VotingService;
 
+import javax.inject.Singleton;
+import javax.transaction.Transactional;
+import java.time.OffsetDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
+
 /**
  * Business logic regarding {@link Group} domain
  *
@@ -62,6 +66,8 @@ import patio.voting.services.VotingService;
 @Singleton
 @Transactional
 public class DefaultVotingService implements VotingService {
+  public static final String MOOD = "mood";
+  public static final String COUNT = "count";
 
   private final transient VotingRepository votingRepository;
   private final transient VoteRepository voteRepository;
@@ -246,6 +252,30 @@ public class DefaultVotingService implements VotingService {
     return Result.result(voted);
   }
 
+  @Override
+  public Result<Map<String, Object>> getVotingStats(VotingStatsInput input) {
+
+    var fakeVotesByMoodList = new ArrayList<>();
+    fakeVotesByMoodList.add(Map.of(MOOD, 1, COUNT, 189));
+    fakeVotesByMoodList.add(Map.of(MOOD, 2, COUNT, 201));
+    fakeVotesByMoodList.add(Map.of(MOOD, 3, COUNT, 206));
+    fakeVotesByMoodList.add(Map.of(MOOD, 4, COUNT, 111));
+    fakeVotesByMoodList.add(Map.of(MOOD, 5, COUNT, 20));
+
+    Map<String, Object> fakedVotingStats =
+      Map.of(
+        "votesByMood",
+        fakeVotesByMoodList,
+        "maxVoteCountExpected",
+        856,
+        "voteCount",
+        727,
+        "voteCountAverage",
+        687.59f);
+
+    return Result.result(fakedVotingStats);
+  }
+
   private List<Vote> listUserVotesInGroupIfSuccess(UserVotesInGroupInput input) {
     Optional<User> user = userRepository.findById(input.getUserId());
     Optional<Group> group = groupRepository.findById(input.getGroupId());
@@ -262,4 +292,6 @@ public class DefaultVotingService implements VotingService {
         .flatMap(voteStream -> voteStream)
         .collect(Collectors.toList());
   }
+
+
 }

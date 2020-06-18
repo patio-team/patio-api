@@ -18,12 +18,13 @@
 package patio.voting.graphql;
 
 import graphql.schema.DataFetchingEnvironment;
-import java.time.OffsetDateTime;
-import java.util.UUID;
 import patio.group.domain.Group;
 import patio.infrastructure.graphql.Context;
 import patio.user.domain.User;
 import patio.voting.domain.Voting;
+
+import java.time.OffsetDateTime;
+import java.util.UUID;
 
 /**
  * Contains functions to build domain inputs from the underlying {@link DataFetchingEnvironment}
@@ -158,7 +159,16 @@ final class VotingFetcherUtils {
         .build();
   }
 
-  /* default */ static DidIVoteInput didIVoteInput(DataFetchingEnvironment environment) {
+  /* default */ static VotingStatsInput getVotingStatsInput(DataFetchingEnvironment environment) {
+    UUID votingId = environment.getArgument("votingId");
+
+    return VotingStatsInput.builder()
+      .with(input -> input.setVotingId(votingId))
+      .build();
+  }
+
+
+    /* default */ static DidIVoteInput didIVoteInput(DataFetchingEnvironment environment) {
     Context ctx = environment.getContext();
     User currentUser = ctx.getAuthenticatedUser();
     Voting voting = environment.getSource();
