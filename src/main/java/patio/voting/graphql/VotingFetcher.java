@@ -21,7 +21,9 @@ import static patio.common.graphql.ArgumentUtils.extractPaginationFrom;
 
 import graphql.execution.DataFetcherResult;
 import graphql.schema.DataFetchingEnvironment;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -29,6 +31,7 @@ import javax.inject.Singleton;
 import org.dataloader.DataLoader;
 import patio.common.domain.utils.PaginationRequest;
 import patio.common.domain.utils.PaginationResult;
+import patio.common.domain.utils.Result;
 import patio.group.domain.Group;
 import patio.infrastructure.graphql.ResultUtils;
 import patio.infrastructure.graphql.dataloader.DataLoaderRegistryFactory;
@@ -44,6 +47,8 @@ import patio.voting.services.VotingService;
  */
 @Singleton
 public class VotingFetcher {
+  public static final String MOOD = "mood";
+  public static final String COUNT = "count";
 
   /**
    * Instance handling the business logic
@@ -148,6 +153,34 @@ public class VotingFetcher {
   public DataFetcherResult<List<Vote>> listUserVotesInGroup(DataFetchingEnvironment env) {
     UserVotesInGroupInput input = VotingFetcherUtils.userVotesInput(env);
     return ResultUtils.render(service.listUserVotesInGroup(input));
+  }
+
+  /**
+   * Fetches the statistics for a voting
+   *
+   * @param env GraphQL execution environment
+   * @return the faked stats
+   */
+  public DataFetcherResult<Map<String, Object>> getVotingStats(DataFetchingEnvironment env) {
+    var fakeVotesByMoodList = new ArrayList<>();
+    fakeVotesByMoodList.add(Map.of(MOOD, 1, COUNT, 189));
+    fakeVotesByMoodList.add(Map.of(MOOD, 2, COUNT, 201));
+    fakeVotesByMoodList.add(Map.of(MOOD, 3, COUNT, 206));
+    fakeVotesByMoodList.add(Map.of(MOOD, 4, COUNT, 111));
+    fakeVotesByMoodList.add(Map.of(MOOD, 5, COUNT, 20));
+
+    Map<String, Object> fakedVotingStats =
+        Map.of(
+            "votesByMood",
+            fakeVotesByMoodList,
+            "maxVoteCountExpected",
+            856,
+            "voteCount",
+            727,
+            "voteCountAverage",
+            687.59f);
+
+    return ResultUtils.render(Result.result(fakedVotingStats));
   }
 
   /**
