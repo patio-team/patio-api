@@ -21,6 +21,13 @@ import static patio.common.graphql.ArgumentUtils.extractPaginationFrom;
 
 import graphql.execution.DataFetcherResult;
 import graphql.schema.DataFetchingEnvironment;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import javax.inject.Singleton;
 import org.dataloader.DataLoader;
 import patio.common.domain.utils.PaginationRequest;
 import patio.common.domain.utils.PaginationResult;
@@ -32,14 +39,6 @@ import patio.user.domain.User;
 import patio.voting.domain.Vote;
 import patio.voting.domain.Voting;
 import patio.voting.services.VotingService;
-
-import javax.inject.Singleton;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
 
 /**
  * All related GraphQL operations over the {@link Group} domain
