@@ -63,6 +63,19 @@ type Voting {
     average: Float
     votes(page: Int, max: Int): VotePaginationResult
     didIVote: Boolean
+    stats: VotingStats
+}
+
+type VotingStats {
+    votesByMood: [VotesByMood]
+    maxVoteCountExpected: Int
+    voteCount: Int
+    voteCountAverage: Float
+}
+
+type VotesByMood {
+    mood: Int
+    count: Int
 }
 
 type Vote {
