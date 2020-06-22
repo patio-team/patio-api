@@ -20,11 +20,13 @@ package patio.voting.repositories;
 import io.micronaut.data.annotation.Query;
 import io.micronaut.data.repository.PageableRepository;
 import java.time.OffsetDateTime;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Stream;
 import patio.group.domain.Group;
 import patio.user.domain.User;
+import patio.voting.domain.VoteByMoodDTO;
 import patio.voting.domain.Voting;
 
 /**
@@ -75,4 +77,22 @@ public interface VotingRepository extends PageableRepository<Voting, UUID> {
    * @return the last group's voting
    */
   Optional<Voting> findByGroupOrderByCreatedAtDateTimeDesc(Group group);
+
+  /**
+   * Returns the aggregation of votes by mood of a given {@link Voting}
+   *
+   * @param voting the voting we want the aggregation from
+   * @return a list of {@link VoteByMoodDTO} instances
+   */
+  @Query(
+      "SELECT new patio.voting.domain.VoteByMoodDTO(COUNT(vo), vo.score) FROM Vote vo WHERE vo.voting = :voting GROUP BY vo.score ORDER BY vo.score DESC")
+  List<VoteByMoodDTO> findAllVotesByMood(Voting voting);
+
+  /**
+   * Returns what is the number of people usually voting in the given {@link Voting} group
+   *
+   * @param voting the voting we want the average number of people voting
+   * @return the average number of people voting in this voting's group
+   */
+  Long getAvgVoteCountByVoting(Voting voting);
 }

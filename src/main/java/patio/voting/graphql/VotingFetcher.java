@@ -21,7 +21,6 @@ import static patio.common.graphql.ArgumentUtils.extractPaginationFrom;
 
 import graphql.execution.DataFetcherResult;
 import graphql.schema.DataFetchingEnvironment;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -47,8 +46,6 @@ import patio.voting.services.VotingService;
  */
 @Singleton
 public class VotingFetcher {
-  public static final String MOOD = "mood";
-  public static final String COUNT = "count";
 
   /**
    * Instance handling the business logic
@@ -156,31 +153,20 @@ public class VotingFetcher {
   }
 
   /**
-   * Fetches the statistics for a voting
+   * Fetches the average number of votes for a group
    *
    * @param env GraphQL execution environment
-   * @return the faked stats
+   * @return a map containing the voting's statistics
    */
   public DataFetcherResult<Map<String, Object>> getVotingStats(DataFetchingEnvironment env) {
-    var fakeVotesByMoodList = new ArrayList<>();
-    fakeVotesByMoodList.add(Map.of(MOOD, 1, COUNT, 189));
-    fakeVotesByMoodList.add(Map.of(MOOD, 2, COUNT, 201));
-    fakeVotesByMoodList.add(Map.of(MOOD, 3, COUNT, 206));
-    fakeVotesByMoodList.add(Map.of(MOOD, 4, COUNT, 111));
-    fakeVotesByMoodList.add(Map.of(MOOD, 5, COUNT, 20));
+    VotingStatsInput input = VotingFetcherUtils.getVotingStatsInput(env);
+    Result<Map<String, Object>> result =
+        Optional.ofNullable(input)
+            .filter(VotingStatsInput::hasVoting)
+            .map(service::getVotingStats)
+            .orElse(Result.result(Map.of()));
 
-    Map<String, Object> fakedVotingStats =
-        Map.of(
-            "votesByMood",
-            fakeVotesByMoodList,
-            "maxVoteCountExpected",
-            856,
-            "voteCount",
-            727,
-            "voteCountAverage",
-            687.59f);
-
-    return ResultUtils.render(Result.result(fakedVotingStats));
+    return ResultUtils.render(result);
   }
 
   /**

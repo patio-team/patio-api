@@ -158,6 +158,12 @@ final class VotingFetcherUtils {
         .build();
   }
 
+  /* default */ static VotingStatsInput getVotingStatsInput(DataFetchingEnvironment environment) {
+    Voting voting = environment.getSource();
+
+    return VotingStatsInput.builder().with(input -> input.setVotingId(voting.getId())).build();
+  }
+
   /* default */ static DidIVoteInput didIVoteInput(DataFetchingEnvironment environment) {
     Context ctx = environment.getContext();
     User currentUser = ctx.getAuthenticatedUser();

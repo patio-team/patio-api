@@ -23,6 +23,7 @@ import io.micronaut.data.model.Page;
 import io.micronaut.data.model.Pageable;
 import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Supplier;
@@ -50,6 +51,7 @@ import patio.voting.graphql.GetLastVotingInput;
 import patio.voting.graphql.GetVotingInput;
 import patio.voting.graphql.ListVotingsGroupInput;
 import patio.voting.graphql.UserVotesInGroupInput;
+import patio.voting.graphql.VotingStatsInput;
 import patio.voting.repositories.VoteRepository;
 import patio.voting.repositories.VotingRepository;
 import patio.voting.services.VotingService;
@@ -62,6 +64,8 @@ import patio.voting.services.VotingService;
 @Singleton
 @Transactional
 public class DefaultVotingService implements VotingService {
+  public static final String MOOD = "mood";
+  public static final String COUNT = "count";
 
   private final transient VotingRepository votingRepository;
   private final transient VoteRepository voteRepository;
@@ -244,6 +248,33 @@ public class DefaultVotingService implements VotingService {
             .isPresent();
 
     return Result.result(voted);
+  }
+
+  @Override
+  public Result<Map<String, Object>> getVotingStats(VotingStatsInput input) {
+    var optionalVoting = votingRepository.findById(input.getVotingId());
+
+    var voteByMoodDTOList =
+        optionalVoting.map(votingRepository::findAllVotesByMood).orElse(List.of());
+
+    var maxExpectedVotes =
+        optionalVoting.map(voteRepository::getMaxExpectedVoteCountByVoting).orElse(0L);
+
+    var voteCountByVoting = optionalVoting.map(voteRepository::getVoteCountByVoting).orElse(0L);
+    var voteCountAverage = optionalVoting.map(votingRepository::getAvgVoteCountByVoting).orElse(0L);
+
+    Map<String, Object> fakedVotingStats =
+        Map.of(
+            "votesByMood",
+            voteByMoodDTOList,
+            "maxVoteCountExpected",
+            maxExpectedVotes,
+            "voteCount",
+            voteCountByVoting,
+            "voteCountAverage",
+            voteCountAverage);
+
+    return Result.result(fakedVotingStats);
   }
 
   private List<Vote> listUserVotesInGroupIfSuccess(UserVotesInGroupInput input) {
