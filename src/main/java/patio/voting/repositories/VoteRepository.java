@@ -75,4 +75,22 @@ public interface VoteRepository extends PageableRepository<Vote, UUID> {
    * @return a paginated result of {@link Vote} instances from the given {@link Voting}
    */
   Page<Vote> findByVotingOrderByCreatedAtDateTimeDesc(Voting votingId, Pageable pageable);
+
+  /**
+   * Returns the maximum number of votes there could be in a voting
+   *
+   * @param voting the voting we are asking the result for
+   * @return the maximum number of votes there could be in a voting
+   */
+  @Query("SELECT COUNT(u) FROM Voting v JOIN v.group.users u WHERE v = :voting")
+  Long getMaxExpectedVoteCountByVoting(Voting voting);
+
+  /**
+   * Returns the current number of votes of a given {@link Voting}
+   *
+   * @param voting the voting we want the count from
+   * @return the current number of votes of a given {@link Voting}
+   */
+  @Query("SELECT COUNT(vo) FROM Vote vo WHERE vo.voting = :voting")
+  Long getVoteCountByVoting(Voting voting);
 }

@@ -19,12 +19,11 @@ package patio.voting.graphql;
 
 import graphql.schema.idl.RuntimeWiring;
 import graphql.schema.idl.TypeRuntimeWiring;
+import java.util.function.UnaryOperator;
+import javax.inject.Singleton;
 import patio.infrastructure.graphql.MutationProvider;
 import patio.infrastructure.graphql.QueryProvider;
 import patio.infrastructure.graphql.TypeProvider;
-
-import javax.inject.Singleton;
-import java.util.function.UnaryOperator;
 
 /**
  * Contains all mapped fetchers for queries, mutations and types for voting related operations

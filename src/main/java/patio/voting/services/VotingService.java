@@ -17,6 +17,9 @@
  */
 package patio.voting.services;
 
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import patio.common.domain.utils.PaginationRequest;
 import patio.common.domain.utils.PaginationResult;
 import patio.common.domain.utils.Result;
@@ -30,10 +33,6 @@ import patio.voting.graphql.GetVotingInput;
 import patio.voting.graphql.ListVotingsGroupInput;
 import patio.voting.graphql.UserVotesInGroupInput;
 import patio.voting.graphql.VotingStatsInput;
-
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
 
 /**
  * Business logic contracts regarding voting
@@ -118,5 +117,11 @@ public interface VotingService {
    */
   Result<Boolean> didUserVotedInVoting(User user, UUID votingId);
 
+  /**
+   * Returns a map containing a given voting statistics
+   *
+   * @param input input object to get a given voting statistics
+   * @return a map containing all voting stats
+   */
   Result<Map<String, Object>> getVotingStats(VotingStatsInput input);
 }

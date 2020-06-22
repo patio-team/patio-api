@@ -15,45 +15,44 @@
  * You should have received a copy of the GNU General Public License
  * along with DWBH.  If not, see <https://www.gnu.org/licenses/>
  */
-package patio.voting.graphql;
-
-import java.util.UUID;
-import patio.common.domain.utils.Builder;
+package patio.voting.domain;
 
 /**
- * Input object to request for voting stats
+ * Represents the aggregation count of mood types in a given voting
  *
- * @see patio.voting.domain.Voting
+ * @see Voting
  */
-public class VotingStatsInput {
-  private UUID votingId;
+public class VoteByMoodDTO {
+
+  private final int mood;
+  private final long count;
 
   /**
-   * Returns the id of the voting
+   * Initializes a new {@link VoteByMoodDTO}
    *
-   * @return the id of the user
-   * @since 0.1.0
+   * @param count how many people did vote this mood
+   * @param mood the type of mood
    */
-  public UUID getVotingId() {
-    return votingId;
+  public VoteByMoodDTO(long count, int mood) {
+    this.mood = mood;
+    this.count = count;
   }
 
   /**
-   * Sets voting id
+   * Returns the type of mood
    *
-   * @param votingId the voting id
+   * @return the type of mood
    */
-  public void setVotingId(UUID votingId) {
-    this.votingId = votingId;
+  public int getMood() {
+    return mood;
   }
 
   /**
-   * Creates a builder to build instances of type {@link VotingStatsInput}
+   * Returns how many people did vote a given type of mood
    *
-   * @return a {@link Builder} that creates instances of type {@link VotingStatsInput}
-   * @since 0.1.0
+   * @return how many people did vote a given type of mood
    */
-  public static Builder<VotingStatsInput> builder() {
-    return Builder.build(VotingStatsInput::new);
+  public long getCount() {
+    return count;
   }
 }
