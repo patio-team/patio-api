@@ -21,6 +21,7 @@ import static io.github.benas.randombeans.api.EnhancedRandom.random;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -59,6 +60,7 @@ import patio.voting.graphql.CreateVotingInput;
 import patio.voting.graphql.GetLastVotingInput;
 import patio.voting.graphql.GetVotingInput;
 import patio.voting.graphql.ListVotingsGroupInput;
+import patio.voting.graphql.VotingStatsInput;
 import patio.voting.repositories.VoteRepository;
 import patio.voting.repositories.VotingRepository;
 import patio.voting.services.internal.DefaultVotingService;
@@ -671,5 +673,28 @@ public class VotingServiceTests {
   private static Stream<Arguments> getDidUserVotedInVotingData() {
     return Stream.of(
         Arguments.of(Vote.newBuilder().build(), Boolean.TRUE), Arguments.of(null, Boolean.FALSE));
+  }
+
+  @Test
+  void testGetVotingStats() {
+    var votingRepository = mock(VotingRepository.class);
+    when(votingRepository.findById(any(UUID.class))).thenReturn(Optional.of(random(Voting.class)));
+    when(votingRepository.getAvgVoteCountByVoting(any(Voting.class))).thenReturn(4L);
+
+    var voteRepository = mock(VoteRepository.class);
+    when(voteRepository.getVoteCountByVoting(any(Voting.class))).thenReturn(8L);
+    when(voteRepository.getMaxExpectedVoteCountByVoting(any(Voting.class))).thenReturn(16L);
+
+    var votingService =
+        new DefaultVotingService(votingRepository, voteRepository, null, null, null);
+    var input =
+        VotingStatsInput.builder().with(inner -> inner.setVotingId(UUID.randomUUID())).build();
+    var result = votingService.getVotingStats(input);
+    var stats = result.getSuccess();
+
+    assertTrue(result.isSuccess());
+    assertEquals(stats.get("maxVoteCountExpected"), 16L);
+    assertEquals(stats.get("voteCount"), 8L);
+    assertEquals(stats.get("voteCountAverage"), 4L);
   }
 }

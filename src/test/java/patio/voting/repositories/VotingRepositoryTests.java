@@ -19,6 +19,7 @@ package patio.voting.repositories;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.iterableWithSize;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static patio.infrastructure.utils.IterableUtils.iterableToStream;
 
@@ -142,5 +143,41 @@ public class VotingRepositoryTests {
             .flatmapInto((v, u) -> votingRepository.findByIdAndVotingUser(v.getId(), u));
 
     assertTrue(result.isPresent());
+  }
+
+  @Test
+  void testFindAllVotesByMood() {
+    // given: some pre-existent data
+    fixtures.load(VotingRepositoryTests.class, "testFindAllVotesByMood.sql");
+
+    // when: asking for a given votes aggregated by mood
+    var optionalVoting =
+        votingRepository.findById(UUID.fromString("7772e35c-5a87-4ba3-ab93-da8a957037fd"));
+    var votesByMood = optionalVoting.map(votingRepository::findAllVotesByMood).orElse(List.of());
+
+    // then: we should get the expected groups
+    assertEquals(5, votesByMood.size());
+
+    // and: every group should have the expected vote count
+    // and: records are order by score desc
+    assertEquals(votesByMood.get(0).getCount(), 2);
+    assertEquals(votesByMood.get(1).getCount(), 1);
+    assertEquals(votesByMood.get(2).getCount(), 1);
+    assertEquals(votesByMood.get(3).getCount(), 2);
+    assertEquals(votesByMood.get(4).getCount(), 2);
+  }
+
+  @Test
+  void testGetAvgVoteCountByVoting() {
+    // given: pre-existent data
+    fixtures.load(VotingRepositoryTests.class, "testGetAvgVoteCountByVoting.sql");
+
+    // when: asking for vote count average of a group passing any group voting's id
+    var optionalVoting =
+        votingRepository.findById(UUID.fromString("7772e35c-5a87-4ba3-ab93-da8a957037fd"));
+    var avgVoteCount = optionalVoting.map(votingRepository::getAvgVoteCountByVoting).orElse(0L);
+
+    // then: we should get the expected average
+    assertEquals(6L, avgVoteCount.longValue());
   }
 }
