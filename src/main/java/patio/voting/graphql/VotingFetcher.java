@@ -30,6 +30,7 @@ import javax.inject.Singleton;
 import org.dataloader.DataLoader;
 import patio.common.domain.utils.PaginationRequest;
 import patio.common.domain.utils.PaginationResult;
+import patio.common.domain.utils.Result;
 import patio.group.domain.Group;
 import patio.infrastructure.graphql.ResultUtils;
 import patio.infrastructure.graphql.dataloader.DataLoaderRegistryFactory;
@@ -159,8 +160,13 @@ public class VotingFetcher {
    */
   public DataFetcherResult<Map<String, Object>> getVotingStats(DataFetchingEnvironment env) {
     VotingStatsInput input = VotingFetcherUtils.getVotingStatsInput(env);
+    Result<Map<String, Object>> result =
+        Optional.ofNullable(input)
+            .filter(VotingStatsInput::hasVoting)
+            .map(service::getVotingStats)
+            .orElse(Result.result(Map.of()));
 
-    return ResultUtils.render(service.getVotingStats(input));
+    return ResultUtils.render(result);
   }
 
   /**

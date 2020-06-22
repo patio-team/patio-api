@@ -48,6 +48,15 @@ public class VotingStatsInput {
   }
 
   /**
+   * Returns true if there is a voting id false otherwise
+   *
+   * @return true if there is a voting id false otherwise
+   */
+  public boolean hasVoting() {
+    return this.votingId != null;
+  }
+
+  /**
    * Creates a builder to build instances of type {@link VotingStatsInput}
    *
    * @return a {@link Builder} that creates instances of type {@link VotingStatsInput}
