@@ -39,7 +39,7 @@ public interface VoteRepository extends PageableRepository<Vote, UUID> {
    * @param voting the voting this vote belongs to
    * @return the avg score value
    */
-  Float findAvgScoreByVoting(Voting voting);
+  Double findAvgScoreByVoting(Voting voting);
 
   /**
    * Finds a vote created by some {@link User} in some {@link Voting}

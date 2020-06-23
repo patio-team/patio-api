@@ -26,6 +26,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import patio.voting.domain.Voting;
+import patio.voting.repositories.VoteRepository;
 import patio.voting.repositories.VotingRepository;
 import patio.voting.repositories.VotingStatsRepository;
 import patio.voting.services.internal.DefaultVotingService;
@@ -47,9 +48,11 @@ public class VotingStatsServiceTests {
     // and: mocked repository calls
     var votingRepository = Mockito.mock(VotingRepository.class);
     var votingStatRepository = Mockito.mock(VotingStatsRepository.class);
+    var voteRepository = Mockito.mock(VoteRepository.class);
 
     // when: the service method is executed
-    var votingStatsService = new DefaultVotingStatsService(votingStatRepository, votingRepository);
+    var votingStatsService =
+        new DefaultVotingStatsService(votingStatRepository, votingRepository, voteRepository);
     votingStatsService.createVotingStat(voting);
 
     // then: the changes are persisted
@@ -66,9 +69,11 @@ public class VotingStatsServiceTests {
     // and: mocked repository calls
     var votingRepository = Mockito.mock(VotingRepository.class);
     var votingStatRepository = Mockito.mock(VotingStatsRepository.class);
+    var voteRepository = Mockito.mock(VoteRepository.class);
 
     // when: the service method is executed
-    var votingStatsService = new DefaultVotingStatsService(votingStatRepository, votingRepository);
+    var votingStatsService =
+        new DefaultVotingStatsService(votingStatRepository, votingRepository, voteRepository);
     votingStatsService.updateMovingAverage(voting);
 
     // then: the changes are persisted

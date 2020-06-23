@@ -19,7 +19,7 @@
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 CREATE TABLE IF NOT EXISTS voting_stats (
-  id UUID NOT NULL PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID NOT NULL PRIMARY KEY,
   voting_id UUID NOT NULL,
   created_at timestamp with time zone NOT NULL,
   average DECIMAL(10,2) NULL,

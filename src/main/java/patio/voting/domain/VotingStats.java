@@ -48,7 +48,7 @@ public final class VotingStats {
   @Column(name = "created_at")
   private OffsetDateTime createdAtDateTime;
 
-  private Float average;
+  private Double average;
 
   @Column(name = "moving_average")
   private Double movingAverage;
@@ -129,7 +129,7 @@ public final class VotingStats {
    * @return the voting's average
    * @since 0.1.0
    */
-  public Float getAverage() {
+  public Double getAverage() {
     return average;
   }
 
@@ -139,7 +139,7 @@ public final class VotingStats {
    * @param average the voting average
    * @since 0.1.0
    */
-  public void setAverage(Float average) {
+  public void setAverage(Double average) {
     this.average = average;
   }
 

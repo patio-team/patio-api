@@ -34,6 +34,13 @@ public interface VotingStatsService {
   void createVotingStat(Voting voting);
 
   /**
+   * Calculates the average statistic for a voting, persisting its value
+   *
+   * @param voting the {@link Voting} from which calculate its average
+   */
+  void updateAverage(Voting voting);
+
+  /**
    * Calculates the moving average statistic for a voting, persisting its value
    *
    * @param voting the {@link Voting} from which calculate its moving average

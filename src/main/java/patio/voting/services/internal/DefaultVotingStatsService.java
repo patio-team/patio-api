@@ -25,6 +25,7 @@ import javax.transaction.Transactional;
 import patio.group.domain.Group;
 import patio.voting.domain.Voting;
 import patio.voting.domain.VotingStats;
+import patio.voting.repositories.VoteRepository;
 import patio.voting.repositories.VotingRepository;
 import patio.voting.repositories.VotingStatsRepository;
 import patio.voting.services.VotingStatsService;
@@ -41,18 +42,23 @@ public class DefaultVotingStatsService implements VotingStatsService {
 
   private final transient VotingStatsRepository votingStatsRep;
   private final transient VotingRepository votingRepository;
+  private final transient VoteRepository voteRepository;
 
   /**
    * Initializes service by using the database repositories
    *
    * @param votingRepository an instance of {@link VotingRepository}
    * @param votingStatsRep an instance of {@link VotingStatsRepository}
+   * @param voteRepository an instance of {@link VoteRepository}
    * @since 0.1.0
    */
   public DefaultVotingStatsService(
-      VotingStatsRepository votingStatsRep, VotingRepository votingRepository) {
+      VotingStatsRepository votingStatsRep,
+      VotingRepository votingRepository,
+      VoteRepository voteRepository) {
     this.votingRepository = votingRepository;
     this.votingStatsRep = votingStatsRep;
+    this.voteRepository = voteRepository;
   }
 
   @Override
@@ -71,6 +77,12 @@ public class DefaultVotingStatsService implements VotingStatsService {
     var votingStats = voting.getStats();
     getMovingAverageByGroup(voting).ifPresent(votingStats::setMovingAverage);
     votingStatsRep.save(votingStats);
+  }
+
+  @Override
+  public void updateAverage(Voting voting) {
+    voting.getStats().setAverage(voteRepository.findAvgScoreByVoting(voting));
+    votingRepository.update(voting);
   }
 
   /**

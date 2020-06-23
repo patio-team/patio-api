@@ -148,7 +148,7 @@ public class DefaultVotingService implements VotingService {
         .then(createVote(voting, user, input))
         .sideEffect(
             (v) -> {
-              updateVotingAverage(v.getVoting());
+              votingStatsService.updateAverage(v.getVoting());
               votingStatsService.updateMovingAverage(v.getVoting());
             });
   }
@@ -168,11 +168,6 @@ public class DefaultVotingService implements VotingService {
                         .build())
             .map(voteRepository::save)
             .orElse(null);
-  }
-
-  private void updateVotingAverage(Voting voting) {
-    voting.getStats().setAverage(voteRepository.findAvgScoreByVoting(voting));
-    votingRepository.update(voting);
   }
 
   @Override

@@ -103,13 +103,7 @@ public class VotingSchedulingService implements VotingScheduling {
   @Transactional
   /* default */ void checkVoting() {
     LOG.info("checking voting creation");
-    this.findAllToCreateVotingFrom()
-        .map(
-            (group) -> {
-              var voting = this.createVoting(group);
-              return voting;
-            })
-        .forEach(this::notifyMembers);
+    this.findAllToCreateVotingFrom().map(this::createVoting).forEach(this::notifyMembers);
   }
 
   private Stream<Group> findAllToCreateVotingFrom() {
