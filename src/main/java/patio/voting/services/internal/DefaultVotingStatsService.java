@@ -17,14 +17,20 @@
  */
 package patio.voting.services.internal;
 
+import io.micronaut.data.model.Page;
+import io.micronaut.data.model.Pageable;
 import java.time.OffsetDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Optional;
 import javax.inject.Singleton;
 import javax.transaction.Transactional;
+import patio.common.domain.utils.PaginationRequest;
+import patio.common.domain.utils.PaginationResult;
 import patio.group.domain.Group;
+import patio.group.repositories.GroupRepository;
 import patio.voting.domain.Voting;
 import patio.voting.domain.VotingStats;
+import patio.voting.graphql.GetStatsByGroupInput;
 import patio.voting.repositories.VoteRepository;
 import patio.voting.repositories.VotingRepository;
 import patio.voting.repositories.VotingStatsRepository;
@@ -43,6 +49,7 @@ public class DefaultVotingStatsService implements VotingStatsService {
   private final transient VotingStatsRepository votingStatsRep;
   private final transient VotingRepository votingRepository;
   private final transient VoteRepository voteRepository;
+  private final transient GroupRepository groupRepository;
 
   /**
    * Initializes service by using the database repositories
@@ -50,15 +57,18 @@ public class DefaultVotingStatsService implements VotingStatsService {
    * @param votingRepository an instance of {@link VotingRepository}
    * @param votingStatsRep an instance of {@link VotingStatsRepository}
    * @param voteRepository an instance of {@link VoteRepository}
+   * @param groupRepository an instance of {@link GroupRepository}
    * @since 0.1.0
    */
   public DefaultVotingStatsService(
       VotingStatsRepository votingStatsRep,
       VotingRepository votingRepository,
-      VoteRepository voteRepository) {
+      VoteRepository voteRepository,
+      GroupRepository groupRepository) {
     this.votingRepository = votingRepository;
     this.votingStatsRep = votingStatsRep;
     this.voteRepository = voteRepository;
+    this.groupRepository = groupRepository;
   }
 
   @Override
@@ -83,6 +93,24 @@ public class DefaultVotingStatsService implements VotingStatsService {
   public void updateAverage(Voting voting) {
     voting.getStats().setAverage(voteRepository.findAvgScoreByVoting(voting));
     votingRepository.update(voting);
+  }
+
+  @Override
+  public PaginationResult<VotingStats> getVotingStatsByGroup(
+      GetStatsByGroupInput input, PaginationRequest pagination) {
+    Optional<Group> optionalGroup = groupRepository.findById(input.getGroupId());
+    OffsetDateTime startDateTime = input.getStartDateTime();
+    OffsetDateTime endDateTime = input.getEndDateTime();
+    var pageable = Pageable.from(pagination.getPage(), pagination.getMax());
+
+    var page =
+        optionalGroup
+            .map(
+                group ->
+                    votingStatsRep.findStatsByGroup(group, startDateTime, endDateTime, pageable))
+            .orElse(Page.empty());
+
+    return PaginationResult.from(page);
   }
 
   /**

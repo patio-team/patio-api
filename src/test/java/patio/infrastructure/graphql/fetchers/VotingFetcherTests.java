@@ -175,8 +175,13 @@ class VotingFetcherTests {
     // and: mocked service
     var mockedService = Mockito.mock(DefaultVotingService.class);
     var partialResult = List.of(random(Vote.class));
+    var paginationResult =
+        PaginationResult.newBuilder()
+            .with(pr -> pr.setData(partialResult))
+            .with(pr -> pr.setTotalCount(partialResult.size()))
+            .build();
     Mockito.when(mockedService.listVotesVoting(any(), any(PaginationRequest.class)))
-        .thenReturn(PaginationResult.from(partialResult, partialResult.size()));
+        .thenReturn(paginationResult);
 
     // and: mocked environment
     var mockedEnvironment = FetcherTestUtils.generateMockedEnvironment(authenticatedUser, Map.of());
@@ -187,7 +192,7 @@ class VotingFetcherTests {
     PaginationResult<Vote> result = fetcher.listVotesVoting(mockedEnvironment);
 
     // then: we should build the successful result
-    assertEquals("There are votes", result.getTotal(), 1);
+    assertEquals("There are votes", result.getTotalCount(), 1);
   }
 
   @Test

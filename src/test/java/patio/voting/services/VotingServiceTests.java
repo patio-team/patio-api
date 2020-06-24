@@ -575,7 +575,7 @@ public class VotingServiceTests {
         votingService.listVotesVoting(UUID.randomUUID(), PaginationRequest.from(10, 0));
 
     // then: the votes are returned
-    assertEquals(paginatedVotes.getTotal(), 3, "Successfully listed votes");
+    assertEquals(paginatedVotes.getTotalCount(), 3, "Successfully listed votes");
 
     // and: only one method has been called
     verify(voteRepository, times(1))

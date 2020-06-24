@@ -51,8 +51,10 @@ type User {
 }
 
 type VotePaginationResult {
+    page: Int
+    lastPage: Int
+    totalCount: Int
     data: [Vote]
-    total: Int
 }
 
 type Voting {
@@ -73,14 +75,14 @@ type VotingStats {
     voteCountAverage: Float
     average: Float
     movingAverage: Float
-    votingId: ID
+    voting: Voting
 }
 
 type VotingStatsPaginationResult {
-    total: Int
+    page: Int
+    lastPage: Int
+    totalCount: Int
     data: [VotingStats]
-    hasPrevious: Boolean
-    hasNext: Boolean
 }
 
 type VotesByMood {
@@ -127,7 +129,7 @@ type Query {
     getLastVotingByGroup(groupId: ID!): Voting
 
     # get voting statistics for a group between a time interval
-    getStatsByGroupBetweenDateTimes(groupId: ID!, startDateTime: DateTime!, endDateTime: DateTime!, page: Int, max: Int): VotingStatsPaginationResult
+    getStatsByGroup(groupId: ID!, startDateTime: DateTime!, endDateTime: DateTime!, page: Int, max: Int): VotingStatsPaginationResult
 
     # get user by its id
     getUser(id: ID!): User
