@@ -21,6 +21,8 @@ import static patio.common.graphql.ArgumentUtils.extractPaginationFrom;
 
 import graphql.execution.DataFetcherResult;
 import graphql.schema.DataFetchingEnvironment;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -47,6 +49,10 @@ import patio.voting.services.VotingService;
 @Singleton
 public class VotingFetcher {
 
+  public static final String AVERAGE = "average";
+  public static final String MOVING_AVERAGE = "movingAverage";
+  public static final String CREATED_AT_DATE_TIME = "createdAtDateTime";
+  public static final String VOTING_ID = "votingId";
   /**
    * Instance handling the business logic
    *
@@ -197,5 +203,55 @@ public class VotingFetcher {
     DidIVoteInput input = VotingFetcherUtils.didIVoteInput(env);
 
     return ResultUtils.render(service.didUserVotedInVoting(input.getUser(), input.getVotingId()));
+  }
+
+  /**
+   * Fetches the voting statistics for a group between a time interval
+   *
+   * @param env GraphQL execution environment
+   * @return a list of available {@link Vote}
+   * @since 0.1.0
+   */
+  public Map<Object, Object> getStatsByGroupBetweenDateTimes(DataFetchingEnvironment env) {
+    var mondayStats = new HashMap<>();
+    mondayStats.put(AVERAGE, 3.5);
+    mondayStats.put(MOVING_AVERAGE, 3.7);
+    mondayStats.put(CREATED_AT_DATE_TIME, "2020-06-15T09:23:14.14258+02:00");
+    mondayStats.put(VOTING_ID, UUID.fromString("f1ad4562-4971-11e9-98cd-d663bd873d93"));
+    var tuesdayStats = new HashMap<>();
+    tuesdayStats.put(AVERAGE, 4.00);
+    tuesdayStats.put(MOVING_AVERAGE, 3.83);
+    tuesdayStats.put(CREATED_AT_DATE_TIME, "2020-06-16T09:23:14.14258+02:00");
+    tuesdayStats.put(VOTING_ID, UUID.fromString("f2ad4562-4971-11e9-98cd-d663bd873d93"));
+    var wednesdayStats = new HashMap<>();
+    wednesdayStats.put(AVERAGE, 2.93);
+    wednesdayStats.put(MOVING_AVERAGE, 3.46);
+    wednesdayStats.put(CREATED_AT_DATE_TIME, "2020-06-17T09:23:14.14258+02:00");
+    wednesdayStats.put(VOTING_ID, UUID.fromString("f3ad4562-4971-11e9-98cd-d663bd873d93"));
+    var thursdayStats = new HashMap<>();
+    thursdayStats.put(AVERAGE, 3.6);
+    thursdayStats.put(MOVING_AVERAGE, 3.5);
+    thursdayStats.put(CREATED_AT_DATE_TIME, "2020-06-18T09:23:14.14258+02:00");
+    thursdayStats.put(VOTING_ID, UUID.fromString("f4ad4562-4971-11e9-98cd-d663bd873d93"));
+    var fridayStats = new HashMap<>();
+    fridayStats.put(AVERAGE, 4.2);
+    fridayStats.put(MOVING_AVERAGE, 3.72);
+    fridayStats.put(CREATED_AT_DATE_TIME, "2020-06-19T09:23:14.14258+02:00");
+    fridayStats.put(VOTING_ID, UUID.fromString("f5ad4562-4971-11e9-98cd-d663bd873d93"));
+
+    var stats = new ArrayList<>();
+    stats.add(mondayStats);
+    stats.add(tuesdayStats);
+    stats.add(wednesdayStats);
+    stats.add(thursdayStats);
+    stats.add(fridayStats);
+
+    var pageableStats = new HashMap<>();
+    pageableStats.put("total", 20);
+    pageableStats.put("data", stats);
+    pageableStats.put("hasPrevious", true);
+    pageableStats.put("hasNext", true);
+
+    return pageableStats;
   }
 }

@@ -52,7 +52,9 @@ public class VotingProvider implements QueryProvider, MutationProvider, TypeProv
         builder
             .dataFetcher("listUserVotesInGroup", votingFetcher::listUserVotesInGroup)
             .dataFetcher("getVoting", votingFetcher::getVoting)
-            .dataFetcher("getLastVotingByGroup", votingFetcher::getLastVotingByGroup);
+            .dataFetcher("getLastVotingByGroup", votingFetcher::getLastVotingByGroup)
+            .dataFetcher(
+                "getStatsByGroupBetweenDateTimes", votingFetcher::getStatsByGroupBetweenDateTimes);
   }
 
   @Override
