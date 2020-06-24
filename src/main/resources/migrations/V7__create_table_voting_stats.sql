@@ -24,7 +24,7 @@ CREATE TABLE IF NOT EXISTS voting_stats (
   created_at timestamp with time zone NOT NULL,
   average DECIMAL(10,2) NULL,
   moving_average DECIMAL(10,2) NULL,
-  FOREIGN KEY (voting_id) REFERENCES voting(id)
+  FOREIGN KEY (voting_id) REFERENCES voting(id) ON DELETE CASCADE
 );
 
 INSERT INTO voting_stats (id, voting_id, average, created_at)
