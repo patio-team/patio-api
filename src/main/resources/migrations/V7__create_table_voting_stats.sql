@@ -28,9 +28,13 @@ CREATE TABLE IF NOT EXISTS voting_stats (
 );
 
 INSERT INTO voting_stats (id, voting_id, average, created_at)
-  SELECT uuid_generate_v4(), voting.id AS voting_id, AVG(vote.score) AS average, now()
-    FROM vote, voting
-    WHERE voting.id = vote.voting_id
+    SELECT
+      uuid_generate_v4(),
+      voting.id AS voting_id,
+      AVG(vote.score) AS average,
+      now()
+    FROM vote RIGHT OUTER JOIN voting ON
+      voting.id = vote.voting_id
     GROUP BY voting.id;
 
 ALTER TABLE voting
