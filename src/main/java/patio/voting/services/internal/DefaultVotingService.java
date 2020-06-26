@@ -22,12 +22,15 @@ import static patio.infrastructure.utils.OptionalUtils.combine;
 import io.micronaut.data.model.Page;
 import io.micronaut.data.model.Pageable;
 import java.time.OffsetDateTime;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.inject.Singleton;
 import javax.transaction.Transactional;
 import patio.common.domain.utils.NotPresent;
@@ -44,7 +47,9 @@ import patio.infrastructure.utils.ErrorConstants;
 import patio.user.domain.User;
 import patio.user.repositories.UserRepository;
 import patio.voting.domain.Vote;
+import patio.voting.domain.VoteByMoodDTO;
 import patio.voting.domain.Voting;
+import patio.voting.domain.VotingStats;
 import patio.voting.graphql.CreateVoteInput;
 import patio.voting.graphql.CreateVotingInput;
 import patio.voting.graphql.GetLastVotingInput;
@@ -256,15 +261,19 @@ public class DefaultVotingService implements VotingService {
     var optionalVoting = votingRepository.findById(input.getVotingId());
 
     var voteByMoodDTOList =
-        optionalVoting.map(votingRepository::findAllVotesByMood).orElse(List.of());
+        optionalVoting
+            .map(votingRepository::findAllVotesByMood)
+            .flatMap((list) -> Optional.of(completeList(list)))
+            .orElse(List.of());
 
     var maxExpectedVotes =
         optionalVoting.map(voteRepository::getMaxExpectedVoteCountByVoting).orElse(0L);
 
     var voteCountByVoting = optionalVoting.map(voteRepository::getVoteCountByVoting).orElse(0L);
     var voteCountAverage = optionalVoting.map(votingRepository::getAvgVoteCountByVoting).orElse(0L);
-    var votingAverage = optionalVoting.map((voting) -> voting.getStats().getAverage());
-    var votingMovingAverage = optionalVoting.map((voting) -> voting.getStats().getMovingAverage());
+    var votingAverage = optionalVoting.map(Voting::getStats).map(VotingStats::getAverage);
+    var votingMovingAverage =
+        optionalVoting.map(Voting::getStats).map(VotingStats::getMovingAverage);
 
     Map<String, Object> fakedVotingStats =
         Map.of(
@@ -282,6 +291,17 @@ public class DefaultVotingService implements VotingService {
             votingMovingAverage);
 
     return Result.result(fakedVotingStats);
+  }
+
+  private List<VoteByMoodDTO> completeList(List<VoteByMoodDTO> fromDatabase) {
+    var votesByMoodMap =
+        fromDatabase.stream()
+            .collect(Collectors.toMap(VoteByMoodDTO::getMood, Function.identity()));
+
+    return Stream.of(1, 2, 3, 4, 5)
+        .map((Integer idx) -> votesByMoodMap.getOrDefault(idx, new VoteByMoodDTO(0, idx)))
+        .sorted(Comparator.comparingInt(VoteByMoodDTO::getMood).reversed())
+        .collect(Collectors.toList());
   }
 
   private List<Vote> listUserVotesInGroupIfSuccess(UserVotesInGroupInput input) {
