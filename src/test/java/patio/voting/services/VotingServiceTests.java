@@ -55,6 +55,7 @@ import patio.infrastructure.utils.ErrorConstants;
 import patio.user.domain.User;
 import patio.user.repositories.UserRepository;
 import patio.voting.domain.Vote;
+import patio.voting.domain.VoteByMoodDTO;
 import patio.voting.domain.Voting;
 import patio.voting.graphql.CreateVoteInput;
 import patio.voting.graphql.CreateVotingInput;
@@ -749,5 +750,39 @@ public class VotingServiceTests {
     assertEquals(stats.get("voteCountAverage"), 4L);
     assertNotEquals(stats.get("average"), null);
     assertNotEquals(stats.get("movingAverage"), null);
+  }
+
+  @Test
+  void testGetVotingStatsVotesByMood() {
+    var votingRepository = mock(VotingRepository.class);
+    var votesByMood = List.of(new VoteByMoodDTO(1, 2), new VoteByMoodDTO(5, 3));
+
+    when(votingRepository.findById(any(UUID.class))).thenReturn(Optional.of(random(Voting.class)));
+    when(votingRepository.findAllVotesByMood(any(Voting.class))).thenReturn(votesByMood);
+
+    var voteRepository = mock(VoteRepository.class);
+    when(voteRepository.getVoteCountByVoting(any(Voting.class))).thenReturn(8L);
+    when(voteRepository.getMaxExpectedVoteCountByVoting(any(Voting.class))).thenReturn(16L);
+
+    var votingService =
+        new DefaultVotingService(votingRepository, voteRepository, null, null, null, null);
+    var input =
+        VotingStatsInput.builder().with(inner -> inner.setVotingId(UUID.randomUUID())).build();
+    var result = votingService.getVotingStats(input);
+    var stats = result.getSuccess();
+
+    List<VoteByMoodDTO> resultList = (List<VoteByMoodDTO>) stats.get("votesByMood");
+
+    assertTrue(result.isSuccess());
+
+    // then: despite there were only two records from database there should always be 5
+    assertEquals(resultList.size(), 5);
+
+    // and: those weren't coming from database should be set to 0
+    assertEquals(0, resultList.get(0).getCount());
+    assertEquals(0, resultList.get(1).getCount());
+    assertEquals(5, resultList.get(2).getCount());
+    assertEquals(1, resultList.get(3).getCount());
+    assertEquals(0, resultList.get(4).getCount());
   }
 }
