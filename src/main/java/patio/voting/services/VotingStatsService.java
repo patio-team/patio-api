@@ -17,7 +17,12 @@
  */
 package patio.voting.services;
 
+import patio.common.domain.utils.PaginationRequest;
+import patio.common.domain.utils.PaginationResult;
+import patio.group.domain.Group;
 import patio.voting.domain.Voting;
+import patio.voting.domain.VotingStats;
+import patio.voting.graphql.GetStatsByGroupInput;
 
 /**
  * Business logic contracts regarding persisted voting statistics
@@ -46,4 +51,14 @@ public interface VotingStatsService {
    * @param voting the {@link Voting} from which calculate its moving average
    */
   void updateMovingAverage(Voting voting);
+
+  /**
+   * Get the {@link Group}'s statistics according to its votings performed between the date times
+   *
+   * @param input the required input object to get the statistics
+   * @param paginationRequest the {@link PaginationRequest} to present the recovered statistics
+   * @return a {@link PaginationResult} of the {@link VotingStats} instances
+   */
+  PaginationResult<VotingStats> getVotingStatsByGroup(
+      GetStatsByGroupInput input, PaginationRequest paginationRequest);
 }

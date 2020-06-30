@@ -197,7 +197,7 @@ public class DefaultVotingService implements VotingService {
                 voting -> voteRepository.findByVotingOrderByCreatedAtDateTimeDesc(voting, pageable))
             .orElse(Page.empty());
 
-    return PaginationResult.from(page.getContent(), page.getTotalSize());
+    return PaginationResult.from(page);
   }
 
   @Override

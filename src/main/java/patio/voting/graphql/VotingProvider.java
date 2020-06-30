@@ -35,15 +35,18 @@ import patio.infrastructure.graphql.TypeProvider;
 public class VotingProvider implements QueryProvider, MutationProvider, TypeProvider {
 
   private final transient VotingFetcher votingFetcher;
+  private final transient VotingStatsFetcher votingStatsFetcher;
 
   /**
    * Initializes provider with its dependencies @@param votingFetcher all voting related data
    * fetchers
    *
    * @param votingFetcher {@link VotingFetcher} related voting data fetchers
+   * @param votingStatsFetcher {@link VotingStatsFetcher} related voting statistics fetchers
    */
-  public VotingProvider(VotingFetcher votingFetcher) {
+  public VotingProvider(VotingFetcher votingFetcher, VotingStatsFetcher votingStatsFetcher) {
     this.votingFetcher = votingFetcher;
+    this.votingStatsFetcher = votingStatsFetcher;
   }
 
   @Override
@@ -53,8 +56,7 @@ public class VotingProvider implements QueryProvider, MutationProvider, TypeProv
             .dataFetcher("listUserVotesInGroup", votingFetcher::listUserVotesInGroup)
             .dataFetcher("getVoting", votingFetcher::getVoting)
             .dataFetcher("getLastVotingByGroup", votingFetcher::getLastVotingByGroup)
-            .dataFetcher(
-                "getStatsByGroupBetweenDateTimes", votingFetcher::getStatsByGroupBetweenDateTimes);
+            .dataFetcher("getStatsByGroup", votingStatsFetcher::getVotingStatsByGroup);
   }
 
   @Override

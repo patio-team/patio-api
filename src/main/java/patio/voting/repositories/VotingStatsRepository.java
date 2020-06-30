@@ -18,6 +18,8 @@
 package patio.voting.repositories;
 
 import io.micronaut.data.annotation.Query;
+import io.micronaut.data.model.Page;
+import io.micronaut.data.model.Pageable;
 import io.micronaut.data.repository.PageableRepository;
 import java.time.OffsetDateTime;
 import java.util.Optional;
@@ -46,4 +48,30 @@ public interface VotingStatsRepository extends PageableRepository<VotingStats, U
           + "AND v.createdAtDateTime > :interval "
           + "AND vs.average is not null")
   Optional<Double> findMovingAverageByGroup(Group group, OffsetDateTime interval);
+
+  /**
+   * Finds all statistics for a given group between a time interval
+   *
+   * @param group the id of the group to get its statistics from
+   * @param startDateTime lower bound of type {@link OffsetDateTime}
+   * @param endDateTime upper bound of type {@link OffsetDateTime}
+   * @param pageable the information to paginate over the result set
+   * @return a paginated result of {@link VotingStats} instances from the given {@link Group}
+   */
+  @Query(
+      value =
+          "SELECT vs "
+              + "FROM Voting v JOIN v.stats vs "
+              + "WHERE v.group = :group "
+              + "AND v.createdAtDateTime BETWEEN :startDateTime AND :endDateTime "
+              + "AND vs.average is not null "
+              + "ORDER BY vs.createdAtDateTime",
+      countQuery =
+          "SELECT COUNT(vs) "
+              + "FROM Voting v JOIN v.stats vs "
+              + "WHERE v.group = :group "
+              + "AND v.createdAtDateTime BETWEEN :startDateTime AND :endDateTime "
+              + "AND vs.average is not null")
+  Page<VotingStats> findStatsByGroup(
+      Group group, OffsetDateTime startDateTime, OffsetDateTime endDateTime, Pageable pageable);
 }
