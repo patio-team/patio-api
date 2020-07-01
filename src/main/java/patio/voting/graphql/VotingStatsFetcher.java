@@ -17,16 +17,16 @@
  */
 package patio.voting.graphql;
 
-import static patio.common.graphql.ArgumentUtils.extractPaginationFrom;
-
 import graphql.schema.DataFetchingEnvironment;
+import java.time.OffsetDateTime;
+import java.util.List;
+import java.util.UUID;
 import javax.inject.Singleton;
-import patio.common.domain.utils.PaginationRequest;
 import patio.common.domain.utils.PaginationResult;
 import patio.group.domain.Group;
 import patio.voting.domain.Vote;
+import patio.voting.domain.Voting;
 import patio.voting.domain.VotingStats;
-import patio.voting.services.VotingStatsService;
 
 /**
  * All related GraphQL operations over the {@link Group} domain
@@ -35,24 +35,6 @@ import patio.voting.services.VotingStatsService;
  */
 @Singleton
 public class VotingStatsFetcher {
-
-  /**
-   * Instance handling the business logic
-   *
-   * @since 0.1.0
-   */
-  private final transient VotingStatsService service;
-
-  /**
-   * Constructor initializing the access to the business logic
-   *
-   * @param service class handling the logic over groups
-   * @since 0.1.0
-   */
-  public VotingStatsFetcher(VotingStatsService service) {
-    this.service = service;
-  }
-
   /**
    * Fetches the voting statistics for a group between a time interval
    *
@@ -60,10 +42,22 @@ public class VotingStatsFetcher {
    * @return a list of available {@link Vote}
    * @since 0.1.0
    */
+  // TODO: Implementation pending!!
   public PaginationResult<VotingStats> getVotingStatsByGroup(DataFetchingEnvironment env) {
-    GetStatsByGroupInput input = VotingStatsFetcherUtils.createGetStatsByGroupInput(env);
-    PaginationRequest pagination = extractPaginationFrom(env);
+    var votingMap = Voting.newBuilder().with(v -> v.setId(UUID.randomUUID())).build();
+    var votingStat =
+        VotingStats.newBuilder()
+            .with(vs -> vs.setMovingAverage(3.7d))
+            .with(vs -> vs.setAverage(1.7d))
+            .with(vs -> vs.setCreatedAtDateTime(OffsetDateTime.now()))
+            .with(vs -> vs.setVoting(votingMap))
+            .build();
 
-    return service.getVotingStatsByGroup(input, pagination);
+    return PaginationResult.newBuilder()
+        .with(pr -> pr.setTotalCount(1))
+        .with(pr -> pr.setLastPage(0))
+        .with(pr -> pr.setPage(0))
+        .with(pr -> pr.setData(List.of(votingStat)))
+        .build();
   }
 }

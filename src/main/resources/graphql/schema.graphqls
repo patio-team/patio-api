@@ -129,7 +129,7 @@ type Query {
     getLastVotingByGroup(groupId: ID!): Voting
 
     # get voting statistics for a group between a time interval
-    getStatsByGroup(groupId: ID!, startDateTime: DateTime!, endDateTime: DateTime!, page: Int, max: Int): VotingStatsPaginationResult
+    getStatsByGroup(groupId: ID!, page: Int, max: Int): VotingStatsPaginationResult
 
     # get user by its id
     getUser(id: ID!): User
