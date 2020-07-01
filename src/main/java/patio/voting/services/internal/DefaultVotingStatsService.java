@@ -99,15 +99,11 @@ public class DefaultVotingStatsService implements VotingStatsService {
   public PaginationResult<VotingStats> getVotingStatsByGroup(
       GetStatsByGroupInput input, PaginationRequest pagination) {
     Optional<Group> optionalGroup = groupRepository.findById(input.getGroupId());
-    OffsetDateTime startDateTime = input.getStartDateTime();
-    OffsetDateTime endDateTime = input.getEndDateTime();
     var pageable = Pageable.from(pagination.getPage(), pagination.getMax());
 
     var page =
         optionalGroup
-            .map(
-                group ->
-                    votingStatsRep.findStatsByGroup(group, startDateTime, endDateTime, pageable))
+            .map(group -> votingStatsRep.findStatsByGroup(group, pageable))
             .orElse(Page.empty());
 
     return PaginationResult.from(page);

@@ -17,7 +17,6 @@
  */
 package patio.voting.graphql;
 
-import java.time.OffsetDateTime;
 import java.util.UUID;
 import patio.common.domain.utils.Builder;
 
@@ -28,8 +27,6 @@ import patio.common.domain.utils.Builder;
  */
 public class GetStatsByGroupInput {
 
-  private OffsetDateTime startDateTime;
-  private OffsetDateTime endDateTime;
   private UUID groupId;
 
   /**
@@ -40,44 +37,6 @@ public class GetStatsByGroupInput {
    */
   public static Builder<GetStatsByGroupInput> newBuilder() {
     return Builder.build(GetStatsByGroupInput::new);
-  }
-
-  /**
-   * Returns the startDate
-   *
-   * @return the startDate
-   * @since 0.1.0
-   */
-  public OffsetDateTime getStartDateTime() {
-    return startDateTime;
-  }
-
-  /**
-   * Sets the startDateTime
-   *
-   * @param startDateTime the first date time to retrieve the stats
-   */
-  public void setStartDateTime(OffsetDateTime startDateTime) {
-    this.startDateTime = startDateTime;
-  }
-
-  /**
-   * Returns the endDate
-   *
-   * @return the endDate
-   * @since 0.1.0
-   */
-  public OffsetDateTime getEndDateTime() {
-    return endDateTime;
-  }
-
-  /**
-   * Sets the endDateTime
-   *
-   * @param endDateTime the last date time to retrieve the stats
-   */
-  public void setEndDateTime(OffsetDateTime endDateTime) {
-    this.endDateTime = endDateTime;
   }
 
   /**

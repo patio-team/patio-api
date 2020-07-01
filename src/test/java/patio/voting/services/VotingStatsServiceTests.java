@@ -26,7 +26,6 @@ import static org.mockito.Mockito.when;
 
 import io.micronaut.data.model.Page;
 import io.micronaut.data.model.Pageable;
-import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Optional;
 import java.util.UUID;
@@ -103,15 +102,8 @@ public class VotingStatsServiceTests {
   void testGetVotingStatsByGroupSuccess() {
     // given: the mocked data input
     var group = Group.builder().with(g -> g.setId(UUID.randomUUID())).build();
-    var startDate = random(OffsetDateTime.class);
-    var endDate = random(OffsetDateTime.class);
     var paginationRequest = PaginationRequest.from(5, 0);
-    var input =
-        GetStatsByGroupInput.newBuilder()
-            .with(i -> i.setGroupId(group.getId()))
-            .with(i -> i.setStartDateTime(startDate))
-            .with(i -> i.setEndDateTime(endDate))
-            .build();
+    var input = GetStatsByGroupInput.newBuilder().with(i -> i.setGroupId(group.getId())).build();
 
     // and: some mocked repositories
     var votingRepository = Mockito.mock(VotingRepository.class);
@@ -129,8 +121,7 @@ public class VotingStatsServiceTests {
 
     // and: the main repository returning the expected when called with the right parameters
     var votingStatRepository = Mockito.mock(VotingStatsRepository.class);
-    when(votingStatRepository.findStatsByGroup(group, startDate, endDate, pageable))
-        .thenReturn(pageResult);
+    when(votingStatRepository.findStatsByGroup(group, pageable)).thenReturn(pageResult);
 
     // when: the service method is executed
     var defaultVotingStatsService =
@@ -142,7 +133,7 @@ public class VotingStatsServiceTests {
     // then: we get the expected results
     assertEquals(paginatedVotingStats.getData(), expectedResults);
     assertEquals(paginatedVotingStats.getTotalCount(), expectedResults.size());
-    verify(votingStatRepository, times(1)).findStatsByGroup(group, startDate, endDate, pageable);
+    verify(votingStatRepository, times(1)).findStatsByGroup(group, pageable);
   }
 
   @Test
@@ -150,17 +141,10 @@ public class VotingStatsServiceTests {
   void testGetVotingStatsByGroupWhenBadGroupId() {
     // given: a wrong data input
     var group = Group.builder().with(g -> g.setId(UUID.randomUUID())).build();
-    var startDate = random(OffsetDateTime.class);
-    var endDate = random(OffsetDateTime.class);
     var paginationRequest = PaginationRequest.from(5, 0);
 
     var wrongGroupId = random(UUID.class);
-    var input =
-        GetStatsByGroupInput.newBuilder()
-            .with(i -> i.setGroupId(wrongGroupId))
-            .with(i -> i.setStartDateTime(startDate))
-            .with(i -> i.setEndDateTime(endDate))
-            .build();
+    var input = GetStatsByGroupInput.newBuilder().with(i -> i.setGroupId(wrongGroupId)).build();
 
     // and: some mocked repositories
     var votingRepository = Mockito.mock(VotingRepository.class);
@@ -178,8 +162,7 @@ public class VotingStatsServiceTests {
 
     // and: the main repository returning what's expected when called with the right parameters
     var votingStatRepository = Mockito.mock(VotingStatsRepository.class);
-    when(votingStatRepository.findStatsByGroup(group, startDate, endDate, pageable))
-        .thenReturn(pageResult);
+    when(votingStatRepository.findStatsByGroup(group, pageable)).thenReturn(pageResult);
 
     // when: the service method is executed with the wrong parameters
     var defaultVotingStatsService =
@@ -192,6 +175,6 @@ public class VotingStatsServiceTests {
     var noResults = new ArrayList<>();
     assertEquals(paginatedVotingStats.getData(), noResults);
     assertEquals(paginatedVotingStats.getTotalCount(), noResults.size());
-    verify(votingStatRepository, times(0)).findStatsByGroup(group, startDate, endDate, pageable);
+    verify(votingStatRepository, times(0)).findStatsByGroup(group, pageable);
   }
 }
