@@ -65,6 +65,8 @@ type Voting {
     stats: VotingStats
     votes(page: Int, max: Int): VotePaginationResult
     didIVote: Boolean
+    nextVoting: Voting
+    previousVoting: Voting
 }
 
 type VotingStats {
