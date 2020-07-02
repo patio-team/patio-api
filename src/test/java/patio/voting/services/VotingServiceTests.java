@@ -731,7 +731,7 @@ public class VotingServiceTests {
   void testGetVotingStats() {
     var votingRepository = mock(VotingRepository.class);
     when(votingRepository.findById(any(UUID.class))).thenReturn(Optional.of(random(Voting.class)));
-    when(votingRepository.getAvgVoteCountByVoting(any(Voting.class))).thenReturn(4L);
+    when(votingRepository.getAvgVoteCountByVoting(any(Voting.class))).thenReturn(Optional.of(4L));
 
     var voteRepository = mock(VoteRepository.class);
     when(voteRepository.getVoteCountByVoting(any(Voting.class))).thenReturn(8L);

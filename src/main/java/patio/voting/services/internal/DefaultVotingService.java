@@ -270,7 +270,8 @@ public class DefaultVotingService implements VotingService {
         optionalVoting.map(voteRepository::getMaxExpectedVoteCountByVoting).orElse(0L);
 
     var voteCountByVoting = optionalVoting.map(voteRepository::getVoteCountByVoting).orElse(0L);
-    var voteCountAverage = optionalVoting.map(votingRepository::getAvgVoteCountByVoting).orElse(0L);
+    var voteCountAverage =
+        optionalVoting.flatMap(votingRepository::getAvgVoteCountByVoting).orElse(0L);
     var votingAverage = optionalVoting.map(Voting::getStats).map(VotingStats::getAverage);
     var votingMovingAverage =
         optionalVoting.map(Voting::getStats).map(VotingStats::getMovingAverage);

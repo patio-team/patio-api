@@ -94,5 +94,5 @@ public interface VotingRepository extends PageableRepository<Voting, UUID> {
    * @param voting the voting we want the average number of people voting
    * @return the average number of people voting in this voting's group
    */
-  Long getAvgVoteCountByVoting(Voting voting);
+  Optional<Long> getAvgVoteCountByVoting(Voting voting);
 }

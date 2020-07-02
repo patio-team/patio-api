@@ -175,7 +175,7 @@ public class VotingRepositoryTests {
     // when: asking for vote count average of a group passing any group voting's id
     var optionalVoting =
         votingRepository.findById(UUID.fromString("7772e35c-5a87-4ba3-ab93-da8a957037fd"));
-    var avgVoteCount = optionalVoting.map(votingRepository::getAvgVoteCountByVoting).orElse(0L);
+    var avgVoteCount = optionalVoting.flatMap(votingRepository::getAvgVoteCountByVoting).orElse(0L);
 
     // then: we should get the expected average
     assertEquals(6L, avgVoteCount.longValue());

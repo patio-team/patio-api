@@ -19,6 +19,7 @@ package patio.voting.repositories.internal;
 
 import io.micronaut.data.annotation.Repository;
 import java.math.BigDecimal;
+import java.util.Optional;
 import javax.persistence.EntityManager;
 import patio.infrastructure.persistence.MicroBaseRepository;
 import patio.voting.domain.Vote;
@@ -40,7 +41,7 @@ public abstract class MicroVotingRepository extends MicroBaseRepository
   }
 
   @Override
-  public Long getAvgVoteCountByVoting(Voting voting) {
+  public Optional<Long> getAvgVoteCountByVoting(Voting voting) {
     var subquery =
         "select "
             + "count(vo.*) as counter, "
@@ -58,6 +59,6 @@ public abstract class MicroVotingRepository extends MicroBaseRepository
     BigDecimal bigDecimal =
         (BigDecimal) nativeQuery.setParameter(1, voting.getGroup().getId()).getSingleResult();
 
-    return bigDecimal.longValue();
+    return Optional.ofNullable(bigDecimal).map(BigDecimal::longValue);
   }
 }
