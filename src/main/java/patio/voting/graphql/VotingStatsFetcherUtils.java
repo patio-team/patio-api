@@ -18,7 +18,6 @@
 package patio.voting.graphql;
 
 import graphql.schema.DataFetchingEnvironment;
-import java.time.OffsetDateTime;
 import java.util.UUID;
 
 /**
@@ -44,13 +43,7 @@ final class VotingStatsFetcherUtils {
   /* default */ static GetStatsByGroupInput createGetStatsByGroupInput(
       DataFetchingEnvironment environment) {
     UUID groupId = environment.getArgument("groupId");
-    OffsetDateTime startDate = environment.getArgument("startDateTime");
-    OffsetDateTime endDate = environment.getArgument("endDateTime");
 
-    return GetStatsByGroupInput.newBuilder()
-        .with(i -> i.setGroupId(groupId))
-        .with(i -> i.setStartDateTime(startDate))
-        .with(i -> i.setEndDateTime(endDate))
-        .build();
+    return GetStatsByGroupInput.newBuilder().with(i -> i.setGroupId(groupId)).build();
   }
 }
