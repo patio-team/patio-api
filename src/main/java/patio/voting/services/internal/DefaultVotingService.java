@@ -22,6 +22,7 @@ import static patio.infrastructure.utils.OptionalUtils.combine;
 import io.micronaut.data.model.Page;
 import io.micronaut.data.model.Pageable;
 import java.time.OffsetDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -276,7 +277,7 @@ public class DefaultVotingService implements VotingService {
     var votingMovingAverage =
         optionalVoting.map(Voting::getStats).map(VotingStats::getMovingAverage);
 
-    Map<String, Object> fakedVotingStats =
+    Map<String, Object> votingStats =
         Map.of(
             "votesByMood",
             voteByMoodDTOList,
@@ -291,7 +292,39 @@ public class DefaultVotingService implements VotingService {
             "movingAverage",
             votingMovingAverage);
 
-    return Result.result(fakedVotingStats);
+    return Result.result(votingStats);
+  }
+
+  @Override
+  public Result<Voting> getNextVoting(UUID votingId) {
+    Optional<Voting> optionalVoting = votingRepository.findById(votingId);
+    Optional<OffsetDateTime> votingDateTime =
+        optionalVoting.map(v -> v.getCreatedAtDateTime().plus(1, ChronoUnit.SECONDS));
+    Optional<Group> votingGroup = optionalVoting.map(v -> v.getGroup());
+    Optional<Voting> nextVoting =
+        combine(votingGroup, votingDateTime)
+            .flatmapInto(votingRepository::getNextVotingByGroupAndDate);
+    var notPresent = new NotPresent();
+
+    return Result.<Voting>create()
+        .thenCheck(() -> notPresent.check(nextVoting))
+        .then(nextVoting::get);
+  }
+
+  @Override
+  public Result<Voting> getPreviousVoting(UUID votingId) {
+    Optional<Voting> voting = votingRepository.findById(votingId);
+    Optional<OffsetDateTime> votingDateTime = voting.map(v -> v.getCreatedAtDateTime());
+    Optional<Group> votingGroup = voting.map(v -> v.getGroup());
+    Optional<Voting> previousVoting =
+        combine(votingGroup, votingDateTime)
+            .flatmapInto(votingRepository::getPreviousVotingByGroupAndDate);
+
+    var notPresent = new NotPresent();
+
+    return Result.<Voting>create()
+        .thenCheck(() -> notPresent.check(previousVoting))
+        .then(previousVoting::get);
   }
 
   private List<VoteByMoodDTO> completeList(List<VoteByMoodDTO> fromDatabase) {

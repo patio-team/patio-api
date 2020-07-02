@@ -21,7 +21,6 @@ import static patio.common.graphql.ArgumentUtils.extractPaginationFrom;
 
 import graphql.execution.DataFetcherResult;
 import graphql.schema.DataFetchingEnvironment;
-import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -211,13 +210,10 @@ public class VotingFetcher {
    * @return the next voting
    * @since 0.1.0
    */
-  // TODO: Implementation pending!!
-  public Voting getNextVoting(DataFetchingEnvironment env) {
+  public DataFetcherResult<Voting> getNextVoting(DataFetchingEnvironment env) {
+    Voting voting = env.getSource();
 
-    return Voting.newBuilder()
-        .with(v -> v.setId(UUID.randomUUID()))
-        .with(v -> v.setCreatedAtDateTime(OffsetDateTime.now()))
-        .build();
+    return ResultUtils.render(service.getNextVoting(voting.getId()));
   }
 
   /**
@@ -227,12 +223,9 @@ public class VotingFetcher {
    * @return the next voting
    * @since 0.1.0
    */
-  // TODO: Implementation pending!!
-  public Voting getPreviousVoting(DataFetchingEnvironment env) {
+  public DataFetcherResult<Voting> getPreviousVoting(DataFetchingEnvironment env) {
+    Voting voting = env.getSource();
 
-    return Voting.newBuilder()
-        .with(v -> v.setId(UUID.randomUUID()))
-        .with(v -> v.setCreatedAtDateTime(OffsetDateTime.now()))
-        .build();
+    return ResultUtils.render(service.getPreviousVoting(voting.getId()));
   }
 }

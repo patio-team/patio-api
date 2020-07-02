@@ -25,6 +25,7 @@ import static patio.infrastructure.utils.IterableUtils.iterableToStream;
 
 import io.micronaut.data.model.Pageable;
 import io.micronaut.test.annotation.MicronautTest;
+import java.time.OffsetDateTime;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -33,12 +34,14 @@ import java.util.stream.Collectors;
 import javax.inject.Inject;
 import org.flywaydb.core.Flyway;
 import org.hamcrest.collection.IsIterableContainingInOrder;
+import org.junit.Assert;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import patio.group.repositories.GroupRepository;
 import patio.infrastructure.tests.Fixtures;
 import patio.infrastructure.utils.OptionalUtils;
 import patio.user.domain.User;
@@ -64,6 +67,7 @@ public class VotingRepositoryTests {
   @Inject transient UserRepository userRepository;
   @Inject transient VoteRepository voteRepository;
   @Inject transient VotingRepository votingRepository;
+  @Inject transient GroupRepository groupRepository;
 
   @Inject transient Fixtures fixtures;
 
@@ -179,5 +183,83 @@ public class VotingRepositoryTests {
 
     // then: we should get the expected average
     assertEquals(6L, avgVoteCount.longValue());
+  }
+
+  @Test
+  void testGetNextVoting() {
+    // given: pre-existent data
+    fixtures.load(VotingRepositoryTests.class, "testFindMovingAverageByGroup.sql");
+    var votingDate = OffsetDateTime.parse("2020-06-21T00:00:01+01:00");
+
+    // when: asking to get the next voting to a date and group
+    var nextVoting =
+        groupRepository
+            .findById(UUID.fromString("d64db962-3455-11e9-b210-d663bd873d93"))
+            .map(
+                (votingGroup) ->
+                    votingRepository.getNextVotingByGroupAndDate(votingGroup, votingDate))
+            .orElse(null);
+
+    // then: we should get the next voting in time
+    Assert.assertEquals(
+        nextVoting.get().getId(), UUID.fromString("7772e35c-5a87-4ba3-ab93-da8a957038fd"));
+  }
+
+  @Test
+  void testGetNextVotingWhenLastOne() {
+    // given: pre-existent data
+    fixtures.load(VotingRepositoryTests.class, "testFindMovingAverageByGroup.sql");
+    var votingDate = OffsetDateTime.parse("2020-07-01T00:00:01+01:00");
+
+    // when: asking to get the next voting when there's no more votings
+    var nextVoting =
+        groupRepository
+            .findById(UUID.fromString("d64db962-3455-11e9-b210-d663bd873d93"))
+            .map(
+                (votingGroup) ->
+                    votingRepository.getNextVotingByGroupAndDate(votingGroup, votingDate))
+            .orElse(null);
+
+    // then: we should get no voting
+    Assert.assertEquals(nextVoting, Optional.empty());
+  }
+
+  @Test
+  void testGetPreviousVoting() {
+    // given: pre-existent data
+    fixtures.load(VotingRepositoryTests.class, "testFindMovingAverageByGroup.sql");
+    var votingDate = OffsetDateTime.parse("2020-06-21T00:00:01+01:00");
+
+    // when: asking to get the previous voting to a date and group
+    var nextVoting =
+        groupRepository
+            .findById(UUID.fromString("d64db962-3455-11e9-b210-d663bd873d93"))
+            .map(
+                (votingGroup) ->
+                    votingRepository.getPreviousVotingByGroupAndDate(votingGroup, votingDate))
+            .orElse(null);
+
+    // then: we should get the previous voting in time
+    Assert.assertEquals(
+        nextVoting.get().getId(), UUID.fromString("7772e35c-5a87-4ba3-ab93-da8a957037fd"));
+  }
+
+  @Test
+  void testGetPreviousVotingWhenFirstOne() {
+    // given: pre-existent data
+    fixtures.load(VotingRepositoryTests.class, "testFindMovingAverageByGroup.sql");
+    var votingDate = OffsetDateTime.parse("2020-06-01T00:00:01+01:00");
+
+    // when: asking to get the previous voting when there's no previous votings
+    var nextVoting =
+        groupRepository
+            .findById(UUID.fromString("d64db962-3455-11e9-b210-d663bd873d93"))
+            .map(
+                (votingGroup) ->
+                    votingRepository.getPreviousVotingByGroupAndDate(votingGroup, votingDate))
+            .orElse(null);
+
+    // then: we should get no voting
+    Assert.assertEquals(nextVoting, Optional.empty());
   }
 }
