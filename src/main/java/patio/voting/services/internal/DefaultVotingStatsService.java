@@ -17,15 +17,13 @@
  */
 package patio.voting.services.internal;
 
-import io.micronaut.data.model.Page;
-import io.micronaut.data.model.Pageable;
 import java.time.OffsetDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Optional;
 import javax.inject.Singleton;
 import javax.transaction.Transactional;
-import patio.common.domain.utils.PaginationRequest;
-import patio.common.domain.utils.PaginationResult;
+import patio.common.domain.utils.OffsetPaginationRequest;
+import patio.common.domain.utils.OffsetPaginationResult;
 import patio.group.domain.Group;
 import patio.group.repositories.GroupRepository;
 import patio.voting.domain.Voting;
@@ -96,17 +94,16 @@ public class DefaultVotingStatsService implements VotingStatsService {
   }
 
   @Override
-  public PaginationResult<VotingStats> getVotingStatsByGroup(
-      GetStatsByGroupInput input, PaginationRequest pagination) {
+  public OffsetPaginationResult<VotingStats> getVotingStatsByGroup(
+      GetStatsByGroupInput input, OffsetPaginationRequest pagination) {
     Optional<Group> optionalGroup = groupRepository.findById(input.getGroupId());
-    var pageable = Pageable.from(pagination.getPage(), pagination.getMax());
 
     var page =
         optionalGroup
-            .map(group -> votingStatsRep.findStatsByGroup(group, pageable))
-            .orElse(Page.empty());
+            .map(group -> votingStatsRep.findStatsByGroup(group, pagination))
+            .orElse(OffsetPaginationResult.empty());
 
-    return PaginationResult.from(page);
+    return new OffsetPaginationResult<>(page.getTotalCount(), page.getOffset(), page.getData());
   }
 
   /**

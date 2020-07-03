@@ -17,7 +17,8 @@
  */
 package patio.voting.services;
 
-import patio.common.domain.utils.PaginationRequest;
+import patio.common.domain.utils.OffsetPaginationRequest;
+import patio.common.domain.utils.OffsetPaginationResult;
 import patio.common.domain.utils.PaginationResult;
 import patio.group.domain.Group;
 import patio.voting.domain.Voting;
@@ -56,9 +57,10 @@ public interface VotingStatsService {
    * Get the {@link Group}'s statistics according to its votings performed between the date times
    *
    * @param input the required input object to get the statistics
-   * @param paginationRequest the {@link PaginationRequest} to present the recovered statistics
+   * @param paginationRequest the {@link OffsetPaginationRequest} to present the recovered
+   *     statistics
    * @return a {@link PaginationResult} of the {@link VotingStats} instances
    */
-  PaginationResult<VotingStats> getVotingStatsByGroup(
-      GetStatsByGroupInput input, PaginationRequest paginationRequest);
+  OffsetPaginationResult<VotingStats> getVotingStatsByGroup(
+      GetStatsByGroupInput input, OffsetPaginationRequest paginationRequest);
 }

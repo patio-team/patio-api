@@ -18,12 +18,12 @@
 package patio.voting.repositories;
 
 import io.micronaut.data.annotation.Query;
-import io.micronaut.data.model.Page;
-import io.micronaut.data.model.Pageable;
 import io.micronaut.data.repository.PageableRepository;
 import java.time.OffsetDateTime;
 import java.util.Optional;
 import java.util.UUID;
+import patio.common.domain.utils.OffsetPaginationRequest;
+import patio.common.domain.utils.OffsetPaginationResult;
 import patio.group.domain.Group;
 import patio.voting.domain.VotingStats;
 
@@ -53,20 +53,9 @@ public interface VotingStatsRepository extends PageableRepository<VotingStats, U
    * Finds all statistics for a given group between a time interval
    *
    * @param group the id of the group to get its statistics from
-   * @param pageable the information to paginate over the result set
+   * @param paginationRequest pagination information
    * @return a paginated result of {@link VotingStats} instances from the given {@link Group}
    */
-  @Query(
-      value =
-          "SELECT vs "
-              + "FROM Voting v JOIN v.stats vs "
-              + "WHERE v.group = :group "
-              + "AND vs.average is not null "
-              + "ORDER BY vs.createdAtDateTime DESC",
-      countQuery =
-          "SELECT COUNT(vs) "
-              + "FROM Voting v JOIN v.stats vs "
-              + "WHERE v.group = :group "
-              + "AND vs.average is not null")
-  Page<VotingStats> findStatsByGroup(Group group, Pageable pageable);
+  OffsetPaginationResult<VotingStats> findStatsByGroup(
+      Group group, OffsetPaginationRequest paginationRequest);
 }

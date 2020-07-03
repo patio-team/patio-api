@@ -19,6 +19,9 @@ package patio.voting.repositories.internal;
 
 import io.micronaut.data.annotation.Repository;
 import javax.persistence.EntityManager;
+import patio.common.domain.utils.OffsetPaginationRequest;
+import patio.common.domain.utils.OffsetPaginationResult;
+import patio.group.domain.Group;
 import patio.infrastructure.persistence.MicroBaseRepository;
 import patio.voting.domain.VotingStats;
 import patio.voting.repositories.VotingStatsRepository;
@@ -35,5 +38,36 @@ public abstract class MicroVotingStatsRepository extends MicroBaseRepository
    */
   public MicroVotingStatsRepository(EntityManager entityManager) {
     super(entityManager);
+  }
+
+  @Override
+  public OffsetPaginationResult<VotingStats> findStatsByGroup(
+      Group group, OffsetPaginationRequest paginationRequest) {
+    var value =
+        "SELECT vs "
+            + "FROM Voting v JOIN v.stats vs "
+            + "WHERE v.group = :group "
+            + "AND vs.average is not null "
+            + "ORDER BY vs.createdAtDateTime DESC";
+
+    var valueQuery =
+        getEntityManager()
+            .createQuery(value, VotingStats.class)
+            .setParameter("group", group)
+            .setFirstResult(paginationRequest.getOffset())
+            .setMaxResults(paginationRequest.getMax());
+
+    var count =
+        "SELECT COUNT(vs) "
+            + "FROM Voting v JOIN v.stats vs "
+            + "WHERE v.group = :group "
+            + "AND vs.average is not null";
+
+    var countQuery = getEntityManager().createQuery(count, Long.class).setParameter("group", group);
+
+    return new OffsetPaginationResult<>(
+        countQuery.getSingleResult().intValue(),
+        paginationRequest.getOffset(),
+        valueQuery.getResultList());
   }
 }
