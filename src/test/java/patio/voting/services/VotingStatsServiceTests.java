@@ -24,15 +24,14 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import io.micronaut.data.model.Page;
-import io.micronaut.data.model.Pageable;
 import java.util.ArrayList;
 import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-import patio.common.domain.utils.PaginationRequest;
+import patio.common.domain.utils.OffsetPaginationRequest;
+import patio.common.domain.utils.OffsetPaginationResult;
 import patio.group.domain.Group;
 import patio.group.repositories.GroupRepository;
 import patio.voting.domain.Voting;
@@ -102,7 +101,7 @@ public class VotingStatsServiceTests {
   void testGetVotingStatsByGroupSuccess() {
     // given: the mocked data input
     var group = Group.builder().with(g -> g.setId(UUID.randomUUID())).build();
-    var paginationRequest = PaginationRequest.from(5, 0);
+    var offsetPaginationRequest = new OffsetPaginationRequest(1, 5);
     var input = GetStatsByGroupInput.newBuilder().with(i -> i.setGroupId(group.getId())).build();
 
     // and: some mocked repositories
@@ -112,28 +111,30 @@ public class VotingStatsServiceTests {
     when(groupRepository.findById(group.getId())).thenReturn(Optional.of(group));
 
     // and: the expected result
-    var pageable = Pageable.from(paginationRequest.getPage(), paginationRequest.getMax());
     var expectedResults = new ArrayList<VotingStats>();
     expectedResults.add(random(VotingStats.class));
     expectedResults.add(random(VotingStats.class));
     expectedResults.add(random(VotingStats.class));
-    var pageResult = Page.of(expectedResults, Pageable.from(0), expectedResults.size());
+    var paginationResult =
+        new OffsetPaginationResult<VotingStats>(expectedResults.size(), 1, expectedResults);
 
     // and: the main repository returning the expected when called with the right parameters
     var votingStatRepository = Mockito.mock(VotingStatsRepository.class);
-    when(votingStatRepository.findStatsByGroup(group, pageable)).thenReturn(pageResult);
+
+    when(votingStatRepository.findStatsByGroup(group, offsetPaginationRequest))
+        .thenReturn(paginationResult);
 
     // when: the service method is executed
     var defaultVotingStatsService =
         new DefaultVotingStatsService(
             votingStatRepository, votingRepository, voteRepository, groupRepository);
     var paginatedVotingStats =
-        defaultVotingStatsService.getVotingStatsByGroup(input, paginationRequest);
+        defaultVotingStatsService.getVotingStatsByGroup(input, offsetPaginationRequest);
 
     // then: we get the expected results
     assertEquals(paginatedVotingStats.getData(), expectedResults);
     assertEquals(paginatedVotingStats.getTotalCount(), expectedResults.size());
-    verify(votingStatRepository, times(1)).findStatsByGroup(group, pageable);
+    verify(votingStatRepository, times(1)).findStatsByGroup(group, offsetPaginationRequest);
   }
 
   @Test
@@ -141,7 +142,6 @@ public class VotingStatsServiceTests {
   void testGetVotingStatsByGroupWhenBadGroupId() {
     // given: a wrong data input
     var group = Group.builder().with(g -> g.setId(UUID.randomUUID())).build();
-    var paginationRequest = PaginationRequest.from(5, 0);
 
     var wrongGroupId = random(UUID.class);
     var input = GetStatsByGroupInput.newBuilder().with(i -> i.setGroupId(wrongGroupId)).build();
@@ -153,28 +153,30 @@ public class VotingStatsServiceTests {
     when(groupRepository.findById(group.getId())).thenReturn(Optional.of(group));
 
     // and: not-expected results to be returned
-    var pageable = Pageable.from(paginationRequest.getPage(), paginationRequest.getMax());
+    var offsetPaginationRequest = new OffsetPaginationRequest(1, 5);
     var votingStatsResult = new ArrayList<VotingStats>();
     votingStatsResult.add(random(VotingStats.class));
     votingStatsResult.add(random(VotingStats.class));
     votingStatsResult.add(random(VotingStats.class));
-    var pageResult = Page.of(votingStatsResult, Pageable.from(0), votingStatsResult.size());
+    var offsetPaginationResult =
+        new OffsetPaginationResult<VotingStats>(votingStatsResult.size(), 1, votingStatsResult);
 
     // and: the main repository returning what's expected when called with the right parameters
     var votingStatRepository = Mockito.mock(VotingStatsRepository.class);
-    when(votingStatRepository.findStatsByGroup(group, pageable)).thenReturn(pageResult);
+    when(votingStatRepository.findStatsByGroup(group, offsetPaginationRequest))
+        .thenReturn(offsetPaginationResult);
 
     // when: the service method is executed with the wrong parameters
     var defaultVotingStatsService =
         new DefaultVotingStatsService(
             votingStatRepository, votingRepository, voteRepository, groupRepository);
     var paginatedVotingStats =
-        defaultVotingStatsService.getVotingStatsByGroup(input, paginationRequest);
+        defaultVotingStatsService.getVotingStatsByGroup(input, offsetPaginationRequest);
 
     // then: we get the expected results
     var noResults = new ArrayList<>();
     assertEquals(paginatedVotingStats.getData(), noResults);
     assertEquals(paginatedVotingStats.getTotalCount(), noResults.size());
-    verify(votingStatRepository, times(0)).findStatsByGroup(group, pageable);
+    verify(votingStatRepository, times(0)).findStatsByGroup(group, offsetPaginationRequest);
   }
 }

@@ -17,12 +17,12 @@
  */
 package patio.voting.graphql;
 
-import static patio.common.graphql.ArgumentUtils.extractPaginationFrom;
+import static patio.common.graphql.ArgumentUtils.extractOffsetPaginationFrom;
 
 import graphql.schema.DataFetchingEnvironment;
 import javax.inject.Singleton;
-import patio.common.domain.utils.PaginationRequest;
-import patio.common.domain.utils.PaginationResult;
+import patio.common.domain.utils.OffsetPaginationRequest;
+import patio.common.domain.utils.OffsetPaginationResult;
 import patio.group.domain.Group;
 import patio.voting.domain.Vote;
 import patio.voting.domain.VotingStats;
@@ -60,9 +60,9 @@ public class VotingStatsFetcher {
    * @return a list of available {@link Vote}
    * @since 0.1.0
    */
-  public PaginationResult<VotingStats> getVotingStatsByGroup(DataFetchingEnvironment env) {
+  public OffsetPaginationResult<VotingStats> getVotingStatsByGroup(DataFetchingEnvironment env) {
     GetStatsByGroupInput input = VotingStatsFetcherUtils.createGetStatsByGroupInput(env);
-    PaginationRequest pagination = extractPaginationFrom(env);
+    OffsetPaginationRequest pagination = extractOffsetPaginationFrom(env);
 
     return service.getVotingStatsByGroup(input, pagination);
   }

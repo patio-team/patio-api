@@ -18,6 +18,7 @@
 package patio.common.graphql;
 
 import graphql.schema.DataFetchingEnvironment;
+import patio.common.domain.utils.OffsetPaginationRequest;
 import patio.common.domain.utils.PaginationRequest;
 
 /**
@@ -44,5 +45,18 @@ public final class ArgumentUtils {
     Integer max = env.getArgument("max");
 
     return PaginationRequest.from(max != null ? max : 20, page != null ? page : 0);
+  }
+
+  /**
+   * Extracts an {@link OffsetPaginationRequest}
+   *
+   * @param env GraphQL {@link DataFetchingEnvironment} object to extract arguments from
+   * @return an instance of type {@link OffsetPaginationRequest}
+   */
+  public static OffsetPaginationRequest extractOffsetPaginationFrom(DataFetchingEnvironment env) {
+    Integer offset = env.getArgument("offset");
+    Integer max = env.getArgument("max");
+
+    return new OffsetPaginationRequest(offset, max);
   }
 }

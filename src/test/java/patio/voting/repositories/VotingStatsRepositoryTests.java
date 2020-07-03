@@ -19,8 +19,6 @@ package patio.voting.repositories;
 
 import static org.junit.Assert.assertEquals;
 
-import io.micronaut.data.model.Page;
-import io.micronaut.data.model.Pageable;
 import io.micronaut.test.annotation.MicronautTest;
 import java.time.OffsetDateTime;
 import java.util.Optional;
@@ -33,7 +31,8 @@ import org.junit.jupiter.api.Test;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
-import patio.common.domain.utils.PaginationRequest;
+import patio.common.domain.utils.OffsetPaginationRequest;
+import patio.common.domain.utils.OffsetPaginationResult;
 import patio.group.repositories.GroupRepository;
 import patio.infrastructure.tests.Fixtures;
 
@@ -125,18 +124,16 @@ public class VotingStatsRepositoryTests {
   void testGetGroupStatsFindAllVotingStats() {
     // given: pre-existent data
     fixtures.load(VotingStatsRepositoryTests.class, "testFindMovingAverageByGroup.sql");
-
-    var paginationRequest = PaginationRequest.from(2, 0);
-    var pageable = Pageable.from(paginationRequest.getPage(), paginationRequest.getMax());
+    var request = new OffsetPaginationRequest(1, 1);
 
     // when: asking to calculate the moving average between two dates that comprise all data
     var statsPage =
         groupRepository
             .findById(UUID.fromString("d64db962-3455-11e9-b210-d663bd873d93"))
-            .map((group) -> votingStatsRepository.findStatsByGroup(group, pageable))
-            .orElse(Page.empty());
+            .map((group) -> votingStatsRepository.findStatsByGroup(group, request))
+            .orElse(OffsetPaginationResult.empty());
 
     // then: we should get all voting stats
-    assertEquals(statsPage.getTotalSize(), 2);
+    assertEquals(statsPage.getTotalCount(), 2);
   }
 }
