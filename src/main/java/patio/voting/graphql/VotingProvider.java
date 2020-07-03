@@ -77,7 +77,9 @@ public class VotingProvider implements QueryProvider, MutationProvider, TypeProv
                     builder
                         .dataFetcher("votes", votingFetcher::listVotesVoting)
                         .dataFetcher("didIVote", votingFetcher::didIVote)
-                        .dataFetcher("stats", votingFetcher::getVotingStats))
+                        .dataFetcher("stats", votingFetcher::getVotingStats)
+                        .dataFetcher("nextVoting", votingFetcher::getNextVoting)
+                        .dataFetcher("previousVoting", votingFetcher::getPreviousVoting))
             .type(
                 "Vote",
                 builder -> builder.dataFetcher("createdBy", votingFetcher::getVoteCreatedBy));
