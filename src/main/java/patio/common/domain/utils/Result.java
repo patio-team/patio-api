@@ -217,7 +217,8 @@ public class Result<T> {
   }
 
   /**
-   * Creates an {@link Optional} object to a {@link Result}
+   * Creates an {@link Optional} object to a {@link Result}. In case optional is empty and error
+   * result will be returned.
    *
    * @param optional the optional object
    * @param error the error in case the optional object is empty
@@ -226,5 +227,17 @@ public class Result<T> {
    */
   public static <A> Result<A> from(Optional<A> optional, Error error) {
     return optional.map(Result::result).orElse(Result.error(error));
+  }
+
+  /**
+   * Creates an {@link Optional} object to a {@link Result}. If the optional object is empty, then
+   * the result will be empty too.
+   *
+   * @param optional the optional object
+   * @param <A> the type of the {@link Result}
+   * @return an instance of {@link Result} type
+   */
+  public static <A> Result<A> from(Optional<A> optional) {
+    return optional.map(Result::result).orElse(Result.create());
   }
 }

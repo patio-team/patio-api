@@ -300,31 +300,24 @@ public class DefaultVotingService implements VotingService {
     Optional<Voting> optionalVoting = votingRepository.findById(votingId);
     Optional<OffsetDateTime> votingDateTime =
         optionalVoting.map(v -> v.getCreatedAtDateTime().plus(1, ChronoUnit.SECONDS));
-    Optional<Group> votingGroup = optionalVoting.map(v -> v.getGroup());
+    Optional<Group> votingGroup = optionalVoting.map(Voting::getGroup);
     Optional<Voting> nextVoting =
         combine(votingGroup, votingDateTime)
             .flatmapInto(votingRepository::getNextVotingByGroupAndDate);
-    var notPresent = new NotPresent();
 
-    return Result.<Voting>create()
-        .thenCheck(() -> notPresent.check(nextVoting))
-        .then(nextVoting::get);
+    return Result.from(nextVoting);
   }
 
   @Override
   public Result<Voting> getPreviousVoting(UUID votingId) {
     Optional<Voting> voting = votingRepository.findById(votingId);
-    Optional<OffsetDateTime> votingDateTime = voting.map(v -> v.getCreatedAtDateTime());
-    Optional<Group> votingGroup = voting.map(v -> v.getGroup());
+    Optional<OffsetDateTime> votingDateTime = voting.map(Voting::getCreatedAtDateTime);
+    Optional<Group> votingGroup = voting.map(Voting::getGroup);
     Optional<Voting> previousVoting =
         combine(votingGroup, votingDateTime)
             .flatmapInto(votingRepository::getPreviousVotingByGroupAndDate);
 
-    var notPresent = new NotPresent();
-
-    return Result.<Voting>create()
-        .thenCheck(() -> notPresent.check(previousVoting))
-        .then(previousVoting::get);
+    return Result.from(previousVoting);
   }
 
   private List<VoteByMoodDTO> completeList(List<VoteByMoodDTO> fromDatabase) {

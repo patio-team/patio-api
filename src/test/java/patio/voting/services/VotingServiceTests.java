@@ -833,10 +833,9 @@ public class VotingServiceTests {
     var votingService = new DefaultVotingService(votingRepository, null, null, null, null, null);
     Result<Voting> result = votingService.getNextVoting(voting.getId());
 
-    // then: we should build an error
+    // then: a null value is ok because is expected to have nothing after the last voting
     assertNotNull(result.getErrorList());
     assertNull(result.getSuccess());
-    assertEquals(ErrorConstants.NOT_FOUND, result.getErrorList().get(0));
   }
 
   @Test
@@ -888,9 +887,8 @@ public class VotingServiceTests {
     var votingService = new DefaultVotingService(votingRepository, null, null, null, null, null);
     Result<Voting> result = votingService.getPreviousVoting(voting.getId());
 
-    // then: we should build an error
+    // then: a null value is ok because we expect to have nothing before the first voting
     assertNotNull(result.getErrorList());
     assertNull(result.getSuccess());
-    assertEquals(ErrorConstants.NOT_FOUND, result.getErrorList().get(0));
   }
 }
