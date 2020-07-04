@@ -690,7 +690,6 @@ public class VotingServiceTests {
             votingRepository, null, votingStatsService, null, userRepository, groupRepository);
     var input = GetLastVotingInput.newBuilder().with(i -> i.setCurrentUserId(user.getId())).build();
     Result<Voting> result = votingService.getLastVotingByGroup(input);
-    System.out.println(result.getErrorList().get(0).getMessage());
 
     // then: we should build an error
     assertNotNull(result.getErrorList());
@@ -784,5 +783,112 @@ public class VotingServiceTests {
     assertEquals(5, resultList.get(2).getCount());
     assertEquals(1, resultList.get(3).getCount());
     assertEquals(0, resultList.get(4).getCount());
+  }
+
+  @Test
+  @DisplayName("getNextVoting: success")
+  void testGetNextVotingSuccessfully() {
+    // given: a pre-existing data
+    var votingGroup = random(Group.class);
+    var votingDate = OffsetDateTime.now();
+    var voting = random(Voting.class);
+    voting.setCreatedAtDateTime(votingDate);
+    voting.setGroup(votingGroup);
+
+    // and: the next voting to be returned
+    var nextVoting = random(Voting.class);
+
+    // given: some mocked repositories
+    var votingRepository = mock(VotingRepository.class);
+    when(votingRepository.findById(voting.getId())).thenReturn(Optional.of(voting));
+    when(votingRepository.getNextVotingByGroupAndDate(
+            votingGroup, votingDate.plus(1, ChronoUnit.SECONDS)))
+        .thenReturn(Optional.of(nextVoting));
+
+    // when: asking the service to retrieve the data
+    var votingService = new DefaultVotingService(votingRepository, null, null, null, null, null);
+    Result<Voting> result = votingService.getNextVoting(voting.getId());
+
+    // then: we should build a valid result and return the previous voting
+    assertEquals(result.getSuccess(), nextVoting, "Successfully returned the next voting");
+
+    // and: some repositories are called
+    verify(votingRepository, times(1)).findById(voting.getId());
+    verify(votingRepository, times(1))
+        .getNextVotingByGroupAndDate(votingGroup, votingDate.plus(1, ChronoUnit.SECONDS));
+  }
+
+  @Test
+  @DisplayName("getNextVotingIfLast: error")
+  void testGetNextVotingIfLast() {
+    // given: a pre-existing data
+    var voting = random(Voting.class);
+
+    // given: some mocked repositories
+    var votingRepository = mock(VotingRepository.class);
+    when(votingRepository.findById(any())).thenReturn(Optional.of(voting));
+    when(votingRepository.getNextVotingByGroupAndDate(any(), any())).thenReturn(Optional.empty());
+
+    // when: asking the service to retrieve the data
+    var votingService = new DefaultVotingService(votingRepository, null, null, null, null, null);
+    Result<Voting> result = votingService.getNextVoting(voting.getId());
+
+    // then: a null value is ok because is expected to have nothing after the last voting
+    assertNotNull(result.getErrorList());
+    assertNull(result.getSuccess());
+  }
+
+  @Test
+  @DisplayName("getPreviousVoting: success")
+  void testGetPreviousVotingSuccessfully() {
+    // given: a pre-existing data
+    var votingGroup = random(Group.class);
+    var votingDate = OffsetDateTime.now();
+    var voting = random(Voting.class);
+    voting.setCreatedAtDateTime(votingDate);
+    voting.setGroup(votingGroup);
+
+    System.out.println(voting.getCreatedAtDateTime());
+    System.out.println(voting.getGroup());
+    // and: the previous voting to be returned
+    var previousVoting = random(Voting.class);
+
+    // given: some mocked repositories
+    var votingRepository = mock(VotingRepository.class);
+    when(votingRepository.findById(voting.getId())).thenReturn(Optional.of(voting));
+    when(votingRepository.getPreviousVotingByGroupAndDate(votingGroup, votingDate))
+        .thenReturn(Optional.of(previousVoting));
+
+    // when: asking the service to retrieve the data
+    var votingService = new DefaultVotingService(votingRepository, null, null, null, null, null);
+    Result<Voting> result = votingService.getPreviousVoting(voting.getId());
+
+    // then: we should build a valid result and return the previous voting
+    assertEquals(result.getSuccess(), previousVoting, "Successfully returned the previous voting");
+
+    // and: some repositories are called
+    verify(votingRepository, times(1)).findById(voting.getId());
+    verify(votingRepository, times(1)).getPreviousVotingByGroupAndDate(votingGroup, votingDate);
+  }
+
+  @Test
+  @DisplayName("getPreviousVotingIfFirst: error")
+  void testGetPreviousVotingIfFirst() {
+    // given: a pre-existing data
+    var voting = random(Voting.class);
+
+    // given: some mocked repositories
+    var votingRepository = mock(VotingRepository.class);
+    when(votingRepository.findById(any())).thenReturn(Optional.of(voting));
+    when(votingRepository.getPreviousVotingByGroupAndDate(any(), any()))
+        .thenReturn(Optional.empty());
+
+    // when: asking the service to retrieve the data
+    var votingService = new DefaultVotingService(votingRepository, null, null, null, null, null);
+    Result<Voting> result = votingService.getPreviousVoting(voting.getId());
+
+    // then: a null value is ok because we expect to have nothing before the first voting
+    assertNotNull(result.getErrorList());
+    assertNull(result.getSuccess());
   }
 }

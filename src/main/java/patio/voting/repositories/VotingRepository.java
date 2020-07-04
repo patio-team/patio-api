@@ -95,4 +95,34 @@ public interface VotingRepository extends PageableRepository<Voting, UUID> {
    * @return the average number of people voting in this voting's group
    */
   Optional<Long> getAvgVoteCountByVoting(Voting voting);
+
+  /**
+   * Returns the previous voting to a given date that belongs a group
+   *
+   * @param date the OffsetDateTime to be considered
+   * @param group the Group to be considered
+   * @return the previous voting
+   */
+  @Query(
+      "SELECT v "
+          + "FROM Voting v "
+          + "WHERE v.group = :group "
+          + "AND v.createdAtDateTime < :date "
+          + "ORDER BY v.createdAtDateTime DESC")
+  Optional<Voting> getPreviousVotingByGroupAndDate(Group group, OffsetDateTime date);
+
+  /**
+   * Returns the next voting to a given date that belongs a group
+   *
+   * @param date the OffsetDateTime to be considered
+   * @param group the Group to be considered
+   * @return the next Voting
+   */
+  @Query(
+      "SELECT v "
+          + "FROM Voting v "
+          + "WHERE v.group = :group "
+          + "AND v.createdAtDateTime > :date "
+          + "ORDER BY v.createdAtDateTime ASC")
+  Optional<Voting> getNextVotingByGroupAndDate(Group group, OffsetDateTime date);
 }

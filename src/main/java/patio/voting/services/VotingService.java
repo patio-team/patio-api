@@ -124,4 +124,20 @@ public interface VotingService {
    * @return a map containing all voting stats
    */
   Result<Map<String, Object>> getVotingStats(VotingStatsInput input);
+
+  /**
+   * Returns the previous {@link Voting} in time
+   *
+   * @param votingId the current voting's UUID
+   * @return the previous voting
+   */
+  Result<Voting> getPreviousVoting(UUID votingId);
+
+  /**
+   * Returns the next {@link Voting} in time
+   *
+   * @param votingId the current voting's UUID
+   * @return the next voting
+   */
+  Result<Voting> getNextVoting(UUID votingId);
 }
