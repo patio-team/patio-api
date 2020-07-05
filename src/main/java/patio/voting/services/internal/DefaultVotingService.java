@@ -273,9 +273,10 @@ public class DefaultVotingService implements VotingService {
     var voteCountByVoting = optionalVoting.map(voteRepository::getVoteCountByVoting).orElse(0L);
     var voteCountAverage =
         optionalVoting.flatMap(votingRepository::getAvgVoteCountByVoting).orElse(0L);
-    var votingAverage = optionalVoting.map(Voting::getStats).map(VotingStats::getAverage);
-    var votingMovingAverage =
-        optionalVoting.map(Voting::getStats).map(VotingStats::getMovingAverage);
+    var optionalStats = optionalVoting.map(Voting::getStats);
+    var votingAverage = optionalStats.map(VotingStats::getAverage);
+    var votingMovingAverage = optionalStats.map(VotingStats::getMovingAverage);
+    var votingStatsDate = optionalStats.map(VotingStats::getCreatedAtDateTime);
 
     Map<String, Object> votingStats =
         Map.of(
@@ -290,7 +291,9 @@ public class DefaultVotingService implements VotingService {
             "average",
             votingAverage,
             "movingAverage",
-            votingMovingAverage);
+            votingMovingAverage,
+            "createdAtDateTime",
+            votingStatsDate);
 
     return Result.result(votingStats);
   }

@@ -23,18 +23,14 @@ UPDATE
 SET
   created_at = x.created_at
 FROM
-  (
+    (
     SELECT
-      vs.id AS id,
-      MAX(vo.created_at) AS created_at
+        vs.id AS id,
+        v.created_at
     FROM
-      voting v
+        voting v
       JOIN voting_stats vs ON
-          vs.voting_id = v.id
-      JOIN vote vo ON
-          vo.voting_id = v.id
-    GROUP BY
-      vs.id
-  ) x
+        vs.voting_id = v.id
+    ) x
 WHERE
   voting_stats.id = x.id
