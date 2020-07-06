@@ -43,11 +43,11 @@ public abstract class MicroVotingStatsRepository extends MicroBaseRepository
   @Override
   public OffsetPaginationResult<VotingStats> findStatsByGroup(
       Group group, OffsetPaginationRequest paginationRequest) {
+
     var value =
         "SELECT vs "
             + "FROM Voting v JOIN v.stats vs "
             + "WHERE v.group = :group "
-            + "AND vs.average is not null "
             + "ORDER BY vs.createdAtDateTime DESC";
 
     var valueQuery =
@@ -57,11 +57,7 @@ public abstract class MicroVotingStatsRepository extends MicroBaseRepository
             .setFirstResult(paginationRequest.getOffset())
             .setMaxResults(paginationRequest.getMax());
 
-    var count =
-        "SELECT COUNT(vs) "
-            + "FROM Voting v JOIN v.stats vs "
-            + "WHERE v.group = :group "
-            + "AND vs.average is not null";
+    var count = "SELECT COUNT(vs) " + "FROM Voting v JOIN v.stats vs " + "WHERE v.group = :group ";
 
     var countQuery = getEntityManager().createQuery(count, Long.class).setParameter("group", group);
 
