@@ -67,6 +67,8 @@ jobs:
           KUBECTL_VERSION: "1.15"
         with:
           args: rollout restart deployment/patio-api
+      - name: Wait a little bit before restarting front
+        run: sleep 15
       - name: Make front be aware of API changes (Hack)
         uses: steebchen/kubectl@master
         env:
