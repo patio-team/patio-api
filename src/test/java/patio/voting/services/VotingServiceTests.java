@@ -848,8 +848,6 @@ public class VotingServiceTests {
     voting.setCreatedAtDateTime(votingDate);
     voting.setGroup(votingGroup);
 
-    System.out.println(voting.getCreatedAtDateTime());
-    System.out.println(voting.getGroup());
     // and: the previous voting to be returned
     var previousVoting = random(Voting.class);
 

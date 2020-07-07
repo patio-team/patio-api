@@ -164,12 +164,17 @@ public class VotingSchedulingService implements VotingScheduling {
     String greetingsMessage =
         emailComposerService.getMessage("voting.greetings", greetingMessageVars);
     String thanksMessage = emailComposerService.getMessage("voting.thanks");
+    String disclaimerMessage = emailComposerService.getMessage("voting.disclaimer");
+    String todayMessage = emailComposerService.getMessage("voting.today", subjectMessageVars);
+    String questionMessage = emailComposerService.getMessage("voting.question", subjectMessageVars);
 
     Map<String, Object> emailBodyVars = new HashMap<>();
-    emailBodyVars.put("question", emailSubject);
+    emailBodyVars.put("question", questionMessage);
+    emailBodyVars.put("today", todayMessage);
     emailBodyVars.put("greetings", greetingsMessage);
     emailBodyVars.put("groupName", group.getName());
     emailBodyVars.put("thanks", thanksMessage);
+    emailBodyVars.put("disclaimer", disclaimerMessage);
     emailBodyVars.put("link", getVotingLink(group.getId(), voting.getId()));
 
     return emailComposerService.composeEmail(

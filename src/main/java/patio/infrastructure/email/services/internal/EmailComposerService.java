@@ -121,7 +121,7 @@ public class EmailComposerService implements EmailComposer {
    */
   public String getTodayMessage() {
     String dayOfTheWeek = this.getDayOfTheWeek();
-    DateFormat formatter = DateFormat.getDateInstance(DateFormat.SHORT, this.locale);
+    DateFormat formatter = DateFormat.getDateInstance(DateFormat.MEDIUM, this.locale);
     String today = formatter.format(new Date());
 
     return String.format("%s, %s", dayOfTheWeek, today);

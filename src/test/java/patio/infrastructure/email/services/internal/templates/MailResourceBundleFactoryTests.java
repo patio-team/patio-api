@@ -35,6 +35,6 @@ public class MailResourceBundleFactoryTests {
     var message = bundle.getString("voting.thanks");
 
     // then: we should get the expected i18n message
-    assertEquals("Thanks for voting :)", message);
+    assertEquals("Thanks!", message);
   }
 }
