@@ -94,5 +94,5 @@ templates:
 
 front:
   urls:
-    voting: "/groups/{0}/votings/{1}/vote"
+    voting: "/team/{0}/{1}/vote"
     change-password: "/change-password?otp={0}"

@@ -65,5 +65,5 @@ email:
 
 front:
   urls:
-    voting: "/groups/{0}/votings/{1}/vote"
-    reset-password: "/user/{0}/reset?otp={1}"
+    voting: "/team/{0}/{1}/vote"
+    change-password: "/change-password?otp={0}"
