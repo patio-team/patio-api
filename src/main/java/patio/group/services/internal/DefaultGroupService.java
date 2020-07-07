@@ -17,6 +17,7 @@
  */
 package patio.group.services.internal;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -80,6 +81,7 @@ public class DefaultGroupService implements GroupService {
         .map(User::getGroups)
         .flatMap(Set::stream)
         .map(UserGroup::getGroup)
+        .sorted(Comparator.comparing(Group::getName))
         .collect(Collectors.toList());
   }
 
