@@ -32,7 +32,6 @@ public class UpsertGroupInput {
 
   private final UUID groupId;
   private final String name;
-  private final boolean visibleMemberList;
   private final boolean anonymousVote;
   private final List<DayOfWeek> votingDays;
   private final OffsetTime votingTime;
@@ -43,7 +42,6 @@ public class UpsertGroupInput {
    *
    * @param groupId groups's id
    * @param name groups's name
-   * @param visibleMemberList indicates if the group allows the members to see the member list
    * @param anonymousVote indicates if the group allows anonymous votes
    * @param votingDays represents the day of the week
    * @param votingTime votingTime of the day where the reminder is going to be sent
@@ -53,14 +51,12 @@ public class UpsertGroupInput {
   public UpsertGroupInput(
       UUID groupId,
       String name,
-      boolean visibleMemberList,
       boolean anonymousVote,
       List<DayOfWeek> votingDays,
       OffsetTime votingTime,
       UUID currentUserId) {
     this.groupId = groupId;
     this.name = name;
-    this.visibleMemberList = visibleMemberList;
     this.anonymousVote = anonymousVote;
     this.votingDays = Optional.ofNullable(votingDays).orElse(List.of());
     this.votingTime = votingTime;
@@ -75,16 +71,6 @@ public class UpsertGroupInput {
    */
   public String getName() {
     return name;
-  }
-
-  /**
-   * Returns whether the group allows the members to see the member list
-   *
-   * @return true if it's allowed, false otherwise
-   * @since 0.1.0
-   */
-  public boolean isVisibleMemberList() {
-    return visibleMemberList;
   }
 
   /**
@@ -153,7 +139,7 @@ public class UpsertGroupInput {
   public static class Builder {
 
     private transient UpsertGroupInput input =
-        new UpsertGroupInput(null, null, false, false, null, null, null);
+        new UpsertGroupInput(null, null, false, null, null, null);
 
     private Builder() {
       /* empty */
@@ -171,7 +157,6 @@ public class UpsertGroupInput {
           new UpsertGroupInput(
               groupId,
               input.getName(),
-              input.isVisibleMemberList(),
               input.isAnonymousVote(),
               input.getVotingDays(),
               input.getVotingTime(),
@@ -191,27 +176,6 @@ public class UpsertGroupInput {
           new UpsertGroupInput(
               input.getGroupId(),
               name,
-              input.isVisibleMemberList(),
-              input.isAnonymousVote(),
-              input.getVotingDays(),
-              input.getVotingTime(),
-              input.getCurrentUserId());
-      return this;
-    }
-
-    /**
-     * Sets the visibleMemberList
-     *
-     * @param visibleMemberList the group's visibleMemberList
-     * @return current builder instance
-     * @since 0.1.0
-     */
-    public Builder withVisibleMemberList(boolean visibleMemberList) {
-      this.input =
-          new UpsertGroupInput(
-              input.getGroupId(),
-              input.getName(),
-              visibleMemberList,
               input.isAnonymousVote(),
               input.getVotingDays(),
               input.getVotingTime(),
@@ -231,7 +195,6 @@ public class UpsertGroupInput {
           new UpsertGroupInput(
               input.getGroupId(),
               input.getName(),
-              input.isVisibleMemberList(),
               anonymousVote,
               input.getVotingDays(),
               input.getVotingTime(),
@@ -251,7 +214,6 @@ public class UpsertGroupInput {
           new UpsertGroupInput(
               input.getGroupId(),
               input.getName(),
-              input.isVisibleMemberList(),
               input.isAnonymousVote(),
               votingDays,
               input.getVotingTime(),
@@ -271,7 +233,6 @@ public class UpsertGroupInput {
           new UpsertGroupInput(
               input.getGroupId(),
               input.getName(),
-              input.isVisibleMemberList(),
               input.isAnonymousVote(),
               input.getVotingDays(),
               votingTime,
@@ -291,7 +252,6 @@ public class UpsertGroupInput {
           new UpsertGroupInput(
               input.getGroupId(),
               input.getName(),
-              input.isVisibleMemberList(),
               input.isAnonymousVote(),
               input.getVotingDays(),
               input.getVotingTime(),

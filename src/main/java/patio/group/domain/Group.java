@@ -49,9 +49,6 @@ public final class Group {
 
   @Id @GeneratedValue private UUID id;
 
-  @Column(name = "visible_member_list")
-  private boolean visibleMemberList;
-
   @Column(name = "anonymous_vote")
   private boolean anonymousVote;
 
@@ -115,26 +112,6 @@ public final class Group {
    */
   public void setId(UUID id) {
     this.id = id;
-  }
-
-  /**
-   * Returns whether the group allows the members to see the member list
-   *
-   * @return true if it's allowed, false otherwise
-   * @since 0.1.0
-   */
-  public boolean isVisibleMemberList() {
-    return visibleMemberList;
-  }
-
-  /**
-   * Sets whether members are allowed to see the member list or not
-   *
-   * @param visibleMemberList true if it's allowed false otherwise
-   * @since 0.1.0
-   */
-  public void setVisibleMemberList(boolean visibleMemberList) {
-    this.visibleMemberList = visibleMemberList;
   }
 
   /**

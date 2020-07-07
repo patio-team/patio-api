@@ -66,7 +66,6 @@ final class GroupFetcherUtils {
   /* default */ static UpsertGroupInput upsertGroupInput(DataFetchingEnvironment environment) {
     UUID groupId = environment.getArgument("groupId");
     String name = environment.getArgument("name");
-    boolean visibleMemberList = environment.getArgument("visibleMemberList");
     boolean anonymousVote = environment.getArgument("anonymousVote");
     List<DayOfWeek> votingDays = environment.getArgument("votingDays");
     OffsetTime votingTime = environment.getArgument("votingTime");
@@ -77,7 +76,6 @@ final class GroupFetcherUtils {
         .withCurrentUserId(currentUser.getId())
         .withGroupId(groupId)
         .withName(name)
-        .withVisibleMemberList(visibleMemberList)
         .withAnonymousVote(anonymousVote)
         .withVotingDays(votingDays)
         .withVotingTime(votingTime)

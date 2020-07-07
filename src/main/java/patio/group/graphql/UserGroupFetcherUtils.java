@@ -53,7 +53,7 @@ final class UserGroupFetcherUtils {
       DataFetchingEnvironment environment) {
     User currentUser = getCurrentUser(environment);
     Group group = environment.getSource();
-    return new ListUsersGroupInput(currentUser.getId(), group.getId(), group.isVisibleMemberList());
+    return new ListUsersGroupInput(currentUser.getId(), group.getId());
   }
 
   /**
