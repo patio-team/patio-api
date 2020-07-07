@@ -93,22 +93,10 @@ public class DefaultUserGroupService implements UserGroupService {
 
   @Override
   public Iterable<User> listUsersGroup(ListUsersGroupInput input) {
-    UserCanSeeGroupMembers visibility = new UserCanSeeGroupMembers(userGroupRepository);
-    UUID userId = input.getUserId();
-    UUID groupId = input.getGroupId();
-    boolean memberListVisible = input.isVisibleMemberList();
-
-    return Result.<Iterable<User>>create()
-        .thenCheck(() -> visibility.check(userId, groupId, memberListVisible))
-        .then(() -> listUsersGroupIfSuccess(input.getGroupId()))
-        .orElseGet(List::of)
-        .getSuccess();
-  }
-
-  private Iterable<User> listUsersGroupIfSuccess(UUID groupId) {
-    Optional<Group> group = groupRepository.findById(groupId);
-
-    return group.map(userRepository::findAllByGroup).orElseGet(List::of);
+    return groupRepository
+        .findById(input.getGroupId())
+        .map(userRepository::findAllByGroup)
+        .orElseGet(List::of);
   }
 
   @Override

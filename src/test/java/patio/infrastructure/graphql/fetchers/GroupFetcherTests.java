@@ -103,8 +103,6 @@ class GroupFetcherTests {
             Map.of(
                 "name",
                 group.getName(),
-                "visibleMemberList",
-                group.isVisibleMemberList(),
                 "anonymousVote",
                 group.isAnonymousVote(),
                 "votingDays",
@@ -172,8 +170,6 @@ class GroupFetcherTests {
             Map.of(
                 "name",
                 group.getName(),
-                "visibleMemberList",
-                group.isVisibleMemberList(),
                 "anonymousVote",
                 group.isAnonymousVote(),
                 "votingDays",

@@ -25,7 +25,7 @@ INSERT INTO users (id, name, email, password, otp) VALUES ('486590a3-fcc1-4657-a
 INSERT INTO users (id, name, email, password, otp) VALUES ('486590a3-fcc1-4657-a9ed-5f0f95dadea7','Unknown', 'unknown6@email.com', 'password', '');
 INSERT INTO users (id, name, email, password, otp) VALUES ('486590a3-fcc1-4657-a9ed-5f0f95dadea8','Unknown', 'unknown7@email.com', 'password', '');
 
-INSERT INTO groups (id, name, visible_member_list, anonymous_vote, voting_time, voting_days) VALUES ('d64db962-3455-11e9-b210-d663bd873d93','Fantastic Four', false, true, time with time zone '10:48:12.146512+01:00', '{"MONDAY"}');
+INSERT INTO groups (id, name, anonymous_vote, voting_time, voting_days) VALUES ('d64db962-3455-11e9-b210-d663bd873d93','Fantastic Four', true, time with time zone '10:48:12.146512+01:00', '{"MONDAY"}');
 
 INSERT INTO users_groups (group_id, user_id, is_admin) VALUES ('d64db962-3455-11e9-b210-d663bd873d93','486590a3-fcc1-4657-a9ed-5f0f95dadea1', 'f');
 INSERT INTO users_groups (group_id, user_id, is_admin) VALUES ('d64db962-3455-11e9-b210-d663bd873d93','486590a3-fcc1-4657-a9ed-5f0f95dadea2', 'f');

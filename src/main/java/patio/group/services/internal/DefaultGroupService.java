@@ -91,7 +91,6 @@ public class DefaultGroupService implements GroupService {
         Group.builder()
             .with(g -> g.setName(input.getName()))
             .with(g -> g.setAnonymousVote(input.isAnonymousVote()))
-            .with(g -> g.setVisibleMemberList(input.isVisibleMemberList()))
             .with(g -> g.setVotingDays(input.getVotingDays()))
             .with(g -> g.setVotingTime(input.getVotingTime()))
             .build();
@@ -126,7 +125,6 @@ public class DefaultGroupService implements GroupService {
         .findById(input.getGroupId())
         .map(g -> Builder.build(() -> g))
         .map(b -> b.with(g -> g.setName(input.getName())))
-        .map(b -> b.with(g -> g.setVisibleMemberList(input.isVisibleMemberList())))
         .map(b -> b.with(g -> g.setAnonymousVote(input.isAnonymousVote())))
         .map(b -> b.with(g -> g.setVotingDays(input.getVotingDays())))
         .map(b -> b.with(g -> g.setVotingTime(input.getVotingTime())))
