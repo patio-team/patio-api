@@ -20,7 +20,6 @@ package patio.voting.services.internal;
 import static patio.common.domain.utils.Check.checkIsFalse;
 import static patio.infrastructure.utils.ErrorConstants.VOTING_HAS_EXPIRED;
 
-import java.time.OffsetDateTime;
 import java.util.Optional;
 import patio.common.domain.utils.Check;
 import patio.common.domain.utils.Result;
@@ -40,11 +39,7 @@ public class VotingHasExpired {
    * @return a failing {@link Result} if the voting has expired
    */
   public Check check(Optional<Voting> voting) {
-    boolean hasExpired =
-        voting
-            .map(Voting::getCreatedAtDateTime)
-            .map(createdAt -> createdAt.plusDays(1).isBefore(OffsetDateTime.now()))
-            .orElse(true);
+    boolean hasExpired = voting.map(Voting::getExpired).orElse(true);
 
     return checkIsFalse(hasExpired, VOTING_HAS_EXPIRED);
   }

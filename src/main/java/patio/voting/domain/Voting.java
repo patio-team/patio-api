@@ -65,6 +65,8 @@ public final class Voting {
   @JoinColumn(name = "voting_stats_id", referencedColumnName = "id")
   private VotingStats stats;
 
+  private boolean expired;
+
   /**
    * Creates a new fluent builder to build instances of type {@link Voting}
    *
@@ -189,5 +191,23 @@ public final class Voting {
    */
   public void setStats(VotingStats votingStats) {
     this.stats = votingStats;
+  }
+
+  /**
+   * Returns if a voting is already expired or not
+   *
+   * @return if the Voting has expired
+   */
+  public Boolean getExpired() {
+    return expired;
+  }
+
+  /**
+   * Sets if a voting is expired
+   *
+   * @param expired Boolean to represent if the Voting is expired
+   */
+  public void setExpired(Boolean expired) {
+    this.expired = expired;
   }
 }

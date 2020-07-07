@@ -53,6 +53,7 @@ public class VotingSchedulingServiceTests {
     var groupRepository = Mockito.mock(GroupRepository.class);
     var votingRepository = Mockito.mock(VotingRepository.class);
     var votingStatsService = Mockito.mock(VotingStatsService.class);
+    var defaultVotingService = Mockito.mock(DefaultVotingService.class);
     var emailComposerService = Mockito.mock(EmailComposerService.class);
     var emailService = Mockito.mock(EmailService.class);
     var urlResolverService = Mockito.mock(URLResolverService.class);
@@ -92,6 +93,7 @@ public class VotingSchedulingServiceTests {
             groupRepository,
             votingRepository,
             votingStatsService,
+            defaultVotingService,
             emailComposerService,
             emailService,
             urlResolverService);

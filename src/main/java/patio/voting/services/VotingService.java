@@ -19,10 +19,12 @@ package patio.voting.services;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import patio.common.domain.utils.PaginationRequest;
 import patio.common.domain.utils.PaginationResult;
 import patio.common.domain.utils.Result;
+import patio.group.domain.Group;
 import patio.user.domain.User;
 import patio.voting.domain.Vote;
 import patio.voting.domain.Voting;
@@ -97,6 +99,14 @@ public interface VotingService {
    * @since 0.1.0
    */
   Result<Voting> getLastVotingByGroup(GetLastVotingInput input);
+
+  /**
+   * Get the last voting that belongs to a group
+   *
+   * @param group the {@link Group} to retrieve its last voting from
+   * @return the last group's voting
+   */
+  Optional<Voting> getLastVoting(Optional<Group> group);
 
   /**
    * Fetches the votes that belongs to an user in a group between two dates. The current user and
