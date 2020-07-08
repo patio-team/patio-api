@@ -165,7 +165,7 @@ type Mutation {
     createVote(votingId: ID!, score: Int!, hueMood: String, comment: String, anonymous: Boolean = false): Vote
 
     # creates a group
-    createGroup(name: String!, anonymousVote: Boolean!, votingTime: Time!, votingDays: [DayOfWeek]!): Group
+    createGroup(name: String!, anonymousVote: Boolean = false, votingTime: Time!, votingDays: [DayOfWeek]!): Group
 
     # updates a group
     updateGroup(groupId: ID!, name: String!, anonymousVote: Boolean!, votingTime: Time!, votingDays: [DayOfWeek]!): Group
