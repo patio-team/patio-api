@@ -220,8 +220,7 @@ public class DefaultVotingService implements VotingService {
     Optional<User> user = userRepository.findById(input.getCurrentUserId());
     Optional<Group> group = groupRepository.findById(input.getGroupId());
 
-    Optional<Voting> votingFound =
-        group.flatMap(votingRepository::findByGroupOrderByCreatedAtDateTimeDesc);
+    Optional<Voting> votingFound = getLastVoting(group);
     var userIsInGroup = new UserIsInGroup();
     var notPresent = new NotPresent();
 
@@ -230,6 +229,11 @@ public class DefaultVotingService implements VotingService {
         .thenCheck(() -> userIsInGroup.check(user, group))
         .thenCheck(() -> notPresent.check(votingFound))
         .then(votingFound::get);
+  }
+
+  @Override
+  public Optional<Voting> getLastVoting(Optional<Group> group) {
+    return group.flatMap(votingRepository::findByGroupOrderByCreatedAtDateTimeDesc);
   }
 
   @Override

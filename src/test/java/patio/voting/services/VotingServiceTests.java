@@ -126,6 +126,7 @@ public class VotingServiceTests {
             .with(v -> v.setId(UUID.randomUUID()))
             .with(v -> v.setGroup(group))
             .with(v -> v.setCreatedAtDateTime(OffsetDateTime.now().minus(5, ChronoUnit.MINUTES)))
+            .with(v -> v.setExpired(false))
             .build();
     var input =
         CreateVoteInput.newBuilder()
@@ -273,6 +274,7 @@ public class VotingServiceTests {
     var voting =
         Voting.newBuilder()
             .with(v -> v.setCreatedAtDateTime(OffsetDateTime.now().minus(2, ChronoUnit.DAYS)))
+            .with(v -> v.setExpired(true))
             .build();
 
     // and: there're user and voting available
@@ -333,6 +335,7 @@ public class VotingServiceTests {
         Voting.newBuilder()
             .with(v -> v.setGroup(validGroup))
             .with(v -> v.setCreatedAtDateTime(OffsetDateTime.now().minus(2, ChronoUnit.MINUTES)))
+            .with(v -> v.setExpired(false))
             .build();
 
     // and: there're user and voting available
@@ -438,6 +441,7 @@ public class VotingServiceTests {
         Voting.newBuilder()
             .with(v -> v.setGroup(validGroup))
             .with(v -> v.setCreatedAtDateTime(OffsetDateTime.now().minus(2, ChronoUnit.MINUTES)))
+            .with(v -> v.setExpired(false))
             .build();
 
     // and: there're user and voting available

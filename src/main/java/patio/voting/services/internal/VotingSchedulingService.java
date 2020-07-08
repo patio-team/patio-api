@@ -26,6 +26,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -63,6 +64,7 @@ public class VotingSchedulingService implements VotingScheduling {
   private final transient EmailComposerService emailComposerService;
   private final transient EmailService emailService;
   private final transient URLResolverService urlResolverService;
+  private final transient DefaultVotingService defaultVotingService;
 
   /**
    * Requires the {@link DefaultVotingService} to get group voting information and {@link
@@ -72,6 +74,7 @@ public class VotingSchedulingService implements VotingScheduling {
    * @param groupRepository to be able to get group details
    * @param votingRepository to be able to create a new {@link Voting}
    * @param votingStatsService to be able to create a new {@link VotingStatsService}
+   * @param defaultVotingService to be able to create a new {@link DefaultVotingService}
    * @param emailComposerService service to compose the {@link Email} notifications
    * @param emailService to be able to send notifications to group members
    * @param urlResolverService to resolve possible link urls for emails
@@ -82,6 +85,7 @@ public class VotingSchedulingService implements VotingScheduling {
       GroupRepository groupRepository,
       VotingRepository votingRepository,
       VotingStatsService votingStatsService,
+      DefaultVotingService defaultVotingService,
       EmailComposerService emailComposerService,
       EmailService emailService,
       URLResolverService urlResolverService) {
@@ -89,6 +93,7 @@ public class VotingSchedulingService implements VotingScheduling {
     this.groupRepository = groupRepository;
     this.votingRepository = votingRepository;
     this.votingStatsService = votingStatsService;
+    this.defaultVotingService = defaultVotingService;
     this.emailComposerService = emailComposerService;
     this.emailService = emailService;
     this.urlResolverService = urlResolverService;
@@ -125,6 +130,8 @@ public class VotingSchedulingService implements VotingScheduling {
   private Voting createVoting(Group group) {
     LOG.info(String.format("creating new voting for group %s", group.getId()));
 
+    this.expirePreviousVoting(group);
+
     Voting voting =
         Voting.newBuilder()
             .with(v -> v.setGroup(group))
@@ -137,6 +144,16 @@ public class VotingSchedulingService implements VotingScheduling {
 
     LOG.info(String.format("created voting %s", savedVoting.getId()));
     return voting;
+  }
+
+  private void expirePreviousVoting(Group group) {
+    defaultVotingService
+        .getLastVoting(Optional.of(group))
+        .ifPresent(
+            v -> {
+              v.setExpired(true);
+              votingRepository.save(v);
+            });
   }
 
   private void notifyMembers(Voting voting) {
