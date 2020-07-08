@@ -41,6 +41,8 @@ import patio.infrastructure.email.services.EmailService;
  */
 @Singleton
 @Primary
+@RequiresAwsConfiguration
+@RequiresEmailConfiguration
 @SuppressWarnings("all")
 public class AwsSesMailService implements EmailService {
   private static final Logger LOG = LoggerFactory.getLogger(AwsSesMailService.class);
@@ -64,9 +66,9 @@ public class AwsSesMailService implements EmailService {
    */
   public AwsSesMailService(
       AWSCredentialsProvider credentialsProvider,
-      @Value("${aws.mail.enabled}") boolean emailEnabled,
-      @Value("${aws.mail.region:none}") String awsRegion,
-      @Value("${aws.mail.sourceemail:none}") String sourceEmail) {
+      @Value("${email.enabled}") boolean emailEnabled,
+      @Value("${aws.credentials.region:none}") String awsRegion,
+      @Value("${email.source:none}") String sourceEmail) {
     this.credentialsProvider = credentialsProvider;
     this.emailEnabled = emailEnabled;
     this.awsRegion = awsRegion;

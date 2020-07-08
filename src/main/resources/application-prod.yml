@@ -56,10 +56,11 @@ aws:
   credentials:
     accesskey: ${DWBH_AWS_ACCESS_KEY}
     secretkey: ${DWBH_AWS_SECRET_KEY}
-  mail:
-    sourceemail: ${DWBH_AWS_EMAIL_SOURCE}
     region: ${DWBH_AWS_EMAIL_REGION}
-    enabled: ${DWBH_AWS_EMAIL_ENABLED}
+
+email:
+  enabled: ${DWBH_EMAIL_ENABLED}
+  source: ${DWBH_EMAIL_SOURCE}
 
 crypto:
   password: SHA-256

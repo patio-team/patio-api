@@ -36,7 +36,7 @@
     <logger name="org.hibernate.SQL" level="ALL" />
     <logger name="org.hibernate.type.descriptor.sql" level="TRACE" />
     -->
-    <logger name="dwbh.api" level="INFO" />
+    <logger name="patio" level="DEBUG" />
 
     <root level="info">
         <appender-ref ref="STDOUT"/>

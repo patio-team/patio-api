@@ -56,10 +56,11 @@ aws:
   credentials:
     accesskey: XXX
     secretkey: YYY
-  mail:
-    enabled: false
-    sourceemail: noreply@dwbh.com
     region: eu-west-1
+
+email:
+    enabled: false
+    source: noreply@dwbh.com
 
 crypto:
   jwt:
