@@ -320,6 +320,31 @@ fixtures {
 }
 ```
 
+## Logging
+
+All logging configuration can be found in the `logback.xml` file. By default
+
+```xml
+<configuration>
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+    <logger name="patio" level="DEBUG" />
+    <root level="INFO">
+        <appender-ref ref="STDOUT"/>
+    </root>
+</configuration>
+```
+
+If you'd like to activate SQL queries you can use the following loggers:
+
+```xml
+<logger name="org.hibernate.SQL" level="ALL" />
+<logger name="org.hibernate.type.descriptor.sql" level="TRACE" />
+```
+
 ## Technologies
 
 The most important technologies you need to be aware of to work
