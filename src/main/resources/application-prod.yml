@@ -1,22 +1,22 @@
 #
 # Copyright (C) 2019 Kaleidos Open Source SL
 #
-# This file is part of Don't Worry Be Happy (DWBH).
-# DWBH is free software: you can redistribute it and/or modify
+# This file is part of PATIO.
+# PATIO is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
-# DWBH is distributed in the hope that it will be useful,
+# PATIO is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with DWBH.  If not, see <https://www.gnu.org/licenses/>
+# along with PATIO.  If not, see <https://www.gnu.org/licenses/>
 #
 
-locale: ${DWBH_LOCALE}
+locale: ${PATIO_LOCALE}
 
 micronaut:
   application:
@@ -31,10 +31,10 @@ micronaut:
 ---
 datasources:
   default:
-    url: ${DWBH_JDBC_URL}
-    username: ${DWBH_JDBC_USER}
-    password: ${DWBH_JDBC_PASSWORD}
-    driverClassName: ${DWBH_JDBC_DRIVER}
+    url: ${PATIO_JDBC_URL}
+    username: ${PATIO_JDBC_USER}
+    password: ${PATIO_JDBC_PASSWORD}
+    driverClassName: ${PATIO_JDBC_DRIVER}
 jpa:
   default:
     properties:
@@ -53,40 +53,40 @@ graphql:
 
 aws:
   credentials:
-    accesskey: ${DWBH_AWS_ACCESS_KEY}
-    secretkey: ${DWBH_AWS_SECRET_KEY}
-    region: ${DWBH_AWS_EMAIL_REGION}
+    accesskey: ${PATIO_AWS_ACCESS_KEY}
+    secretkey: ${PATIO_AWS_SECRET_KEY}
+    region: ${PATIO_AWS_EMAIL_REGION}
 
 email:
-  enabled: ${DWBH_EMAIL_ENABLED}
-  source: ${DWBH_EMAIL_SOURCE}
+  enabled: ${PATIO_EMAIL_ENABLED}
+  source: ${PATIO_EMAIL_SOURCE}
 
 crypto:
   password: SHA-256
   jwt:
-    secret: ${DWBH_JWT_SECRET}
-    days: ${DWBH_JWT_DAYS}
-    algorithm: ${DWBH_JWT_ALGO}
-    issuer: ${DWBH_JWT_ISSUER}
+    secret: ${PATIO_JWT_SECRET}
+    days: ${PATIO_JWT_DAYS}
+    algorithm: ${PATIO_JWT_ALGO}
+    issuer: ${PATIO_JWT_ISSUER}
 
 otp:
   expirytime:
     minutes: 3
 
 oauth2:
-  apikey: ${DWBH_OAUTH2_KEY}
-  apisecret: ${DWBH_OAUTH2_SECRET}
-  callback: ${DWBH_OAUTH2_CALLBACK}
+  apikey: ${PATIO_OAUTH2_KEY}
+  apisecret: ${PATIO_OAUTH2_SECRET}
+  callback: ${PATIO_OAUTH2_CALLBACK}
 
 duser:
-  enabled: ${DWBH_DUSER_ENABLED}
-  name: ${DWBH_DUSER_NAME}
-  email: ${DWBH_DUSER_EMAIL}
-  password: ${DWBH_DUSER_PASSWORD}
+  enabled: ${PATIO_DUSER_ENABLED}
+  name: ${PATIO_DUSER_NAME}
+  email: ${PATIO_DUSER_EMAIL}
+  password: ${PATIO_DUSER_PASSWORD}
 
 # to resolve application links (e.g. mails)
 urlresolver:
-  host: ${DWBH_HOST}
+  host: ${PATIO_HOST}
 
 templates:
   cached: false
