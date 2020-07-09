@@ -40,7 +40,7 @@ public class DummyEmailService implements EmailService {
    *
    * @param emailEnabled whether emails should be sent or not
    */
-  public DummyEmailService(@Value("mail.enabled") boolean emailEnabled) {
+  public DummyEmailService(@Value("${email.enabled}") boolean emailEnabled) {
     this.emailEnabled = emailEnabled;
   }
 

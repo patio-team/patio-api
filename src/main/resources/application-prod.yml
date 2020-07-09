@@ -39,7 +39,6 @@ jpa:
   default:
     properties:
       hibernate:
-        show_sql: false
 #        dialect: org.hibernate.dialect.PostgreSQL95Dialect
 
 flyway:
