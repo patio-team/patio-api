@@ -110,13 +110,17 @@ public class DefaultResetPasswordService implements ResetPasswordService {
     String greetingsMessage =
         emailComposerService.getMessage("resetPassword.greetings", greetingMessageVars);
     String thanksMessage = emailComposerService.getMessage("resetPassword.thanks");
+    String notRequestedMessage = emailComposerService.getMessage("resetPassword.notRequested");
+    String patioTeamMessage = emailComposerService.getMessage("resetPassword.patioTeam");
 
     Map<String, Object> emailBodyVars = new HashMap<>();
     emailBodyVars.put("subject", emailSubject);
     emailBodyVars.put("greetings", greetingsMessage);
     emailBodyVars.put("main", emailMainMessage);
     emailBodyVars.put("link", this.getChangePasswordLink(user.getOtp()));
+    emailBodyVars.put("notRequested", notRequestedMessage);
     emailBodyVars.put("thanks", thanksMessage);
+    emailBodyVars.put("patioTeam", patioTeamMessage);
 
     return emailComposerService.composeEmail(
         emailRecipient, emailSubject, emailBodyTemplate, emailBodyVars);
