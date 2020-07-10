@@ -193,6 +193,7 @@ public class VotingSchedulingService implements VotingScheduling {
     emailBodyVars.put("thanks", thanksMessage);
     emailBodyVars.put("disclaimer", disclaimerMessage);
     emailBodyVars.put("link", getVotingLink(group.getId(), voting.getId()));
+    emailBodyVars.put("frontUrl", urlResolverService.resolve(""));
 
     return emailComposerService.composeEmail(
         emailRecipient, emailSubject, emailBodyTemplate, emailBodyVars);
