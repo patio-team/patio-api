@@ -26,7 +26,6 @@ import java.util.stream.Collectors;
 import javax.inject.Singleton;
 import javax.transaction.Transactional;
 import patio.common.domain.utils.Builder;
-import patio.common.domain.utils.Error;
 import patio.common.domain.utils.NotPresent;
 import patio.common.domain.utils.Result;
 import patio.group.domain.Group;
@@ -149,8 +148,6 @@ public class DefaultGroupService implements GroupService {
 
   @Override
   public Result<Group> getMyFavouriteGroup(UUID userId) {
-    return Result.from(
-        groupRepository.findMyFavouriteGroupByUserId(userId),
-        new Error("API.ERRORS.FAVOURITE_GROUP_NOT_FOUND", "User's favourite group not found"));
+    return Result.from(groupRepository.findMyFavouriteGroupByUserId(userId));
   }
 }

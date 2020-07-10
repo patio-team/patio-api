@@ -112,7 +112,7 @@ public class GroupRepositoryTests {
     fixtures.load(GroupRepositoryTests.class, "testFindFavouriteGroup.sql");
 
     UUID userId = UUID.fromString("486590a3-fcc1-4657-a9ed-5f0f95dadea6");
-    UUID expectedGroupId = UUID.fromString("d64db962-3455-11e9-b210-d663bd873d94");
+    UUID expectedGroupId = UUID.fromString("d64db962-3455-11e9-b210-d663bd873d93");
 
     // when: asking for the user's favourite group
     Optional<Group> favouriteGroup = repository.findMyFavouriteGroupByUserId(userId);

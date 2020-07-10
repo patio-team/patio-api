@@ -60,6 +60,6 @@ public interface GroupRepository extends PageableRepository<Group, UUID> {
    * @return its favourite {@link Group}
    */
   @Query(
-      "SELECT v.group FROM Voting v JOIN v.group.users u WHERE u.user.id = :userId ORDER BY v.createdAtDateTime DESC")
+      "SELECT v.group FROM Voting v JOIN v.group.users u WHERE u.user.id = :userId ORDER BY v.createdAtDateTime")
   Optional<Group> findMyFavouriteGroupByUserId(UUID userId);
 }
