@@ -169,7 +169,7 @@ type Mutation {
     createGroup(name: String!, anonymousVote: Boolean = false, votingTime: Time!, votingDays: [DayOfWeek]!): Group
 
     # updates a group
-    updateGroup(groupId: ID!, name: String!, anonymousVote: Boolean!, votingTime: Time!, votingDays: [DayOfWeek]!): Group
+    updateGroup(groupId: ID!, name: String!, anonymousVote: Boolean = false, votingTime: Time!, votingDays: [DayOfWeek]!): Group
 
     # add an user to a group
     addUserToGroup(email: String!, groupId: ID!): Boolean
