@@ -42,7 +42,7 @@ if everything seems ok, we'll be very happy to merge your code :)
 
 ## Licensing and attribution
 
-DWBH is licensed under [APACHE 2.0](https://www.apache.org/licenses/LICENSE-2.0).
+PATIO is licensed under [APACHE 2.0](https://www.apache.org/licenses/LICENSE-2.0).
 All source code falls under this license.
 
 The source code will not contain attribution information (e.g. Javadoc) for contributed code.

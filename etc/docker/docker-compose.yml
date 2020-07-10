@@ -18,16 +18,16 @@
 
 version: '3'
 services:
-  dwbh-db:
+  patio-db:
     image: postgres:10-alpine
     volumes:
       - db_data:/var/lib/postgresql/data
     ports:
       - 5433:5432
     environment:
-      - POSTGRES_USER=dwbh
-      - POSTGRES_PASSWORD=dwbh
-      - POSTGRES_DB=dwbh
+      - POSTGRES_USER=patio
+      - POSTGRES_PASSWORD=patio
+      - POSTGRES_DB=patio
 
 volumes:
   db_data:

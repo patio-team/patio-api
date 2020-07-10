@@ -26,7 +26,7 @@
         <Not>
             <!-- A Class method annotated with @Scheduled produces a class ending -->
             <!-- with XXXDefinition and a nested class with lowerCase name -->
-            <Class name="dwbh.api.services.internal.VotingSchedulingServiceDefinition"/>
+            <Class name="patio.voting.services.internal.VotingSchedulingServiceDefinition"/>
         </Not>
     </Match>
 </FindBugsFilter>

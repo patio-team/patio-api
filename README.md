@@ -1,10 +1,9 @@
-![API Continuos Integration](https://github.com/patio-team/patio-api/workflows/API%20Continuos%20Integration/badge.svg) ![Continuous deployment in dev](https://github.com/patio-team/patio-api/workflows/Continuous%20deployment%20in%20dev/badge.svg) [![License](https://img.shields.io/github/license/dont-worry-be-happy/dwbh-api.svg)](https://www.gnu.org/licenses/gpl-3.0.en.html)
+![API Continuos Integration](https://github.com/patio-team/patio-api/workflows/API%20Continuos%20Integration/badge.svg) ![Continuous deployment in dev](https://github.com/patio-team/patio-api/workflows/Continuous%20deployment%20in%20dev/badge.svg) [![License](https://img.shields.io/github/license/patio-team/patio-api.svg)](https://www.gnu.org/licenses/gpl-3.0.en.html)
 
-![dwbh](etc/site/imgs/patio.png)
+![patio](etc/site/imgs/patio.png)
 
-**Patio** is a web application that tries to measure the happiness of a given team periodically by
-asking for a level of happiness between 1 and 5 (being 1 the saddest scenario and 5 the happiest). This repository
-hosts the backend of the DWBH project. Cool!
+**Patio** is a web application that tries to measure the happiness of your team periodically. This repository
+hosts the backend of the PATIO project. Cool!
 
 ## Getting Started
 
@@ -127,7 +126,7 @@ This project uses [Spotbugs](https://github.com/spotbugs) as tool for spotting p
 When working on development we'll need a PostgreSQL database and sometimes the front end. There's a
 `docker-compose` file to bootstrap both systems and make them work with the current back development.
 
-Go  to **your project's** `etc/docker` (dwbh-api/etc/docker) folder and execute:
+Go  to **your project's** `etc/docker` (patio-api/etc/docker) folder and execute:
 
 `docker-compose up -d`
 
@@ -157,10 +156,10 @@ And environment variables
 
 | Name                       | Description                 | Default value                                                 |
 |:---------------------------|:----------------------------|:--------------------------------------------------------------|
-| PATIO_JDBC_URL              | JDBC url                    | jdbc:postgresql://localhost:5433/dwbh                         |
-| PATIO_JDBC_USER             | JDBC username               | dwbh                                                          |
-| PATIO_JDBC_PASSWORD         | JDBC password               | dwbh                                                          |
-| PATIO_JDBC_DRIVER           | JDBC driver                 | org.postgresql.Driver                                         |
+| PATIO_JDBC_URL              | JDBC url                    |                          |
+| PATIO_JDBC_USER             | JDBC username               |                                                           |
+| PATIO_JDBC_PASSWORD         | JDBC password               |                                                           |
+| PATIO_JDBC_DRIVER           | JDBC driver                 |                                          |
 
 ##### EMAIL
 
