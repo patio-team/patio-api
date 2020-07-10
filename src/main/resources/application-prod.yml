@@ -45,6 +45,8 @@ flyway:
   datasources:
     default:
       locations: classpath:migrations
+      # remove once migrations have been applied to production
+      validate-on-migrate: false
 
 graphql:
   enabled: true
