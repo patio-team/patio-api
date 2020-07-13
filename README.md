@@ -1,10 +1,8 @@
-[![Travis](https://travis-ci.org/dont-worry-be-happy/dwbh-api.svg?branch=master)](https://travis-ci.org/dont-worry-be-happy/dwbh-api) [![License](https://img.shields.io/github/license/dont-worry-be-happy/dwbh-api.svg)](https://www.gnu.org/licenses/gpl-3.0.en.html)
+![API Continuos Integration](https://github.com/patio-team/patio-api/workflows/API%20Continuos%20Integration/badge.svg) ![Continuous deployment in dev](https://github.com/patio-team/patio-api/workflows/Continuous%20deployment%20in%20dev/badge.svg) [![License](https://img.shields.io/github/license/dont-worry-be-happy/dwbh-api.svg)](https://www.gnu.org/licenses/gpl-3.0.en.html)
 
-# Don't Worry Be Happy
+![dwbh](etc/site/imgs/patio.png)
 
-![dwbh](etc/site/imgs/dwbh.png)
-
-**Don't Worry Be Happy** is a web application that tries to measure the happiness of a given team periodically by
+**Patio** is a web application that tries to measure the happiness of a given team periodically by
 asking for a level of happiness between 1 and 5 (being 1 the saddest scenario and 5 the happiest). This repository
 hosts the backend of the DWBH project. Cool!
 
@@ -164,7 +162,27 @@ And environment variables
 | DWBH_JDBC_PASSWORD         | JDBC password               | dwbh                                                          |
 | DWBH_JDBC_DRIVER           | JDBC driver                 | org.postgresql.Driver                                         |
 
+##### EMAIL
+
+By default, if no other email service has been configured a default dummy service will be used to debug email mailing. You
+can, for example, configure AWS credentials to enable AWS mailing service.
+
+```yaml
+email:
+  source: ${DWBH_EMAIL_SOURCE}
+  enabled: ${DWBH_EMAIL_ENABLED}
+```
+
+And environment variables:
+
+| Name                       | Description                 | Default value                                                 |
+|:---------------------------|:----------------------------|:--------------------------------------------------------------|
+| DWBH_EMAIL_SOURCE      | Source email            |                                                               |
+| DWBH_EMAIL_ENABLED     | Enable mailing          |                                                               |
+
 ##### AWS integration
+
+AWS credentials to use AWS services, such as AWS simple mail service.
 
 Configuration file section:
 
@@ -173,10 +191,7 @@ aws:
   credentials:
     accessKey: ${DWBH_AWS_ACCESS_KEY}
     secretKey: ${DWBH_AWS_SECRET_KEY}
-  mail:
-    sourceemail: ${DWBH_AWS_EMAIL_SOURCE}
-    region: ${DWBH_AWS_EMAIL_REGION}
-    enabled: ${DWBH_AWS_EMAIL_ENABLED}
+    region: ${DWBH_AWS_REGION}
 ```
 
 And environment variables:
@@ -185,9 +200,7 @@ And environment variables:
 |:---------------------------|:----------------------------|:--------------------------------------------------------------|
 | DWBH_ACCESS_KEY            | AWS access key              |                                                               |
 | DWBH_SECRET_KEY            | AWS secret key              |                                                               |
-| DWBH_AWS_EMAIL_SOURCE      | AWS source email            |                                                               |
-| DWBH_AWS_EMAIL_REGION      | AWS region                  |                                                               |
-| DWBH_AWS_EMAIL_ENABLED     | Enable AWS mailing          |                                                               |
+| DWBH_AWS_REGION      | AWS region                  |                                                               |
 
 ##### JWT
 
@@ -307,6 +320,31 @@ fixtures {
 }
 ```
 
+## Logging
+
+All logging configuration can be found in the `logback.xml` file. By default
+
+```xml
+<configuration>
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+    <logger name="patio" level="DEBUG" />
+    <root level="INFO">
+        <appender-ref ref="STDOUT"/>
+    </root>
+</configuration>
+```
+
+If you'd like to activate SQL queries you can use the following loggers:
+
+```xml
+<logger name="org.hibernate.SQL" level="ALL" />
+<logger name="org.hibernate.type.descriptor.sql" level="TRACE" />
+```
+
 ## Technologies
 
 The most important technologies you need to be aware of to work
@@ -315,7 +353,7 @@ on this project are:
 ### Runtime
 
 * [Micronaut](https://micronaut.io/) - A JVM-based micro-framework
-* [Jooq](https://www.jooq.org/) - Persistence framework
+* [Micronaut Data](https://micronaut-projects.github.io/micronaut-data/latest/guide/) - Persistence framework
 * [AWS API](https://aws.amazon.com/sdk-for-java/) - For AWS services (e.g. mailing)
 
 ### Testing

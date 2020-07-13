@@ -39,7 +39,6 @@ jpa:
   default:
     properties:
       hibernate:
-        show_sql: true
 #        dialect: org.hibernate.dialect.PostgreSQL95Dialect
 
 flyway:
@@ -56,10 +55,11 @@ aws:
   credentials:
     accesskey: XXX
     secretkey: YYY
-  mail:
-    enabled: false
-    sourceemail: noreply@dwbh.com
     region: eu-west-1
+
+email:
+    enabled: false
+    source: noreply@dwbh.com
 
 crypto:
   jwt:
