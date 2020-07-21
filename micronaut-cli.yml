@@ -1,5 +1,5 @@
 profile: service
-defaultPackage: dwbh.api
+defaultPackage: patio
 ---
 testFramework: junit
 sourceLanguage: java

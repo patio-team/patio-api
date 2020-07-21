@@ -1,19 +1,19 @@
 /*
  * Copyright (C) 2019 Kaleidos Open Source SL
  *
- * This file is part of Don't Worry Be Happy (DWBH).
- * DWBH is free software: you can redistribute it and/or modify
+ * This file is part of PATIO.
+ * PATIO is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * DWBH is distributed in the hope that it will be useful,
+ * PATIO is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with DWBH.  If not, see <https://www.gnu.org/licenses/>
+ * along with PATIO.  If not, see <https://www.gnu.org/licenses/>
  */
 package patio.user.domain;
 
@@ -32,7 +32,7 @@ import patio.common.domain.utils.Builder;
 import patio.group.domain.UserGroup;
 
 /**
- * Represents the users of dwbh
+ * Represents the users of patio
  *
  * @since 0.1.0
  */
