@@ -1,13 +1,12 @@
-[![Travis](https://travis-ci.org/dont-worry-be-happy/dwbh-api.svg?branch=master)](https://travis-ci.org/dont-worry-be-happy/dwbh-api) [![License](https://img.shields.io/github/license/dont-worry-be-happy/dwbh-api.svg)](https://www.gnu.org/licenses/gpl-3.0.en.html)
+[![Travis](https://travis-ci.org/patio-team/patio-api.svg?branch=development)](https://travis-ci.org/github/patio-team/patio-api) [![License](https://img.shields.io/github/license/patio-team/patio-api)](https://www.gnu.org/licenses/gpl-3.0.en.html)
 
-# Don't Worry Be Happy
+# ![patio](etc/site/imgs/patio.png)
 
-![dwbh](etc/site/imgs/dwbh.png)
+**patio** is a web application that tries to measure the happiness of a given team periodically by
+asking for a level of happiness between Very bad and Very Good (being Very bad the saddest scenario and Very good the happiest). This repository
+hosts the backend of the patio project. Cool!
 
-**Don't Worry Be Happy** is a web application that tries to measure the happiness of a given team periodically by
-asking for a level of happiness between 1 and 5 (being 1 the saddest scenario and 5 the happiest). This repository
-hosts the backend of the DWBH project. Cool!
-
+![one](etc/site/imgs/one_50.png) ![two](etc/site/imgs/two_50.png) ![one](etc/site/imgs/three_50.png ) ![one](etc/site/imgs/four_50.png) ![one](etc/site/imgs/five_50.png)
 ## Getting Started
 
 If you'd like to start working on the project. The following sections show you how to
@@ -129,7 +128,7 @@ This project uses [Spotbugs](https://github.com/spotbugs) as tool for spotting p
 When working on development we'll need a PostgreSQL database and sometimes the front end. There's a
 `docker-compose` file to bootstrap both systems and make them work with the current back development.
 
-Go  to **your project's** `etc/docker` (dwbh-api/etc/docker) folder and execute:
+Go  to **your project's** `etc/docker` (patio-api/etc/docker) folder and execute:
 
 `docker-compose up -d`
 
@@ -149,20 +148,20 @@ Configuration file:
 ```yaml
 datasources:
   default:
-    url: ${DWBH_JDBC_URL}
-    username: ${DWBH_JDBC_USER}
-    password: ${DWBH_JDBC_PASSWORD}
-    driverClassName: ${DWBH_JDBC_DRIVER}
+    url: ${PATIO_JDBC_URL}
+    username: ${PATIO_JDBC_USER}
+    password: ${PATIO_JDBC_PASSWORD}
+    driverClassName: ${PATIO_JDBC_DRIVER}
 ```
 
 And environment variables
 
-| Name                       | Description                 | Default value                                                 |
-|:---------------------------|:----------------------------|:--------------------------------------------------------------|
-| DWBH_JDBC_URL              | JDBC url                    | jdbc:postgresql://localhost:5433/dwbh                         |
-| DWBH_JDBC_USER             | JDBC username               | dwbh                                                          |
-| DWBH_JDBC_PASSWORD         | JDBC password               | dwbh                                                          |
-| DWBH_JDBC_DRIVER           | JDBC driver                 | org.postgresql.Driver                                         |
+| Name                       | Description                 | Default value                                            |
+|:---------------------------|:----------------------------|:---------------------------------------------------------|
+| PATIO_JDBC_URL             | JDBC url                   | jdbc:postgresql://localhost:5433/patio                    |
+| PATIO_JDBC_USER            | JDBC username              | patio                                                     |
+| PATIO_JDBC_PASSWOR         | JDBC password              | patio                                                     |
+| PATIO_JDBC_DRIVER          | JDBC driver                | org.postgresql.Driver                                     |
 
 ##### AWS integration
 
@@ -171,23 +170,23 @@ Configuration file section:
 ```yaml
 aws:
   credentials:
-    accessKey: ${DWBH_AWS_ACCESS_KEY}
-    secretKey: ${DWBH_AWS_SECRET_KEY}
+    accessKey: ${PATIO_AWS_ACCESS_KEY}
+    secretKey: ${PATIO_AWS_SECRET_KEY}
   mail:
-    sourceemail: ${DWBH_AWS_EMAIL_SOURCE}
-    region: ${DWBH_AWS_EMAIL_REGION}
-    enabled: ${DWBH_AWS_EMAIL_ENABLED}
+    sourceemail: ${PATIO_AWS_EMAIL_SOURCE}
+    region: ${PATIO_AWS_EMAIL_REGION}
+    enabled: ${PATIO_AWS_EMAIL_ENABLED}
 ```
 
 And environment variables:
 
-| Name                       | Description                 | Default value                                                 |
-|:---------------------------|:----------------------------|:--------------------------------------------------------------|
-| DWBH_ACCESS_KEY            | AWS access key              |                                                               |
-| DWBH_SECRET_KEY            | AWS secret key              |                                                               |
-| DWBH_AWS_EMAIL_SOURCE      | AWS source email            |                                                               |
-| DWBH_AWS_EMAIL_REGION      | AWS region                  |                                                               |
-| DWBH_AWS_EMAIL_ENABLED     | Enable AWS mailing          |                                                               |
+| Name                        | Description                 | Default value                                                 |
+|:----------------------------|:----------------------------|:--------------------------------------------------------------|
+| PATIO_ACCESS_KEY            | AWS access key              |                                                               |
+| PATIO_SECRET_KEY            | AWS secret key              |                                                               |
+| PATIO_AWS_EMAIL_SOURCE      | AWS source email            |                                                               |
+| PATIO_AWS_EMAIL_REGION      | AWS region                  |                                                               |
+| PATIO_AWS_EMAIL_ENABLED     | Enable AWS mailing          |                                                               |
 
 ##### JWT
 
@@ -197,20 +196,20 @@ Configuration file section:
 crypto:
   password: SHA-256
   jwt:
-    secret: ${DWBH_JWT_SECRET}
-    days: ${DWBH_JWT_DAYS}
-    algorithm: ${DWBH_JWT_ALGO}
-    issuer: ${DWBH_JWT_ISSUER}
+    secret: ${PATIO_JWT_SECRET}
+    days: ${PATIO_JWT_DAYS}
+    algorithm: ${PATIO_JWT_ALGO}
+    issuer: ${PATIO_JWT_ISSUER}
 ```
 
 And environment variables:
 
 | Name                       | Description                 | Default value                                                 |
 |:---------------------------|:----------------------------|:--------------------------------------------------------------|
-| DWBH_JWT_SECRET            | JWT secret                  | mysupersecret                                                 |
-| DWBH_JWT_ALGO              | JWT signature algorithm     | HS256                                                         |
-| DWBH_JWT_ISSUER            | JWT issuer claim            | dwbh                                                          |
-| DWBH_JWT_DAYS              | JWT days before out of date | 7                                                             |
+| PATIO_JWT_SECRET           | JWT secret                  | mysupersecret                                                 |
+| PATIO_JWT_ALGO             | JWT signature algorithm     | HS256                                                         |
+| PATIO_JWT_ISSUER           | JWT issuer claim            | patio                                                         |
+| PATIO_JWT_DAYS             | JWT days before out of date | 7                                                             |
 
 ##### GOOGLE-OAUTH2
 
@@ -218,20 +217,20 @@ Configuration file section:
 
 ```yaml
 oauth2:
-  apikey: ${DWBH_OAUTH2_KEY}
-  apisecret: ${DWBH_OAUTH2_SECRET}
-  callback: ${DWBH_OAUTH2_CALLBACK}
+  apikey: ${PATIO_OAUTH2_KEY}
+  apisecret: ${PATIO_OAUTH2_SECRET}
+  callback: ${PATIO_OAUTH2_CALLBACK}
 ```
 
 Google Oauth2 settings are required if you want front end to be authenticated using Google authentication.
 
-| Name                       | Description                 | Default value                                                 |
-|:---------------------------|:----------------------------|:--------------------------------------------------------------|
-| DWBH_OAUTH2_KEY            | Oauth2 client id            |                                                               |
-| DWBH_OAUTH2_SECRET         | Oauth2 client secret        |                                                               |
-| DWBH_OAUTH2_CALLBACK       | Oauth2 callback URL         |                                                               |
+| Name                        | Description                 | Default value                                                 |
+|:----------------------------|:----------------------------|:--------------------------------------------------------------|
+| PATIO_OAUTH2_KEY            | Oauth2 client id            |                                                               |
+| PATIO_OAUTH2_SECRET         | Oauth2 client secret        |                                                               |
+| PATIO_OAUTH2_CALLBACK       | Oauth2 callback URL         |                                                               |
 
-`DWBH_OAUTH2_CALLBACK` must match frontend `VUE_APP_REDIRECT_URI` variable.
+`PATIO_OAUTH2_CALLBACK` must match frontend `VUE_APP_REDIRECT_URI` variable.
 
 ##### DEFAULT USER
 
@@ -239,20 +238,20 @@ Configuration file section:
 
 ```yaml
 duser:
-  enabled: ${DWBH_DUSER_ENABLED}
-  name: ${DWBH_DUSER_NAME}
-  email: ${DWBH_DUSER_EMAIL}
-  password: ${DWBH_DUSER_PASSWORD}
+  enabled: ${PATIO_DUSER_ENABLED}
+  name: ${PATIO_DUSER_NAME}
+  email: ${PATIO_DUSER_EMAIL}
+  password: ${PATIO_DUSER_PASSWORD}
 ```
 
 In case you'd like to start the instance with a default user you can use the following environment variables:
 
-| Name                       | Description                 | Default value                                                 |
-|:---------------------------|:----------------------------|:--------------------------------------------------------------|
-| DWBH_DUSER_ENABLED            | Whether or not to insert default user            | false   |
-| DWBH_DUSER_NAME            | Default user's name            |    |
-| DWBH_DUSER_EMAIL            | Default user's email            |    |
-| DWBH_DUSER_PASSWORD            | Default user's plain text password            |    | 
+| Name                       | Description                           | Default value                                        |
+|:---------------------------|:--------------------------------------|:-----------------------------------------------------|
+| PATIO_DUSER_ENABLED        | Whether or not to insert default user | false                                                |
+| PATIO_DUSER_NAME           | Default user's name                   |                                                      |
+| PATIO_DUSER_EMAIL          | Default user's email                  |                                                      |
+| PATIO_DUSER_PASSWORD       | Default user's plain text password    |                                                      | 
 
 #### Running app
 
