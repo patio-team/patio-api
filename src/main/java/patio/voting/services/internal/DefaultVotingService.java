@@ -280,6 +280,7 @@ public class DefaultVotingService implements VotingService {
     var optionalStats = optionalVoting.map(Voting::getStats);
     var votingAverage = optionalStats.map(VotingStats::getAverage);
     var votingMovingAverage = optionalStats.map(VotingStats::getMovingAverage);
+    var standardDeviation = getStandardDeviation(votingAverage, votingMovingAverage);
     var votingStatsDate = optionalStats.map(VotingStats::getCreatedAtDateTime);
 
     Map<String, Object> votingStats =
@@ -297,7 +298,9 @@ public class DefaultVotingService implements VotingService {
             "movingAverage",
             votingMovingAverage,
             "createdAtDateTime",
-            votingStatsDate);
+            votingStatsDate,
+            "standardDeviation",
+            standardDeviation);
 
     return Result.result(votingStats);
   }
@@ -353,5 +356,16 @@ public class DefaultVotingService implements VotingService {
         .stream()
         .flatMap(voteStream -> voteStream)
         .collect(Collectors.toList());
+  }
+
+  private Optional<Object> getStandardDeviation(
+      Optional<Double> average, Optional<Double> movingAverage) {
+    return movingAverage.map(
+        movAvg ->
+            average.map(
+                avg -> {
+                  var percentage = (avg / movAvg - 1) * 100;
+                  return Math.round(percentage * 100) / 100d;
+                }));
   }
 }
