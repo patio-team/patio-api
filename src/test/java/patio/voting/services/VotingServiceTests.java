@@ -753,6 +753,7 @@ public class VotingServiceTests {
     assertEquals(stats.get("voteCountAverage"), 4L);
     assertNotEquals(stats.get("average"), null);
     assertNotEquals(stats.get("movingAverage"), null);
+    assertNotEquals(stats.get("standardDeviation"), null);
   }
 
   @Test
