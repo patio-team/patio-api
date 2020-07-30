@@ -20,8 +20,8 @@ package patio.group.graphql;
 import java.time.DayOfWeek;
 import java.time.OffsetTime;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
+import patio.common.domain.utils.Builder;
 
 /**
  * UpsertGroupInput input. It contains the fields for a Group
@@ -29,38 +29,21 @@ import java.util.UUID;
  * @since 0.1.0
  */
 public class UpsertGroupInput {
-
-  private final UUID groupId;
-  private final String name;
-  private final boolean anonymousVote;
-  private final List<DayOfWeek> votingDays;
-  private final OffsetTime votingTime;
-  private final UUID currentUserId;
+  private UUID groupId;
+  private String name;
+  private boolean anonymousVote;
+  private List<DayOfWeek> votingDays;
+  private OffsetTime votingTime;
+  private int votingDuration;
+  private UUID currentUserId;
 
   /**
-   * Initializes the input
+   * Creates a new builder to create a new instance of type {@link UpsertGroupInput}
    *
-   * @param groupId groups's id
-   * @param name groups's name
-   * @param anonymousVote indicates if the group allows anonymous votes
-   * @param votingDays represents the day of the week
-   * @param votingTime votingTime of the day where the reminder is going to be sent
-   * @param currentUserId current user's id
-   * @since 0.1.0
+   * @return an instance of UpsertGroupInput builder
    */
-  public UpsertGroupInput(
-      UUID groupId,
-      String name,
-      boolean anonymousVote,
-      List<DayOfWeek> votingDays,
-      OffsetTime votingTime,
-      UUID currentUserId) {
-    this.groupId = groupId;
-    this.name = name;
-    this.anonymousVote = anonymousVote;
-    this.votingDays = Optional.ofNullable(votingDays).orElse(List.of());
-    this.votingTime = votingTime;
-    this.currentUserId = currentUserId;
+  public static Builder<UpsertGroupInput> newBuilder() {
+    return Builder.build(UpsertGroupInput::new);
   }
 
   /**
@@ -122,151 +105,81 @@ public class UpsertGroupInput {
   }
 
   /**
-   * Creates a new builder to create a new instance of type {@link UpsertGroupInput}
+   * Gets votingDuration.
    *
-   * @return an instance of {@link Builder}
-   * @since 0.1.0
+   * @return Value of votingDuration.
    */
-  public static Builder newBuilder() {
-    return new Builder();
+  public int getVotingDuration() {
+    return votingDuration;
   }
 
   /**
-   * Builds an instance of type {@link UpsertGroupInput}
+   * Sets the groupId
    *
+   * @param groupId the group's id
    * @since 0.1.0
    */
-  public static class Builder {
+  public void setGroupId(UUID groupId) {
+    this.groupId = groupId;
+  }
 
-    private transient UpsertGroupInput input =
-        new UpsertGroupInput(null, null, false, null, null, null);
+  /**
+   * Sets the name
+   *
+   * @param name the group's name
+   * @since 0.1.0
+   */
+  public void setName(String name) {
+    this.name = name;
+  }
 
-    private Builder() {
-      /* empty */
-    }
+  /**
+   * Sets the anonymousVote
+   *
+   * @param anonymousVote the group's anonymousVote
+   * @since 0.1.0
+   */
+  public void setAnonymousVote(boolean anonymousVote) {
+    this.anonymousVote = anonymousVote;
+  }
 
-    /**
-     * Sets the groupId
-     *
-     * @param groupId the group's id
-     * @return current builder instance
-     * @since 0.1.0
-     */
-    public Builder withGroupId(UUID groupId) {
-      this.input =
-          new UpsertGroupInput(
-              groupId,
-              input.getName(),
-              input.isAnonymousVote(),
-              input.getVotingDays(),
-              input.getVotingTime(),
-              input.getCurrentUserId());
-      return this;
-    }
+  /**
+   * Sets the votingDays
+   *
+   * @param votingDays the group's votingDays
+   * @since 0.1.0
+   */
+  public void setVotingDays(List<DayOfWeek> votingDays) {
+    this.votingDays = votingDays;
+  }
 
-    /**
-     * Sets the name
-     *
-     * @param name the group's name
-     * @return current builder instance
-     * @since 0.1.0
-     */
-    public Builder withName(String name) {
-      this.input =
-          new UpsertGroupInput(
-              input.getGroupId(),
-              name,
-              input.isAnonymousVote(),
-              input.getVotingDays(),
-              input.getVotingTime(),
-              input.getCurrentUserId());
-      return this;
-    }
+  /**
+   * Sets the votingTime
+   *
+   * @param votingTime the group's votingTime
+   * @since 0.1.0
+   */
+  public void setVotingTime(OffsetTime votingTime) {
+    this.votingTime = votingTime;
+  }
 
-    /**
-     * Sets the anonymousVote
-     *
-     * @param anonymousVote the group's anonymousVote
-     * @return current builder instance
-     * @since 0.1.0
-     */
-    public Builder withAnonymousVote(boolean anonymousVote) {
-      this.input =
-          new UpsertGroupInput(
-              input.getGroupId(),
-              input.getName(),
-              anonymousVote,
-              input.getVotingDays(),
-              input.getVotingTime(),
-              input.getCurrentUserId());
-      return this;
-    }
+  /**
+   * Sets the votingTime
+   *
+   * @param votingDuration the group's votingDuration (in hours)
+   * @since 0.1.0
+   */
+  public void setVotingDuration(int votingDuration) {
+    this.votingDuration = votingDuration;
+  }
 
-    /**
-     * Sets the votingDays
-     *
-     * @param votingDays the group's votingDays
-     * @return current builder instance
-     * @since 0.1.0
-     */
-    public Builder withVotingDays(List<DayOfWeek> votingDays) {
-      this.input =
-          new UpsertGroupInput(
-              input.getGroupId(),
-              input.getName(),
-              input.isAnonymousVote(),
-              votingDays,
-              input.getVotingTime(),
-              input.getCurrentUserId());
-      return this;
-    }
-
-    /**
-     * Sets the votingTime
-     *
-     * @param votingTime the group's votingTime
-     * @return current builder instance
-     * @since 0.1.0
-     */
-    public Builder withVotingTime(OffsetTime votingTime) {
-      this.input =
-          new UpsertGroupInput(
-              input.getGroupId(),
-              input.getName(),
-              input.isAnonymousVote(),
-              input.getVotingDays(),
-              votingTime,
-              input.getCurrentUserId());
-      return this;
-    }
-
-    /**
-     * Sets the currentUserId
-     *
-     * @param currentUserId the currentUserId
-     * @return current builder instance
-     * @since 0.1.0
-     */
-    public Builder withCurrentUserId(UUID currentUserId) {
-      this.input =
-          new UpsertGroupInput(
-              input.getGroupId(),
-              input.getName(),
-              input.isAnonymousVote(),
-              input.getVotingDays(),
-              input.getVotingTime(),
-              currentUserId);
-      return this;
-    }
-
-    /**
-     * Returns the instance built with this builder
-     *
-     * @return an instance of type {@link UpsertGroupInput}
-     * @since 0.1.0
-     */
-    public UpsertGroupInput build() {
-      return this.input;
-    }
+  /**
+   * Sets the currentUserId
+   *
+   * @param currentUserId the currentUserId
+   * @since 0.1.0
+   */
+  public void setCurrentUserId(UUID currentUserId) {
+    this.currentUserId = currentUserId;
   }
 }

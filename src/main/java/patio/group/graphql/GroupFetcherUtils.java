@@ -68,17 +68,19 @@ final class GroupFetcherUtils {
     String name = environment.getArgument("name");
     boolean anonymousVote = environment.getArgument("anonymousVote");
     List<DayOfWeek> votingDays = environment.getArgument("votingDays");
+    int votingDuration = environment.getArgument("votingDuration");
     OffsetTime votingTime = environment.getArgument("votingTime");
     Context ctx = environment.getContext();
     User currentUser = ctx.getAuthenticatedUser();
 
     return UpsertGroupInput.newBuilder()
-        .withCurrentUserId(currentUser.getId())
-        .withGroupId(groupId)
-        .withName(name)
-        .withAnonymousVote(anonymousVote)
-        .withVotingDays(votingDays)
-        .withVotingTime(votingTime)
+        .with(i -> i.setCurrentUserId(currentUser.getId()))
+        .with(i -> i.setGroupId(groupId))
+        .with(i -> i.setName(name))
+        .with(i -> i.setAnonymousVote(anonymousVote))
+        .with(i -> i.setVotingDays(votingDays))
+        .with(i -> i.setVotingTime(votingTime))
+        .with(i -> i.setVotingDuration(votingDuration))
         .build();
   }
 }

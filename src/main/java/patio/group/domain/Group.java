@@ -64,6 +64,9 @@ public final class Group {
   @OneToMany(mappedBy = "group")
   private Set<UserGroup> users;
 
+  @Column(name = "voting_duration")
+  private Integer votingDuration; /* in hours */
+
   /**
    * Creates a new {@link Group} builder
    *
@@ -172,6 +175,24 @@ public final class Group {
    */
   public void setVotingTime(OffsetTime votingTime) {
     this.votingTime = votingTime;
+  }
+
+  /**
+   * Get the duration (in hours) during which the voting will be open
+   *
+   * @return the number of hours
+   */
+  public Integer getVotingDuration() {
+    return votingDuration;
+  }
+
+  /**
+   * Sets the number of hours during which the duration will be open
+   *
+   * @param votingDuration number of hours
+   */
+  public void setVotingDuration(Integer votingDuration) {
+    this.votingDuration = votingDuration;
   }
 
   public Set<UserGroup> getUsers() {

@@ -20,38 +20,72 @@ package patio.group.repositories;
 import io.micronaut.data.annotation.Query;
 import io.micronaut.data.repository.PageableRepository;
 import java.time.OffsetDateTime;
-import java.time.OffsetTime;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Stream;
 import patio.group.domain.Group;
+import patio.voting.domain.Voting;
 
 /** All database actions related to {@link Group} entity */
 public interface GroupRepository extends PageableRepository<Group, UUID> {
 
+  String VOTING_HOUR_TIME = "+ extract(hour from g.voting_time) * INTERVAL '1 hour' ";
+  String VOTING_MINUTE_TIME = "+ extract(minute from g.voting_time) * INTERVAL '1 minute' ";
+  String VOTING_DURATION = "+ g.voting_duration * INTERVAL '1 hour' ";
+  String TODAY_AT_MIDNIGHT = "DATE_TRUNC('day', current_date) ";
+  String VOTING_START_TIME = TODAY_AT_MIDNIGHT + VOTING_HOUR_TIME + VOTING_MINUTE_TIME;
+
   /**
-   * Finds all groups for a specific voting day having voting time before or at a specific time
+   * Finds all groups for a specific voting day and with time in a group's voting period
    *
    * @param day day of the week
    * @param time time after or at it's voting voting time
    * @return a {@link Stream} of {@link Group}
    */
   @Query(
-      value = "SELECT * FROM groups WHERE :day=ANY(voting_days) AND voting_time <= :time",
+      value =
+          "SELECT g.* FROM groups g "
+              + "WHERE :day=ANY(g.voting_days) "
+              + "AND :time BETWEEN "
+              + VOTING_START_TIME
+              + "AND "
+              + VOTING_START_TIME
+              + VOTING_DURATION,
       nativeQuery = true)
-  Stream<Group> findAllByDayOfWeekAndVotingTimeLessEq(String day, OffsetTime time);
+  Stream<Group> findAllGroupsInVotingDayAndInVotingPeriod(String day, OffsetDateTime time);
 
   /**
-   * Finds all groups having a voting between two dates
+   * Finds all groups already having a Voting for the CURRENT voting period
    *
-   * @param fromDateTime lower bound of type {@link OffsetDateTime}
-   * @param toDateTime upper bound of type {@link OffsetDateTime}
    * @return a {@link Stream} of the {@link Group} having a voting between these two moments
    */
   @Query(
-      "SELECT v.group FROM Voting v WHERE v.createdAtDateTime BETWEEN :fromDateTime AND :toDateTime")
-  Stream<Group> findAllByVotingCreatedAtDateTimeBetween(
-      OffsetDateTime fromDateTime, OffsetDateTime toDateTime);
+      value =
+          "SELECT g.* FROM voting v, groups g "
+              + "WHERE v.group_id = g.id "
+              + "AND v.created_at BETWEEN "
+              + VOTING_START_TIME
+              + "AND "
+              + VOTING_START_TIME
+              + VOTING_DURATION,
+      nativeQuery = true)
+  Stream<Group> findAllGroupsWithVotingInCurrentVotingPeriod();
+
+  /**
+   * Finds all votings with non-expired votings that are OUT OF its CURRENT voting time
+   *
+   * @param time the OffsetDateTime to consider when reviewing the voting period
+   * @return a {@link Stream} of the {@link Group} having a voting between these two moments
+   */
+  @Query(
+      value =
+          "SELECT v.* FROM voting v, groups g "
+              + "WHERE v.expired = false "
+              + "AND :time >= v.created_at "
+              + VOTING_DURATION
+              + "AND v.group_id = g.id",
+      nativeQuery = true)
+  Stream<Voting> findAllExpiredVotingsByTime(OffsetDateTime time);
 
   /**
    * Returns the user's favourite {@link Group}

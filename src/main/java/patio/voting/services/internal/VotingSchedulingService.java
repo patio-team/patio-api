@@ -21,13 +21,7 @@ import io.micronaut.context.annotation.Value;
 import io.micronaut.scheduling.annotation.Scheduled;
 import java.time.DayOfWeek;
 import java.time.OffsetDateTime;
-import java.time.OffsetTime;
-import java.time.temporal.ChronoUnit;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -64,7 +58,6 @@ public class VotingSchedulingService implements VotingScheduling {
   private final transient EmailComposerService emailComposerService;
   private final transient EmailService emailService;
   private final transient URLResolverService urlResolverService;
-  private final transient DefaultVotingService defaultVotingService;
 
   /**
    * Requires the {@link DefaultVotingService} to get group voting information and {@link
@@ -74,7 +67,6 @@ public class VotingSchedulingService implements VotingScheduling {
    * @param groupRepository to be able to get group details
    * @param votingRepository to be able to create a new {@link Voting}
    * @param votingStatsService to be able to create a new {@link VotingStatsService}
-   * @param defaultVotingService to be able to create a new {@link DefaultVotingService}
    * @param emailComposerService service to compose the {@link Email} notifications
    * @param emailService to be able to send notifications to group members
    * @param urlResolverService to resolve possible link urls for emails
@@ -85,7 +77,6 @@ public class VotingSchedulingService implements VotingScheduling {
       GroupRepository groupRepository,
       VotingRepository votingRepository,
       VotingStatsService votingStatsService,
-      DefaultVotingService defaultVotingService,
       EmailComposerService emailComposerService,
       EmailService emailService,
       URLResolverService urlResolverService) {
@@ -93,7 +84,6 @@ public class VotingSchedulingService implements VotingScheduling {
     this.groupRepository = groupRepository;
     this.votingRepository = votingRepository;
     this.votingStatsService = votingStatsService;
-    this.defaultVotingService = defaultVotingService;
     this.emailComposerService = emailComposerService;
     this.emailService = emailService;
     this.urlResolverService = urlResolverService;
@@ -109,28 +99,28 @@ public class VotingSchedulingService implements VotingScheduling {
   /* default */ void checkVoting() {
     LOG.info("checking voting creation");
     this.findAllToCreateVotingFrom().map(this::createVoting).forEach(this::notifyMembers);
+    this.findAllToExpireVotingFrom().forEach(this::expireVoting);
+  }
+
+  private Stream<Voting> findAllToExpireVotingFrom() {
+    return groupRepository.findAllExpiredVotingsByTime(OffsetDateTime.now());
   }
 
   private Stream<Group> findAllToCreateVotingFrom() {
     OffsetDateTime now = OffsetDateTime.now();
     DayOfWeek dayOfWeek = now.getDayOfWeek();
-    OffsetTime votingTime = now.toOffsetTime();
 
-    Stream<Group> eligible =
-        groupRepository.findAllByDayOfWeekAndVotingTimeLessEq(dayOfWeek.toString(), votingTime);
+    Stream<Group> eligibleGroups =
+        groupRepository.findAllGroupsInVotingDayAndInVotingPeriod(dayOfWeek.toString(), now);
 
-    List<Group> closed =
-        groupRepository
-            .findAllByVotingCreatedAtDateTimeBetween(now.truncatedTo(ChronoUnit.DAYS), now)
-            .collect(Collectors.toList());
+    List<Group> groupsWithVoting =
+        groupRepository.findAllGroupsWithVotingInCurrentVotingPeriod().collect(Collectors.toList());
 
-    return eligible.filter(Predicate.not(closed::contains));
+    return eligibleGroups.filter(Predicate.not(groupsWithVoting::contains));
   }
 
   private Voting createVoting(Group group) {
     LOG.info(String.format("creating new voting for group %s", group.getId()));
-
-    this.expirePreviousVoting(group);
 
     Voting voting =
         Voting.newBuilder()
@@ -146,14 +136,9 @@ public class VotingSchedulingService implements VotingScheduling {
     return voting;
   }
 
-  private void expirePreviousVoting(Group group) {
-    defaultVotingService
-        .getLastVoting(Optional.of(group))
-        .ifPresent(
-            v -> {
-              v.setExpired(true);
-              votingRepository.save(v);
-            });
+  private void expireVoting(Voting voting) {
+    voting.setExpired(true);
+    votingRepository.save(voting);
   }
 
   private void notifyMembers(Voting voting) {

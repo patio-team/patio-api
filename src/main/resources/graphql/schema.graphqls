@@ -30,6 +30,7 @@ type Group {
     members: [User]
     votingDays: [DayOfWeek]
     votingTime: Time
+    votingDuration: Int
     isCurrentUserAdmin: Boolean
     votings(startDateTime: DateTime!, endDateTime: DateTime!): [Voting]
 }
@@ -167,10 +168,14 @@ type Mutation {
     createVote(votingId: ID!, score: Int!, hueMood: String, comment: String, anonymous: Boolean = false): Vote
 
     # creates a group
-    createGroup(name: String!, anonymousVote: Boolean = false, votingTime: Time!, votingDays: [DayOfWeek]!): Group
+    # TODO: mark votingDuration as mandatory (frontend must send it first)
+    createGroup(name: String!, anonymousVote: Boolean = false, votingTime: Time!, votingDays: [DayOfWeek]!,
+        votingDuration: Int = 24): Group
 
     # updates a group
-    updateGroup(groupId: ID!, name: String!, anonymousVote: Boolean = false, votingTime: Time!, votingDays: [DayOfWeek]!): Group
+    # TODO: mark votingDuration as mandatory (frontend must send it first)
+    updateGroup(groupId: ID!, name: String!, anonymousVote: Boolean = false, votingTime: Time!,
+        votingDuration: Int = 24, votingDays: [DayOfWeek]!): Group
 
     # add an user to a group
     addUserToGroup(email: String!, groupId: ID!): Boolean

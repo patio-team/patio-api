@@ -92,6 +92,7 @@ public class DefaultGroupService implements GroupService {
             .with(g -> g.setAnonymousVote(input.isAnonymousVote()))
             .with(g -> g.setVotingDays(input.getVotingDays()))
             .with(g -> g.setVotingTime(input.getVotingTime()))
+            .with(g -> g.setVotingDuration(input.getVotingDuration()))
             .build();
 
     Optional<User> user = userRepository.findById(input.getCurrentUserId());
@@ -127,6 +128,7 @@ public class DefaultGroupService implements GroupService {
         .map(b -> b.with(g -> g.setAnonymousVote(input.isAnonymousVote())))
         .map(b -> b.with(g -> g.setVotingDays(input.getVotingDays())))
         .map(b -> b.with(g -> g.setVotingTime(input.getVotingTime())))
+        .map(b -> b.with(g -> g.setVotingDuration(input.getVotingDuration())))
         .map(Builder::build)
         .map(groupRepository::update)
         .orElse(null);

@@ -53,7 +53,6 @@ public class VotingSchedulingServiceTests {
     var groupRepository = Mockito.mock(GroupRepository.class);
     var votingRepository = Mockito.mock(VotingRepository.class);
     var votingStatsService = Mockito.mock(VotingStatsService.class);
-    var defaultVotingService = Mockito.mock(DefaultVotingService.class);
     var emailComposerService = Mockito.mock(EmailComposerService.class);
     var emailService = Mockito.mock(EmailService.class);
     var urlResolverService = Mockito.mock(URLResolverService.class);
@@ -67,10 +66,10 @@ public class VotingSchedulingServiceTests {
     var groupsVotingToday = new ArrayList<Group>(closedVotingGroups);
     groupsVotingToday.add(group1);
 
-    Mockito.when(groupRepository.findAllByDayOfWeekAndVotingTimeLessEq(any(), any()))
+    Mockito.when(groupRepository.findAllGroupsInVotingDayAndInVotingPeriod(any(), any()))
         .thenReturn(groupsVotingToday.stream());
 
-    Mockito.when(groupRepository.findAllByVotingCreatedAtDateTimeBetween(any(), any()))
+    Mockito.when(groupRepository.findAllGroupsWithVotingInCurrentVotingPeriod())
         .thenReturn(closedVotingGroups.stream());
 
     var voting = Voting.newBuilder().with(v -> v.setGroup(group1)).build();
@@ -93,7 +92,6 @@ public class VotingSchedulingServiceTests {
             groupRepository,
             votingRepository,
             votingStatsService,
-            defaultVotingService,
             emailComposerService,
             emailService,
             urlResolverService);
@@ -102,15 +100,18 @@ public class VotingSchedulingServiceTests {
     schedulingService.scheduleVoting();
 
     // then: it lists the groups that should be notified
-    verify(groupRepository, times(1)).findAllByVotingCreatedAtDateTimeBetween(any(), any());
+    verify(groupRepository, times(1)).findAllGroupsWithVotingInCurrentVotingPeriod();
 
-    verify(groupRepository, times(1)).findAllByDayOfWeekAndVotingTimeLessEq(any(), any());
+    verify(groupRepository, times(1)).findAllGroupsInVotingDayAndInVotingPeriod(any(), any());
 
     // and: takes each group details
     verify(votingRepository, times(1)).save(any());
 
-    // and voting statistics are initialized
+    // and: voting statistics are initialized
     verify(votingStatsService, times(1)).createVotingStat(any());
+
+    // and: verifies the existence of votings to be expired
+    verify(groupRepository, times(1)).findAllExpiredVotingsByTime(any());
 
     // and: composes an email for each user
     verify(emailComposerService, atLeast(4)).getMessage(any());
