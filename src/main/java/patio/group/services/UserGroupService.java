@@ -17,12 +17,12 @@
  */
 package patio.group.services;
 
+import java.util.List;
 import java.util.UUID;
 import patio.common.domain.utils.Result;
 import patio.group.domain.Group;
-import patio.group.graphql.AddUserToGroupInput;
-import patio.group.graphql.LeaveGroupInput;
-import patio.group.graphql.ListUsersGroupInput;
+import patio.group.graphql.*;
+import patio.user.domain.GroupMember;
 import patio.user.domain.User;
 
 /**
@@ -42,6 +42,24 @@ public interface UserGroupService {
   Result<Boolean> addUserToGroup(AddUserToGroupInput input);
 
   /**
+   * Adds an user to a group, if the current user is admin of the group
+   *
+   * @param input member's emails and group information
+   * @return an instance of {@link Result} (Boolean | {@link Error})
+   * @since 0.1.0
+   */
+  Result<Boolean> inviteMembersToGroup(InviteMembersToGroupInput input);
+
+  /**
+   * Adds a user with a valid group invitation's otp to a group
+   *
+   * @param input current user and otp information
+   * @return an instance of {@link Result} (Boolean | {@link Error})
+   * @since 0.1.0
+   */
+  Result<Group> acceptInvitationToGroup(AcceptInvitationToGroupInput input);
+
+  /**
    * Fetches the list of users in a Group. ifMatches the user is not allowed to build them, returns
    * an empty list
    *
@@ -49,7 +67,7 @@ public interface UserGroupService {
    * @return a list of {@link User} instances
    * @since 0.1.0
    */
-  Iterable<User> listUsersGroup(ListUsersGroupInput input);
+  List<GroupMember> listUsersGroup(ListUsersGroupInput input);
 
   /**
    * Make the current user leave the specified group

@@ -17,9 +17,7 @@
  */
 package patio.group.services.internal;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import javax.inject.Singleton;
 import javax.transaction.Transactional;
 import patio.common.domain.utils.NotPresent;
@@ -27,13 +25,12 @@ import patio.common.domain.utils.Result;
 import patio.group.domain.Group;
 import patio.group.domain.UserGroup;
 import patio.group.domain.UserGroupKey;
-import patio.group.graphql.AddUserToGroupInput;
-import patio.group.graphql.LeaveGroupInput;
-import patio.group.graphql.ListUsersGroupInput;
+import patio.group.graphql.*;
 import patio.group.repositories.GroupRepository;
 import patio.group.repositories.UserGroupRepository;
 import patio.group.services.UserGroupService;
 import patio.infrastructure.utils.OptionalUtils;
+import patio.user.domain.GroupMember;
 import patio.user.domain.User;
 import patio.user.repositories.UserRepository;
 
@@ -49,22 +46,25 @@ public class DefaultUserGroupService implements UserGroupService {
   private final transient GroupRepository groupRepository;
   private final transient UserRepository userRepository;
   private final transient UserGroupRepository userGroupRepository;
-
+  private final transient GroupInvitationService invitationService;
   /**
    * Initializes service by using the database repositories
    *
    * @param groupRepository an instance of {@link GroupRepository}
    * @param userRepository an instance of {@link UserRepository}
    * @param userGroupRepository an instance of {@link UserGroupRepository}
+   * @param invitationService to allow managing of group invitations
    * @since 0.1.0
    */
   public DefaultUserGroupService(
       GroupRepository groupRepository,
       UserRepository userRepository,
-      UserGroupRepository userGroupRepository) {
+      UserGroupRepository userGroupRepository,
+      GroupInvitationService invitationService) {
     this.groupRepository = groupRepository;
     this.userRepository = userRepository;
     this.userGroupRepository = userGroupRepository;
+    this.invitationService = invitationService;
   }
 
   @Override
@@ -84,18 +84,42 @@ public class DefaultUserGroupService implements UserGroupService {
         .then(() -> addUserToGroupIfSuccess(user, group));
   }
 
-  private Boolean addUserToGroupIfSuccess(Optional<User> user, Optional<Group> group) {
-    return OptionalUtils.combine(user, group)
-        .into(UserGroup::new)
-        .map(userGroupRepository::save)
-        .isPresent();
+  @Override
+  public Result<Boolean> inviteMembersToGroup(InviteMembersToGroupInput input) {
+    Optional<Group> group = groupRepository.findById(input.getGroupId());
+    Optional<User> currentUser = userRepository.findById(input.getCurrentUserId());
+
+    NotPresent notPresent = new NotPresent();
+    UserIsGroupAdmin userIsGroupAdmin = new UserIsGroupAdmin(userGroupRepository);
+
+    return Result.<Boolean>create()
+        .thenCheck(() -> notPresent.check(group))
+        .thenCheck(() -> userIsGroupAdmin.check(input.getCurrentUserId(), input.getGroupId()))
+        .then(
+            () ->
+                invitationService.sendInvitationsToGroup(
+                    input.getEmailList(), group.get(), currentUser.get()));
   }
 
   @Override
-  public Iterable<User> listUsersGroup(ListUsersGroupInput input) {
+  public Result<Group> acceptInvitationToGroup(AcceptInvitationToGroupInput input) {
+    Optional<User> currentUser = userRepository.findById(input.getCurrentUserId());
+    Optional<UserGroup> userGroup =
+        userGroupRepository.findByUserAndOtp(currentUser.get(), input.getOtp());
+
+    NotPresent notPresent = new NotPresent();
+
+    return Result.<UserGroup>create()
+        .thenCheck(() -> notPresent.check(userGroup))
+        .then(() -> invitationService.activateMembership(userGroup.get()))
+        .map(UserGroup::getGroup);
+  }
+
+  @Override
+  public List<GroupMember> listUsersGroup(ListUsersGroupInput input) {
     return groupRepository
         .findById(input.getGroupId())
-        .map(userRepository::findAllByGroup)
+        .map(userRepository::findAllGroupMembersByGroup)
         .orElseGet(List::of);
   }
 
@@ -134,5 +158,12 @@ public class DefaultUserGroupService implements UserGroupService {
         .findById(new UserGroupKey(userId, groupId))
         .map(UserGroup::isAdmin)
         .orElse(false);
+  }
+
+  private Boolean addUserToGroupIfSuccess(Optional<User> user, Optional<Group> group) {
+    return OptionalUtils.combine(user, group)
+        .into(UserGroup::new)
+        .map(userGroupRepository::save)
+        .isPresent();
   }
 }

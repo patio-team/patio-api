@@ -28,6 +28,7 @@ import static org.mockito.Mockito.when;
 import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import patio.group.domain.Group;
 import patio.group.domain.UserGroup;
 import patio.group.domain.UserGroupKey;
@@ -35,8 +36,14 @@ import patio.group.graphql.AddUserToGroupInput;
 import patio.group.repositories.GroupRepository;
 import patio.group.repositories.UserGroupRepository;
 import patio.group.services.internal.DefaultUserGroupService;
+import patio.group.services.internal.GroupInvitationService;
+import patio.infrastructure.email.services.EmailService;
+import patio.infrastructure.email.services.internal.EmailComposerService;
+import patio.infrastructure.email.services.internal.templates.URLResolverService;
+import patio.security.services.CryptoService;
 import patio.user.domain.User;
 import patio.user.repositories.UserRepository;
+import patio.user.services.internal.DefaultUserService;
 
 public class UserGroupServiceTests {
 
@@ -46,6 +53,12 @@ public class UserGroupServiceTests {
     var userRepository = mock(UserRepository.class);
     var groupRepository = mock(GroupRepository.class);
     var userGroupRepository = mock(UserGroupRepository.class);
+    var emailComposerService = Mockito.mock(EmailComposerService.class);
+    var emailService = Mockito.mock(EmailService.class);
+    var urlResolverService = Mockito.mock(URLResolverService.class);
+    var defaultUserService = Mockito.mock(DefaultUserService.class);
+    var groupInvitationsService = Mockito.mock(GroupInvitationService.class);
+    var cryptoService = Mockito.mock(CryptoService.class);
 
     // and: dummy data
     var loggedUser = Optional.of(random(User.class));
@@ -62,7 +75,8 @@ public class UserGroupServiceTests {
 
     // when: trying to add a user into a group
     var userGroupService =
-        new DefaultUserGroupService(groupRepository, userRepository, userGroupRepository);
+        new DefaultUserGroupService(
+            groupRepository, userRepository, userGroupRepository, groupInvitationsService);
     var userToInvite = Optional.of(random(User.class));
     var input =
         new AddUserToGroupInput(
@@ -85,6 +99,12 @@ public class UserGroupServiceTests {
     var userRepository = mock(UserRepository.class);
     var groupRepository = mock(GroupRepository.class);
     var userGroupRepository = mock(UserGroupRepository.class);
+    var emailService = Mockito.mock(EmailService.class);
+    var emailComposerService = Mockito.mock(EmailComposerService.class);
+    var urlResolverService = Mockito.mock(URLResolverService.class);
+    var defaultUserService = Mockito.mock(DefaultUserService.class);
+    var groupInvitationsService = Mockito.mock(GroupInvitationService.class);
+    var cryptoService = Mockito.mock(CryptoService.class);
 
     // and: dummy data
     var loggedUser = Optional.of(random(User.class));
@@ -99,7 +119,8 @@ public class UserGroupServiceTests {
 
     // when: trying to add a user into a group
     var userGroupService =
-        new DefaultUserGroupService(groupRepository, userRepository, userGroupRepository);
+        new DefaultUserGroupService(
+            groupRepository, userRepository, userGroupRepository, groupInvitationsService);
     var userToInvite = Optional.of(random(User.class));
     var input =
         new AddUserToGroupInput(
@@ -121,6 +142,12 @@ public class UserGroupServiceTests {
     var userRepository = mock(UserRepository.class);
     var groupRepository = mock(GroupRepository.class);
     var userGroupRepository = mock(UserGroupRepository.class);
+    var emailService = Mockito.mock(EmailService.class);
+    var emailComposerService = Mockito.mock(EmailComposerService.class);
+    var urlResolverService = Mockito.mock(URLResolverService.class);
+    var defaultUserService = Mockito.mock(DefaultUserService.class);
+    var groupInvitationsService = Mockito.mock(GroupInvitationService.class);
+    var cryptoService = Mockito.mock(CryptoService.class);
 
     // and: dummy data
     var loggedUser = Optional.of(random(User.class));
@@ -137,7 +164,8 @@ public class UserGroupServiceTests {
 
     // when: trying to add a user into a group
     var userGroupService =
-        new DefaultUserGroupService(groupRepository, userRepository, userGroupRepository);
+        new DefaultUserGroupService(
+            groupRepository, userRepository, userGroupRepository, groupInvitationsService);
     var userToInvite = Optional.of(random(User.class));
     var input =
         new AddUserToGroupInput(

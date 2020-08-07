@@ -51,6 +51,12 @@ public final class UserGroup {
   @Column(name = "is_admin")
   private boolean admin;
 
+  @Column(name = "is_acceptance_pending")
+  private boolean acceptancePending;
+
+  @Column(name = "invitation_otp")
+  private String invitationOtp;
+
   /**
    * Creates a new {@link UserGroup} from an {@link User} and a {@link Group}
    *
@@ -85,6 +91,24 @@ public final class UserGroup {
    */
   public User getUser() {
     return user;
+  }
+
+  /**
+   * Returns if the member is still pending
+   *
+   * @return an instance of {@link User}
+   */
+  public Boolean getAcceptancePending() {
+    return acceptancePending;
+  }
+
+  /**
+   * Returns the invitation's otp
+   *
+   * @return an instance of {@link User}
+   */
+  public String getInvitationOtp() {
+    return invitationOtp;
   }
 
   /**
@@ -148,5 +172,23 @@ public final class UserGroup {
    */
   public void setId(UserGroupKey id) {
     this.id = id;
+  }
+
+  /**
+   * Sets whether the user is acceptance pending
+   *
+   * @param acceptancePending sets {@link UserGroup} id
+   */
+  public void setAcceptancePending(boolean acceptancePending) {
+    this.acceptancePending = acceptancePending;
+  }
+
+  /**
+   * Sets the user's invitation otp
+   *
+   * @param invitationOtp
+   */
+  public void setInvitationOtp(String invitationOtp) {
+    this.invitationOtp = invitationOtp;
   }
 }

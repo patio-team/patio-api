@@ -36,6 +36,7 @@ import patio.group.graphql.UserGroupFetcher;
 import patio.group.services.internal.DefaultUserGroupService;
 import patio.infrastructure.graphql.I18nGraphQLError;
 import patio.infrastructure.graphql.fetchers.utils.FetcherTestUtils;
+import patio.user.domain.GroupMember;
 import patio.user.domain.User;
 
 /**
@@ -151,14 +152,15 @@ class UserGroupFetcherTests {
     var mockedEnvironment = FetcherTestUtils.generateMockedEnvironment(user, Map.of());
 
     // and: mocking service's behavior
-    Mockito.when(mockedService.listUsersGroup(any())).thenReturn(randomListOf(2, User.class));
+    Mockito.when(mockedService.listUsersGroup(any()))
+        .thenReturn(randomListOf(2, GroupMember.class));
 
     // and: mocking environment behavior
     Mockito.when(mockedEnvironment.getSource()).thenReturn(group);
 
     // when: fetching user list invoking the service
     UserGroupFetcher fetchers = new UserGroupFetcher(mockedService);
-    Iterable<User> userList = fetchers.listUsersGroup(mockedEnvironment);
+    Iterable<GroupMember> userList = fetchers.listUsersGroup(mockedEnvironment);
 
     // then: check certain assertions should be met
     assertThat("there're only a certain number of users", userList, iterableWithSize(2));
