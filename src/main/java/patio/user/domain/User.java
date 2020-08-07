@@ -21,6 +21,7 @@ import java.time.OffsetDateTime;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -52,6 +53,9 @@ public final class User {
 
   @OneToMany(mappedBy = "user")
   private Set<UserGroup> groups;
+
+  @Column(name = "is_registration_pending")
+  private boolean registrationPending;
 
   /**
    * Creates a builder to create instances of type {@link User}
@@ -177,7 +181,9 @@ public final class User {
    * @return set of UserGroups
    */
   public Set<UserGroup> getGroups() {
-    return groups;
+    return groups.stream()
+        .filter(userGroup -> !userGroup.getAcceptancePending())
+        .collect(Collectors.toSet());
   }
 
   /**
@@ -187,6 +193,24 @@ public final class User {
    */
   public void setGroups(Set<UserGroup> groups) {
     this.groups = groups;
+  }
+
+  /**
+   * Gets whether the user is registration pending
+   *
+   * @return registrationPending
+   */
+  public boolean isRegistrationPending() {
+    return registrationPending;
+  }
+
+  /**
+   * Sets whether the user is registration pending
+   *
+   * @param registrationPending boolean value
+   */
+  public void setRegistrationPending(boolean registrationPending) {
+    this.registrationPending = registrationPending;
   }
 
   /**

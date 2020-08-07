@@ -53,6 +53,8 @@ public class GroupProvider implements QueryProvider, MutationProvider {
             .dataFetcher("createGroup", groupFetcher::createGroup)
             .dataFetcher("updateGroup", groupFetcher::updateGroup)
             .dataFetcher("addUserToGroup", userGroupFetcher::addUserToGroup)
+            .dataFetcher("inviteMembersToGroup", userGroupFetcher::inviteMembersToGroup)
+            .dataFetcher("acceptInvitationToGroup", userGroupFetcher::acceptInvitationToGroup)
             .dataFetcher("leaveGroup", userGroupFetcher::leaveGroup);
   }
 

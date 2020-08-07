@@ -60,6 +60,8 @@ public class VotingSchedulingServiceTests {
 
     // and: mocking behaviors
     var group1Users = randomSetOf(2, UserGroup.class);
+    group1Users.stream().forEach(u -> u.setAcceptancePending(false));
+
     var group1 =
         Group.builder().with(g -> g.setName("eligible")).with(g -> g.setUsers(group1Users)).build();
     var closedVotingGroups = randomListOf(4, Group.class);

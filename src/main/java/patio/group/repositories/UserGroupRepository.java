@@ -17,9 +17,46 @@
  */
 package patio.group.repositories;
 
+import io.micronaut.data.annotation.Query;
 import io.micronaut.data.repository.PageableRepository;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Stream;
+import patio.group.domain.Group;
 import patio.group.domain.UserGroup;
 import patio.group.domain.UserGroupKey;
+import patio.user.domain.User;
 
 /** All database actions related to {@link UserGroup} entity */
-public interface UserGroupRepository extends PageableRepository<UserGroup, UserGroupKey> {}
+public interface UserGroupRepository extends PageableRepository<UserGroup, UserGroupKey> {
+  /**
+   * Gets a persisted {@link User} by its email
+   *
+   * @param user the user
+   * @param otp the user invitation's otp
+   * @return an {@link Optional} of the {@link UserGroup}
+   */
+  @Query("SELECT ug FROM UserGroup ug WHERE ug.user = :user AND ug.invitationOtp = :otp")
+  Optional<UserGroup> findByUserAndOtp(User user, String otp);
+
+  /**
+   * Finds all pending members for a given {@link Group}
+   *
+   * @param group the {@link Group} the users belong to
+   * @return a list of userGroups {@link UserGroup}
+   */
+  @Query("SELECT ug FROM UserGroup ug WHERE ug.group = :group AND ug.acceptancePending = true")
+  Stream<UserGroup> findAllPendingByGroup(Group group);
+
+  /**
+   * Finds all pending members without invitation to join the {@link Group}
+   *
+   * @param group the {@link Group} the users belong to
+   * @return a list of userGroups {@link UserGroup}
+   */
+  @Query(
+      "SELECT ug FROM UserGroup ug WHERE ug.group = :group "
+          + "AND ug.acceptancePending = TRUE "
+          + "AND (ug.invitationOtp IS NULL OR ug.invitationOtp = '')")
+  List<UserGroup> findAllPendingUninvitedByGroup(Group group);
+}

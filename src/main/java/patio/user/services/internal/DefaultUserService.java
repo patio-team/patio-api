@@ -67,4 +67,20 @@ public class DefaultUserService implements UserService {
         .sorted(comparator)
         .collect(Collectors.toList());
   }
+
+  @Override
+  public void createPendingUsers(List<String> emailList) {
+    List<String> pendingEmails = emailList.stream().collect(Collectors.toList());
+    pendingEmails.removeIf(email -> !userRepository.findByEmail(email).isEmpty());
+    pendingEmails.forEach(this::createRegistrationPendingUser);
+  }
+
+  private void createRegistrationPendingUser(String email) {
+    User pendingUser =
+        User.builder()
+            .with(u -> u.setEmail(email))
+            .with(u -> u.setRegistrationPending(true))
+            .build();
+    userRepository.save(pendingUser);
+  }
 }

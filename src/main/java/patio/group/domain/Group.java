@@ -23,6 +23,7 @@ import java.time.OffsetTime;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -196,7 +197,9 @@ public final class Group {
   }
 
   public Set<UserGroup> getUsers() {
-    return users;
+    return users.stream()
+        .filter(userGroup -> !userGroup.getAcceptancePending())
+        .collect(Collectors.toSet());
   }
 
   public void setUsers(Set<UserGroup> users) {

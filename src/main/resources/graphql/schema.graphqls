@@ -27,12 +27,31 @@ type Group {
     id: ID
     anonymousVote: Boolean
     name: String
-    members: [User]
+    members: [GroupMember]
     votingDays: [DayOfWeek]
     votingTime: Time
     votingDuration: Int
     isCurrentUserAdmin: Boolean
     votings(startDateTime: DateTime!, endDateTime: DateTime!): [Voting]
+}
+
+type GroupMember {
+    id: ID
+    name: String
+    email: String
+    hash: String
+    registrationPending: Boolean
+    acceptancePending: Boolean
+    otpCreationDateTime: DateTime
+    memberFromDateTime: DateTime
+    invitedBy: User
+}
+
+type User {
+    id: ID
+    name: String
+    hash: String
+    registrationPending: Boolean
 }
 
 type UserProfile {
@@ -42,12 +61,6 @@ type UserProfile {
     hash: String
     groups: [Group]
     favouriteGroup: Group
-}
-
-type User {
-    id: ID
-    name: String
-    hash: String
 }
 
 type VotePaginationResult {
@@ -179,6 +192,12 @@ type Mutation {
 
     # add an user to a group
     addUserToGroup(email: String!, groupId: ID!): Boolean
+
+    # add the given members to a group (they may not be yet users)
+    inviteMembersToGroup(emailList: [String]!, groupId: ID!): Boolean
+
+    # a user accept an invitation to join a group
+    acceptInvitationToGroup(otp: String!): Group
 
     # add an user to a group
     leaveGroup(groupId: ID!): Boolean
