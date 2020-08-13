@@ -108,7 +108,9 @@ class GroupFetcherTests {
                 "votingDays",
                 group.getVotingDays(),
                 "votingTime",
-                group.getVotingTime()));
+                group.getVotingTime(),
+                "votingDuration",
+                group.getVotingDuration()));
 
     // when: creating a group invoking the service
     GroupFetcher fetchers = new GroupFetcher(mockedService);
@@ -121,6 +123,7 @@ class GroupFetcherTests {
         result.getVotingDays().size(),
         is(group.getVotingDays().size()));
     assertNotNull("time is present", result.getVotingTime());
+    assertNotNull("duration time is present", result.getVotingDuration());
   }
 
   @Test
@@ -175,7 +178,9 @@ class GroupFetcherTests {
                 "votingDays",
                 group.getVotingDays(),
                 "votingTime",
-                group.getVotingTime()));
+                group.getVotingTime(),
+                "votingDuration",
+                group.getVotingDuration()));
 
     // when: creating a group invoking the service
     GroupFetcher fetchers = new GroupFetcher(mockedService);
