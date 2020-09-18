@@ -83,6 +83,32 @@ class GroupFetcherTests {
   }
 
   @Test
+  void testGetMyFavouriteGroup() {
+    // given: an group
+    Group group = random(Group.class);
+
+    // and: an user
+    User user = random(User.class);
+
+    // and: a mocking service
+    var mockedService = Mockito.mock(DefaultGroupService.class);
+
+    // and: mocking service's behavior
+    Mockito.when(mockedService.getMyFavouriteGroup(any())).thenReturn(Result.result(group));
+
+    // and: a mocked environment
+    var mockedEnvironment =
+        FetcherTestUtils.generateMockedEnvironment(user, Map.of("id", group.getId()));
+
+    // when: fetching build group invoking the service
+    GroupFetcher fetchers = new GroupFetcher(mockedService);
+    DataFetcherResult<Group> result = fetchers.getMyFavouriteGroup(mockedEnvironment);
+
+    // then: check certain assertions should be met
+    assertThat("the group is found", result.getData(), is(group));
+  }
+
+  @Test
   void testCreateGroup() {
     // given: a group
     Group group = random(Group.class);

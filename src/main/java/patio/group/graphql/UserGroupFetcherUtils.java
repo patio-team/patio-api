@@ -18,6 +18,7 @@
 package patio.group.graphql;
 
 import graphql.schema.DataFetchingEnvironment;
+import java.util.List;
 import java.util.UUID;
 import patio.group.domain.Group;
 import patio.infrastructure.graphql.Context;
@@ -72,6 +73,41 @@ final class UserGroupFetcherUtils {
     User currentUser = ctx.getAuthenticatedUser();
 
     return new AddUserToGroupInput(currentUser.getId(), email, groupId);
+  }
+
+  /**
+   * Creates a {@link InviteMembersToGroupInput} from the data coming from the {@link
+   * DataFetchingEnvironment}
+   *
+   * @param environment the GraphQL {@link DataFetchingEnvironment}
+   * @return an instance of {@link InviteMembersToGroupInput}
+   * @since 0.1.0
+   */
+  /* default */ static InviteMembersToGroupInput inviteMembersToGroup(
+      DataFetchingEnvironment environment) {
+    List<String> emailList = environment.getArgument("emailList");
+    UUID groupId = environment.getArgument("groupId");
+    Context ctx = environment.getContext();
+    User currentUser = ctx.getAuthenticatedUser();
+
+    return new InviteMembersToGroupInput(currentUser.getId(), emailList, groupId);
+  }
+
+  /**
+   * Creates a {@link AcceptInvitationToGroupInput} from the data coming from the {@link
+   * DataFetchingEnvironment}
+   *
+   * @param environment the GraphQL {@link DataFetchingEnvironment}
+   * @return an instance of {@link AcceptInvitationToGroupInput}
+   * @since 0.1.0
+   */
+  /* default */ static AcceptInvitationToGroupInput acceptInvitationToGroup(
+      DataFetchingEnvironment environment) {
+    String otp = environment.getArgument("otp");
+    Context ctx = environment.getContext();
+    User currentUser = ctx.getAuthenticatedUser();
+
+    return new AcceptInvitationToGroupInput(currentUser.getId(), otp);
   }
 
   /**

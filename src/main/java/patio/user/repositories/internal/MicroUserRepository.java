@@ -20,8 +20,6 @@ package patio.user.repositories.internal;
 import io.micronaut.data.annotation.Repository;
 import java.util.Optional;
 import javax.persistence.EntityManager;
-import patio.group.domain.Group;
-import patio.group.domain.UserGroup;
 import patio.infrastructure.persistence.MicroBaseRepository;
 import patio.user.domain.User;
 import patio.user.repositories.UserRepository;
@@ -37,16 +35,6 @@ public abstract class MicroUserRepository extends MicroBaseRepository implements
    */
   public MicroUserRepository(EntityManager entityManager) {
     super(entityManager);
-  }
-
-  @Override
-  public Iterable<User> findAllByGroup(Group group) {
-    var builder = getEntityManager().getCriteriaBuilder();
-    var query = builder.createQuery(User.class);
-    var root = query.from(UserGroup.class);
-    var select = query.select(root.get("user")).where(builder.equal(root.get("group"), group));
-
-    return getEntityManager().createQuery(select).getResultList();
   }
 
   @Override
