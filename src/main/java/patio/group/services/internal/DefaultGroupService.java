@@ -17,11 +17,7 @@
  */
 package patio.group.services.internal;
 
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 import javax.inject.Singleton;
 import javax.transaction.Transactional;

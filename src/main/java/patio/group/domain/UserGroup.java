@@ -20,6 +20,8 @@ package patio.group.domain;
 import java.time.OffsetDateTime;
 import javax.persistence.*;
 import patio.common.domain.utils.Builder;
+import patio.settings.domain.Notification;
+import patio.settings.domain.NotificationType;
 import patio.user.domain.User;
 
 /**
@@ -46,6 +48,7 @@ public final class UserGroup {
   @Column(name = "is_admin")
   private boolean admin;
 
+  // membership & invitations
   @OneToOne
   @JoinColumn(name = "inviting_id", referencedColumnName = "id")
   private User invitedBy;
@@ -53,14 +56,19 @@ public final class UserGroup {
   @Column(name = "is_acceptance_pending")
   private boolean acceptancePending;
 
+  @Column(name = "member_from_date")
+  private OffsetDateTime memberFromDateTime;
+
   @Column(name = "invitation_otp")
   private String invitationOtp;
 
   @Column(name = "otp_creation_date")
   private OffsetDateTime otpCreationDateTime;
 
-  @Column(name = "member_from_date")
-  private OffsetDateTime memberFromDateTime;
+  // notifications
+  @OneToOne(cascade = CascadeType.ALL)
+  @JoinColumn(name = "poll_notification_id", referencedColumnName = "id")
+  private Notification pollNotification;
 
   /**
    * Creates a new {@link UserGroup} from an {@link User} and a {@link Group}
@@ -71,12 +79,13 @@ public final class UserGroup {
   public UserGroup(User user, Group group) {
     this.user = user;
     this.group = group;
+    this.pollNotification = defaultNotification();
     this.id = new UserGroupKey(user.getId(), group.getId());
   }
 
   /** Default constructor */
   public UserGroup() {
-    /* empty */
+    this.pollNotification = defaultNotification();
   }
 
   /**
@@ -87,6 +96,20 @@ public final class UserGroup {
    */
   public static Builder<UserGroup> builder() {
     return Builder.build(UserGroup::new);
+  }
+
+  /**
+   * By default poll notifications should be active
+   *
+   * @return an activated notification
+   */
+  private Notification defaultNotification() {
+    return Notification.builder()
+        .with(n -> n.setActive(true))
+        .with(n -> n.setType(NotificationType.POLL_START))
+        .with(n -> n.setUser(this.getUser()))
+        .with(n -> n.setGroup(this.getGroup()))
+        .build();
   }
 
   /**
@@ -123,6 +146,15 @@ public final class UserGroup {
    */
   public String getInvitationOtp() {
     return invitationOtp;
+  }
+
+  /**
+   * Return the user's preferences about being notified when a new poll starts
+   *
+   * @return the {@link Notification}'s preferences
+   */
+  public Notification getPollNotification() {
+    return pollNotification;
   }
 
   /**
@@ -249,5 +281,14 @@ public final class UserGroup {
    */
   public void setMemberFromDateTime(OffsetDateTime memberFromDateTime) {
     this.memberFromDateTime = memberFromDateTime;
+  }
+
+  /**
+   * Sets the user's preferences about being notified when a new poll starts
+   *
+   * @param pollNotification the {@link Notification} to be established
+   */
+  public void setPollNotification(Notification pollNotification) {
+    this.pollNotification = pollNotification;
   }
 }

@@ -19,6 +19,7 @@ package patio.group.services;
 
 import java.util.List;
 import java.util.UUID;
+import patio.common.domain.utils.Error;
 import patio.common.domain.utils.Result;
 import patio.group.domain.Group;
 import patio.group.graphql.*;

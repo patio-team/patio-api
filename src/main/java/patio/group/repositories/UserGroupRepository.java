@@ -59,4 +59,14 @@ public interface UserGroupRepository extends PageableRepository<UserGroup, UserG
           + "AND ug.acceptancePending = TRUE "
           + "AND (ug.invitationOtp IS NULL OR ug.invitationOtp = '')")
   List<UserGroup> findAllPendingUninvitedByGroup(Group group);
+
+  /**
+   * Finds all pending members without invitation to join the {@link Group}
+   *
+   * @param user the related {@link User} to get its UserGroups from
+   * @param group the {@link Group} the users belong to
+   * @return a list of {@link UserGroup}
+   */
+  @Query("SELECT ug FROM UserGroup ug WHERE ug.group = :group AND ug.user = :user")
+  Optional<UserGroup> findByUserAndGroup(User user, Group group);
 }

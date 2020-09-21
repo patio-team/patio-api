@@ -53,7 +53,7 @@ public class GroupFetcher {
   }
 
   /**
-   * Fetches all the available groups in the system
+   * Fetches all the available groups in the system n
    *
    * @param env GraphQL execution environment
    * @return a list of available {@link Group}

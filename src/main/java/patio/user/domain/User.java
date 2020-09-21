@@ -22,12 +22,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
+import javax.persistence.*;
 import org.apache.commons.codec.digest.DigestUtils;
 import patio.common.domain.utils.Builder;
 import patio.group.domain.UserGroup;
@@ -51,7 +46,7 @@ public final class User {
   @Column(name = "otp_creation_date")
   private OffsetDateTime otpCreationDateTime;
 
-  @OneToMany(mappedBy = "user")
+  @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
   private Set<UserGroup> groups;
 
   @Column(name = "is_registration_pending")

@@ -32,7 +32,6 @@ import org.junit.jupiter.api.Test;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
-import patio.group.domain.Group;
 import patio.infrastructure.tests.Fixtures;
 import patio.user.domain.User;
 import patio.user.repositories.UserRepository;
@@ -112,8 +111,6 @@ public class UserGroupRepositoryTests {
     // and: a group with invited and uninvited members (with or without an OTP)
     var optionalGroup =
         groupRepository.findById(UUID.fromString("d64db962-3455-11e9-b210-d663bd873d93"));
-
-    System.out.println(String.format("===> " + optionalGroup.map(Group::getName)));
 
     // when: providing the user and his otp
     var userGroupList =

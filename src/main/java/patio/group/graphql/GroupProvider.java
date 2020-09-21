@@ -22,6 +22,7 @@ import java.util.function.UnaryOperator;
 import javax.inject.Singleton;
 import patio.infrastructure.graphql.MutationProvider;
 import patio.infrastructure.graphql.QueryProvider;
+import patio.settings.graphql.NotificationFetcher;
 
 /**
  * Contains all mapped fetchers for queries, and mutations for group related operations
@@ -34,16 +35,22 @@ public class GroupProvider implements QueryProvider, MutationProvider {
 
   private final transient GroupFetcher groupFetcher;
   private final transient UserGroupFetcher userGroupFetcher;
+  private final transient NotificationFetcher notificationFetcher;
 
   /**
    * Data fetchers required some dependencies
    *
    * @param groupFetcher all group fetchers
    * @param userGroupFetcher all group/user fetchers
+   * @param notificationFetcher all notification fetchers
    */
-  public GroupProvider(GroupFetcher groupFetcher, UserGroupFetcher userGroupFetcher) {
+  public GroupProvider(
+      GroupFetcher groupFetcher,
+      UserGroupFetcher userGroupFetcher,
+      NotificationFetcher notificationFetcher) {
     this.groupFetcher = groupFetcher;
     this.userGroupFetcher = userGroupFetcher;
+    this.notificationFetcher = notificationFetcher;
   }
 
   @Override
@@ -55,7 +62,10 @@ public class GroupProvider implements QueryProvider, MutationProvider {
             .dataFetcher("addUserToGroup", userGroupFetcher::addUserToGroup)
             .dataFetcher("inviteMembersToGroup", userGroupFetcher::inviteMembersToGroup)
             .dataFetcher("acceptInvitationToGroup", userGroupFetcher::acceptInvitationToGroup)
-            .dataFetcher("leaveGroup", userGroupFetcher::leaveGroup);
+            .dataFetcher("leaveGroup", userGroupFetcher::leaveGroup)
+            .dataFetcher(
+                "activateNotificationsToGroups",
+                notificationFetcher::activateNotificationsToGroups);
   }
 
   @Override
@@ -65,6 +75,8 @@ public class GroupProvider implements QueryProvider, MutationProvider {
             .dataFetcher("listGroups", groupFetcher::listGroups)
             .dataFetcher("listMyGroups", groupFetcher::listMyGroups)
             .dataFetcher("getGroup", groupFetcher::getGroup)
-            .dataFetcher("getMyFavouriteGroup", groupFetcher::getMyFavouriteGroup);
+            .dataFetcher("getMyFavouriteGroup", groupFetcher::getMyFavouriteGroup)
+            .dataFetcher(
+                "listMyGroupsNotifications", notificationFetcher::listMyGroupNotifications);
   }
 }
