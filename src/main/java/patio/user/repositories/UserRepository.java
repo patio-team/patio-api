@@ -17,11 +17,15 @@
  */
 package patio.user.repositories;
 
+import io.micronaut.data.annotation.Query;
 import io.micronaut.data.repository.PageableRepository;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Stream;
 import patio.group.domain.Group;
+import patio.group.domain.UserGroup;
+import patio.user.domain.GroupMember;
 import patio.user.domain.User;
 
 /** All database actions related to {@link User} entity */
@@ -36,12 +40,26 @@ public interface UserRepository extends PageableRepository<User, UUID> {
   List<User> findAllByIdInList(List<UUID> ids);
 
   /**
-   * Finds all users of a given {@link Group}
+   * Finds any member (or potential member) for a given {@link Group}
    *
    * @param group the {@link Group} the users belong to
-   * @return a list of groups users {@link User}
+   * @return a list of userGroups {@link UserGroup}
    */
-  Iterable<User> findAllByGroup(Group group);
+  @Query("SELECT ug.user FROM UserGroup ug WHERE ug.group = :group")
+  List<User> findAllByGroup(Group group);
+
+  /**
+   * Finds any member (or potential member) for a {@link Group} returning GroupMembers objects
+   *
+   * @param group the {@link Group} the users belong to
+   * @return a list of {@link GroupMember}
+   */
+  @Query(
+      "SELECT new patio.user.domain.GroupMember(u.id, u.name, u.email, "
+          + "u.registrationPending, ug.acceptancePending, ug.invitedBy, ug.otpCreationDateTime, ug.memberFromDateTime) "
+          + "FROM UserGroup ug JOIN ug.user u LEFT OUTER JOIN ug.invitedBy ui "
+          + "WHERE ug.group = :group ")
+  List<GroupMember> findAllGroupMembersByGroup(Group group);
 
   /**
    * Tries to find a given user in the database and if it's not there, then the {@link User} is
@@ -59,6 +77,14 @@ public interface UserRepository extends PageableRepository<User, UUID> {
    * @return an {@link Optional} of the {@link User}
    */
   Optional<User> findByEmail(String email);
+
+  /**
+   * Gets a persisted {@link User} by its email
+   *
+   * @param emailList the user's email list
+   * @return an {@link Optional} of the {@link User}
+   */
+  Stream<User> findAllByEmailInList(List<String> emailList);
 
   /**
    * Gets a persisted {@link User} by its OTP

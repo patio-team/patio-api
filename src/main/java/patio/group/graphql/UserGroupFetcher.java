@@ -26,6 +26,7 @@ import patio.group.domain.UserGroup;
 import patio.group.services.UserGroupService;
 import patio.infrastructure.graphql.Context;
 import patio.infrastructure.graphql.ResultUtils;
+import patio.user.domain.GroupMember;
 import patio.user.domain.User;
 
 /**
@@ -68,6 +69,32 @@ public class UserGroupFetcher {
   }
 
   /**
+   * Adds a list of users to a group
+   *
+   * @param env GraphQL execution environment
+   * @return an instance of {@link DataFetcherResult} because it could return errors
+   * @since 0.1.0
+   */
+  public DataFetcherResult<Boolean> inviteMembersToGroup(DataFetchingEnvironment env) {
+    InviteMembersToGroupInput input = UserGroupFetcherUtils.inviteMembersToGroup(env);
+    Result<Boolean> result = service.inviteMembersToGroup(input);
+    return ResultUtils.render(result);
+  }
+
+  /**
+   * Add a user with a valid OTP to a group
+   *
+   * @param env GraphQL execution environment
+   * @return an instance of {@link DataFetcherResult} because it could return errors
+   * @since 0.1.0
+   */
+  public DataFetcherResult<Group> acceptInvitationToGroup(DataFetchingEnvironment env) {
+    AcceptInvitationToGroupInput input = UserGroupFetcherUtils.acceptInvitationToGroup(env);
+
+    return ResultUtils.render(service.acceptInvitationToGroup(input));
+  }
+
+  /**
    * Get if the current user an admin of the group
    *
    * @param env GraphQL execution environment
@@ -89,8 +116,9 @@ public class UserGroupFetcher {
    * @return a list of available {@link User}
    * @since 0.1.0
    */
-  public Iterable<User> listUsersGroup(DataFetchingEnvironment env) {
+  public Iterable<GroupMember> listUsersGroup(DataFetchingEnvironment env) {
     ListUsersGroupInput input = UserGroupFetcherUtils.listUsersGroupInput(env);
+
     return service.listUsersGroup(input);
   }
 

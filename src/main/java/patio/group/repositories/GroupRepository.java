@@ -20,10 +20,12 @@ package patio.group.repositories;
 import io.micronaut.data.annotation.Query;
 import io.micronaut.data.repository.PageableRepository;
 import java.time.OffsetDateTime;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Stream;
 import patio.group.domain.Group;
+import patio.user.domain.User;
 import patio.voting.domain.Voting;
 
 /** All database actions related to {@link Group} entity */
@@ -96,4 +98,28 @@ public interface GroupRepository extends PageableRepository<Group, UUID> {
   @Query(
       "SELECT v.group FROM Voting v JOIN v.group.users u WHERE u.user.id = :userId ORDER BY v.createdAtDateTime")
   Optional<Group> findMyFavouriteGroupByUserId(UUID userId);
+
+  /**
+   * Returns all the groups which its id is contained in a list
+   *
+   * @param groupIds the id list to match against
+   * @return a list of groups
+   */
+  @Query("SELECT g FROM Group g WHERE g.id IN :groupIds")
+  List<Group> findByIdInList(List<UUID> groupIds);
+
+  /**
+   * Returns all the user's groups with id's not contained in a list
+   *
+   * @param user the user to recover her notifications from
+   * @param groupIds the user groups to be recovered
+   * @return a list of {@link Group}
+   */
+  @Query(
+      "SELECT g FROM UserGroup ug "
+          + "JOIN ug.group g "
+          + "JOIN ug.user u "
+          + "WHERE ug.user = :user AND g.id NOT IN :groupIds "
+          + "OR ug.user = :user AND COALESCE(:groupIds, null) IS NULL")
+  List<Group> findByUserAndIdNotInList(User user, List<UUID> groupIds);
 }

@@ -21,12 +21,8 @@ import java.time.OffsetDateTime;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
+import java.util.stream.Collectors;
+import javax.persistence.*;
 import org.apache.commons.codec.digest.DigestUtils;
 import patio.common.domain.utils.Builder;
 import patio.group.domain.UserGroup;
@@ -50,8 +46,11 @@ public final class User {
   @Column(name = "otp_creation_date")
   private OffsetDateTime otpCreationDateTime;
 
-  @OneToMany(mappedBy = "user")
+  @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
   private Set<UserGroup> groups;
+
+  @Column(name = "is_registration_pending")
+  private boolean registrationPending;
 
   /**
    * Creates a builder to create instances of type {@link User}
@@ -177,7 +176,9 @@ public final class User {
    * @return set of UserGroups
    */
   public Set<UserGroup> getGroups() {
-    return groups;
+    return groups.stream()
+        .filter(userGroup -> !userGroup.getAcceptancePending())
+        .collect(Collectors.toSet());
   }
 
   /**
@@ -187,6 +188,24 @@ public final class User {
    */
   public void setGroups(Set<UserGroup> groups) {
     this.groups = groups;
+  }
+
+  /**
+   * Gets whether the user is registration pending
+   *
+   * @return registrationPending
+   */
+  public boolean isRegistrationPending() {
+    return registrationPending;
+  }
+
+  /**
+   * Sets whether the user is registration pending
+   *
+   * @param registrationPending boolean value
+   */
+  public void setRegistrationPending(boolean registrationPending) {
+    this.registrationPending = registrationPending;
   }
 
   /**

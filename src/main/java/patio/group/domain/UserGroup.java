@@ -17,14 +17,11 @@
  */
 package patio.group.domain;
 
-import javax.persistence.Column;
-import javax.persistence.EmbeddedId;
-import javax.persistence.Entity;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.MapsId;
-import javax.persistence.Table;
+import java.time.OffsetDateTime;
+import javax.persistence.*;
 import patio.common.domain.utils.Builder;
+import patio.settings.domain.Notification;
+import patio.settings.domain.NotificationType;
 import patio.user.domain.User;
 
 /**
@@ -51,6 +48,28 @@ public final class UserGroup {
   @Column(name = "is_admin")
   private boolean admin;
 
+  // membership & invitations
+  @OneToOne
+  @JoinColumn(name = "inviting_id", referencedColumnName = "id")
+  private User invitedBy;
+
+  @Column(name = "is_acceptance_pending")
+  private boolean acceptancePending;
+
+  @Column(name = "member_from_date")
+  private OffsetDateTime memberFromDateTime;
+
+  @Column(name = "invitation_otp")
+  private String invitationOtp;
+
+  @Column(name = "otp_creation_date")
+  private OffsetDateTime otpCreationDateTime;
+
+  // notifications
+  @OneToOne(cascade = CascadeType.ALL)
+  @JoinColumn(name = "poll_notification_id", referencedColumnName = "id")
+  private Notification pollNotification;
+
   /**
    * Creates a new {@link UserGroup} from an {@link User} and a {@link Group}
    *
@@ -60,12 +79,13 @@ public final class UserGroup {
   public UserGroup(User user, Group group) {
     this.user = user;
     this.group = group;
+    this.pollNotification = defaultNotification();
     this.id = new UserGroupKey(user.getId(), group.getId());
   }
 
   /** Default constructor */
   public UserGroup() {
-    /* empty */
+    this.pollNotification = defaultNotification();
   }
 
   /**
@@ -79,12 +99,62 @@ public final class UserGroup {
   }
 
   /**
+   * By default poll notifications should be active
+   *
+   * @return an activated notification
+   */
+  private Notification defaultNotification() {
+    return Notification.builder()
+        .with(n -> n.setActive(true))
+        .with(n -> n.setType(NotificationType.POLL_START))
+        .with(n -> n.setUser(this.getUser()))
+        .with(n -> n.setGroup(this.getGroup()))
+        .build();
+  }
+
+  /**
    * Returns the current user
    *
    * @return an instance of {@link User}
    */
   public User getUser() {
     return user;
+  }
+
+  /**
+   * Returns if the member is still pending
+   *
+   * @return an instance of {@link User}
+   */
+  public Boolean getAcceptancePending() {
+    return acceptancePending;
+  }
+
+  /**
+   * Returns the {@link User} who sends the invitation to join the group
+   *
+   * @return the user
+   */
+  public User getInvitedBy() {
+    return invitedBy;
+  }
+
+  /**
+   * Returns the invitation's otp
+   *
+   * @return an instance of {@link User}
+   */
+  public String getInvitationOtp() {
+    return invitationOtp;
+  }
+
+  /**
+   * Return the user's preferences about being notified when a new poll starts
+   *
+   * @return the {@link Notification}'s preferences
+   */
+  public Notification getPollNotification() {
+    return pollNotification;
   }
 
   /**
@@ -133,20 +203,92 @@ public final class UserGroup {
   }
 
   /**
-   * Returns the user group id
+   * Returns the user group id.
    *
-   * @return the {@link UserGroup} id
+   * @return the {@link UserGroup} id.
    */
   public UserGroupKey getId() {
     return id;
   }
 
   /**
-   * Sets user group's id
+   * Gets the time when the otp is created.
+   *
+   * @return creation date time.
+   */
+  public OffsetDateTime getOtpCreationDateTime() {
+    return otpCreationDateTime;
+  }
+
+  /**
+   * Gets when the user join the group officially.
+   *
+   * @return membership date time.
+   */
+  public OffsetDateTime getMemberFromDateTime() {
+    return memberFromDateTime;
+  }
+
+  /**
+   * Sets user group's id.
    *
    * @param id sets {@link UserGroup} id
    */
   public void setId(UserGroupKey id) {
     this.id = id;
+  }
+
+  /**
+   * Sets whether the user is acceptance pending.
+   *
+   * @param acceptancePending sets {@link UserGroup} id.
+   */
+  public void setAcceptancePending(boolean acceptancePending) {
+    this.acceptancePending = acceptancePending;
+  }
+
+  /**
+   * Sets the user's invitation otp.
+   *
+   * @param invitationOtp the one-time password.
+   */
+  public void setInvitationOtp(String invitationOtp) {
+    this.invitationOtp = invitationOtp;
+  }
+
+  /**
+   * Sets the user who invite to join the group.
+   *
+   * @param invitedBy the {@link User} who invites to join the group.
+   */
+  public void setInvitedBy(User invitedBy) {
+    this.invitedBy = invitedBy;
+  }
+
+  /**
+   * Sets when the user join the group officially.
+   *
+   * @param otpCreationDateTime the {@link OffsetDateTime}
+   */
+  public void setOtpCreationDateTime(OffsetDateTime otpCreationDateTime) {
+    this.otpCreationDateTime = otpCreationDateTime;
+  }
+
+  /**
+   * Sets when the otp is created.
+   *
+   * @param memberFromDateTime the {@link OffsetDateTime}
+   */
+  public void setMemberFromDateTime(OffsetDateTime memberFromDateTime) {
+    this.memberFromDateTime = memberFromDateTime;
+  }
+
+  /**
+   * Sets the user's preferences about being notified when a new poll starts
+   *
+   * @param pollNotification the {@link Notification} to be established
+   */
+  public void setPollNotification(Notification pollNotification) {
+    this.pollNotification = pollNotification;
   }
 }

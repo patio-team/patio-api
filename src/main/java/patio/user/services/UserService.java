@@ -54,4 +54,11 @@ public interface UserService {
    * @since 0.1.0
    */
   Iterable<User> listUsersByIds(List<UUID> ids);
+
+  /**
+   * Creates registration pending users in patio for those not-existing emails
+   *
+   * @param emailList the user's emails to be invited
+   */
+  void createPendingUsers(List<String> emailList);
 }

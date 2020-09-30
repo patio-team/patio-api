@@ -23,16 +23,49 @@ scalar DayOfWeek
 
 directive @anonymousAllowed on FIELD_DEFINITION | OBJECT
 
+input GroupNotificationInput {
+    groupId: ID!,
+    pollNotifActive: Boolean!
+}
+
 type Group {
     id: ID
     anonymousVote: Boolean
     name: String
-    members: [User]
+    members: [GroupMember]
     votingDays: [DayOfWeek]
     votingTime: Time
     votingDuration: Int
     isCurrentUserAdmin: Boolean
     votings(startDateTime: DateTime!, endDateTime: DateTime!): [Voting]
+}
+
+type GroupMember {
+    id: ID
+    name: String
+    email: String
+    hash: String
+    registrationPending: Boolean
+    acceptancePending: Boolean
+    otpCreationDateTime: DateTime
+    memberFromDateTime: DateTime
+    invitedBy: User
+    pollNotifActive: Boolean
+}
+
+type User {
+    id: ID
+    name: String
+    hash: String
+    registrationPending: Boolean
+}
+
+type GroupNotification {
+    type: String
+    active: Boolean
+    notifyingTime: Time
+    group: Group,
+    user: User
 }
 
 type UserProfile {
@@ -42,12 +75,7 @@ type UserProfile {
     hash: String
     groups: [Group]
     favouriteGroup: Group
-}
-
-type User {
-    id: ID
-    name: String
-    hash: String
+    groupNotifications: [GroupNotification]
 }
 
 type VotePaginationResult {
@@ -122,6 +150,9 @@ type Query {
     # get the favourite group of the user
     getMyFavouriteGroup: Group
 
+    # get groups notification's preferences for the current user
+    listMyGroupsNotifications: [GroupNotification]
+
     # get group by its id
     getGroup(id: ID!): Group
 
@@ -180,6 +211,15 @@ type Mutation {
     # add an user to a group
     addUserToGroup(email: String!, groupId: ID!): Boolean
 
+    # add the given members to a group (they may not be yet users)
+    inviteMembersToGroup(emailList: [String]!, groupId: ID!): Boolean
+
+    # a user accept an invitation to join a group
+    acceptInvitationToGroup(otp: String!): Group
+
     # add an user to a group
     leaveGroup(groupId: ID!): Boolean
+
+    # updates the notification's preferences for the group the user belongs to
+    activateNotificationsToGroups(groupIds: [ID]!): [GroupNotification]
 }

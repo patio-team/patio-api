@@ -15,32 +15,25 @@
  * You should have received a copy of the GNU General Public License
  * along with PATIO.  If not, see <https://www.gnu.org/licenses/>
  */
-package patio.user.repositories.internal;
+package patio.settings.repositories.internal;
 
 import io.micronaut.data.annotation.Repository;
-import java.util.Optional;
 import javax.persistence.EntityManager;
 import patio.infrastructure.persistence.MicroBaseRepository;
+import patio.settings.repositories.NotificationRepository;
 import patio.user.domain.User;
-import patio.user.repositories.UserRepository;
 
 /** Persistence implementation access for {@link User} */
 @Repository
-public abstract class MicroUserRepository extends MicroBaseRepository implements UserRepository {
+public abstract class MicroNotificationRepository extends MicroBaseRepository
+    implements NotificationRepository {
 
   /**
    * Initializes repository with {@link EntityManager}
    *
    * @param entityManager persistence {@link EntityManager} instance
    */
-  public MicroUserRepository(EntityManager entityManager) {
+  public MicroNotificationRepository(EntityManager entityManager) {
     super(entityManager);
-  }
-
-  @Override
-  public Optional<User> findByEmailOrCreate(User user) {
-    return Optional.ofNullable(user.getEmail())
-        .flatMap(this::findByEmail)
-        .or(() -> Optional.of(save(user)));
   }
 }

@@ -24,6 +24,8 @@ import static org.hamcrest.Matchers.iterableWithSize;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyListOf;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 import java.util.List;
 import java.util.Optional;
@@ -82,5 +84,38 @@ public class UserServiceTests {
 
     // then: we should build it
     assertTrue(user.isPresent());
+  }
+
+  @Test
+  void testCreatePendingUsersExistingEmail() {
+    // given: an existing user
+    var user = random(User.class);
+
+    // and: a mocked user repository
+    var userRepository = Mockito.mock(UserRepository.class);
+    Mockito.when(userRepository.findByEmail(any())).thenReturn(Optional.of(user));
+
+    // when: invoking service listUsers()
+    var userService = new DefaultUserService(userRepository);
+    userService.createPendingUsers(List.of(user.getEmail()));
+
+    // then: we should expect the correct number of calls
+    verify(userRepository, times(1)).findByEmail(any());
+    verify(userRepository, times(0)).save(any());
+  }
+
+  @Test
+  void testCreatePendingUsersNewEmail() {
+    // given: a mocked user repository
+    var userRepository = Mockito.mock(UserRepository.class);
+    Mockito.when(userRepository.findByEmail(any())).thenReturn(Optional.empty());
+
+    // when: invoking service listUsers()
+    var userService = new DefaultUserService(userRepository);
+    userService.createPendingUsers(List.of(random(String.class)));
+
+    // then: we should expect the correct number of calls
+    verify(userRepository, times(1)).findByEmail(any());
+    verify(userRepository, times(1)).save(any());
   }
 }

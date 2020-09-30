@@ -27,6 +27,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 
+import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -36,6 +37,7 @@ import patio.group.graphql.UserGroupFetcher;
 import patio.group.services.internal.DefaultUserGroupService;
 import patio.infrastructure.graphql.I18nGraphQLError;
 import patio.infrastructure.graphql.fetchers.utils.FetcherTestUtils;
+import patio.user.domain.GroupMember;
 import patio.user.domain.User;
 
 /**
@@ -151,14 +153,15 @@ class UserGroupFetcherTests {
     var mockedEnvironment = FetcherTestUtils.generateMockedEnvironment(user, Map.of());
 
     // and: mocking service's behavior
-    Mockito.when(mockedService.listUsersGroup(any())).thenReturn(randomListOf(2, User.class));
+    Mockito.when(mockedService.listUsersGroup(any()))
+        .thenReturn(randomListOf(2, GroupMember.class));
 
     // and: mocking environment behavior
     Mockito.when(mockedEnvironment.getSource()).thenReturn(group);
 
     // when: fetching user list invoking the service
     UserGroupFetcher fetchers = new UserGroupFetcher(mockedService);
-    Iterable<User> userList = fetchers.listUsersGroup(mockedEnvironment);
+    Iterable<GroupMember> userList = fetchers.listUsersGroup(mockedEnvironment);
 
     // then: check certain assertions should be met
     assertThat("there're only a certain number of users", userList, iterableWithSize(2));
@@ -191,5 +194,64 @@ class UserGroupFetcherTests {
 
     // and: a true value should be returned
     assertEquals(result.getData(), true);
+  }
+
+  @Test
+  void testInviteToGroupSuccess() {
+    // given: a group
+    Group group = random(Group.class);
+    // and: an user
+    User user = random(User.class);
+    // and: a mocking service
+    var mockedService = Mockito.mock(DefaultUserGroupService.class);
+
+    // and: mocking service's behavior
+    Mockito.when(mockedService.inviteMembersToGroup(any())).thenReturn(Result.result(true));
+    // and: a mocked environment
+    var mockedEnvironment =
+        FetcherTestUtils.generateMockedEnvironment(
+            user,
+            Map.of(
+                "emailList", List.of("e1@dom.com", "e2@dom.com"),
+                "groupId", group.getId()));
+
+    // when: invoking the service
+    UserGroupFetcher fetchers = new UserGroupFetcher(mockedService);
+    var result = fetchers.inviteMembersToGroup(mockedEnvironment);
+
+    // then: there should be no errors
+    assertTrue(result.getErrors().isEmpty());
+
+    // and: a true value should be returned
+    assertEquals(result.getData(), true);
+  }
+
+  @Test
+  void testAcceptGroupInvitationSuccess() {
+    // given: a user and a group
+    var group = random(Group.class);
+    var user = random(User.class);
+
+    // and: an invitation for the user to join the group
+    String invitationOtp = "$1Otp/a2b1a88d9d1";
+
+    // and: a mocking service
+    var mockedService = Mockito.mock(DefaultUserGroupService.class);
+
+    // and: mocking service's behavior
+    Mockito.when(mockedService.acceptInvitationToGroup(any())).thenReturn(Result.result(group));
+    // and: a mocked environment
+    var mockedEnvironment =
+        FetcherTestUtils.generateMockedEnvironment(user, Map.of("otp", invitationOtp));
+
+    // when: invoking the service
+    UserGroupFetcher fetchers = new UserGroupFetcher(mockedService);
+    var result = fetchers.acceptInvitationToGroup(mockedEnvironment);
+
+    // then: there should be no errors
+    assertTrue(result.getErrors().isEmpty());
+
+    // and: a true value should be returned
+    assertEquals(result.getData(), group);
   }
 }

@@ -25,8 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static patio.infrastructure.utils.IterableUtils.iterableToStream;
 
 import io.micronaut.test.annotation.MicronautTest;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
 import org.flywaydb.core.Flyway;
@@ -36,7 +35,9 @@ import org.junit.jupiter.api.Test;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import patio.group.repositories.GroupRepository;
 import patio.infrastructure.tests.Fixtures;
+import patio.user.domain.GroupMember;
 import patio.user.domain.User;
 
 /**
@@ -54,7 +55,9 @@ class UserRepositoryTests {
 
   @Inject transient Flyway flyway;
 
-  @Inject transient UserRepository repository;
+  @Inject transient UserRepository userRepository;
+
+  @Inject transient GroupRepository groupRepository;
 
   @Inject transient Fixtures fixtures;
 
@@ -78,7 +81,7 @@ class UserRepositoryTests {
     UUID tony = UUID.fromString("3465094c-5545-4007-a7bc-da2b1a88d9dc");
 
     // when: asking for the list of specific users
-    Iterable<User> userList = repository.findAllByIdInList(List.of(sue, tony));
+    Iterable<User> userList = userRepository.findAllByIdInList(List.of(sue, tony));
     List<UUID> ids = iterableToStream(userList).map(User::getId).collect(Collectors.toList());
 
     // then: check there're the expected number of users
@@ -94,15 +97,70 @@ class UserRepositoryTests {
     var user = random(User.class, "id");
 
     // when: trying to find it when it is not in db
-    var created = repository.findByEmailOrCreate(user);
+    var created = userRepository.findByEmailOrCreate(user);
 
     // then: we create the entry
     assertEquals(created.get().getEmail(), user.getEmail());
 
     // when: we look for it again
-    var found = repository.findByEmailOrCreate(user);
+    var found = userRepository.findByEmailOrCreate(user);
 
     // then: we get it from db
     assertEquals(found.get().getId(), created.get().getId());
+  }
+
+  @Test
+  void testFindAllByEmailInList() {
+    // given: a pre-loaded fixtures
+    fixtures.load(UserRepositoryTests.class, "testListUsersByIds.sql");
+
+    // and: all the users's emails and one non-existing email
+    var emailList =
+        Arrays.asList(
+            "sstorm@email.com",
+            "bgrim@email.com",
+            "jstorm@email.com",
+            "srogers@email.com",
+            "tstark@email.com",
+            "notExisting@email.com");
+
+    // when: asking for the list of emails
+    var userList = userRepository.findAllByEmailInList(emailList).collect(Collectors.toList());
+
+    // then: check that recovers right the expected number of users
+    assertThat(userList, iterableWithSize(5));
+  }
+
+  @Test
+  void testFindAllInvitedByGroup() {
+    // given: a pre-loaded fixtures
+    fixtures.load(UserRepositoryTests.class, "testFindUsersInvitedToGroup.sql");
+
+    // and: the group which the users are invited to
+    var optionalGroup =
+        groupRepository.findById(UUID.fromString("d64db962-3455-11e9-b210-d663bd873d93"));
+
+    // when: asking for all users (invited, un-invited or un-registered users)
+    List<User> userList = optionalGroup.map(userRepository::findAllByGroup).orElse(null);
+
+    // then: check that recover all members or potential members
+    assertThat(userList, iterableWithSize(6));
+  }
+
+  @Test
+  void testFindAllGroupMembersByGroup() {
+    // given: a pre-loaded fixtures
+    fixtures.load(UserRepositoryTests.class, "testFindUsersInvitedToGroup.sql");
+
+    // and: the group which the users are invited to
+    var optionalGroup =
+        groupRepository.findById(UUID.fromString("d64db962-3455-11e9-b210-d663bd873d93"));
+
+    // when: asking for all users (invited, un-invited or un-registered users)
+    List<GroupMember> userList =
+        optionalGroup.map(userRepository::findAllGroupMembersByGroup).orElse(null);
+
+    // then: check that recover all members
+    assertThat(userList, iterableWithSize(6));
   }
 }
